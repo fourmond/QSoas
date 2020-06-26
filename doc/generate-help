@@ -47,12 +47,27 @@ $reference = $make_web ? "../reference/" : "qsoas.html"
 
 
 
-# A hash 
+# A hash equation -> image file name
 $equations = {}
 eqf = "equations.yaml"
 Dir.chdir($target_dir) do
   if File.readable?(eqf) 
     File.open(eqf, "r") { |f| $equations = YAML::load(f) }
+  end
+end
+
+
+# A hash command name -> list of examples containing the command.
+#
+# This is for the [examples: command] syntax.
+$examples = {
+  'commands' => {},
+  'fit-commands' => {},
+}
+exf = "examples.yaml"
+Dir.chdir($target_dir) do
+  if File.readable?(exf) 
+    File.open(exf, "r") { |f| $examples = YAML::load(f) }
   end
 end
 
@@ -113,11 +128,50 @@ def convert_equation(eq)
   return "![#{eq}](#{info['file']}){:style='vertical-align: #{-(info['depth']||0)}px'}"
 end
 
+# Returns the example text for the given example hash tag
+def examples_for(cmd_tag, short = nil)
+  if $make_web
+    return "\n"                 # no examples for the web output
+  end
+  if cmd_tag =~ /^#(fit-)?cmd-(.*)/
+    src = nil
+    if $1
+      src = $examples['fit-commands']
+    else
+      src = $examples['commands']
+    end
+    cmd = $2
+    hsh = src[cmd] || {}
+    if short
+      hsh.merge!(src[short] || {})
+    end
+    if hsh.size == 0
+      return ""
+    end
+    txt = "\n#### Examples\n\n"
+    nb = 0
+    for k in hsh.keys.sort
+      ex = hsh[k]
+      if !(ex['id'] == cmd_tag)
+        # Only add the examples not found here !
+        txt << " * [#{ex['title']}](#{k})\n\n~~~\n#{ex['cmd']}\n~~~\n"
+        nb += 1
+      end
+    end
+    if nb > 0
+      return "#{txt}\n"
+    else
+      return "\n"
+    end
+  end
+  return "**?? -- #{cmd_tag}**\n"
+end
+
 # Takes a hash with the file name, and fills it with:
 # * the sections: an array of {'level', 'title', 'id'}
-# * the commands defined in
-# * the fit commands defined in
-# * the fits defined in
+# * the commands defined in it
+# * the fit commands defined in it
+# * the fits defined in it
 # * the HTML code (once parsed with kramdown)
 # * (later:) the latex code
 def parse_file(info)
@@ -134,9 +188,20 @@ def parse_file(info)
   info['fit-commands'] = []
   info['fits'] = []
 
+  # A hash command-name -> list of sections id in which the command is
+  # used in an example.
+  info['used-commands'] = {}
+  info['used-fit-commands'] = {}
+    
   sec_h = []
   cur_code = false
   nb = 0
+  cur_sec = nil
+
+  # The current tag of the current command -- if applicable
+  cur_cmd = nil
+  cur_short = nil
+  
   txt = ""
   for l in f
     nb += 1
@@ -146,7 +211,22 @@ def parse_file(info)
     end
     if ! cur_code
 
+      if l =~ /^{::comment}\s*description-end/
+        if cur_cmd
+          txt << examples_for(cur_cmd, cur_short)
+          cur_cmd = nil
+        end
+      end
+
+      if l =~ /^Short\s+name:\s*`(.*)`/
+        cur_short = $1
+      end
+
       if l =~ /^(#+)\s*([^{]+)(\{(#.*)\})?/
+        if cur_cmd
+          txt << examples_for(cur_cmd, cur_short)
+          cur_cmd = nil
+        end
         sec = {'title' => $2.chomp}
         if $3
           sec['id'] = $4
@@ -156,6 +236,15 @@ def parse_file(info)
           l = "#{l.chomp} {#{id}}\n"
         end
         sec['level'] = $1.size
+        cur_sec = sec
+        # We have a command
+        if sec['id'] =~ /^#(fit-)?cmd-([\w-]+)/
+          cur_cmd = sec['id']
+        else
+          cur_cmd = nil
+        end
+        # (always)
+        cur_short = nil
 
         
         cur = sec_h[-1] || nil
@@ -195,6 +284,20 @@ def parse_file(info)
       if l =~ /^\[.*:http/
         l << "{: class='external'}\n"
       end
+    else
+      # l.gsub!('"','\"')
+      if l =~ /^\s*QSoas(\.fit)?>\s*([\w-]+)/
+        # a command:
+        cmd = $2
+        tgt = $1 ? "used-fit-commands" : "used-commands"
+        info[tgt][cmd] ||= []
+        info[tgt][cmd] << {
+          'file' => info['file'],
+          'id' => cur_sec['id'],
+          'title' => cur_sec['title'],
+          'cmd' => l.chomp
+        }
+      end
     end
     txt << l
   end
@@ -232,7 +335,6 @@ file = ARGV[0] || "doc.yaml"
 files = {}
 File.open(file, "r") { |f| files = YAML::load(f) }
 
-
 for fn,info in files
   if info['copy']
     files.delete(fn)
@@ -243,6 +345,34 @@ for fn,info in files
     parse_file(info)
   end
 end
+
+# Now, parse all the examples.
+#
+# The examples are 
+$examples = {
+  'commands' => {},
+  'fit-commands' => {},
+}
+ex_cmd = $examples['commands']
+ex_fcmd = $examples['fit-commands']
+for fn,info in files
+  for cmd,lst in info['used-commands']
+    ex_cmd[cmd] ||= {}
+    for l in lst
+      tgt = "#{l['file']}#{l['id']}"
+      ex_cmd[cmd][tgt] = l
+    end
+  end
+  for cmd,lst in info['used-fit-commands']
+    ex_fcmd[cmd] ||= {}
+    for l in lst
+      tgt = "#{l['file']}#{l['id']}"
+      ex_fcmd[cmd][tgt] = l
+    end
+  end
+end
+
+
 
 if ! $make_web
   # Now, we parse the tips.
@@ -396,6 +526,7 @@ if ! $make_web
 
     File.open("qsoas-help.qhp",'w') { |f| f.print help_template }
     File.open(eqf, "w") { |f| YAML::dump($equations,f) }
+    File.open(exf, "w") { |f| YAML::dump($examples,f) }
     File.open("qsoas-help.qhcp",'w') { |f| f.print coll }
 
     generator = "/usr/lib/qt5/bin/qcollectiongenerator"

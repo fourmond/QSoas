@@ -11,15 +11,15 @@ yourself and to support the development of QSoas.
 
 ## Source code {#source-code}
 
--   Version 2.2.0 [`qsoas-2.2.0.tar.gz`](downloads/qsoas-2.2.0.tar.gz)
+-   Version 2.2.0 [`qsoas-2.2.0.tar.gz`](https://bip.cnrs.fr/wp-content/uploads/qsoas/qsoas-2.2.0.tar.gz)
     (2018.03.27, fixes compilation problems with 2.2)
--   Version 2.2 [`qsoas-2.2.tar.gz`](downloads/qsoas-2.2.tar.gz)
+-   Version 2.2 [`qsoas-2.2.tar.gz`](https://bip.cnrs.fr/wp-content/uploads/qsoas/qsoas-2.2.tar.gz)
     (2018.03.21)
--   Version 2.1 [`qsoas-2.1.tar.gz`](downloads/qsoas-2.1.tar.gz)
+-   Version 2.1 [`qsoas-2.1.tar.gz`](https://bip.cnrs.fr/wp-content/uploads/qsoas/qsoas-2.1.tar.gz)
     (2017.01.02)
--   Version 2.0 [`qsoas-2.0.tar.gz`](downloads/qsoas-2.0.tar.gz)
+-   Version 2.0 [`qsoas-2.0.tar.gz`](https://bip.cnrs.fr/wp-content/uploads/qsoas/qsoas-2.0.tar.gz)
     (2016.07.19)
--   Version 1.0 [`qsoas-1.0.tar.gz`](downloads/qsoas-1.0.tar.gz)
+-   Version 1.0 [`qsoas-1.0.tar.gz`](https://bip.cnrs.fr/wp-content/uploads/qsoas/qsoas-1.0.tar.gz)
 (2015.05.29)
 
 ## Compiling from source {#compilation}
@@ -83,7 +83,7 @@ not involved in its maintenance, and have not tested it.
 
 Those unable or unwilling to pay the price for the pre-built recent
 images can download and install [version 1.0 for
-free](downloads/QSoas-1.0.zip).
+free](https://bip.cnrs.fr/wp-content/uploads/qsoas/QSoas-1.0.zip).
 
 ### Intranet
 

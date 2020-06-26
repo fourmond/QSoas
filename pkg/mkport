@@ -46,6 +46,8 @@ rm -f $outdir/qsoas-$version/QSoas
         echo "Generating the Qt help files"
         cd doc;
         ./generate-help
+        ./generate-help
+        rm -rf out
     fi
 )
 (

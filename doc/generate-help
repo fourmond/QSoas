@@ -285,6 +285,7 @@ def parse_file(info)
         l << "{: class='external'}\n"
       end
     else
+      # l.gsub!('"','\"')
       if l =~ /^\s*QSoas(\.fit)?>\s*([\w-]+)/
         # a command:
         cmd = $2

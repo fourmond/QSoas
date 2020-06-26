@@ -482,7 +482,7 @@ see in the terminal a series of lines like this:
 QSoas> k
 Normal stack:
     F    C    Rows   Segs
-#0       2    382    1    “E:/PrivateFolder/QSoasExampleFiles/file1_from_(…).dat”    
+#0       2    382    1    "E:/PrivateFolder/QSoasExampleFiles/file1_from_(…).dat”    
 #1       2    382    1    "file1_from_(…).dat    
 (…)
 #5       2    382    1    file1.dat    
@@ -793,7 +793,7 @@ If a data set is made of two segments, the first segment is 0, the
 second segment is 1. The segment number can be used in a formula. E.g.:
 
 ~~~
-QSoas> apply-formula “y=2*y if seg==1”
+QSoas> apply-formula "y=2*y if seg==1"
 ~~~
 
 Now run the following command
@@ -1575,7 +1575,7 @@ have to tune the `load` command with the right options, knowing that:
   [cmd: apply-formula], e.g.
 
 ~~~
-QSoas> apply-formula “x,y=y2,y6”
+QSoas> apply-formula "x,y=y2,y6"
 ~~~
 
   where `y2` and `y6` are the 3rd and 7th columns in the buffer, `x`
@@ -1614,11 +1614,11 @@ define-derived-fit sigmoid
 #
 graphics-settings /line-width=2
 # aliases
-define-alias ecs-to-she apply-formula “x=x+0.241”
+define-alias ecs-to-she apply-formula "x=x+0.241"
 define-alias k10 show-stack /number=10
 define-alias f filter-fft
 define-alias af3 auto-filter-fft /cutoff=3
-define-alias my-load-command load /columns=2,3 /decimal-separator=“,” /auto-split=true
+define-alias my-load-command load /columns=2,3 /decimal-separator="," /auto-split=true
 cd – #  go back to current directory
 ~~~
 

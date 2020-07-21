@@ -1339,6 +1339,16 @@ zo("zoom", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+static void handleMissingDS(QList<const DataSet *> * lst)
+{
+  for(int i = 0; i < lst->size(); i++) {
+    if(lst->value(i) == 0)
+      lst->takeAt(i--);
+  }
+  if(lst->size() == 0)
+    throw RuntimeError("No dataset provided");
+}
+
 
 /// @todo Maybe most of the code shared between this and divide should
 /// be shared ?
@@ -1350,6 +1360,7 @@ static void subCommand(const QString &, QList<const DataSet *> a,
   bool useSteps = false;
   updateFromOptions(opts, "use-segments", useSteps);
 
+  handleMissingDS(&a);
   const DataSet * b = a.takeLast();
 
   for(int i = 0; i < a.size(); i++) {
@@ -1406,6 +1417,7 @@ static void divCommand(const QString &, QList<const DataSet *> a,
   bool useSteps = false;
   updateFromOptions(opts, "use-segments", useSteps);
 
+  handleMissingDS(&a);
   const DataSet * b = a.takeLast();
     
   for(int i = 0; i < a.size(); i++) {
@@ -1438,6 +1450,7 @@ static void mopCommand(const QString &, QList<const DataSet *> a,
 {
   bool naive = testOption<QString>(opts, "mode", "indices");
   bool useSteps = false;
+  handleMissingDS(&a);
   if(a.size() < 2)
     throw RuntimeError("You need to specify more than one dataset");
   
@@ -1514,6 +1527,7 @@ static void mergeCommand(const QString &, QList<const DataSet *> a,
   bool useSteps = false;
   updateFromOptions(opts, "use-segments", useSteps);
 
+  handleMissingDS(&a);
   const DataSet * b = a.takeLast();
 
   for(int i = 0; i < a.size(); i++) {
@@ -1551,6 +1565,7 @@ static void contractCommand(const QString &, QList<const DataSet *> a,
   updateFromOptions(opts, "use-columns", useCols);
   
 
+  handleMissingDS(&a);
   if(a.size() < 2)
     throw RuntimeError("You need more than one buffer to run contract");
 
@@ -1617,6 +1632,8 @@ static void avgCommand(const QString &, QList<const DataSet *> all,
   updateFromOptions(opts, "split", autosplit);
   bool count = false;
   updateFromOptions(opts, "count", count);
+
+  handleMissingDS(&all);
 
   if(naive && autosplit)
     Terminal::out << "Using mode indices and split at the same "
@@ -1712,6 +1729,8 @@ static void catCommand(const QString &, QList<const DataSet *> b, const CommandO
 {
   bool setSegs = true;
   updateFromOptions(opts, "add-segments", setSegs);
+  handleMissingDS(&b);
+
   if(b.size() > 0)
     soas().pushDataSet(DataSet::concatenateDataSets(b, setSegs));
   else

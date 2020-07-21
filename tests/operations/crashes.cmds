@@ -1,0 +1,7 @@
+clear-stack
+div 1 0
+S 1 0
+mul 1 0
+add 1 0
+merge 1 0
+assert true

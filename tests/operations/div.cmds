@@ -1,0 +1,7 @@
+generate-buffer 1 10
+generate-buffer 1 10
+
+# Checks that it just works !
+div 1 0
+assert $stats.y_max-1
+assert $stats.y_min-1

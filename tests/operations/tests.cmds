@@ -1,5 +1,7 @@
 # A series of tests to play with multi-buffer operations
 @ subtract.cmds
+@ div.cmds
 @ add.cmds
 @ mul.cmds
 @ merge.cmds
+@ crashes.cmds

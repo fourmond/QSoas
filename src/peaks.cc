@@ -145,6 +145,11 @@ QList<EchemPeakPair> Peaks::findPeakPairs()
       break;
     forward << peaks[breakPoint];
   }
+  if(breakPoint >= peaks.size())
+    throw RuntimeError("No peaks found in the backward scan");
+  if(breakPoint == 0)
+    throw RuntimeError("No peaks found in the forward scan");
+
   QList<PeakInfo> backward = peaks.mid(breakPoint);
   PeakInfo::sortByMagnitude(forward);
   // o << "Forward: " << forward.size() << " -- backward: " 

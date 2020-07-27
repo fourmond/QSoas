@@ -27,6 +27,8 @@
 #include <utils.hh>
 #include <settings-templates.hh>
 
+#include <soas.hh>
+#include <commandwidget.hh>
 
 
 // A QTextBrowser subclass for handling the documents.
@@ -59,6 +61,42 @@ public:
     doingResize = false;
   };
 
+  
+
+  void contextMenuEvent(QContextMenuEvent *event) override
+  {
+    QMenu *menu = createStandardContextMenu(viewport()->
+                                            mapFromGlobal(event->globalPos()));
+    
+    QTextCursor c = cursorForPosition(mapFromGlobal(event->globalPos()));
+    c.select(QTextCursor::LineUnderCursor);
+    QString line = c.selectedText().trimmed();
+
+    QRegExp re("^QSoas(\\..*)?>\\s*(.*)");
+
+    if(re.indexIn(line, 0) == 0) {
+      QAction * action = new QAction("Run command");
+      QString cmd = re.cap(2);
+      QObject::connect(action, &QAction::triggered, this, [cmd]() {
+          soas().prompt().runCommand(cmd);
+        }
+        );
+      menu->addAction(action);
+      /// @todo Drop standard and fully customize that:
+      /// * copy
+      /// * copy to prompt
+      /// * copy and run
+      /// * copy link location when external link
+      /// * run command
+      /// * copy command to prompt
+      /// * something else ?
+    }
+    
+    // menu->addAction(line);
+    // //...
+    menu->exec(event->globalPos());
+    delete menu;
+  }
 };
 
 //////////////////////////////////////////////////////////////////////

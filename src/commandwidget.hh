@@ -243,6 +243,9 @@ public slots:
   /// Launching a command from the menu bypasses this.
   bool runCommand(const QString & str);
 
+  /// Adds text to the prompt.
+  void copyToPrompt(const QString & str);
+
   /// Runs the given command (already split into words). Returns true
   /// if everything went fine, or false if it finished with an error
   /// (or a control flow exception).

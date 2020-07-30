@@ -437,6 +437,13 @@ void CommandWidget::commandEntered()
 
 }
 
+void CommandWidget::copyToPrompt(const QString & str)
+{
+  commandLine->setText(commandLine->text() + str);
+}
+
+
+
 void CommandWidget::appendToTerminal(const QString & str)
 {
   terminalDisplay->moveCursor(QTextCursor::End);

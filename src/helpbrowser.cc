@@ -65,35 +65,99 @@ public:
 
   void contextMenuEvent(QContextMenuEvent *event) override
   {
-    QMenu *menu = createStandardContextMenu(viewport()->
-                                            mapFromGlobal(event->globalPos()));
+    QMenu *menu = new QMenu;
+
+    QString sel = textCursor().selectedText();
+    QString cmd;
+    
     
     QTextCursor c = cursorForPosition(mapFromGlobal(event->globalPos()));
+    QString link = c.charFormat().anchorHref();
+    if(! link.startsWith("http"))
+      link = "";
     c.select(QTextCursor::LineUnderCursor);
     QString line = c.selectedText().trimmed();
 
     QRegExp re("^QSoas(\\..*)?>\\s*(.*)");
 
-    if(re.indexIn(line, 0) == 0) {
-      QAction * action = new QAction("Run command");
-      QString cmd = re.cap(2);
+    if(re.indexIn(line, 0) == 0)
+      cmd = re.cap(2);
+
+
+    QAction * action = new QAction("Copy");
+    if(sel.isEmpty())
+      action->setEnabled(false);
+    else
+      QObject::connect(action, &QAction::triggered, this, [sel]() {
+          QApplication::clipboard()->setText(sel);
+        }
+        );
+    menu->addAction(action);
+
+    action = new QAction("Copy command");
+    if(cmd.isEmpty())
+      action->setEnabled(false);
+    else
+      QObject::connect(action, &QAction::triggered, this, [cmd]() {
+          QApplication::clipboard()->setText(cmd);
+        }
+        );
+    menu->addAction(action);
+
+    action = new QAction("Copy Link Location");
+    if(link.isEmpty())
+      action->setEnabled(false);
+    else
+      QObject::connect(action, &QAction::triggered, this, [link]() {
+          QApplication::clipboard()->setText(link);
+        }
+        );
+    menu->addAction(action);
+
+    menu->addSeparator();
+
+    action = new QAction("Copy to prompt");
+    if(sel.isEmpty())
+      action->setEnabled(false);
+    else
+      QObject::connect(action, &QAction::triggered, this, [sel]() {
+          soas().prompt().copyToPrompt(sel);
+        }
+        );
+    menu->addAction(action);
+
+    action = new QAction("Copy command to prompt");
+    if(cmd.isEmpty())
+      action->setEnabled(false);
+    else
+      QObject::connect(action, &QAction::triggered, this, [cmd]() {
+          soas().prompt().copyToPrompt(cmd);
+        }
+        );
+    menu->addAction(action);
+
+    menu->addSeparator();
+
+    action = new QAction("Run selection");
+    if(sel.isEmpty())
+      action->setEnabled(false);
+    else
+      QObject::connect(action, &QAction::triggered, this, [sel]() {
+          soas().prompt().runCommand(sel);
+        }
+        );
+    menu->addAction(action);
+
+    action = new QAction("Run command");
+    if(cmd.isEmpty())
+      action->setEnabled(false);
+    else
       QObject::connect(action, &QAction::triggered, this, [cmd]() {
           soas().prompt().runCommand(cmd);
         }
         );
-      menu->addAction(action);
-      /// @todo Drop standard and fully customize that:
-      /// * copy
-      /// * copy to prompt
-      /// * copy and run
-      /// * copy link location when external link
-      /// * run command
-      /// * copy command to prompt
-      /// * something else ?
-    }
+    menu->addAction(action);
     
-    // menu->addAction(line);
-    // //...
     menu->exec(event->globalPos());
     delete menu;
   }

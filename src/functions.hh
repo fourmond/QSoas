@@ -36,18 +36,31 @@ namespace Functions {
   /// Pseudo-voigt function
   double pseudoVoigt(double x, double w, double mu);
 
-  /// Approximation to the Marcus-Hush-Chidsey kinetics described in Zeng et al, 2014 (doi: 10.1016/j.jelechem.2014.09.038)
+  /// Approximation to the Marcus-Hush-Chidsey integral described in Zeng et al, 2014 (doi: 10.1016/j.jelechem.2014.09.038)
   double marcusHushChidseyZeng(double lambda, double eta);
 
-  /// Numerical integration method for the Marcus-Hush-Chidsey integral
+  /// Approximation to the Marcus-Hush-Chidsey integral described in Nahir et al, 2002 (doi: 10.1016/S0022-0728(01)00688-X)
+  double marcusHushChidseyNahir(double lambda, double eta);
+
+  /// Marcus-Hush-Chidsey integral, computed using fast trapezoids.
+  /// 
+  /// Single precision.
   double marcusHushChidsey(double lambda, double eta);
+
+  /// Marcus-Hush-Chidsey integral, computed using the method by
+  /// Bieniasz 2012, doi: 10.1016/j.jelechem.2012.08.015
+  ///
+  /// Double precision.
+  double marcusHushChidseyDouble(double lambda, double eta);
 
   /// The position of the peak for a single adsorbed n=1 redox species
   /// in a trumpet plot:
   /// 
   /// @param rate the rate at which one changes the potential by RT/F, divided by k_0
   /// @param alpha the value of, hmmm, alpha
-  /// @param prec the precision of the positioning (in units of RT/F
+  /// @param prec the precision of the positioning (in units of RT/F)
+  ///
+  /// This relies on numerical integration.
   ///
   /// @returns The position of the peak, in units of RT/F
   double trumpetBV(double rate, double alpha, double prec = 0.01);

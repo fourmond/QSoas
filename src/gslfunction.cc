@@ -443,13 +443,29 @@ k_mhc_z("k_mhc_z(lambda, eta)", "Approximation to the Marcus-Hush-Chidsey "
         "{4\\lambda}\\right) \\times "
         "\\frac{1}{1 + \\exp x}\\,\\mathrm{d}x$$", "http://dx.doi.org/10.1016/j.jelechem.2014.09.038");
 
+static GSLDoubleFunction<Functions::marcusHushChidseyZeng> 
+k_mhc_n("k_mhc_n(lambda, eta)", "Approximation to the Marcus-Hush-Chidsey "
+       "integral described in Nahir, JEAC 2002, $$k(\\lambda, \\eta) "
+       "\\approx \\int_{-\\infty}^{\\infty} "
+        "\\exp\\left(\\frac{ - (x - \\lambda + \\eta)^2}"
+        "{4\\lambda}\\right) \\times "
+        "\\frac{1}{1 + \\exp x}\\,\\mathrm{d}x$$", "http://dx.doi.org/doi: 10.1016/S0022-0728(01)00688-X");
+
 static GSLDoubleFunction<Functions::marcusHushChidsey> 
 k_mhc("k_mhc(lambda, eta)", "Marcus-Hush-Chidsey "
        "integral $$k(\\lambda, \\eta) "
        "= \\int_{-\\infty}^{\\infty} "
         "\\exp\\left(\\frac{ - (x - \\lambda + \\eta)^2}"
         "{4\\lambda}\\right) \\times "
-        "\\frac{1}{1 + \\exp x}\\,\\mathrm{d}x$$");
+        "\\frac{1}{1 + \\exp x}\\,\\mathrm{d}x$$. Single precision, computed using the fast trapezoid method.");
+
+static GSLDoubleFunction<Functions::marcusHushChidseyDouble> 
+k_mhcd("k_mhc_double(lambda, eta)", "Marcus-Hush-Chidsey "
+       "integral $$k(\\lambda, \\eta) "
+       "= \\int_{-\\infty}^{\\infty} "
+        "\\exp\\left(\\frac{ - (x - \\lambda + \\eta)^2}"
+        "{4\\lambda}\\right) \\times "
+       "\\frac{1}{1 + \\exp x}\\,\\mathrm{d}x$$. Double precision, computed using the series by Bieniasz, JEAC 2012.", "http://dx.doi.org/10.1016/j.jelechem.2012.08.015");
 
 
 

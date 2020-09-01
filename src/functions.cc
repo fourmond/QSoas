@@ -58,40 +58,6 @@ double Functions::pseudoVoigt(double x, double w, double mu)
     gsl_ran_cauchy_pdf(x, w);
 }
 
-double Functions::marcusHushChidseyZeng(double lambda, double eta)
-{
-  double a = 1 + sqrt(lambda);
-  return sqrt(M_PI * lambda)/(1 + exp(- eta)) * gsl_sf_erfc((lambda - sqrt(a + eta*eta))/(2 * sqrt(lambda)));
-}
-
-static Credits mhz("Zeng et al, JEAC, 2014", "the k_mhc_z function", "10.1016/j.jelechem.2014.09.038");
-
-static double mhc_integrand(double x, void * params)
-{
-  const double * p = reinterpret_cast<const double*>(params);
-  const double & lambda = p[0];
-  const double & eta = p[1];
-  double i1 = -(x - lambda + eta)*(x - lambda + eta)/(4*lambda);
-  return exp(i1) /(1 + exp(x));
-}
-
-double Functions::marcusHushChidsey(double lambda, double eta)
-{
-  static gsl_integration_workspace * ws = NULL;
-  if(! ws)
-    ws = gsl_integration_workspace_alloc(400);
-  gsl_function f;
-  double vals[2];
-  vals[0] = lambda;
-  vals[1] = eta;
-  f.function = &::mhc_integrand;
-  f.params = vals;
-  double rv;
-  double er;
-
-  gsl_integration_qagi(&f, 1e-5, 1e-5, 400, ws, &rv, &er);
-  return rv;
-}
 
 /// Validation: functions/laviron.cmds, matches de predictions of equation
 /// (21) from Laviron, JEAC 101, 19-28, 1979.
@@ -142,4 +108,138 @@ double Functions::trumpetBV(double rate, double alpha, double prec)
   }
 
   return -1;                    // Hmmm
+}
+
+//////////////////////////////////////////////////////////////////////
+// Numerical integration of the MHC integral.
+//
+// See Fourmond and Léger, 2020, submitted, for more information.
+
+
+static Credits mhc_z("Zeng et al, JEAC, 2014", "the k_mhc_z function", "10.1016/j.jelechem.2014.09.038");
+
+double Functions::marcusHushChidseyZeng(double lambda, double eta)
+{
+  double a = 1 + sqrt(lambda);
+  return sqrt(M_PI * lambda)/(1 + exp(- eta)) *
+    gsl_sf_erfc((lambda - sqrt(a + eta*eta))/(2 * sqrt(lambda)));
+}
+
+static Credits mhc_n("Nahir, JEAC, 2002", "the k_mhc_n function", "10.1016/j.jelechem.2014.09.038");
+
+double Functions::marcusHushChidseyNahir(double lambda, double eta)
+{
+  
+  double d = lambda - eta;
+  if(eta < 0)
+    return exp(eta) * marcusHushChidseyNahir(lambda, -eta);
+  return
+    sqrt(M_PI * lambda) * gsl_sf_erfc((lambda - eta)/(2 * sqrt(lambda))) +
+    M_PI * M_PI/(12) * d/lambda * exp(- d*d/(4*lambda));
+}
+
+// The bieniasz series
+static Credits mhc_b("Bieniasz, JEAC, 2012", "the k_mhc_double function", "10.1016/j.jelechem.2012.08.015");
+
+static double bienasz_coeffs[] = {
+   0.99999999999999997912, 
+  -0.99999999999997901750,
+   0.99999999999649137345,
+  -0.99999999976654504822,
+   0.99999999175111244184,
+  -0.99999982086713785850,
+   0.99999738969001426153,
+  -0.99997294898751059018,
+   0.99979231988822602472,
+  -0.99878284608559524864,
+   0.99442927053002735641,
+  -0.97973079156980086861,
+   0.94050839583467421321,
+  -0.85733314214466591696,
+   0.71694987446987527278,
+  -0.52884842856283162473,
+   0.33020050014355901079,
+  -0.16702464086638103149,
+   0.065001468903985759528,
+  -0.018122105322750317162,
+   0.0032045362066109155393,
+  -0.00026902324137910826429
+};
+
+static double log_eerfc(double y)
+{
+  return y*y +  gsl_sf_log_erfc(y);
+}
+
+
+/**
+   Bieniasz variant of the Oldham and Myland series with much faster
+   convergence.
+ */
+double Functions::marcusHushChidseyDouble(double lambda, double eta)
+{
+  if(eta < 0)
+    return exp(eta) * marcusHushChidseyDouble(lambda, -eta);
+  double sl = sqrt(lambda);
+  double sum = 0;
+  double fact = 1;
+  double d = lambda - eta;
+  double pf = d*d/(4*lambda);
+  for(int i = 0; i < sizeof(bienasz_coeffs)/sizeof(double); i++) {
+    double e1 = exp(log_eerfc(sl * (i + 0.5 + eta/(2*lambda))) - pf);
+    double e2 = exp(log_eerfc(sl * (i + 0.5 - eta/(2*lambda))) - pf);
+    sum += bienasz_coeffs[i] * (e1 + e2);
+  }
+  return sum * sqrt(M_PI * lambda);
+}
+
+
+// Smart trapezoids
+static double mhc_trapezoid(double lambda, double eta, double step)
+{
+  
+  double v = 0;
+  double c = lambda - eta;
+  double w = 9*sqrt(lambda);
+  if(lambda > eta) {
+    if(w < lambda - eta + 0.5*w)
+      w = lambda - eta + 0.5*w;
+  }
+  int nbsteps = 3*ceil(w/step);
+
+  double alpha = exp(-step*step/(4*lambda));
+  double alpha_2 = alpha*alpha;
+  double a_cur = alpha;
+
+  double beta = exp(step);
+  double beta_m1 = 1/beta;
+  double gamma = exp(c);
+  double den = 1;
+  double den_m1 = 1;
+  double num = 1;
+
+  for(int i = 0; i<= nbsteps; i++) {
+    if(i > 0) {
+      num *= a_cur;
+      a_cur *= alpha_2;
+      double dv = num/(1 + gamma * den) +
+        num/(1 + gamma * den_m1);
+      v += dv;
+      if(dv < v*1e-12)
+        break;
+    }
+    else
+      v += 1/(1+gamma);
+    den *= beta;
+    den_m1 *= beta_m1;
+  }
+  return v*step;
+}
+
+double Functions::marcusHushChidsey(double lambda, double eta)
+{
+  if(eta < 0)
+    return exp(eta) * mhc_trapezoid(lambda, -eta, 1);
+  else
+    return mhc_trapezoid(lambda, eta, 1);
 }

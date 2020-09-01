@@ -262,8 +262,14 @@ gsl_erf("gsl_erf(x)", "Error function $$\\mathrm{erf}(x) = \\frac{2}{\\sqrt{\\pi
 static GSLSimpleFunction<gsl_sf_erfc> 
 gsl_erfc("gsl_erfc(x)", "Complementary error function $$\\mathrm{erfc}(x) = 1 - \\mathrm{erf}(x)$$", "https://www.gnu.org/software/gsl/doc/html/specfunc.html#error-functions");
 
+static GSLSimpleFunction<gsl_sf_log_erfc> 
+gsl_log_erfc("log_erfc(x)", "Log of the complementary error function $$\\log(\\mathop{erfc}(x))$$", "https://www.gnu.org/software/gsl/doc/html/specfunc.html#error-functions");
+
 static GSLSimpleFunction<gsl_sf_gamma> 
 gsl_gamma("gamma(x)", "The Gauss gamma function $$\\Gamma(x) = \\int_0^{\\infty} dt t^{x-1} \\exp(-t)$$", "https://www.gnu.org/software/gsl/doc/html/specfunc.html#gamma-and-beta-functions");
+
+static GSLSimpleFunction<gsl_sf_lngamma> 
+gsl_ln_gamma("ln_gamma(x)", "The logarithm of the gamma function $$\\log (\\Gamma(x))$$", "https://www.gnu.org/software/gsl/doc/html/specfunc.html#gamma-and-beta-functions");
 
 
 
@@ -428,7 +434,7 @@ gaussian("gaussian(x,sigma)", "Normalized gaussian: "
          "$$p(x,\\sigma) = \\frac{1}{\\sqrt{2 \\pi \\sigma^2}} \\exp (-x^2 / 2\\sigma^2)$$");
 
 static GSLDoubleFunction<gsl_ran_cauchy_pdf> 
-lorentzian("lorentzian(x,gamma)", "Normalized gaussian: "
+lorentzian("lorentzian(x,gamma)", "Normalized lorentzian: "
            "$$p(x,\\gamma) = \\frac{1}{ \\gamma \\pi (1 + (x/\\gamma)^2) }$$");
 
 static GSLDoubleFunction<gsl_sf_hyperg_0F1> 
@@ -443,13 +449,29 @@ k_mhc_z("k_mhc_z(lambda, eta)", "Approximation to the Marcus-Hush-Chidsey "
         "{4\\lambda}\\right) \\times "
         "\\frac{1}{1 + \\exp x}\\,\\mathrm{d}x$$", "http://dx.doi.org/10.1016/j.jelechem.2014.09.038");
 
+static GSLDoubleFunction<Functions::marcusHushChidseyZeng> 
+k_mhc_n("k_mhc_n(lambda, eta)", "Approximation to the Marcus-Hush-Chidsey "
+       "integral described in Nahir, JEAC 2002, $$k(\\lambda, \\eta) "
+       "\\approx \\int_{-\\infty}^{\\infty} "
+        "\\exp\\left(\\frac{ - (x - \\lambda + \\eta)^2}"
+        "{4\\lambda}\\right) \\times "
+        "\\frac{1}{1 + \\exp x}\\,\\mathrm{d}x$$", "http://dx.doi.org/doi: 10.1016/S0022-0728(01)00688-X");
+
 static GSLDoubleFunction<Functions::marcusHushChidsey> 
 k_mhc("k_mhc(lambda, eta)", "Marcus-Hush-Chidsey "
        "integral $$k(\\lambda, \\eta) "
        "= \\int_{-\\infty}^{\\infty} "
         "\\exp\\left(\\frac{ - (x - \\lambda + \\eta)^2}"
         "{4\\lambda}\\right) \\times "
-        "\\frac{1}{1 + \\exp x}\\,\\mathrm{d}x$$");
+        "\\frac{1}{1 + \\exp x}\\,\\mathrm{d}x$$. Single precision, computed using the fast trapezoid method.");
+
+static GSLDoubleFunction<Functions::marcusHushChidseyDouble> 
+k_mhcd("k_mhc_double(lambda, eta)", "Marcus-Hush-Chidsey "
+       "integral $$k(\\lambda, \\eta) "
+       "= \\int_{-\\infty}^{\\infty} "
+        "\\exp\\left(\\frac{ - (x - \\lambda + \\eta)^2}"
+        "{4\\lambda}\\right) \\times "
+       "\\frac{1}{1 + \\exp x}\\,\\mathrm{d}x$$. Double precision, computed using the series by Bieniasz, JEAC 2012.", "http://dx.doi.org/10.1016/j.jelechem.2012.08.015");
 
 
 

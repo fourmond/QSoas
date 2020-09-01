@@ -1,0 +1,32 @@
+# Examples
+
+This page gathers series of standalone examples. Run them step by
+step, either by copying the commands to the command prompt or by
+right-clicking and select "Run command", which runs the command
+directly.
+
+Some of the examples require that you download and unzip the example
+files. 
+
+## Data generation
+
+### Several bessel functions {#bessel-functions}
+
+The following command generates values of the Bessel function
+(regular cylindrical of order 0) for $$x$$ between -15 and 15:
+
+~~~
+QSoas> generate-buffer -15 15 bessel_j0(x)
+~~~
+
+The [`bessel_jn(x)`](qsoas.html#special-functions) function gives the
+values of the bessel function of an arbitrary order. Combined with the
+`/number` option to [cmd: generate-buffer], one can generate the
+values of the bessel functions from the first 5 orders (0 to 4):
+
+~~~
+QSoas> generate-buffer -15 15 bessel_jn(x,number) /number=5
+~~~
+
+The use of the `/number` option introduces a `number` parameter that
+can be used in the formula. 

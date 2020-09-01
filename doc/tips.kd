@@ -698,4 +698,14 @@ many functions to handle them:
   * [cmd: unwrap] "unwraps" the voltammogram, by ensuring that the X
   values are constantly growing.
 
+{::comment} tip: basic;commands;help {:/}
+## Running commands from the help {#run-from-help}
+
+In the help browser, use the right click to:
+
+  * copy the selected text to the prompt or directly run it;
+  * copy the whole command line to the prompt or directly run it.
+
+Use that for instance in the [examples](examples.html) !
+
 

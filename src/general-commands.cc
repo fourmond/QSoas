@@ -51,6 +51,8 @@
 #include <idioms.hh>
 #include <helpbrowser.hh>
 
+#include <linereader.hh>
+
 #include <argument-templates.hh>
 
 
@@ -1282,4 +1284,62 @@ ver("version", // command name
     &verO, // options
     "Version",
     "Show version number");
+
+
+
+//////////////////////////////////////////////////////////////////////
+
+void headCommand(const QString &, QString file,
+                 const CommandOptions & opts)
+{
+  File f(file, File::TextRead);
+
+  int number = 10;
+  updateFromOptions(opts, "number", number);
+  int skipped = 0;
+  updateFromOptions(opts, "skip", skipped);
+
+  Terminal::out << "Reading file: " << file << endl;
+  LineReader s(f);
+  while(! s.atEnd()) {
+    QString l = s.readLine(true);
+    if(skipped > 0)
+      --skipped;
+    else {
+      number--;
+      Terminal::out << l;
+      if(number == 0)
+        break;
+    }
+  }
+  Terminal::out << flush;
+
+}
+
+static ArgumentList 
+headA(QList<Argument *>() 
+      << new FileArgument("file", 
+                          "File",
+                          "name of the file to show")
+     );
+
+
+static ArgumentList 
+headO(QList<Argument *>() 
+      << new IntegerArgument("number", 
+                             "Number of lines",
+                             "number of lines to show")
+      << new IntegerArgument("skip", 
+                             "Skipped lines",
+                             "number of lines to skip")
+      );
+
+static Command 
+head("head", // command name
+     effector(headCommand), // action
+     "file",  // group name
+     &headA, // arguments
+     &headO, // options
+     "Head");
+
 

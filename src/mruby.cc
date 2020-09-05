@@ -344,7 +344,8 @@ QStringList MRuby::detectParameters(const QByteArray & code,
 
 #define CASE(insn,ops) case insn: FETCH_ ## ops (); L_ ## insn
 
-QStringList MRuby::detectParameters(const QByteArray & code)
+QStringList MRuby::detectParameters(const QByteArray & code,
+                                    QStringList * locals)
 {
   STACK_DUMP;
   MRubyArenaContext c(this);
@@ -360,10 +361,14 @@ QStringList MRuby::detectParameters(const QByteArray & code)
   int cur_top_self = -1;
   QSet<QString> rv;
 
-  // Detect local variables first:
-  for(int i = 0; i < irep->nlocals; i++) {
-    fprintf(stderr, "Local: %d\n", irep->lv[i].sym);
+    // Detect local variables first:
+  if(locals) {
+    // Same as in mruby 1
+    // By why nlocals-1 ? Mystery.
+    for(int i = 0; i < irep->nlocals - 1; i++)
+      *locals << mrb_sym2name(mrb,irep->lv[i].name);
   }
+
 
   const mrb_code *pc, *pcend;
   mrb_code ins;

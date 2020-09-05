@@ -1,0 +1,34 @@
+# The following information are comments, but Soas may make use of those if they are present
+# Fit used: kinetic-system (system: slow-inhibition-1.qsys)
+# Command-line: fit-kinetic-system slow-inhibition-1.qsys /with=co:2,exp
+y_A	1	!	1
+y_I	0	!	0
+c0_A	1	!	0
+c0_I	0	!	0
+ka	1	!	1
+ki	1	!	1
+co_1	1	!	0
+co_t_1	100	!	0
+co_tau_1	20	!	1
+co_2	4	!	0
+co_t_2	200	!	0
+co_tau_2	20	!	1
+buffer_weight[#0]	1
+buffer_name[#0]	ks-slow-inhibition.qsys.dat
+# The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas
+# Final residuals: 0.87298
+# Buffer-local parameters: 
+# 
+# Buffer: ks-slow-inhibition.qsys.dat (weight: 1)
+# y_A	=	1	+- 0	+- 0%
+# y_I	=	0	(fixed)
+# c0_A	=	1	(fixed)
+# c0_I	=	0	(fixed)
+# ka	=	1	+- 0	+- 0%
+# ki	=	1	+- 0	+- 0%
+# co_1	=	1	(fixed)
+# co_t_1	=	100	(fixed)
+# co_tau_1	=	20	+- 0	+- 0%
+# co_2	=	4	(fixed)
+# co_t_2	=	200	(fixed)
+# co_tau_2	=	20	+- 0	+- 0%

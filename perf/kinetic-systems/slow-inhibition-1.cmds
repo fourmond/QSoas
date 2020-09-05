@@ -1,3 +1,3 @@
 define-kinetic-system-fit slow-inhibition-1.qsys si1 
-generate-buffer 0 300 /samples=100000
+generate-buffer 0 300 /samples=400000
 sim-si1 slow-inhibition-1.params 0 /with=co:2,exp

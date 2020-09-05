@@ -30,3 +30,38 @@ QSoas> generate-buffer -15 15 bessel_jn(x,number) /number=5
 
 The use of the `/number` option introduces a `number` parameter that
 can be used in the formula. 
+
+## Data processing
+
+### Average
+
+There are several ways to obtain the average of data. Let's look at
+a simple cosine function:
+
+~~~
+QSoas> generate-buffer -10 10 cos(PI*x)
+~~~
+
+On can obtain the average of the y values by just running:
+
+~~~
+QSoas> stats
+~~~
+
+This prints a lot of statistics, one of which is `y_average
+=	 0.001` (almost 0, as is expected from a sine wave over an integer
+of periods). To print only the relevant one:
+
+~~~
+QSoas> stats /stats=y_average
+~~~
+
+Note that there is automatic completion on the `/stats=` part: don't
+bother typing everything, just hit TAB.
+
+Finally, you can also take advantage of the `$stats` special variable:
+
+~~~
+QSoas> eval $stats.y_average
+~~~
+

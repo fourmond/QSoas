@@ -57,15 +57,16 @@ void Expression::buildArgs()
   delete[] indexInVariables;
   indexInVariables = new int[argsSize];
   for(int i = 0; i < argsSize; i++) {
+    indexInVariables[i] = -1;
     for(int j = 0; j < variables.size(); j++) {
-      indexInVariables[i] = -1;
       if(variables[j] == minimalVariables[i]) {
         indexInVariables[i] = j;
         break;
       }
-      if(indexInVariables[i] < 0)
-        throw InternalError("One of the natural variables was not found, shouldn't happen");
     }
+    if(indexInVariables[i] < 0)
+      throw InternalError("One of the natural variables, '%1' was not found, shouldn't happen. Variables: %2").arg(minimalVariables[i]).arg(variables.join(","));
+    
   }
 }
 
@@ -86,11 +87,26 @@ void Expression::buildCode()
     variables = minimalVariables;
   }
   else {
-    if(minimalVariables.isEmpty())
-      minimalVariables = variablesNeeded(expression);
     // Sanity check: make sure the variables contain each of the minimalvariables
-    QSet<QString> mv = minimalVariables.toSet();
+    
+    MRuby * mr = MRuby::ruby();
+    QStringList locals;
+    minimalVariables = mr->detectParameters(expression.toLocal8Bit(),
+                                            &locals);
+
     QSet<QString> v = variables.toSet();
+    // If a local is in the "variables", then it really is a variable,
+    // not a local. Examples:
+    // @li x += 2
+    // @li x = sin(x)
+    // 
+    // In both these cases, Ruby is happy because the local x is
+    // defined... But it can't work.
+    for(const QString & loc : locals)
+      if(v.contains(loc))
+        minimalVariables << loc;
+    
+    QSet<QString> mv = minimalVariables.toSet();
     mv.subtract(v);
     if(mv.size() > 0) {
       QStringList l = mv.toList();

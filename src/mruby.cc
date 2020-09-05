@@ -291,11 +291,12 @@ mrb_value MRuby::eval(QIODevice * device)
     );
 }
 
+
 #if MRUBY_RELEASE_MAJOR == 1
 
-// Hmmm.
 
-QStringList MRuby::detectParameters(const QByteArray & code)
+QStringList MRuby::detectParameters(const QByteArray & code,
+                                    QStringList * locals)
 {
   STACK_DUMP;
   MRubyArenaContext c(this);
@@ -303,6 +304,20 @@ QStringList MRuby::detectParameters(const QByteArray & code)
   RProc * proc = generateCode(code);
   struct mrb_irep * irep = proc->body.irep;
 
+  if(locals) {
+    for(int i = 0; i < irep->nlocals - 1; i++)
+      *locals << mrb_sym2name(mrb,irep->lv[i].name);
+  }
+  
+  // // Detect local variables first:
+  // fprintf(stderr, "MR1 locals: %d %d\n",irep->nlocals, irep->nregs);
+  // //if(irep->lv) {
+  // for(int i = 0; i < irep->nlocals - 1; i++) {
+  //   fprintf(stderr, "MR1Local %d: %d -> %s\n", i, irep->lv[i].name,
+  //           mrb_sym2name(mrb,irep->lv[i].name));
+  // }
+  //   //}
+  
   // The idea is just to scan the code and detect funcalls of single
   // arguments from what seems to be top level self.
   int cur_top_self = -1;
@@ -344,6 +359,11 @@ QStringList MRuby::detectParameters(const QByteArray & code)
   // arguments from what seems to be top level self.
   int cur_top_self = -1;
   QSet<QString> rv;
+
+  // Detect local variables first:
+  for(int i = 0; i < irep->nlocals; i++) {
+    fprintf(stderr, "Local: %d\n", irep->lv[i].sym);
+  }
 
   const mrb_code *pc, *pcend;
   mrb_code ins;

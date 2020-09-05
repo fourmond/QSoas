@@ -133,7 +133,8 @@ public:
                             mrb_func_t func, mrb_aspec aspec);
 
   /// Detects the "external parameters" for the given code.
-  QStringList detectParameters(const QByteArray & code);
+  QStringList detectParameters(const QByteArray & code,
+                               QStringList * localVariables = NULL);
 
   /// Defines a module function
   void defineGlobalConstant(const char *name, mrb_value val);

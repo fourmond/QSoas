@@ -41,6 +41,9 @@ class Expression {
   /// The current size of args
   int argsSize;
 
+  /// The index of the variables used to build the code
+  int * indexInVariables;
+
   /// The list of variables naturally present in the expression, in
   /// the order in which they are found by the Ruby code.
   QStringList minimalVariables;
@@ -48,6 +51,7 @@ class Expression {
   /// The current list of variables. Empty means the same as
   /// minimalVariables.
   QStringList variables;
+
 
   /// If that index isn't negative, then the expression actually
   /// reduces to a single variable whose index is given

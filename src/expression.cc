@@ -42,15 +42,30 @@ void Expression::buildArgs()
       mr->gcUnregister(args[i]);
   }
   delete[] args;
-  argsSize = variables.size();
+  argsSize = minimalVariables.size();
   args = new mrb_value[argsSize];
 
-  for(int i = 0; i < variables.size(); i++) {
+  for(int i = 0; i < argsSize; i++) {
     args[i] = mr->newFloat(0.0);
     // printf("Argument #%d -- %p: ", i, args[i]);
     // mrb_p(mr->mrb, args[i]);
     // DUMP_MRUBY(args[i]);
     mr->gcRegister(args[i]);
+  }
+
+  // Update the cache
+  delete[] indexInVariables;
+  indexInVariables = new int[argsSize];
+  for(int i = 0; i < argsSize; i++) {
+    for(int j = 0; j < variables.size(); j++) {
+      indexInVariables[i] = -1;
+      if(variables[j] == minimalVariables[i]) {
+        indexInVariables[i] = j;
+        break;
+      }
+      if(indexInVariables[i] < 0)
+        throw InternalError("One of the natural variables was not found, shouldn't happen");
+    }
   }
 }
 
@@ -71,6 +86,8 @@ void Expression::buildCode()
     variables = minimalVariables;
   }
   else {
+    if(minimalVariables.isEmpty())
+      minimalVariables = variablesNeeded(expression);
     // Sanity check: make sure the variables contain each of the minimalvariables
     QSet<QString> mv = minimalVariables.toSet();
     QSet<QString> v = variables.toSet();
@@ -103,7 +120,7 @@ void Expression::buildCode()
   }
 
   MRuby * mr = MRuby::ruby();
-  code = mr->makeBlock(expression.toLocal8Bit(), variables);
+  code = mr->makeBlock(expression.toLocal8Bit(), minimalVariables);
   // printf("%p -> %p\n", this, code);
   // DUMP_MRUBY(code);
   mr->gcRegister(code);
@@ -120,6 +137,7 @@ void Expression::freeCode()
   delete[] args;
   args = NULL;
   mr->gcUnregister(code);
+  delete[] indexInVariables;
   code = mrb_nil_value();
 }
 
@@ -151,14 +169,14 @@ void Expression::setParametersFromExpression(const QStringList & params,
 
 
 Expression::Expression(const QString & expr) :
-  expression(expr), args(NULL), argsSize(0)
+  expression(expr), args(NULL), argsSize(0), indexInVariables(NULL)
 {
   buildCode();
 }
 
 Expression::Expression(const QString & expr, const QStringList & vars, 
                        bool skip) :
-  expression(expr), args(NULL)
+  expression(expr), args(NULL), indexInVariables(NULL)
 {
   if(! skip)
     buildCode();
@@ -172,7 +190,8 @@ void Expression::setVariables(const QStringList & vars)
 }
 
 Expression::Expression(const Expression & c) :
-  expression(c.expression), args(NULL), 
+  expression(c.expression), args(NULL),
+  indexInVariables(NULL),
   minimalVariables(c.minimalVariables), variables(c.variables)
 {
   buildCode();
@@ -197,11 +216,10 @@ mrb_value Expression::rubyEvaluation(const double * values) const
 {
   // Should this be cached at the Expression level ?
   MRuby * mr = MRuby::ruby();
-  int size = variables.size();
-  for(int i = 0; i < size; i++)
-    SET_FLOAT_VALUE(mr->mrb, args[i], values[i]);
+  for(int i = 0; i < argsSize; i++)
+    SET_FLOAT_VALUE(mr->mrb, args[i], values[indexInVariables[i]]);
 
-  mrb_value rv = mr->funcall(code, callSym(), size, args);
+  mrb_value rv = mr->funcall(code, callSym(), argsSize, args);
   return rv;
 }
 
@@ -243,7 +261,7 @@ int Expression::evaluateIntoArrayNoLock(const double * values,
 {
   MRuby * mr = MRuby::ruby();
   MRubyArenaContext c(mr);  
-  mrb_value ret =  rubyEvaluation(values);
+  mrb_value ret = rubyEvaluation(values);
   
   // Now, we parse the return value
   if(! mr->isArray(ret)) {

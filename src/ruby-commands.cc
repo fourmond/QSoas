@@ -93,10 +93,32 @@ static void applyFormulaCommand(const QString &, QString formula,
     Terminal::out << QObject::tr("Applying formula '%1' to buffer %2").
       arg(formula).arg(ds->name) << endl;
 
+    /// @todo Move this functionality in DataSetExpression  ?
+    // We now only lok at
+
+    QStringList locals;
+    MRuby * mr = MRuby::ruby();
+    mr->detectParameters(formula.toLocal8Bit(), &locals);
+    QSet<QString> l = locals.toSet();
+    QStringList modified;        // The names of columns modified in
+                                // order
+    
+    int indexInEval[colNames.size()];
+    for(int i = 0; i < colNames.size(); i++) {
+      if(l.contains(colNames[i])) {
+        indexInEval[i] = modified.size();
+        modified << colNames[i];
+      }
+      else
+        indexInEval[i] = -1;
+    }
+    
     QString finalFormula = QString("%2\n[%1]").
-      arg(colNames.join(",")).
+      arg(modified.join(",")).
       arg(formula);
 
+    // QTextStream o(stdout);
+    // o << "Found targets: " << modified.join(", ") << endl;
   
 
     ex.prepareExpression(finalFormula, extra);
@@ -110,10 +132,9 @@ static void applyFormulaCommand(const QString &, QString formula,
 
     {
       // QMutexLocker m(&Ruby::rubyGlobalLock);
-      QVarLengthArray<double, 100> ret(newCols.size());
+      QVarLengthArray<double, 100> ret(modified.size());
       QVarLengthArray<double, 100> args(argSize);
       int idx = 0;
-      MRuby * mr = MRuby::ruby();
       while(ex.nextValues(args.data(), &idx)) {
         bool error = false;
         try {
@@ -131,8 +152,11 @@ static void applyFormulaCommand(const QString &, QString formula,
           error = true;
         }
         if(! error || (error && keepOnError)) {
-          for(int j = 0; j < ret.size(); j++)
-            newCols[j].append(ret[j]);
+          for(int j = 0; j < newCols.size(); j++) {
+            double v = indexInEval[j] >= 0 ? ret[indexInEval[j]] :
+              ( j < argSize ? args[j] : 0);
+            newCols[j].append(v);
+          }
           mrb_value rn = mr->getGlobal("$row_name");
           if(newRowNames.size() > 0 || (!mrb_nil_p(rn))) {
             if(mrb_nil_p(rn))

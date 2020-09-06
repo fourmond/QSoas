@@ -48,6 +48,9 @@ class Expression {
   /// the order in which they are found by the Ruby code.
   QStringList minimalVariables;
 
+  /// The list of local variables
+  QStringList localVariables;
+
   /// The current list of variables. Empty means the same as
   /// minimalVariables.
   QStringList variables;
@@ -97,7 +100,8 @@ public:
   /// Frees up all associated storage
   ~Expression();
 
-  /// Returns true if the expression reduces to only
+  /// Returns true if the expression reduces to only a single
+  /// variable.
   bool isAVariable() const;
 
   /// @name Evalution functions
@@ -179,6 +183,9 @@ public:
 
   /// Return the natural variables
   const QStringList & naturalVariables() const;
+
+  /// returns the local variablesvariables
+  const QStringList & locals() const;
 
   /// Returns the list of variables needed to process the given
   /// expression, in addition to the ones given as second argument.

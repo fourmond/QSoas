@@ -154,7 +154,8 @@ static void applyFormulaCommand(const QString &, QString formula,
         if(! error || (error && keepOnError)) {
           for(int j = 0; j < newCols.size(); j++) {
             double v = indexInEval[j] >= 0 ? ret[indexInEval[j]] :
-              ( j < argSize ? args[j] : 0);
+              ( j < ds->nbColumns() ? ds->column(j)[idx] : 0);
+            /// @todo Make that more efficient
             newCols[j].append(v);
           }
           mrb_value rn = mr->getGlobal("$row_name");

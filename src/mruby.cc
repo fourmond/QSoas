@@ -800,8 +800,10 @@ static void mRubyArgs(const QString &, QString code,
                       const CommandOptions & )
 {
   MRuby * r = MRuby::ruby();
-  QStringList vars = r->detectParameters(code.toLocal8Bit());
+  QStringList locals;
+  QStringList vars = r->detectParameters(code.toLocal8Bit(), &locals);
   Terminal::out << " => " << vars.join(", ") << endl;
+  Terminal::out << "Local variables: " << locals.join(", ") << endl;
 }
 
 static ArgumentList 

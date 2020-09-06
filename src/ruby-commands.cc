@@ -112,8 +112,12 @@ static void applyFormulaCommand(const QString &, QString formula,
       else
         indexInEval[i] = -1;
     }
+
+    int nbm = modified.size();
+
     
-    QString finalFormula = QString("%2\n[%1]").
+    
+    QString finalFormula = QString(nbm != 1 ? "%2\n[%1]" : "%2\n%1").
       arg(modified.join(",")).
       arg(formula);
 
@@ -138,8 +142,13 @@ static void applyFormulaCommand(const QString &, QString formula,
       while(ex.nextValues(args.data(), &idx)) {
         bool error = false;
         try {
-          ex.expression().
-            evaluateIntoArrayNoLock(args.data(), ret.data(), ret.size());
+          if(nbm == 1) 
+            ret[0] = ex.expression().
+              evaluateNoLock(args.data());
+          else
+            ex.expression().
+              evaluateIntoArrayNoLock(args.data(), ret.data(), ret.size());
+            
         }
         catch (const RuntimeError & er) {
           Terminal::out << "Error at X = " << ds->x()[idx]

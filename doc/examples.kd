@@ -65,3 +65,33 @@ Finally, you can also take advantage of the `$stats` special variable:
 QSoas> eval $stats.y_average
 ~~~
 
+### Normalization
+
+QSoas offers different ways to normalize datasets. The simplest is
+[cmd: norm], which simply divides by the largest number.
+
+The best way to normalize controlling exactly what you do is the use
+of [cmd: apply-formula], and take advantage of the `$stats` variable
+making available the statistics of [cmd: stats]. Here are a few
+examples. To do the same as [cmd: norm]:
+
+~~~
+QSoas> apply-formula y/=$stats.y_max
+~~~
+
+For almost the same thing, but dividing by the 90th percentile, which
+does a better job when dealing with spiky data:
+
+~~~
+QSoas> apply-formula y/=$stats.y_q90
+~~~
+
+To divide by the integral of the signal, something common in
+spectroscopy:
+
+~~~
+QSoas> apply-formula y/=$stats.y_int
+~~~
+
+
+

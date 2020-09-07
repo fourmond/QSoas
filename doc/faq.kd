@@ -67,7 +67,7 @@ the heuristics wrong with your file, send us the data file.
 As of now, `QSoas` does not support configuring fine details in the
 display. You can toggle the display of points using the [cmd: points]
 command, and you can use the `/style=` option to [commands generating
-several buffers](manual.html#several-buffers) to use gradients to
+several buffers](qsoas.html#several-buffers) to use gradients to
 display a set of buffers.
 
 

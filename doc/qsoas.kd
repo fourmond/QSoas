@@ -184,7 +184,7 @@ parts. All these commands share a set of options:
  * `/flags`, that can be used to set flags to the newly generated
    buffers, see the [cmd: flag] command for more information.
  * `/set-meta`, that can be used to set meta-data to the newly
-   generated buffers, using a **key**`=`**value` syntax (so you have
+   generated buffers, using a **key**`=`_value_ syntax (so you have
    two `=` signs in row). This option can be used several times to add
    several meta-data.
 

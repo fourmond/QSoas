@@ -320,7 +320,10 @@ def parse_file(info)
     end
 
     # YAML::dump(info['sections'], STDOUT)
-    info['html'] = `kramdown #{ofn}`
+    html = `kramdown #{ofn}`
+    html.gsub!("\n</pre", "</pre")
+    html.gsub!("\n</code", "</code")
+    info['html'] = html
     if info['commands'].size > 0
       $target = info['file']
     end

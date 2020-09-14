@@ -85,7 +85,7 @@ QList<DataSet *> ECLabASCII::readFromStream(QIODevice * stream,
                          QTime(red.cap(4).toInt(),
                                red.cap(5).toInt(),
                                red.cap(6).toInt()));
-            meta["exp-date"] = dt;
+            meta["exp_date"] = dt;
           }
         }
       }

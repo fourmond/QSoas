@@ -69,14 +69,14 @@ public:
     
       // Try to parse dates...
       QTime time = QTime::fromString(lines[203]);
-      ret["exp-time"] = time;
+      ret["exp_time"] = time;
 
       QRegExp dre("(\\d+)/(\\d+)/(\\d+)");
       if(dre.indexIn(lines[202]) == 0) {
         QDate date = QDate(dre.cap(3).toInt(), dre.cap(2).toInt(),
                            dre.cap(1).toInt());
         QDateTime dt(date, time);
-        ret["exp-date"] = dt;
+        ret["exp_date"] = dt;
       }
       ret["title"] = lines[210];
       ret["comments"] = lines[211] + lines[212];

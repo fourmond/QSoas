@@ -2058,7 +2058,7 @@ static void setMetaCommand(const QString &, QString meta, QString value,
   QVariant val = ValueHash::variantFromText(value, opts);
   ds->setMetaData(meta, val);
   if(alsoRecord) {
-    QString f = ds->getMetaData("original-file").toString();
+    QString f = ds->getMetaData("original_file").toString();
     if(f.isEmpty()) {
       Terminal::out << "Cannot set meta-data as there is no source "
                     << "file for the data" << endl;

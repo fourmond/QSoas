@@ -270,7 +270,7 @@ void DataBackend::loadFilesAndDisplay(bool update, QStringList files,
         Terminal::out << " -> OK" << endl;
       QFileInfo info(files[i]);
       for(DataSet * s : dss) {
-        s->setMetaData("original-file", info.canonicalFilePath());
+        s->setMetaData("original_file", info.canonicalFilePath());
         
         if(ignoreEmpty && (s->nbRows() == 0 || s->nbColumns() == 0)) {
           Terminal::out << " -> ignoring empty dataset '"
@@ -336,9 +336,9 @@ void DataBackend::setMetaDataForFile(DataSet * dataset,
   /// Here is fine.
   QDir dir = QDir::current();
   QString fp = QDir::cleanPath(dir.absoluteFilePath(filename));
-  dataset->setMetaData("original-file", fp);
+  dataset->setMetaData("original_file", fp);
   QFileInfo info(fp);
-  dataset->setMetaData("file-date", info.lastModified());
+  dataset->setMetaData("file_date", info.lastModified());
 
   dataset->setMetaData("age", info.lastModified().
                        msecsTo(soas().startupTime()) * 1e-3);

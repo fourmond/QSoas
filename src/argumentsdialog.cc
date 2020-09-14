@@ -105,7 +105,8 @@ ArgumentsDialog::ArgumentsDialog(const Command * cmd) : QDialog(),
     global->addWidget(new QLabel("<b>Arguments:</b>"));
     QGridLayout * grid = new QGridLayout;
 
-    for(const Argument * arg : *args) {
+    for(int i = 0; i < args->size(); i++) {
+      const Argument * arg = (*args)[i];
       ArgumentEditor * ed = new ArgumentEditor(arg, false);
       ed->addToGrid(grid, arguments.size());
       arguments << ed;
@@ -118,7 +119,8 @@ ArgumentsDialog::ArgumentsDialog(const Command * cmd) : QDialog(),
     global->addWidget(new QLabel("<b>Options:</b>"));
     QGridLayout * grid = new QGridLayout;
 
-    for(const Argument * arg : *args) {
+    for(int i = 0; i < args->size(); i++) {
+      const Argument * arg = (*args)[i];
       ArgumentEditor * ed = new ArgumentEditor(arg, true);
       ed->addToGrid(grid, options.size());
       options << ed;

@@ -48,7 +48,7 @@ class ArgumentList {
 
   int assignArg(int i, int total) const;
 
-  QList<Argument *> arguments;
+  QList<QExplicitlySharedDataPointer<Argument> > arguments;
 
 public:
   ArgumentList(const QList<Argument *> & lst);
@@ -77,9 +77,9 @@ public:
 
   int size() const;
 
-  QList<Argument *>::const_iterator begin() const;
+  // QList<Argument *>::const_iterator begin() const;
 
-  QList<Argument *>::const_iterator end() const;
+  // QList<Argument *>::const_iterator end() const;
 
   /// @}
 

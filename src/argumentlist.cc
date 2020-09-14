@@ -28,9 +28,9 @@
 
 
 ArgumentList::ArgumentList(const QList<Argument *> & lst)
-  : arguments(lst),
-    greedyArg(-1), defaultOptionIndex(-1)
+  : greedyArg(-1), defaultOptionIndex(-1)
 {
+  (*this) << lst;
 }
 
 ArgumentList::ArgumentList() : greedyArg(-1), defaultOptionIndex(-1)
@@ -40,13 +40,14 @@ ArgumentList::ArgumentList() : greedyArg(-1), defaultOptionIndex(-1)
 
 ArgumentList & ArgumentList::operator<<(Argument * arg)
 {
-  arguments << arg;
+  arguments << QExplicitlySharedDataPointer<Argument>(arg);
   return *this;
 }
 
 ArgumentList & ArgumentList::operator<<(const QList<Argument *> & args)
 {
-  arguments += args;
+  for(Argument * arg : args)
+    (*this) << arg;
   return *this;
 }
 
@@ -58,13 +59,13 @@ ArgumentList & ArgumentList::operator<<(const ArgumentList & other)
 
 const Argument * ArgumentList::operator[](int idx) const
 {
-  return arguments[idx];
+  return arguments[idx].constData();
 }
 
 const Argument * ArgumentList::value(int idx, const Argument * def) const
 {
   if(idx >= 0 && idx < arguments.size())
-    return arguments[idx];
+    return arguments[idx].constData();
   else
     return def;
 }
@@ -74,19 +75,19 @@ int ArgumentList::size() const
   return arguments.size();
 }
 
-QList<Argument *>::const_iterator ArgumentList::begin() const
-{
-  return arguments.constBegin();
-}
+// QList<Argument *>::const_iterator ArgumentList::begin() const
+// {
+//   return arguments.constBegin();
+// }
 
-QList<Argument *>::const_iterator ArgumentList::end() const
-{
-  return arguments.constEnd();
-}
+// QList<Argument *>::const_iterator ArgumentList::end() const
+// {
+//   return arguments.constEnd();
+// }
 
 void ArgumentList::insert(int idx, Argument * arg)
 {
-  arguments.insert(idx, arg);
+  arguments.insert(idx, QExplicitlySharedDataPointer<Argument>(arg));
 }
 
 
@@ -275,9 +276,9 @@ void ArgumentList::mergeOptions(const ArgumentList & other)
 {
   regenerateCache();
   for(int i = 0; i < other.size();i++) {
-    Argument * arg = other.arguments[i];
+    const Argument * arg = other.arguments[i].constData();
     if(! cache.contains(arg->argumentName())) {
-      *this << arg;
+      arguments << other.arguments[i];
       cache[arg->argumentName()] = NULL; // good enough until the end.
     }
     else  {

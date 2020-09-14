@@ -29,7 +29,26 @@ QSoas> generate-buffer -15 15 bessel_jn(x,number) /number=5
 ~~~
 
 The use of the `/number` option introduces a `number` parameter that
-can be used in the formula. 
+can be used in the formula.
+
+### Solving equations
+
+QSoas has functionalities to solve numerically for $$y$$
+$$f(x,y) = 0$$ equations, using the [cmd: solve] command. For instance:
+
+~~~
+QSoas> generate-buffer -10 10
+QSoas> solve y*cosh(y)-x
+~~~
+
+This looks for points for which $$y \times \cosh y = x$$. Two caveats:
+
+ * the variable is $$y$$ and not $$x$$, so that you can obtain
+   functions of $$x$$ in the end
+ * the algorithm is iterative, starting with the values of $$y$$
+   currently in the buffer. Try to start with a first approximation of
+   the solution, or at least some value for which your equation is
+   defined !
 
 ## Data processing
 
@@ -64,4 +83,34 @@ Finally, you can also take advantage of the `$stats` special variable:
 ~~~
 QSoas> eval $stats.y_average
 ~~~
+
+### Normalization
+
+QSoas offers different ways to normalize datasets. The simplest is
+[cmd: norm], which simply divides by the largest number.
+
+The best way to normalize controlling exactly what you do is the use
+of [cmd: apply-formula], and take advantage of the `$stats` variable
+making available the statistics of [cmd: stats]. Here are a few
+examples. To do the same as [cmd: norm]:
+
+~~~
+QSoas> apply-formula y/=$stats.y_max
+~~~
+
+For almost the same thing, but dividing by the 90th percentile, which
+does a better job when dealing with spiky data:
+
+~~~
+QSoas> apply-formula y/=$stats.y_q90
+~~~
+
+To divide by the integral of the signal, something common in
+spectroscopy:
+
+~~~
+QSoas> apply-formula y/=$stats.y_int
+~~~
+
+
 

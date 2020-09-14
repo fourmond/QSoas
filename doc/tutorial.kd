@@ -565,7 +565,7 @@ printer, rather than saved as a pdf file on the hard drive.
 
 # Fits
 
-## 1) A simple example with one data-set, one equation, one set of parameters. {#tuto-fit-arb}
+## A simple example with one data-set, one equation, one set of parameters. {#tuto-fit-arb}
 
 Imagine you have run a titration experiment, whose result (intensity
 against potential) is in `file2.dat`, and you want to fit a sigmoid to
@@ -673,7 +673,7 @@ QSoas> fit-sigmoid /parameters=file2.params
 
 to use as an initial guess the former best parameters.
 
-## 2) Combining functions {#combine-fits}
+## Combining functions {#combine-fits}
 
 Examine the following example
 
@@ -699,7 +699,7 @@ loaded `exampleFitFunctions.txt`.
 The command `fit-mynewfit` runs the combined fit on the modified
 data-set.
 
-## 3) Advanced fit: two data sets, one model, two sets of parameters. {#tuto-multifit}
+## Advanced fit: two data sets, one model, two sets of parameters. {#tuto-multifit}
 
 Imagine you have performed a redox titration by measuring an intensity
 as a function of potential at two wavelengths, or whatever, and the
@@ -763,17 +763,15 @@ QSoas> mfit-general-sigmoid 0 1 /parameters=file2-file3.params /weight-buffers=t
 Now there is an other box, called "weight" which you can change for each
 data set. Give `file3.dat` a large weight and run the fit.
 
-{::comment}
 ## The same, but differently.
 
 The same operation can be run in a different manner, by making use of
-"segments" that define different parts in the same buffer, and having an
-equation that is segment-dependent. Let us combine `file2` and `file3`
-in the same buffer. Load `file3.dat`, then `file2.dat`, so that `file3`
-is in buffer \#1 and `file2` in buffer \#0, then concatenate the two
-data sets using the command `i` (short for
-[cmd: cat]), and run
-[cmd: show-stack] to check that the current
+"segments" that define different parts in the same buffer, and having
+an equation that is segment-dependent. Let us combine `file2` and
+`file3` in the same buffer. Load `file3.dat`, then `file2.dat`, so
+that `file3` is in buffer \#1 and `file2` in buffer \#0, then
+concatenate the two data sets using the command `i` (short for
+[cmd: cat]), and run [cmd: show-stack] to check that the current
 buffer is made of 634 points, and has two segments.
 
 ~~~
@@ -804,10 +802,7 @@ QSoas> fit-arb (1-seg)*a1/(1+exp(fara*(x-e0)))+seg*a2/(1+exp(fara*(e0-x)))
 
 Set a reasonable guess for the value of `e0` before you hit "Fit".
 
-[really one img here ?]
-{:/}
-
-## 4) More advanced fit: one data set and its derivative, a single set of parameters {#tuto-define-derived-fit}
+## More advanced fit: one data set and its derivative, a single set of parameters {#tuto-define-derived-fit}
 
 To increase the reliability of the parameters, it may be useful to fit a
 model to a data set and the first derivative of the data set.
@@ -841,7 +836,7 @@ and the raw data (in buffer \#1):
 QSoas> mfit-deriv-sigmoid 1 0 /parameters=file2-file3.params
 ~~~
 
-## 5) Even more advanced fit: two data sets, two models, one set of parameters.
+## Even more advanced fit: two data sets, two models, one set of parameters.
 
 Let us repeat the same analysis (data+derivative) but completely
 differently, to illustrate another possible method.

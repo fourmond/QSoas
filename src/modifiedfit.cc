@@ -412,7 +412,7 @@ public:
   ArgumentList * opts = new ArgumentList(*underlyingFit->fitHardOptions());
   ArgumentList * o2 = underlyingFit->fitSoftOptions();
   if(o2)
-    (*opts) += *o2;
+    (*opts) << *o2;
   makeCommands(NULL, NULL, NULL, opts);
 }
 

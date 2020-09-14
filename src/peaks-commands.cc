@@ -166,7 +166,8 @@ fpBaseOps(QList<Argument *>()
        );
 
 static ArgumentList 
-fpOps(QList<Argument *>(fpBaseOps) 
+fpOps(ArgumentList()
+      << fpBaseOps
       << new IntegerArgument("peaks", 
                              "Number of peaks",
                              "Display only that many peaks (by order of intensity)")
@@ -174,7 +175,8 @@ fpOps(QList<Argument *>(fpBaseOps)
       );
 
 static ArgumentList 
-fpbOps(QList<Argument *>(fpBaseOps) 
+fpbOps(ArgumentList()
+      << fpBaseOps
       << ValueHash::outputOptions(true)
       );
       
@@ -272,7 +274,8 @@ static void echemPeaksCommand(const QString &, const CommandOptions & opts)
 }
 
 static ArgumentList 
-epOps(QList<Argument *>(fpBaseOps) 
+epOps(ArgumentList()
+      << fpBaseOps
       << new IntegerArgument("pairs", 
                              "Number of peak pairs",
                              "Display (and output) only that many peak pairs (by order of intensity)")

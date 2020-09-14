@@ -43,7 +43,7 @@ protected:
     for(CommandOptions::const_iterator i 
           = options.begin(); i != options.end(); ++i) {
       if(args2.contains(i.key())) {
-          Argument * arg = 
+          const Argument * arg = 
             targetCommand->commandOptions()->namedArgument(i.key());
           if(! arg)
             throw InternalError("Somehow still got an unparsed "

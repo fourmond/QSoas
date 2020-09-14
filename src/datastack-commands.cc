@@ -495,10 +495,11 @@ styleOpts(QList<Argument *>()
 
 
 static ArgumentList 
-ovbOpts(QList<Argument *>() 
+ovbOpts(ArgumentList()
         << styleOpts
         << DataSetList::listOptions("Buffers to overlay")
         );
+
 
 static Command 
 ovlb("overlay-buffer", // command name
@@ -808,7 +809,8 @@ muOps(QList<Argument *>()
 
 
 static ArgumentList 
-flOps(QList<Argument *>(muOps)
+flOps(ArgumentList()
+      << muOps
       << new BoolArgument("set", 
                           "Set flags",
                           "If on, clears all the previous flags")

@@ -35,7 +35,8 @@ class Command;
 /// in a type-safe fashion.
 ///
 /// All commands take a list of arguments.
-class Argument {
+class Argument : public QSharedData {
+  Argument(const Argument & o);
 protected:
 
   QString name;

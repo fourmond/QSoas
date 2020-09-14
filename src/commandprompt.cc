@@ -172,7 +172,7 @@ QStringList CommandPrompt::getCompletions(const CompletionContext & c,
   // Here, be more clever.
   
   int argid = c.annotations.value(c.index - 1, c.argumentNumber);
-  Argument * arg = NULL;
+  const Argument * arg = NULL;
   if(argid < 0 || c.word == "/" || c.unfinishedOption) {
     if(! cmd->commandOptions()) {
       *reason = tr("Command %1 takes no options").

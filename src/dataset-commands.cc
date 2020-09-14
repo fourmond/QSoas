@@ -1603,7 +1603,8 @@ contractArgs(QList<Argument *>()
                                            "Buffers to contract"));
 
 static ArgumentList 
-contractOpts(QList<Argument *>(operationOpts) 
+contractOpts(ArgumentList()
+             << operationOpts
              << new StringArgument("perp-meta", 
                                    "Perpendicular coordinate",
                                    "defines the perpendicular coordinate from meta-data")
@@ -1700,7 +1701,8 @@ aveArgs(QList<Argument *>()
                                             "Buffers"));
 
 static ArgumentList 
-aveOpts(QList<Argument *>(operationOpts)
+aveOpts(ArgumentList()
+        << operationOpts
         << new BoolArgument("split", 
                             "Split into monotonic parts",
                             "If on, buffers are automatically "

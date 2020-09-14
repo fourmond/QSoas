@@ -114,7 +114,7 @@ CommandOptions Command::parseOptions(const QMultiHash<QString, QString> & opts,
   if(! options)
     return ret;
   if(defaultOption) {
-    Argument * opt = options->defaultOption();
+    const Argument * opt = options->defaultOption();
     ArgumentMarshaller * arg = NULL;
     for(const QString a : *defaultOption) {
       ArgumentMarshaller * na = opt->fromString(a);
@@ -142,7 +142,7 @@ CommandOptions Command::parseOptions(const QMultiHash<QString, QString> & opts,
 
   for(QMultiHash<QString, QString>::const_iterator i = newopts.begin();
       i != newopts.end(); ++i) {
-    Argument * opt = options->namedArgument(i.key());
+    const Argument * opt = options->namedArgument(i.key());
     if(! opt)
       throw RuntimeError(QObject::tr("Unknown option '%1' for command %2").
                          arg(i.key()).arg(commandName()));
@@ -195,13 +195,13 @@ QStringList Command::rebuildCommandLine(const CommandArguments & args,
     throw InternalError("Mismatch in the number of arguments: %1 vs %2").
       arg(args.size()).arg(argList->size());
   for(int i = 0; i < argList->size(); i++) {
-    Argument * a = argList->value(i);
+    const Argument * a = argList->value(i);
     rv += a->toString(args[i]);
   }
 
   argList = options ? options : &emptyList;
   for(const QString & n : opts.keys()) {
-    Argument * o = argList->namedArgument(n);
+    const Argument * o = argList->namedArgument(n);
     if(! o)
       throw InternalError("Unknown option: '%1'").arg(n);
     QStringList vals = o->toString(opts[n]);
@@ -424,11 +424,6 @@ QString wrapIf(const QString & str, const QString & left, bool cond,
   return str;
 }
 
-static bool ltArgs(const Argument * a, const Argument * b)
-{
-  return a->argumentName() < b->argumentName();
-}
-
 QString Command::synopsis(bool markup) const 
 {
   QStringList synopsis;
@@ -455,21 +450,21 @@ QString Command::synopsis(bool markup) const
   }
 
   if(commandOptions()) {
-    ArgumentList args = *commandOptions();
-    qSort(args.begin(), args.end(), &ltArgs);
+    const ArgumentList &args = *commandOptions();
+    QStringList names = args.argumentNames();
     
-    for(int i = 0; i < args.size(); i++) {
-      QString a = args[i]->argumentName();
-      QString td = Utils::uncapitalize(args[i]->typeDescription());
+    for(const QString & a : names) {
+      const Argument * arg = args.namedArgument(a);
+      QString td = Utils::uncapitalize(arg->typeDescription());
       QString b = wrapIf("/" + a + "=", "`", markup) + 
-        wrapIf(args[i]->typeName(), "_", markup) + 
+        wrapIf(arg->typeName(), "_", markup) + 
         ((markup && !(td.isEmpty())) ? 
          QString("{:title=\"%1\"}").arg(td) : "");
       synopsis << b;
       descs += QString("  * %1%3: %2 -- values: %4\n").
         arg(b).
-        arg(args[i]->description()).
-        arg(args[i]->defaultOption ? " (default option)" : "").
+        arg(arg->description()).
+        arg(arg->defaultOption ? " (default option)" : "").
         arg(td);
 
     }
@@ -554,7 +549,7 @@ QString Command::commandSpec(bool full) const
     ret += QString("  -> aliased as %1\n").arg(shortCmdName);
   if(arguments)
     for(int i = 0; i < arguments->size(); i++) {
-      Argument * arg = (*arguments)[i];
+      const Argument * arg = (*arguments)[i];
       ret += " - " + arg->argumentName() + 
         (arg->greedy ? "..." : "");
       if(full)
@@ -565,7 +560,7 @@ QString Command::commandSpec(bool full) const
     QStringList an = options->argumentNames();
     qSort(an);
     for(int i = 0; i < an.size(); i++) {
-      Argument * arg = options->namedArgument(an[i]);
+      const Argument * arg = options->namedArgument(an[i]);
       ret += " - /" + arg->argumentName() + 
         (arg->defaultOption ? "*" : "");
       if(full)

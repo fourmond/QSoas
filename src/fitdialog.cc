@@ -1161,7 +1161,7 @@ static void fillGridWithOptions(const ArgumentList * args,
                                 int base)
 {
   for(int i = 0; i < args->size(); i++) {
-    Argument * ag = args->value(i);
+    const Argument * ag = args->value(i);
     gd->addWidget(new QLabel(ag->publicName()), i+base, 0);
     QWidget * w = ag->createEditor(NULL);
     gd->addWidget(w, i+base, 1);
@@ -1232,7 +1232,7 @@ void FitDialog::setSoftOptions()
   if(dlg.exec()) {
     if(softOptions) {
       for(int i = 0; i < softOptions->size(); i++) {
-        Argument * ag = softOptions->value(i);
+        const Argument * ag = softOptions->value(i);
         QWidget * w = fitWidgets[ag->argumentName()];
         ArgumentMarshaller * val = ag->getEditorValue(w);
         if(val)
@@ -1245,7 +1245,7 @@ void FitDialog::setSoftOptions()
 
     if(engineOptions) {
       for(int i = 0; i < engineOptions->size(); i++) {
-        Argument * ag = engineOptions->value(i);
+        const Argument * ag = engineOptions->value(i);
         QWidget * w = engineWidgets[ag->argumentName()];
         delete (*engineOptionValues)[ag->argumentName()];
         (*engineOptionValues)[ag->argumentName()] = ag->getEditorValue(w);

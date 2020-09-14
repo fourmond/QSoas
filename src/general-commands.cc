@@ -559,7 +559,8 @@ runOpts(QList<Argument *>()
 
 
 static ArgumentList
-rcO(QList<Argument *>(runOpts) 
+rcO(ArgumentList()
+    << runOpts
     << new BoolArgument("cd-to-script", 
                         "cd to script",
                         "If on, automatically change the directory to that oof the script")
@@ -709,11 +710,12 @@ rfdArgs(QList<Argument *>()
 
 
 static ArgumentList 
-rfdOpts(QList<Argument *>(runOpts)
+rfdOpts(ArgumentList()
+        << runOpts
         << new FileArgument("arg1", 
                             "First argument",
                             "First argument to the script")
-        << QList<Argument *>(argList));
+        << argList);
 
 static Command 
 rfd("run-for-datasets", // command name
@@ -807,7 +809,8 @@ rfeArgs(QList<Argument *>()
                                     "to loop on", true));
 
 static ArgumentList 
-rfeOpts(QList<Argument *>(argList)
+rfeOpts(ArgumentList()
+        << argList
         << new ChoiceArgument(QStringList() << "lin" << "log",
                               "range-type",
                               "Numerical range type",

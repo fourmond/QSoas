@@ -28,13 +28,73 @@
 
 
 ArgumentList::ArgumentList(const QList<Argument *> & lst)
-  : QList<Argument *>(lst), greedyArg(-1), defaultOptionIndex(-1)
+  : arguments(lst),
+    greedyArg(-1), defaultOptionIndex(-1)
 {
 }
 
 ArgumentList::ArgumentList() : greedyArg(-1), defaultOptionIndex(-1)
 {
 }
+
+
+ArgumentList & ArgumentList::operator<<(Argument * arg)
+{
+  arguments << arg;
+  return *this;
+}
+
+ArgumentList & ArgumentList::operator<<(const QList<Argument *> & args)
+{
+  arguments += args;
+  return *this;
+}
+
+ArgumentList & ArgumentList::operator<<(const ArgumentList & other)
+{
+  arguments += other.arguments;
+  return *this;
+}
+
+const Argument * ArgumentList::operator[](int idx) const
+{
+  return arguments[idx];
+}
+
+const Argument * ArgumentList::value(int idx, const Argument * def) const
+{
+  if(idx >= 0 && idx < arguments.size())
+    return arguments[idx];
+  else
+    return def;
+}
+
+int ArgumentList::size() const
+{
+  return arguments.size();
+}
+
+QList<Argument *>::const_iterator ArgumentList::begin() const
+{
+  return arguments.constBegin();
+}
+
+QList<Argument *>::const_iterator ArgumentList::end() const
+{
+  return arguments.constEnd();
+}
+
+void ArgumentList::insert(int idx, Argument * arg)
+{
+  arguments.insert(idx, arg);
+}
+
+
+
+const Argument * ArgumentList::whichArgument(int arg, int total) const
+{
+  return value(assignArgument(arg, total), NULL);
+}; 
 
 void ArgumentList::regenerateCache() const
 {
@@ -56,11 +116,11 @@ bool ArgumentList::contains(const QString & name) const
   return cache.contains(name);
 }
 
-Argument * ArgumentList::namedArgument(const QString & name) const
+const Argument * ArgumentList::namedArgument(const QString & name) const
 {
   if(cache.size() != size())
     regenerateCache();
-  Argument * arg = cache.value(name, NULL);
+  const Argument * arg = cache.value(name, NULL);
   if(! arg)
     return cache.value("*", NULL); // we return "*" if it exists
   return arg;                   
@@ -68,10 +128,10 @@ Argument * ArgumentList::namedArgument(const QString & name) const
 
 void ArgumentList::setArgumentDescription(const QString & name, const QString & desc)
 {
-  Argument * arg = namedArgument(name);
-  if(! arg)
-    throw InternalError("Trying to modify unexisting argument: %1").arg(name);
-  arg->setDescription(desc);
+  // Argument * arg = namedArgument(name);
+  // if(! arg)
+  //   throw InternalError("Trying to modify unexisting argument: %1").arg(name);
+  // arg->setDescription(desc);
 }
 
 
@@ -204,7 +264,7 @@ bool ArgumentList::hasDefaultOption() const
   return defaultOptionIndex >= 0;
 }
 
-Argument * ArgumentList::defaultOption() const
+const Argument * ArgumentList::defaultOption() const
 {
   if(! hasDefaultOption())
     return NULL;
@@ -215,7 +275,7 @@ void ArgumentList::mergeOptions(const ArgumentList & other)
 {
   regenerateCache();
   for(int i = 0; i < other.size();i++) {
-    Argument * arg = other[i];
+    Argument * arg = other.arguments[i];
     if(! cache.contains(arg->argumentName())) {
       *this << arg;
       cache[arg->argumentName()] = NULL; // good enough until the end.

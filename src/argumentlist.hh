@@ -32,9 +32,9 @@ class Command;
 ///
 /// @todo Add the possibility for options to slurp all unknown options
 /// as strings.
-class ArgumentList : public QList<Argument *> {
+class ArgumentList {
   
-  mutable QHash<QString, Argument *> cache;
+  mutable QHash<QString, const Argument *> cache;
 
   /// The number of the greedy arg, or -1 if there isn't.
   mutable int greedyArg;
@@ -46,12 +46,42 @@ class ArgumentList : public QList<Argument *> {
   void regenerateCache() const;
 
 
-  int assignArg(int i, int total) const; 
-  
-  
+  int assignArg(int i, int total) const;
+
+  QList<Argument *> arguments;
+
 public:
   ArgumentList(const QList<Argument *> & lst);
   ArgumentList();
+
+  /// @name Array-like operation
+  ///
+  /// @{
+
+  /// Addition
+  ArgumentList & operator<<(Argument * arg);
+
+  /// Addition
+  ArgumentList & operator<<(const QList<Argument *> & arg);
+
+  /// Addition
+  ArgumentList & operator<<(const ArgumentList & arg);
+
+  /// 
+  const Argument * operator[](int idx) const;
+
+  /// 
+  const Argument * value(int idx, const Argument * def = NULL) const;
+
+  void insert(int idx, Argument * arg);
+
+  int size() const;
+
+  QList<Argument *>::const_iterator begin() const;
+
+  QList<Argument *>::const_iterator end() const;
+
+  /// @}
 
   /// Whether the list contains an argument of the given name.
   bool contains(const QString & name) const;
@@ -61,7 +91,7 @@ public:
   /// If there is a special argument (option) named *, then it is
   /// returned for all calls that would otherwise not return an
   /// option.
-  Argument * namedArgument(const QString & name) const;
+  const Argument * namedArgument(const QString & name) const;
 
   /// Returns the names of all the arguments.
   QStringList argumentNames() const;
@@ -79,10 +109,8 @@ public:
 
   /// Returns the Argument that should take care of the given numbered
   /// arg, considering that there are altogether \p total arguments.
-  Argument * whichArgument(int arg, int total) const {
-    return value(assignArgument(arg, total), NULL);
-  }; 
-
+  const Argument * whichArgument(int arg, int total) const;
+  
   /// Parse the given arguments, prompting using the given widget as
   /// base when necessary.
   ///
@@ -100,7 +128,7 @@ public:
   bool hasDefaultOption() const;
 
   /// Returns the default option, or NULL if there isn't
-  Argument * defaultOption() const;
+  const Argument * defaultOption() const;
 
   /// Sets the description of the named argument
   void setArgumentDescription(const QString & name, const QString & desc);

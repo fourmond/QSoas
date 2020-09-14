@@ -597,6 +597,14 @@ ArgumentMarshaller * SeveralDataSetArgument::fromString(const QString & s) const
   QList<const DataSet*> dss;
   for(const QString & spec : ::splitOnUnescapedCommas(s))
     dss << soas().stack().datasetsFromSpec(spec);
+  if(! nullOK) {
+    // Stripping NULL datasets
+    for(int i = 0; i < dss.size(); i++) {
+      if(dss[i] == NULL) {
+        dss.takeAt(i--);
+      }
+    }
+  }
   
   return new
     ArgumentMarshallerChild<QList<const DataSet *> >

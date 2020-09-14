@@ -355,12 +355,13 @@ public:
 ///
 /// @todo Add prompting, but that will be fun.
 class SeveralDataSetArgument : public Argument {
+  bool nullOK;
 public:
 
   SeveralDataSetArgument(const char * cn, const char * pn,
                          const char * d = "", bool g = true, 
-                         bool def = false) : 
-    Argument(cn, pn, d, g, def) {
+                         bool def = false, bool nOK = false) : 
+    Argument(cn, pn, d, g, def), nullOK(nOK) {
   }; 
   
   /// Returns a wrapped QList<const DataSet *>

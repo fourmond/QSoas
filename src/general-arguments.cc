@@ -1123,7 +1123,7 @@ QString CodeArgument::typeDescription() const
 
 QStringList CodeArgument::proposeCompletion(const QString & starter) const
 {
-  QRegExp globalRE("\\$[\\w.]*$");
+  QRegExp globalRE("\\$[\\w.]*(\\[.*)?$");
   const DataSet * ds = soas().stack().currentDataSet(true);
   QStringList rv;
   if(!ds)
@@ -1135,12 +1135,16 @@ QStringList CodeArgument::proposeCompletion(const QString & starter) const
     props << "$stats" << "$meta";
     // Prepare completions
     QStringList stats = StatisticsValue::statsAvailable(ds);
-    for(const QString & n : stats)
+    for(const QString & n : stats) 
       props += "$stats." + n;
     QStringList meta = ds->getMetaData().keys();
     meta << "name";
-    for(const QString & n : meta)
-      props += "$meta." + n;
+    QRegExp re("^\\w+$");
+    for(const QString & n : meta) {
+      if(re.indexIn(n, 0) == 0)
+        props += "$meta." + n;
+      props += "$meta[\"" + n + "\"]";
+    }
     props = Utils::stringsStartingWith(props, cur);
     QString b = starter.left(idx);
     for(const QString & n: props)

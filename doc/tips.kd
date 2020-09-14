@@ -708,4 +708,10 @@ In the help browser, use the right click to:
 
 Use that for instance in the [examples](examples.html) !
 
+{::comment} tip: advanced;command-line;math{:/}
+## Automatic completion on code {#code-completion}
 
+Automatic completion with the TAB key also works for code, and in
+particular the [special variables](qsoas.html#special-variables)
+`$meta` and `$stats`. They can also help with the quotes when using
+meta-data with spaces in their names.

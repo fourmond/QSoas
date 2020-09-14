@@ -2188,7 +2188,8 @@ experimental conditions recorded in that file. These are known as
 Here are some meta-data of particular signification available to all
 buffers loaded from files:
 
-  * `file-date` is the date of the file
+  * `file_date` is the date of the file
+  * `original_file` is the file name of the loaded file
   * `age` is the how old the file was in **seconds** when the current
     `QSoas` session was started.
   * `commands` is the list of commands that have been applied to this
@@ -7414,12 +7415,30 @@ evaluation programs (it is quite close to the one from
    `&&` operator. The single-letter versions, `|` and `&` are
    **binary** operators and will not work as you intend.
 
+## Special variables {#special-variables}
+
 Most ruby expressions can make use of dataset information, such as
 meta-data or statistics (see the documentation of the specific command
-for more information about how to make this available). The most easy
-way to do so is to use for instance `$stats.y_max` to refer to the
-`y_max` statistic.
+for more information about how to make this available):
 
+ * the special variable `$stats` allow access to the statistics, as
+   given by [cmd: stats].
+ * the special variable `$meta` gives access to the
+   [meta-data](#meta-data).
+
+For instance, to subtract the average to the y column:
+
+~~~
+QSoas> apply-formula y-=$stats.y_average
+~~~ 
+
+To show the name of the original file of the current buffer.
+
+~~~
+QSoas> eval $meta.original_file
+~~~
+
+Auto completion is able to complete the `$stats` or `$meta` completions.
 
 ## Special functions {#special-functions}
 

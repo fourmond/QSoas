@@ -3,7 +3,34 @@
 clear-stack
 drop 0,1
 assert true
+
 fetch 1
 assert true
+
 fetch -1
+assert true
+
+# Some more
+show 0
+assert true
+
+run-for-datasets missing-buffers.cmds 0
+assert true
+
+S 1 0
+assert true
+
+add 1 0
+assert true
+
+average 0
+assert true
+
+cat 0 1
+assert true
+
+contract 0 1
+assert true
+
+H 0
 assert true

@@ -37,13 +37,13 @@ protected:
 
   QString shortCmdName;
 
-  QByteArray pubName;
+  QString pubName;
 
-  QByteArray shortDesc;
+  QString shortDesc;
   
   QString longDesc;
 
-  QByteArray groupName;
+  QString groupName;
 
   /// The arguments list. Can be NULL if no arguments are expected.
   ArgumentList * arguments;
@@ -52,8 +52,11 @@ protected:
   /// options.
   ArgumentList * options;
 
-  /// Whether the command is custom (i.e. created after the or not.
+  /// Whether the command is custom (i.e. created after the creation
+  /// of the main window or not)
   bool custom;
+
+  /// Whether
 
   /// The CommandContext for the Command
   CommandContext * context;
@@ -91,27 +94,19 @@ public:
 
 
   /// Specifies the various elements linked to the Command.
-  Command(const char * cn, 
-          CommandEffector * eff,
-          const char * gn, 
+  ///
+  /// @b Ownership:
+  /// @li Command takes ownership of the @a effector
+  Command(const QString & commandName, 
+          CommandEffector * effector,
+          const QString & groupName, 
           ArgumentList * ar,
           ArgumentList * op,
-          const char * pn,
-          const char * sd = "", 
-          const char * sc = "", 
+          const QString & publicName,
+          const QString & shortDescription = "", 
+          const QString & longDescription = "", 
           CommandContext * context = NULL,
           bool autoRegister = true); 
-
-  Command(const char * cn, 
-          CommandEffector * eff,
-          const char * gn, 
-          ArgumentList * ar,
-          ArgumentList * op,
-          const QByteArray & pn,
-          const QByteArray & sd = "", 
-          const QByteArray & sc = "",
-          CommandContext * context = NULL,
-          bool autoRegister = true);
 
   /// Unregisters the command upon deletion
   ~Command();

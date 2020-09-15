@@ -38,14 +38,14 @@
 #include <terminal.hh>
 
 
-Command::Command(const char * cn, 
+Command::Command(const QString & cn, 
                  CommandEffector * eff,
-                 const char * gn, 
+                 const QString & gn, 
                  ArgumentList * ar,
                  ArgumentList * op,
-                 const char * pn,
-                 const char * sd, 
-                 const char * sc,
+                 const QString & pn,
+                 const QString & sd, 
+                 const QString & sc,
                  CommandContext * cxt,
                  bool autoRegister) : 
   cmdName(cn), shortCmdName(sc), pubName(pn), 
@@ -55,33 +55,16 @@ Command::Command(const char * cn,
   effector(eff), 
   group(NULL)
 {
-  if(autoRegister)
-    registerMe();
-}; 
-
-Command::Command(const char * cn, 
-                 CommandEffector * eff,
-                 const char * gn, 
-                 ArgumentList * ar,
-                 ArgumentList * op,
-                 const QByteArray & pn,
-                 const QByteArray & sd, 
-                 const QByteArray & sc, 
-                 CommandContext * cxt,
-                 bool autoRegister) : 
-  cmdName(cn), shortCmdName(sc), pubName(pn), 
-  shortDesc(sd), groupName(gn), 
-  arguments(ar), options(op), custom(CommandContext::finishedLoading),
-  context(cxt),
-  effector(eff), 
-  group(NULL)
-{
+  // QTextStream o(stdout);
+  // o << "Creating command: " << cn << endl;
   if(autoRegister)
     registerMe();
 }; 
 
 Command::~Command()
 {
+  // QTextStream o(stdout);
+  // o << "Deleting command: " << cmdName << endl;
   context->unregisterCommand(this);
   delete effector;
 }

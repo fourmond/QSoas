@@ -739,7 +739,7 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
 
 Fit::~Fit()
 {
-  // deleteCommands();
+  deleteCommands();
 }
 
 

@@ -65,6 +65,8 @@ public:
   };
 };
 
+class Command;
+
 /// This abstract class defines the interface for handling fits.
 ///
 /// @todo handle validity range checking
@@ -91,6 +93,12 @@ protected:
                     CommandEffector * sim = NULL
                     );
 
+  /// The Command objects for the fit-, mfit-, sim- commands.
+  Command * fitCommand, * mfitCommand, * simCommand;
+
+  /// Deletes the commands of the fit.
+  void deleteCommands();
+  
   /// The minimum number of datasets the fit should take.
   int minDataSets;
 
@@ -305,14 +313,8 @@ public:
   /// the corresponding commands.
   Fit(const QString & n, const QString & sd, 
       const QString & desc,
-      int min = 1, int max = -1, bool mkCmds = true) :
-    name(n), shortDesc(sd), longDesc(desc),
-    minDataSets(min), maxDataSets(max) { 
-    registerFit(this);
-    if(mkCmds)
-      makeCommands();
-  };
-
+      int min = 1, int max = -1, bool mkCmds = true);
+  
   virtual ~Fit();
 
   /// Runs the fit on the current dataset, that is, pops up the dialog
@@ -392,6 +394,8 @@ public:
   /// Does not delete the fit, but can delete the commands if
   /// \a deleteCommands is true.
   static void unregisterFit(Fit * fit, bool deleteCommands = false);
+
+  
 
   /// This command wraps around unregisterFit and safely removes a fit
   /// if \a overwrite is true (unless it is a standard fit), or throws

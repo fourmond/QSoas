@@ -61,6 +61,8 @@ public:
     return needsLoop() || interactive;
   };
 
+  virtual ~CommandEffector();
+
 };
 
 #endif

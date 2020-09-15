@@ -83,6 +83,7 @@ Command::Command(const char * cn,
 Command::~Command()
 {
   context->unregisterCommand(this);
+  delete effector;
 }
 
 void Command::registerMe()

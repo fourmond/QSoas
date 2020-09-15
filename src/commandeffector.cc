@@ -30,3 +30,7 @@ void CommandEffector::runWithLoop(CurveEventLoop & /*loop*/,
   throw InternalError("Attempting to run a non-interactive effector "
                       "with an event loop");
 }
+
+CommandEffector::~CommandEffector()
+{
+}

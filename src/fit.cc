@@ -57,6 +57,19 @@ static Group mfit("mfits", 1,
 
 QHash<QString, Fit*> * Fit::fitsByName = NULL;
 
+
+Fit::Fit(const QString & n, const QString & sd, 
+         const QString & desc,
+         int min, int max, bool mkCmds) :
+  name(n), shortDesc(sd), longDesc(desc),
+  fitCommand(NULL), mfitCommand(NULL), simCommand(NULL),
+  minDataSets(min), maxDataSets(max)
+{ 
+  registerFit(this);
+  if(mkCmds)
+    makeCommands();
+}
+
 bool Fit::threadSafe() const {
   return false;
 }
@@ -71,6 +84,15 @@ void Fit::registerFit(Fit * fit)
   (*fitsByName)[fit->name] = fit;
 }
 
+void Fit::deleteCommands()
+{
+  delete fitCommand;
+  fitCommand = NULL;
+  delete mfitCommand;
+  mfitCommand = NULL;
+  delete simCommand;
+  simCommand = NULL;
+}
 
 void Fit::unregisterFit(Fit * fit, bool deleteCommands)
 {
@@ -315,10 +337,11 @@ void Fit::makeCommands(ArgumentList * args,
   // We don't declare the fit command when multiple datasets are
   // necessary.
   if(minDataSets == 1) {
-    new Command((const char*)(QString("fit-") + name).toLocal8Bit(),
-                singleFit ? singleFit : 
-                effector(this, &Fit::runFitCurrentDataSet, true),
-                "sfits", fal, options, pn, sd);
+    fitCommand =
+      new Command((const char*)(QString("fit-") + name).toLocal8Bit(),
+                  singleFit ? singleFit : 
+                  effector(this, &Fit::runFitCurrentDataSet, true),
+                  "sfits", fal, options, pn, sd);
     options = new ArgumentList(*options); // Duplicate, as options
                                           // will be different for single and multi fits
   }
@@ -351,10 +374,11 @@ void Fit::makeCommands(ArgumentList * args,
   pn += shortDesc;
   sd = "multi buffer fit: ";
   sd += shortDesc;
-  new Command((const char*)(QString("mfit-") + name).toLocal8Bit(),
-              multiFit ? multiFit : 
-              effector(this, &Fit::runFit, true),
-              "mfits", al, options, pn, sd);
+  mfitCommand = 
+    new Command((const char*)(QString("mfit-") + name).toLocal8Bit(),
+                multiFit ? multiFit : 
+                effector(this, &Fit::runFit, true),
+                "mfits", al, options, pn, sd);
 
   if(! multiFit || sim) {
     /// @todo handle the case when there is a fit-specified effector.
@@ -389,10 +413,11 @@ void Fit::makeCommands(ArgumentList * args,
                                  "Whether to just compute the function, "
                                  "the full jacobian, reexport parameters "
                                  "with errors or just annotate datasets")
-    ;
-    new Command((const char*)(QString("sim-") + name).toLocal8Bit(),
-                (sim ? sim : effector(this, &Fit::computeFit)),
-                "simulations", al2, nopts, pn, sd);
+      ;
+    simCommand = 
+      new Command((const char*)(QString("sim-") + name).toLocal8Bit(),
+                  (sim ? sim : effector(this, &Fit::computeFit)),
+                  "simulations", al2, nopts, pn, sd);
   }
 }
 
@@ -714,6 +739,7 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
 
 Fit::~Fit()
 {
+  // deleteCommands();
 }
 
 

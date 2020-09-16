@@ -28,6 +28,10 @@ ArgumentMarshaller * Argument::convertRubyString(mrb_value value) const
   return fromString(mr->toQString(value));
 }
 
+Argument::~Argument()
+{
+}
+
 
 
 ArgumentMarshaller * Argument::convertRubyArray(mrb_value value) const

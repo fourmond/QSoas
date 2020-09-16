@@ -259,21 +259,26 @@ void Fit::makeCommands(ArgumentList * args,
   sd += shortDesc;
 
   ArgumentList * fal = NULL;
-  if(! args)
-    args = fitArguments();
   if(args) 
     fal = new ArgumentList(*args);
+  else {
+    fal = fitArguments();
+  }
 
   ArgumentList * options;
   ArgumentList * baseOptions;
   if(! originalOptions) {
     baseOptions = new ArgumentList;
     ArgumentList * tmp = fitHardOptions();
-    if(tmp)
+    if(tmp) {
       (*baseOptions) << *tmp;
+      delete tmp;
+    }
     tmp = fitSoftOptions();
-    if(tmp)
+    if(tmp) {
       (*baseOptions) << *tmp;
+      delete tmp;
+    }
   }
   else 
     baseOptions = new ArgumentList(*originalOptions);
@@ -342,8 +347,8 @@ void Fit::makeCommands(ArgumentList * args,
                   singleFit ? singleFit : 
                   effector(this, &Fit::runFitCurrentDataSet, true),
                   "sfits", fal, options, pn, sd);
-    options = new ArgumentList(*options); // Duplicate, as options
-                                          // will be different for single and multi fits
+    // options = new ArgumentList(*options); // Duplicate, as options
+    //                                       // will be different for single and multi fits
   }
   *options << new BoolArgument("weight-buffers", 
                                "Weight buffers",
@@ -379,18 +384,21 @@ void Fit::makeCommands(ArgumentList * args,
                 multiFit ? multiFit : 
                 effector(this, &Fit::runFit, true),
                 "mfits", al, options, pn, sd);
+  delete options;
 
   if(! multiFit || sim) {
     /// @todo handle the case when there is a fit-specified effector.
     pn = "Simulation: ";
-    pn += shortDesc;;
+    pn += shortDesc;
     sd = "fit simulation: ";
     sd += shortDesc;
     ArgumentList * al2 = new ArgumentList(*al);
+    delete al;
     al2->insert(al2->size()-1, 
                 new FileArgument("parameters", 
                                  "Parameters",
                                  "file to load parameters from"));
+    /// @temp Get rid of that
     al2->setArgumentDescription("datasets", "the buffers whose X values will be used for simulations");
 
     ArgumentList * nopts = new ArgumentList(*baseOptions);
@@ -418,7 +426,10 @@ void Fit::makeCommands(ArgumentList * args,
       new Command((const char*)(QString("sim-") + name).toLocal8Bit(),
                   (sim ? sim : effector(this, &Fit::computeFit)),
                   "simulations", al2, nopts, pn, sd);
+    delete nopts;
+    delete al2;
   }
+  delete baseOptions;
 }
 
 

@@ -71,7 +71,9 @@ public:
            const char * d = "", bool g = false, bool def = false) : 
     name(cn), pubName(pn), 
     desc(d), greedy(g), defaultOption(def) {
-  }; 
+  };
+
+  virtual ~Argument();
 
   /// The argument name, for displaying purposes (not the same as
   /// public name)

@@ -427,6 +427,7 @@ void DataBackend::registerBackendCommands()
                 effector(b, &DataBackend::loadDatasetCommand),
                 "load", lst, opts, (const char*) d1.toLocal8Bit(), 
                 (const char*) d1.toLocal8Bit());
+    delete opts;
   }
 
   overallOptions->mergeOptions(*allBackendsOptions);
@@ -452,5 +453,7 @@ void DataBackend::registerBackendCommands()
                 "Overlay",
                 "Loads files and overlay them",
                 "v");
+  delete lst;
+  delete oo;
   
 }

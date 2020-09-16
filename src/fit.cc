@@ -107,10 +107,10 @@ void Fit::unregisterFit(Fit * fit, bool deleteCommands)
       namedCommand(cmds[i] + fit->name);
     if(cmd) {
       CommandContext::globalContext()->unregisterCommand(cmd);
-      if(deleteCommands)
-        delete cmd;
     }
   }
+  if(deleteCommands)
+    fit->deleteCommands();
 }
 
 void Fit::safelyRedefineFit(const QString & name, bool overwrite)

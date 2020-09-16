@@ -41,8 +41,8 @@
 Command::Command(const QString & cn, 
                  CommandEffector * eff,
                  const QString & gn, 
-                 ArgumentList * ar,
-                 ArgumentList * op,
+                 const ArgumentList * ar,
+                 const ArgumentList * op,
                  const QString & pn,
                  const QString & sd, 
                  const QString & sc,
@@ -50,7 +50,34 @@ Command::Command(const QString & cn,
                  bool autoRegister) : 
   cmdName(cn), shortCmdName(sc), pubName(pn), 
   shortDesc(sd), groupName(gn), 
-  arguments(ar), options(op), custom(CommandContext::finishedLoading),
+  arguments(ar ? new ArgumentList(*ar) : NULL),
+  options(op ? new ArgumentList(*op) : NULL),
+  custom(CommandContext::finishedLoading),
+  context(cxt),
+  effector(eff), 
+  group(NULL)
+{
+  // QTextStream o(stdout);
+  // o << "Creating command: " << cn << endl;
+  if(autoRegister)
+    registerMe();
+}; 
+
+Command::Command(const QString & cn, 
+                 CommandEffector * eff,
+                 const QString & gn, 
+                 const ArgumentList & ar,
+                 const ArgumentList & op,
+                 const QString & pn,
+                 const QString & sd, 
+                 const QString & sc,
+                 CommandContext * cxt,
+                 bool autoRegister) : 
+  cmdName(cn), shortCmdName(sc), pubName(pn), 
+  shortDesc(sd), groupName(gn), 
+  arguments(new ArgumentList(ar)),
+  options(new ArgumentList(op)),
+  custom(CommandContext::finishedLoading),
   context(cxt),
   effector(eff), 
   group(NULL)
@@ -67,6 +94,8 @@ Command::~Command()
   // o << "Deleting command: " << cmdName << endl;
   context->unregisterCommand(this);
   delete effector;
+  delete options;
+  delete arguments;
 }
 
 void Command::registerMe()

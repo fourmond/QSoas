@@ -87,8 +87,8 @@ public:
   /// parameters.
   QSet<int> skippedIndices;
 
-  static ArgumentList * hardOptions() {
-    return new
+  static ArgumentList hardOptions() {
+    return
       ArgumentList(QList<Argument *>()
                    << new TDPArgument("with", 
                                       "Time dependent parameters",
@@ -361,7 +361,7 @@ protected:
     
 public:
 
-  ArgumentList * fitHardOptions() const override {
+  ArgumentList fitHardOptions() const override {
     return FormulaBasedFit::hardOptions();
   };
 
@@ -399,7 +399,7 @@ public:
         "Already defined constants: f, pi",
         1, -1, false)
   {
-    ArgumentList * al = new 
+    ArgumentList al =
       ArgumentList(QList<Argument *>()
                    << new StringArgument("formulas", 
                                          "Formulas",
@@ -503,7 +503,7 @@ protected:
     
 public:
   
-  ArgumentList * fitHardOptions() const override {
+  ArgumentList fitHardOptions() const override {
     return FormulaBasedFit::hardOptions();
   };
 
@@ -638,8 +638,8 @@ static Command
 loadFitsC("load-fits", // command name
          effector(loadFitsCommand), // action
          "fits",  // group name
-         &lfArgs, // arguments
-         &lfOpts, 
+         lfArgs, // arguments
+         lfOpts, 
          "Load fits",
          "Load fits from a file");
 
@@ -677,7 +677,7 @@ static Command
 defineCustom("custom-fit", // command name
              effector(defineCustomFitCommand), // action
              "fits",  // group name
-             &cfArgs, // arguments
-             &cfOpts, // options
+             cfArgs, // arguments
+             cfOpts, // options
              "Define fit",
              "Define custom fit from a formula");

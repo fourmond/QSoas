@@ -129,8 +129,8 @@ public:
     return params;
   };
 
-  virtual ArgumentList * fitHardOptions() const override {
-    ArgumentList * opts = new 
+  virtual ArgumentList fitHardOptions() const override {
+    return
       ArgumentList(QList<Argument *>()
                    << new 
                    BoolArgument("explicit-rate", 
@@ -138,7 +138,6 @@ public:
                                 "whether the scan rate is an explicit "
                                 "parameter of the fit (default false)")
                    );
-    return opts;
   };
 
   SlowScanLowPotFit() : PerDatasetFit("slow-scan-lp", 
@@ -279,8 +278,8 @@ public:
     return ret;
   };
 
-  virtual ArgumentList * fitHardOptions() const override {
-    ArgumentList * opts = new 
+  virtual ArgumentList fitHardOptions() const override {
+    return
       ArgumentList(QList<Argument *>()
                    << new 
                    BoolArgument("bi-exp", 
@@ -293,7 +292,6 @@ public:
                                 "if on, use an additional scaling factor "
                                 "(off by default)")
                    );
-    return opts;
   };
 
   SlowScanHighPotFit() : 
@@ -486,8 +484,8 @@ public:
     return defs;
   };
 
-  virtual ArgumentList * fitHardOptions() const override {
-    ArgumentList * opts = new 
+  virtual ArgumentList fitHardOptions() const override {
+    return
       ArgumentList(QList<Argument *>()
                    << new 
                    SeveralIntegersArgument("order", 
@@ -502,11 +500,10 @@ public:
                                 "Prefactor",
                                 "Whether there is a prefactor for each polynomial (on by default for multiple polynomials)")
                    );
-    return opts;
   };
 
-  virtual ArgumentList * fitSoftOptions() const override {
-    ArgumentList * opts = new 
+  virtual ArgumentList fitSoftOptions() const override {
+    return
       ArgumentList(QList<Argument *>()
                    << new 
                    BoolArgument("monotonic", 
@@ -519,7 +516,6 @@ public:
                                 "If this is on, there are no inflexion "
                                 "points in the polynomials")
                    );
-    return opts;
   };
 
   PolynomialFit() :
@@ -669,15 +665,14 @@ public:
     return defs;
   };
 
-  virtual ArgumentList * fitHardOptions() const override {
-    ArgumentList * opts = new 
+  virtual ArgumentList fitHardOptions() const override {
+    return
       ArgumentList(QList<Argument *>()
                    << new 
                    IntegerArgument("order", 
                                    "Order",
                                    "Order of the polynomial function")
                    );
-    return opts;
   };
 
   TwoPolynomialFit() :
@@ -979,8 +974,8 @@ public:
     
   };
 
-  virtual ArgumentList * fitHardOptions() const override {
-    ArgumentList * opts = new 
+  virtual ArgumentList fitHardOptions() const override {
+    return
       ArgumentList(QList<Argument *>()
                    << new IntegerArgument("species", 
                                           "Number of species",
@@ -997,7 +992,6 @@ public:
                                           "Steps",
                                           "Step list with numbered conditions")
                    );
-    return opts;
   };
 
   LinearKineticSystemFit() :

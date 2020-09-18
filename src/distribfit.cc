@@ -371,16 +371,12 @@ void DistribFit::initialGuess(FitData * data,
   s->dist->initialGuess(guess + s->distribIndex, value);
 }
 
-ArgumentList * DistribFit::fitHardOptions() const
+ArgumentList DistribFit::fitHardOptions() const
 {
-  ArgumentList * org = underlyingFit->fitHardOptions();
-  ArgumentList * rv;
-  if(org)
-    rv = new ArgumentList(*org);
-  else
-    rv = new ArgumentList;
-  *rv << new ChoiceArgument(Distribution::availableDistributions, "distribution",
-                            "Distribution", "Distribution for the argument");
+  ArgumentList rv = underlyingFit->fitHardOptions();
+  rv << new ChoiceArgument(Distribution::availableDistributions,
+                           "distribution",
+                           "Distribution", "Distribution for the argument");
   return rv;
 }
 
@@ -441,15 +437,10 @@ void DistribFit::function(const double * parameters,
 }
 
 
-ArgumentList * DistribFit::fitSoftOptions() const
+ArgumentList DistribFit::fitSoftOptions() const
 {
-  ArgumentList * org = underlyingFit->fitSoftOptions();
-  ArgumentList * rv;
-  if(org)
-    rv = new ArgumentList(*org);
-  else
-    rv = new ArgumentList;
-  (*rv) << MultiIntegrator::integratorOptions();
+  ArgumentList rv = underlyingFit->fitSoftOptions();
+  rv << MultiIntegrator::integratorOptions();
   return rv;
 }
 

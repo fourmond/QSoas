@@ -130,9 +130,6 @@ public:
   /// Returns the default option, or NULL if there isn't
   const Argument * defaultOption() const;
 
-  /// Sets the description of the named argument
-  void setArgumentDescription(const QString & name, const QString & desc);
-
   /// Merges another argument list while trying to avoid name clashes.
   ///
   /// For now, duplicate names will get ignored. @todo Make this

@@ -98,20 +98,20 @@ QString DerivativeFit::optionsString(FitData *  data) const
   return Fit::optionsString(s->underlyingFit, data) + " -- derivative" + n;
 }
 
-ArgumentList * DerivativeFit::fitHardOptions() const
+ArgumentList DerivativeFit::fitHardOptions() const
 {
   PerDatasetFit * fit = dynamic_cast<PerDatasetFit *>(Fit::namedFit(underlyingFitName));
   if(fit)
     return Fit::fitHardOptions(fit);
-  return NULL;
+  return ArgumentList();
 }
 
-ArgumentList * DerivativeFit::fitSoftOptions() const
+ArgumentList DerivativeFit::fitSoftOptions() const
 {
   PerDatasetFit * fit = dynamic_cast<PerDatasetFit *>(Fit::namedFit(underlyingFitName));
   if(fit)
     return Fit::fitSoftOptions(fit);
-  return NULL;
+  return ArgumentList();
 }
 
 CommandOptions DerivativeFit::currentSoftOptions(FitData * data) const
@@ -317,11 +317,13 @@ DerivativeFit::DerivativeFit(PerDatasetFit * source, DerivativeFit::Mode m) :
   // How to remove the "parameters" argument ?
   Command * cmd = CommandContext::globalContext()->
     namedCommand("fit-" + underlyingFitName );
-  ArgumentList * opts = new ArgumentList(*cmd->commandOptions());
+
+  /// @hack But shouldn't this simply be fitSoftOptions + fitHardOptions();
+  ArgumentList opts = *cmd->commandOptions();
 
   /// @todo Add own options.
 
-  makeCommands(NULL, NULL, NULL, opts);
+  makeCommands(ArgumentList(), NULL, NULL, opts);
 }
 
 FitInternalStorage * DerivativeFit::allocateStorage(FitData * data) const
@@ -378,18 +380,18 @@ class CombinedDerivativeFit : public PerDatasetFit {
 
   };
   
-  virtual ArgumentList * fitHardOptions() const override {
+  virtual ArgumentList fitHardOptions() const override {
     PerDatasetFit * fit = dynamic_cast<PerDatasetFit *>(Fit::namedFit(underlyingFitName));
     if(fit)
       return Fit::fitHardOptions(fit);
-    return NULL;
+    return ArgumentList();
   };
   
-  virtual ArgumentList * fitSoftOptions() const override {
+  virtual ArgumentList fitSoftOptions() const override {
     PerDatasetFit * fit = dynamic_cast<PerDatasetFit *>(Fit::namedFit(underlyingFitName));
     if(fit)
       return Fit::fitSoftOptions(fit);
-    return NULL;
+    return ArgumentList();
   };
   
   virtual CommandOptions currentSoftOptions(FitData * data) const override {
@@ -607,11 +609,11 @@ public:
     // How to remove the "parameters" argument ?
     Command * cmd = CommandContext::globalContext()->
       namedCommand("fit-" + underlyingFitName );
-    ArgumentList * opts = new ArgumentList(*cmd->commandOptions());
+    ArgumentList opts = ArgumentList(*cmd->commandOptions());
 
     /// @todo Add own options.
 
-    makeCommands(NULL, NULL, NULL, opts);
+    makeCommands(ArgumentList(), NULL, NULL, opts);
   };
 
 };
@@ -638,8 +640,8 @@ static void defineDerivedFit(const QString &, QString fitName,
   bool overwrite = false;
   updateFromOptions(opts, "redefine", overwrite);
 
-  ArgumentList * lst = fit->fitArguments();
-  if(lst && lst->size())
+  ArgumentList lst = fit->fitArguments();
+  if(lst.size() > 0)
     throw RuntimeError("Cannot make derivatives of fits that take arguments -- use one of the define-*-fit commands, or custom-fit");
 
   QString tn = DerivativeFit::derivativeFitName(fit, mode);

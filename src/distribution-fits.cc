@@ -226,8 +226,8 @@ public:
     return params;
   };
 
-  virtual ArgumentList * fitHardOptions() const override {
-    ArgumentList * opts = new 
+  virtual ArgumentList fitHardOptions() const override {
+    return
       ArgumentList(QList<Argument *>()
                    << new BoolArgument("use-surface", 
                                        "Use Surface",
@@ -238,7 +238,6 @@ public:
                                           "number of distinct peaks (default 1)")
 
                    );
-    return opts;
   };
 
   DistributionFit(Function f,

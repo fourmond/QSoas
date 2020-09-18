@@ -185,8 +185,8 @@ public:
     }
   };
   
-  virtual ArgumentList * fitHardOptions() const override {
-    ArgumentList * opts = new 
+  virtual ArgumentList fitHardOptions() const override {
+    return
       ArgumentList(QList<Argument *>()
                    << new SeveralIntegersArgument("states", 
                                                   "Number of states",
@@ -196,7 +196,6 @@ public:
                                           "Number of distinct species (regardless of their redox state)")
                    
                    );
-    return opts;
   };
   
   NernstFit() : FunctionFit("nernst", 
@@ -426,8 +425,8 @@ public:
     }
   };
   
-  virtual ArgumentList * fitHardOptions() const override {
-    ArgumentList * opts = new 
+  virtual ArgumentList fitHardOptions() const override {
+    return
       ArgumentList(QList<Argument *>()
                    << new IntegerArgument("species", 
                                           "Number of 1-electron species",
@@ -439,7 +438,6 @@ public:
                                        "Whether the species are distinct",
                                        "If true (default) then all species have their own surface concentrations")
                    );
-    return opts;
   };
   
   AdsorbedFit() : PerDatasetFit("adsorbed", 

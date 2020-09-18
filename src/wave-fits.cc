@@ -210,8 +210,8 @@ public:
   };
 
 
-  virtual ArgumentList * fitHardOptions() const override {
-    ArgumentList * opts = new 
+  virtual ArgumentList fitHardOptions() const override {
+    return
       ArgumentList(QList<Argument *>()
                    << new 
                    TemplateChoiceArgument<ShapeApproximation>
@@ -224,7 +224,6 @@ public:
                                 "Reductive direction",
                                 "if on, models a reductive wave (default: off, hence oxidative wave)")
                    );
-    return opts;
   };
 
   ECIFit() :
@@ -440,8 +439,8 @@ public:
   };
 
 
-  virtual ArgumentList * fitHardOptions() const  override {
-    ArgumentList * opts = new 
+  virtual ArgumentList fitHardOptions() const  override {
+    return
       ArgumentList(QList<Argument *>()
                    << new 
                    TemplateChoiceArgument<ShapeApproximation>
@@ -459,7 +458,6 @@ public:
                                 "whether to use explicitly the bias or compute "
                                 "it using the open circuit potential (default: false)")
                    );
-    return opts;
   };
 
   ECRFit() :
@@ -668,8 +666,8 @@ public:
     }
   };
 
-  virtual ArgumentList * fitHardOptions() const override {
-    ArgumentList * opts = new 
+  virtual ArgumentList fitHardOptions() const override {
+    return
       ArgumentList(QList<Argument *>()
                    << new 
                    TemplateChoiceArgument<ShapeApproximation>
@@ -682,7 +680,6 @@ public:
                                 "Reductive direction",
                                 "if on, models a reductive wave (default: off, hence oxidative wave)")
                    );
-    return opts;
   };
 
   EECIFit() :
@@ -935,8 +932,8 @@ public:
   };
 
 
-  virtual ArgumentList * fitHardOptions() const override {
-    ArgumentList * opts = new 
+  virtual ArgumentList fitHardOptions() const override {
+    return
       ArgumentList(QList<Argument *>()
                    << new 
                    TemplateChoiceArgument<ShapeApproximation>
@@ -954,7 +951,6 @@ public:
                                 "whether to use explicitly the bias or compute "
                                 "it using the open circuit potential (default: false)")
                    );
-    return opts;
   };
 
   EECRFit() :
@@ -1014,15 +1010,14 @@ protected:
   
 public:
 
-  virtual ArgumentList * fitHardOptions() const override {
-    ArgumentList * opts = new 
+  virtual ArgumentList fitHardOptions() const override {
+    return
       ArgumentList(QList<Argument *>()
                    << new 
                    BoolArgument("use-potentials", 
                                 "Use potentials",
                                 "if on, use the potentials of the active site electronic transitions rather than the equilibrium constants")
                    );
-    return opts;
   };
 
   
@@ -1319,8 +1314,8 @@ public:
     return defs;
   };
 
-  virtual ArgumentList * fitHardOptions() const override {
-    ArgumentList * opts = new 
+  virtual ArgumentList fitHardOptions() const override {
+    return
       ArgumentList(QList<Argument *>()
                    << new 
                    TemplateChoiceArgument<ShapeApproximation>
@@ -1338,7 +1333,6 @@ public:
                                 "whether to use explicitly the bias or compute "
                                 "it using the open circuit potential (default: false)")
                    );
-    return opts;
   };
 
   ECROldFit() :
@@ -1491,8 +1485,8 @@ public:
     return defs;
   };
 
-  virtual ArgumentList * fitHardOptions() const override {
-    ArgumentList * opts = new 
+  virtual ArgumentList fitHardOptions() const override {
+    return
       ArgumentList(QList<Argument *>()
                    << new 
                    BoolArgument("plateau", 
@@ -1509,7 +1503,6 @@ public:
                                 "whether to use explicitly the bias or compute "
                                 "it using the open circuit potential (default: false)")
                    );
-    return opts;
   };
 
 

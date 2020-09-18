@@ -24,6 +24,7 @@
 #define __FIT_HH
 
 #include <argumentmarshaller.hh>
+#include <argumentlist.hh>
 
 /// The definition of a parameter.
 class ParameterDefinition {
@@ -86,10 +87,10 @@ protected:
   ///
   /// If provided, the commands will have \a args as argument list
   /// (with the additional buffer arguments for the multiFit command)
-  void makeCommands(ArgumentList * args = NULL, 
+  void makeCommands(const ArgumentList &args = ArgumentList(), 
                     CommandEffector * singleFit = NULL,
                     CommandEffector * multiFit = NULL,
-                    ArgumentList * options = NULL,
+                    const ArgumentList &options = ArgumentList(), 
                     CommandEffector * sim = NULL
                     );
 
@@ -133,11 +134,11 @@ protected:
     f->processOptions(opts, data);
   };
 
-  static ArgumentList * fitHardOptions(const Fit * f) {
+  static ArgumentList fitHardOptions(const Fit * f) {
     return f->fitHardOptions();
   };
 
-  static ArgumentList * fitSoftOptions(const Fit * f) {
+  static ArgumentList fitSoftOptions(const Fit * f) {
     return f->fitSoftOptions();
   };
 
@@ -273,19 +274,19 @@ public:
   /// that have to be passed to the fit function.
   ///
   /// Mostly empty
-  virtual ArgumentList * fitArguments() const;
+  virtual ArgumentList fitArguments() const;
 
   /// The options to the fit, ie the options whose value may affect
   /// the number/interepretation of the fit parameters.
   ///
   /// Any change to these options must happen before the start of the
   /// fit.
-  virtual ArgumentList * fitHardOptions() const;
+  virtual ArgumentList fitHardOptions() const;
 
   /// These options can be provided before the beginning of the fit,
   /// but they can be changed from within the dialog box without
   /// adverse effects.
-  virtual ArgumentList * fitSoftOptions() const;
+  virtual ArgumentList fitSoftOptions() const;
 
 
   /// This function returns the current values of the soft options.

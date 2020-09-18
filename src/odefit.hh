@@ -157,9 +157,9 @@ public:
                                    QList<Vector> * targetData,
                                    QStringList * targetAnnotations) const override;
 
-  virtual ArgumentList * fitSoftOptions() const override;
+  virtual ArgumentList fitSoftOptions() const override;
 
-  virtual ArgumentList * fitHardOptions() const override;
+  virtual ArgumentList fitHardOptions() const override;
 
   virtual bool hasSubFunctions(FitData * data) const override;
 

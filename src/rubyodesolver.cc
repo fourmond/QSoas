@@ -422,10 +422,10 @@ public:
     s->timeDependentParameters.setInitialGuesses(a + s->tdBase, ds);
   };
 
-  virtual ArgumentList * fitArguments() const override {
+  virtual ArgumentList fitArguments() const override {
     if(mySystem)
-      return NULL;
-    return new 
+      return ArgumentList();
+    return 
       ArgumentList(QList<Argument *>()
                    << new FileArgument("system", 
                                        "System",
@@ -438,10 +438,10 @@ public:
            "Fit an ODE system",
            "", 1, -1, false), mySystem(NULL)
   { 
-    makeCommands(NULL, 
+    makeCommands(ArgumentList(), 
                  effector(this, &RubyODEFit::runFitCurrentDataSet, true),
                  effector(this, &RubyODEFit::runFit, true),
-                 NULL,
+                 ArgumentList(),
                  effector(this, &RubyODEFit::computeFit)
                  );
   };

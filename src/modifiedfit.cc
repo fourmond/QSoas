@@ -236,12 +236,12 @@ protected:
   };
 
 
-  ArgumentList * fitSoftOptions() const override
+  ArgumentList fitSoftOptions() const override
   {
     return Fit::fitSoftOptions(underlyingFit);
   }
 
-  ArgumentList * fitHardOptions() const override
+  ArgumentList fitHardOptions() const override
   {
     return Fit::fitHardOptions(underlyingFit);
   }
@@ -409,11 +409,9 @@ public:
   conditions(conds)
 {
 
-  ArgumentList * opts = new ArgumentList(*underlyingFit->fitHardOptions());
-  ArgumentList * o2 = underlyingFit->fitSoftOptions();
-  if(o2)
-    (*opts) << *o2;
-  makeCommands(NULL, NULL, NULL, opts);
+  ArgumentList opts = underlyingFit->fitHardOptions();
+  opts << underlyingFit->fitSoftOptions();
+  makeCommands(ArgumentList(), NULL, NULL, opts);
 }
 
   

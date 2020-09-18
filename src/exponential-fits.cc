@@ -234,8 +234,8 @@ public:
                       targetData);
   };
 
-  virtual ArgumentList * fitHardOptions() const override {
-    ArgumentList * opts = new 
+  virtual ArgumentList fitHardOptions() const override {
+    return  
       ArgumentList(QList<Argument *>()
                    << new IntegerArgument("exponentials", 
                                           "Number of exponentials",
@@ -254,7 +254,6 @@ public:
                                 "Slow phase",
                                 "whether there is a very slow phase (that shows up as a linear change in Y against time, defaults: false)")
                    );
-    return opts;
   };
 
   ExponentialFit() :
@@ -509,8 +508,8 @@ public:
     
   };
 
-  virtual ArgumentList * fitHardOptions() const override {
-    ArgumentList * opts = new 
+  virtual ArgumentList fitHardOptions() const override {
+    return
       ArgumentList(QList<Argument *>()
                    << new IntegerArgument("exponentials", 
                                           "Number of exponentials",
@@ -525,7 +524,6 @@ public:
                                 "Whether irreversible loss is independent on "
                                 "each step")
                    );
-    return opts;
   };
 
   MultiExpMultiStepFit() :

@@ -162,19 +162,19 @@ void Fit::functionForDataset(const double * parameters,
 }
 
 
-ArgumentList * Fit::fitArguments() const
+ArgumentList Fit::fitArguments() const
 {
-  return NULL;
+  return ArgumentList();
 }
 
-ArgumentList * Fit::fitHardOptions() const
+ArgumentList Fit::fitHardOptions() const
 {
-  return NULL;
+  return ArgumentList();
 }
 
-ArgumentList * Fit::fitSoftOptions() const
+ArgumentList Fit::fitSoftOptions() const
 {
-  return NULL;
+  return ArgumentList();
 }
 
 CommandOptions Fit::currentSoftOptions(FitData * /*data*/) const
@@ -246,10 +246,10 @@ public:
 
 /// @todo This function probably needs to be rewritten (with completely
 /// different arguments, for that matter).
-void Fit::makeCommands(ArgumentList * args, 
+void Fit::makeCommands(const ArgumentList &args, 
                        CommandEffector * singleFit,
                        CommandEffector * multiFit,
-                       ArgumentList * originalOptions,
+                       const ArgumentList &originalOptions,
                        CommandEffector * sim)
 {
 
@@ -258,85 +258,73 @@ void Fit::makeCommands(ArgumentList * args,
   QByteArray sd = "Single buffer fit: ";
   sd += shortDesc;
 
-  ArgumentList * fal = NULL;
-  if(args) 
-    fal = new ArgumentList(*args);
-  else {
+  ArgumentList fal = args;
+  if(args.size() == 0) 
     fal = fitArguments();
-  }
 
-  ArgumentList * options;
-  ArgumentList * baseOptions;
-  if(! originalOptions) {
-    baseOptions = new ArgumentList;
-    ArgumentList * tmp = fitHardOptions();
-    if(tmp) {
-      (*baseOptions) << *tmp;
-      delete tmp;
-    }
-    tmp = fitSoftOptions();
-    if(tmp) {
-      (*baseOptions) << *tmp;
-      delete tmp;
-    }
+  ArgumentList options;
+  ArgumentList baseOptions;
+  if(originalOptions.size() == 0) {
+    baseOptions << fitHardOptions()
+                << fitSoftOptions();
   }
   else 
-    baseOptions = new ArgumentList(*originalOptions);
+    baseOptions = originalOptions;
 
   
 
   // Bits common to all commands
-  *baseOptions << new IntegerArgument("debug", 
-                                          "Debug level",
-                                  "Debug level: 0 means no debug output, increasing values mean increasing details");
+  baseOptions << new IntegerArgument("debug", 
+                                     "Debug level",
+                                     "Debug level: 0 means no debug output, increasing values mean increasing details");
   if(false/* threadSafe()*/)
-    *baseOptions << new IntegerArgument("threads", 
-                                    "Threads",
-                                    "Number of threads for computing the jacobian");
+    baseOptions << new IntegerArgument("threads", 
+                                       "Threads",
+                                       "Number of threads for computing the jacobian");
   
-  *baseOptions << new FitEngineArgument("engine", 
+  baseOptions << new FitEngineArgument("engine", 
                                         "Fit engine",
                                         "The startup fit engine");
 
 
-  *baseOptions << new StringArgument("extra-parameters", 
+  baseOptions << new StringArgument("extra-parameters", 
                                      "Extra parameters",
                                      "defines supplementary parameters");
 
   /// Now things specific to some commands
-  options = new ArgumentList(*baseOptions);
+  options = baseOptions;
 
 
-  *options << new FileArgument("parameters", 
-                               "Parameters",
-                               "pre-loads parameters");
+  options << new FileArgument("parameters", 
+                              "Parameters",
+                              "pre-loads parameters");
 
-  *options << new FileArgument("script", 
-                               "Script",
-                               "runs a script file");
+  options << new FileArgument("script", 
+                              "Script",
+                              "runs a script file");
 
-  *options << new FileArgument("arg1", 
-                               "Argument 1",
-                               "first argument of the script file")
-           << new FileArgument("arg2", 
-                               "Argument 2",
-                               "second argument of the script file")
-           << new FileArgument("arg3", 
-                               "Argument 3",
-                               "third argument of the script file");
+  options << new FileArgument("arg1", 
+                              "Argument 1",
+                              "first argument of the script file")
+          << new FileArgument("arg2", 
+                              "Argument 2",
+                              "second argument of the script file")
+          << new FileArgument("arg3", 
+                              "Argument 3",
+                              "third argument of the script file");
 
-  *options << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
-                                         "set-from-meta", 
-                                         "Set from meta-data",
-                                         "sets parameter values from meta-data");
-  *options << new BoolArgument("expert", 
-                               "Expert mode",
-                               "runs the fit in expert mode");
+  options << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
+                                        "set-from-meta", 
+                                        "Set from meta-data",
+                                        "sets parameter values from meta-data");
+  options << new BoolArgument("expert", 
+                              "Expert mode",
+                              "runs the fit in expert mode");
 
 
-  *options << new StringArgument("window-title", 
-                                 "Window title",
-                                 "defines the title of the fit window");
+  options << new StringArgument("window-title", 
+                                "Window title",
+                                "defines the title of the fit window");
 
 
   // We don't declare the fit command when multiple datasets are
@@ -347,34 +335,22 @@ void Fit::makeCommands(ArgumentList * args,
                   singleFit ? singleFit : 
                   effector(this, &Fit::runFitCurrentDataSet, true),
                   "sfits", fal, options, pn, sd);
-    // options = new ArgumentList(*options); // Duplicate, as options
-    //                                       // will be different for single and multi fits
   }
-  *options << new BoolArgument("weight-buffers", 
-                               "Weight buffers",
-                               "whether or not to weight buffers (off by default)");
+  
+  options << new BoolArgument("weight-buffers", 
+                              "Weight buffers",
+                              "whether or not to weight buffers (off by default)");
 
-  *options << new StringArgument("perp-meta", 
-                                 "Perpendicular coordinate",
-                                 "if specified, it is the name of a meta-data that holds the perpendicular coordinates");
+  options << new StringArgument("perp-meta", 
+                                "Perpendicular coordinate",
+                                "if specified, it is the name of a meta-data that holds the perpendicular coordinates");
 
   
-  ArgumentList * al = NULL;
-  if(args) {
-    al = args;
-    (*al) << new SeveralDataSetArgument("datasets", 
-                                        "Dataset",
-                                        "datasets that will be fitted to",
-                                        true);
-  }
-  else
-    al = new 
-      ArgumentList(QList<Argument *>()
-                   << new SeveralDataSetArgument("datasets", 
-                                                 "Dataset",
-                                                 "datasets that will be fitted to",
-                                                 true));
-
+  ArgumentList al = fal;
+  al << new SeveralDataSetArgument("datasets", 
+                                   "Dataset",
+                                   "datasets that will be fitted to",
+                                   true);
   pn = "Multi fit: ";
   pn += shortDesc;
   sd = "multi buffer fit: ";
@@ -384,7 +360,6 @@ void Fit::makeCommands(ArgumentList * args,
                 multiFit ? multiFit : 
                 effector(this, &Fit::runFit, true),
                 "mfits", al, options, pn, sd);
-  delete options;
 
   if(! multiFit || sim) {
     /// @todo handle the case when there is a fit-specified effector.
@@ -392,44 +367,39 @@ void Fit::makeCommands(ArgumentList * args,
     pn += shortDesc;
     sd = "fit simulation: ";
     sd += shortDesc;
-    ArgumentList * al2 = new ArgumentList(*al);
-    delete al;
-    al2->insert(al2->size()-1, 
-                new FileArgument("parameters", 
-                                 "Parameters",
-                                 "file to load parameters from"));
-    /// @temp Get rid of that
-    al2->setArgumentDescription("datasets", "the buffers whose X values will be used for simulations");
+    al = fal;
+    al << new FileArgument("parameters", 
+                           "Parameters",
+                           "file to load parameters from")
+       << new SeveralDataSetArgument("datasets", 
+                                     "Dataset",
+                                     "the buffers whose X values will be "
+                                     "used for simulations", 
+                                     true);
 
-    ArgumentList * nopts = new ArgumentList(*baseOptions);
-
-
-    *nopts << new OverrideArgument("override",
-                                   "Override parameters",
-                                   "a comma-separated list of parameters "
-                                   "to override")
-           << DataStackHelper::helperOptions()
-           << new ChoiceArgument(QStringList() 
-                                 << "annotate"
-                                 << "compute"
-                                 << "subfunctions"
-                                 << "residuals"
-                                 << "jacobian"
-                                 << "reexport",
-                                 "operation", 
-                                 "What to do",
-                                 "Whether to just compute the function, "
-                                 "the full jacobian, reexport parameters "
-                                 "with errors or just annotate datasets")
-      ;
+    ArgumentList nopts = baseOptions;
+    nopts << new OverrideArgument("override",
+                                  "Override parameters",
+                                  "a comma-separated list of parameters "
+                                  "to override")
+          << DataStackHelper::helperOptions()
+          << new ChoiceArgument(QStringList() 
+                                << "annotate"
+                                << "compute"
+                                << "subfunctions"
+                                << "residuals"
+                                << "jacobian"
+                                << "reexport",
+                                "operation", 
+                                "What to do",
+                                "Whether to just compute the function, "
+                                "the full jacobian, reexport parameters "
+                                "with errors or just annotate datasets");
     simCommand = 
       new Command((const char*)(QString("sim-") + name).toLocal8Bit(),
                   (sim ? sim : effector(this, &Fit::computeFit)),
-                  "simulations", al2, nopts, pn, sd);
-    delete nopts;
-    delete al2;
+                  "simulations", al, nopts, pn, sd);
   }
-  delete baseOptions;
 }
 
 

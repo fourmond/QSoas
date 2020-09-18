@@ -75,6 +75,7 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm, bool 
   warnings(this),
   data(d),
   nup(NULL),
+  softOptions(NULL),
   parameters(d),
   currentIndex(0),
   settingEditors(false), 
@@ -95,11 +96,9 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm, bool 
   else
     bufferWeightEditor = NULL;
 
-  softOptions = data->fit->fitSoftOptions();
-  if(softOptions && softOptions->size() == 0) {
-    delete softOptions;
-    softOptions = NULL;
-  }
+  ArgumentList opts = data->fit->fitSoftOptions();
+  if(opts.size() > 0)
+    softOptions = new ArgumentList(opts);
 
   parameters.computePerpendicularCoordinates(perpendicularMeta);
   parameters.warnings = &warnings;
@@ -145,6 +144,7 @@ FitDialog::~FitDialog()
     delete parametersViewer;
   for(int i = 0; i < subFunctionCurves.size(); i++)
     delete subFunctionCurves[i];
+  delete softOptions;
 }
 
 void FitDialog::message(const QString & str)

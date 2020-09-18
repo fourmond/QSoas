@@ -242,7 +242,7 @@ CombinedFit::CombinedFit(const QString & name, const QString & f,
 {
 
   for(PerDatasetFit * fit : fits) {
-    if(fit->fitArguments() && fit->fitArguments()->size() > 0)
+    if(fit->fitArguments().size() > 0)
       throw InternalError("Cannot use CombinedFit with fits taking arguments, here '%1'").arg(fit->fitName(false));
   }
 
@@ -257,18 +257,20 @@ CombinedFit::CombinedFit(const QString & name, const QString & f,
   formula.setVariables(params);
   ownParameters = params.mid(1 + fits.size());
 
-  ArgumentList * opts = new ArgumentList();
+
+  /// @hack This should be replaced by the right thing !
+  ArgumentList opts;
 
   for(int i = 0; i < underlyingFits.size(); i++) {
     PerDatasetFit *f = underlyingFits[i];
     Command * cmd = CommandContext::globalContext()->
       namedCommand("fit-" + f->fitName(false));
-    *opts << *cmd->commandOptions();
+    opts << *cmd->commandOptions();
   }
 
   /// @todo Global register of options for fits...
 
-  makeCommands(NULL, NULL, NULL, opts);
+  makeCommands(ArgumentList(), NULL, NULL, opts);
 }
 
 
@@ -336,7 +338,7 @@ static void combineFits(const QString &, QString newName,
         throw RuntimeError("The fit " + fitName + " isn't working "
                            "buffer-by-buffer: impossible to combine "
                            "it with others");
-      if(fit->fitArguments() && fit->fitArguments()->size() > 0)
+      if(fit->fitArguments().size() > 0)
         throw RuntimeError("Cannot use combine-fits with fits taking arguments, here '%1'").arg(fit->fitName(false));
       fts << fit;
   }

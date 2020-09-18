@@ -515,10 +515,10 @@ public:
     ODEFit::function(a, data, ds, target);
   };
 
-  virtual ArgumentList * fitArguments() const override {
+  virtual ArgumentList fitArguments() const override {
     if(mySystem)
-      return NULL;
-    return new 
+      return ArgumentList();
+    return 
       ArgumentList(QList<Argument *>()
                    << new FileArgument("system", 
                                        "System",
@@ -531,10 +531,10 @@ public:
                   "Full kinetic system",
            "", 1, -1, false), mySystem(NULL), myEvolver(NULL)
   { 
-    makeCommands(NULL, 
+    makeCommands(ArgumentList(), 
                  effector(this, &KineticSystemFit::runFitCurrentDataSet, true),
                  effector(this, &KineticSystemFit::runFit, true),
-                 NULL,
+                 ArgumentList(),
                  effector(this, &KineticSystemFit::computeFit)
                  );
   };

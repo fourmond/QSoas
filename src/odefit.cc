@@ -276,14 +276,14 @@ bool ODEFit::displaySubFunctions(FitData * data) const
 }
 
 
-ArgumentList * ODEFit::fitSoftOptions() const
+ArgumentList ODEFit::fitSoftOptions() const
 {
-  return new ArgumentList(ODEStepperOptions::commandOptions());
+  return ODEStepperOptions::commandOptions();
 }
 
-ArgumentList * ODEFit::fitHardOptions() const
+ArgumentList ODEFit::fitHardOptions() const
 {
-  return new 
+  return
     ArgumentList(QList<Argument *>()
                  << new TDPArgument("with", 
                                     "Time dependent parameters",

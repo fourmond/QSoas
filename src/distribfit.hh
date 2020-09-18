@@ -136,8 +136,8 @@ public:
                             const DataSet * ds,
                             double * guess) const override;
 
-  virtual ArgumentList * fitSoftOptions() const override;
-  virtual ArgumentList * fitHardOptions() const override;
+  virtual ArgumentList fitSoftOptions() const override;
+  virtual ArgumentList fitHardOptions() const override;
   virtual void processSoftOptions(const CommandOptions & opts, FitData * data) const override;
 
 

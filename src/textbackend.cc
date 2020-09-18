@@ -141,9 +141,9 @@ textLoadOptions(QList<Argument *>()
                                     "if on, create a new dataset at every fully blank line (off by default)")
                 );
 
-ArgumentList * TextBackend::loadOptions() const
+ArgumentList TextBackend::loadOptions() const
 {
-  return &textLoadOptions;
+  return textLoadOptions;
 }
 
 TextFileHeader TextBackend::parseComments(const QStringList & comments) const
@@ -376,9 +376,8 @@ protected:
                              QRegExp("^\\s*$"), cmts, skip);
   };
   
-  virtual ArgumentList * loadOptions() const override {
-    ArgumentList * al = new ArgumentList(*TextBackend::loadOptions());
-    return al;
+  virtual ArgumentList loadOptions() const override {
+    return TextBackend::loadOptions();
   };
 
 public:

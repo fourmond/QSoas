@@ -94,6 +94,13 @@ void Fit::deleteCommands()
   simCommand = NULL;
 }
 
+bool Fit::isCustom() const
+{
+  if(mfitCommand)
+    return mfitCommand->isCustom();
+  return false;                 // Should not happen.
+}
+
 void Fit::unregisterFit(Fit * fit, bool deleteCommands)
 {
   if(! fitsByName)
@@ -111,6 +118,17 @@ void Fit::unregisterFit(Fit * fit, bool deleteCommands)
   }
   if(deleteCommands)
     fit->deleteCommands();
+}
+
+
+void Fit::clearupCustomFits()
+{
+  if(! fitsByName)
+    return;
+  for(Fit * fit : *fitsByName) {
+    if(fit->isCustom())
+      delete fit;
+  }
 }
 
 void Fit::safelyRedefineFit(const QString & name, bool overwrite)

@@ -66,7 +66,7 @@ QAction * Group::actionForGroup(QObject * parent,
   action->setText(publicName());
   action->setStatusTip(shortDescription());
   action->setToolTip(shortDescription()); // probably useless.
-  QMenu * menu = new QMenu();             // Leaks ? Isn't that a Qt bug ?
+  QMenu * menu = new QMenu(); // Leaks ? Isn't that a Qt bug ?
 
   QList<Group *> grps = subGroups;
   qSort(grps.begin(), grps.end(), compareGroups);

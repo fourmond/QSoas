@@ -145,6 +145,10 @@ FitDialog::~FitDialog()
   for(int i = 0; i < subFunctionCurves.size(); i++)
     delete subFunctionCurves[i];
   delete softOptions;
+  for(CurvePanel * p : bottomPanels)
+    delete p;
+  for(CurveView * v : views)
+    delete v;
 }
 
 void FitDialog::message(const QString & str)
@@ -206,6 +210,7 @@ void FitDialog::setupFrame(bool expert)
     
     nup->addWidget(view);
     views << view;
+    bottomPanels << bottomPanel;
     int idx = 0;
     soas().stack().indexOf(ds, &idx);
     bufferSelection->addItem(QString("#%1: %2").

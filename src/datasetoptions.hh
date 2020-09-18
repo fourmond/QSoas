@@ -96,7 +96,7 @@ public:
 
   /// Returns an option list whose parsing can be fed to
   /// setDatasetOptions()
-  static ArgumentList * optionList();
+  static ArgumentList optionList();
 
 
   /// Sets the target dataset options from the (user-supplied)

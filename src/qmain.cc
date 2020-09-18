@@ -23,8 +23,9 @@
 
 #include <mainwin.hh>
 #include <commandcontext.hh>
-#include <group.hh>
+
 #include <databackend.hh>
+#include <fit.hh>
 
 #include <debug.hh>
 
@@ -117,6 +118,9 @@ int main(int argc, char ** argv)
   }
 
   Settings::saveSettings("qsoas.org", "QSoas");
+  /// @todo This should probably join Soas's destructor ?
+  Fit::clearupCustomFits();
+  DataBackend::cleanupBackends();
   return retval;
 }
 

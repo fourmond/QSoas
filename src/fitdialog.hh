@@ -29,10 +29,12 @@
 
 class FitData;
 class CurveView;
+class CurvePanel;
 class FitParameterEditor;
 class DataSet;
 class ParametersViewer;
 class CommandWidget;
+
 
 class NupWidget;
 
@@ -56,6 +58,9 @@ class FitDialog : public QDialog {
 
   /// The dataset views
   QList<CurveView *> views;
+
+  /// The bottom panels (to be deleted
+  QList<CurvePanel *> bottomPanels;
 
   /// The combo box for toogling between the various buffers
   QComboBox * bufferSelection;

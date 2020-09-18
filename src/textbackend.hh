@@ -52,7 +52,7 @@ protected:
   virtual int couldBeMine(const QByteArray & peek, 
                           const QString & fileName) const override;
 
-  virtual ArgumentList * loadOptions() const override;
+  virtual ArgumentList loadOptions() const override;
 
   virtual QList<DataSet *> readFromStream(QIODevice * stream,
                                    const QString & fileName,

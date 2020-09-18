@@ -23,7 +23,7 @@
 #define __DATABACKEND_HH
 
 #include <argumentmarshaller.hh>
-class ArgumentList;
+#include <argumentlist.hh>
 class DataSet;
 
 
@@ -46,6 +46,8 @@ class CachedDataSets;
 class DataBackend {
   /// A global hash holding a correspondance name->databackend
   static QList<DataBackend*> * availableBackends;
+
+  static QList<Command*> * backendCommands;
 
   /// Registers the given backend to the static registry
   static void registerBackend(DataBackend * backend);
@@ -119,7 +121,7 @@ protected:
 
   /// Returns the list of options the backend can take when called
   /// directly.
-  virtual ArgumentList * loadOptions() const;
+  virtual ArgumentList loadOptions() const;
 
 
   /// The command for loading several datasets in a dataset-specific
@@ -174,6 +176,9 @@ public:
   /// Register all the individual backend load-as commands. Then,
   /// registers the overall load functions
   static void registerBackendCommands();
+
+  /// Cleans up all the backend commands.
+  static void cleanupBackends();
 
   /// Load files using the given backend (or with backend detection
   /// should the backend pointer be NULL) and display them.

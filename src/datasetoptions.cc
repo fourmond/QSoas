@@ -62,17 +62,17 @@ void DatasetOptions::setYError(DataSet * ds, int idx, double val) const
   ds->column(yErrors)[idx] = val;
 }
 
-ArgumentList * DatasetOptions::optionList() 
+ArgumentList DatasetOptions::optionList() 
 {
   return 
-    new ArgumentList(QList<Argument *>() 
-                     << new ColumnArgument("yerrors", 
-                                           "Y errors",
-                                           "name of the column containing y errors")
-                     << new BoolArgument("histogram", 
-                                         "Histogram",
-                                         "whether to show as a histogram (defaults to false)")
-                     );
+    ArgumentList(QList<Argument *>() 
+                 << new ColumnArgument("yerrors", 
+                                       "Y errors",
+                                       "name of the column containing y errors")
+                 << new BoolArgument("histogram", 
+                                     "Histogram",
+                                     "whether to show as a histogram (defaults to false)")
+                 );
 }
 
 
@@ -149,7 +149,7 @@ static Command
 opts("dataset-options",            // command name
      effector(optionsCommand),     // action
      "buffer",                     // group name
-     NULL,                         // arguments
+     ArgumentList(),               // arguments
      DatasetOptions::optionList(), // options
      "Options",
      "Set dataset options");

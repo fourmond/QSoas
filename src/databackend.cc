@@ -46,6 +46,8 @@
 
 QList<DataBackend*> * DataBackend::availableBackends = NULL;
 
+QList<Command*> * DataBackend::backendCommands = NULL;
+
 ArgumentList * DataBackend::allBackendsOptions = NULL;
 
 class CachedDataSets {
@@ -230,9 +232,9 @@ QList<DataSet *> DataBackend::loadFile(const QString & fileName,
   return datasets;
 }
 
-ArgumentList * DataBackend::loadOptions() const
+ArgumentList DataBackend::loadOptions() const
 {
-  return NULL;
+  return ArgumentList();
 }
 
 QList<DataSet *> DataBackend::readFile(const QString & fileName, 
@@ -373,35 +375,38 @@ QSet<QString> DataBackend::nonBackendOptions;
 
 void DataBackend::registerBackendCommands()
 {
-  ArgumentList * lst = 
-    new ArgumentList(QList<Argument *>() 
+  if(backendCommands)
+    throw InternalError("Probably calling registerBackendCommands twice");
+  backendCommands = new QList<Command *>;
+  ArgumentList lst = 
+    ArgumentList(QList<Argument *>() 
                      << new SeveralFilesArgument("file", 
                                                  "Files",
                                                  "the files to load", true
                                                  ));
 
-  ArgumentList * overallOptions = 
-    new ArgumentList(QList<Argument *>() 
-                     << DataStackHelper::helperOptions()
-                     << new BoolArgument("ignore-cache", 
-                                         "Ignores cache",
-                                         "if on, ignores cache (default off)")
-                     );
+  ArgumentList overallOptions = 
+    ArgumentList(QList<Argument *>() 
+                 << DataStackHelper::helperOptions()
+                 << new BoolArgument("ignore-cache", 
+                                     "Ignores cache",
+                                     "if on, ignores cache (default off)")
+                 );
 
-  ArgumentList * oo = DatasetOptions::optionList();
-  *oo << DataStackHelper::helperOptions()
-      << new BoolArgument("ignore-empty", 
-                          "Ignores empty files",
-                          "if on, skips empty files (default on)")
-      << new CodeArgument("for-which", 
-                          "For which",
-                          "Select on formula")
-      << new IntegerArgument("expected", 
-                             "Expected number",
-                             "Expected number of loaded datasets");
+  ArgumentList oo = DatasetOptions::optionList();
+  oo << DataStackHelper::helperOptions()
+     << new BoolArgument("ignore-empty", 
+                         "Ignores empty files",
+                         "if on, skips empty files (default on)")
+     << new CodeArgument("for-which", 
+                         "For which",
+                         "Select on formula")
+     << new IntegerArgument("expected", 
+                            "Expected number",
+                            "Expected number of loaded datasets");
 
-  overallOptions->mergeOptions(*oo);
-  nonBackendOptions = QSet<QString>::fromList(overallOptions->argumentNames());
+  overallOptions.mergeOptions(oo);
+  nonBackendOptions = QSet<QString>::fromList(overallOptions.argumentNames());
 
   if(allBackendsOptions)
     throw InternalError("Registering backends commands several times");
@@ -410,27 +415,22 @@ void DataBackend::registerBackendCommands()
 
   for(int i = 0; i < availableBackends->size(); i++) {
     DataBackend * b = availableBackends->value(i);
-    ArgumentList * opts = b->loadOptions();
-    if(opts) {
-      allBackendsOptions->mergeOptions(*opts);
-      opts = new ArgumentList(*opts);
-    }
-    else
-      opts = new ArgumentList;
-
-    opts->mergeOptions(*oo);
+    ArgumentList opts = b->loadOptions();
+    allBackendsOptions->mergeOptions(opts);
+    opts.mergeOptions(oo);
 
     QString name = "load-as-" + b->name;
 
     QString d1 = QString("Load files with backend '%1'").arg(b->name);
-    new Command(name.toLocal8Bit(),
-                effector(b, &DataBackend::loadDatasetCommand),
-                "load", lst, opts, (const char*) d1.toLocal8Bit(), 
-                (const char*) d1.toLocal8Bit());
-    delete opts;
+    Command * cmd =
+      new Command(name.toLocal8Bit(),
+                  effector(b, &DataBackend::loadDatasetCommand),
+                  "load", lst, opts, (const char*) d1.toLocal8Bit(), 
+                  (const char*) d1.toLocal8Bit());
+    *backendCommands << cmd;
   }
 
-  overallOptions->mergeOptions(*allBackendsOptions);
+  overallOptions.mergeOptions(*allBackendsOptions);
 
   // Now, we create the load and overlay commands.
 
@@ -443,6 +443,7 @@ void DataBackend::registerBackendCommands()
                 "Load",
                 "Loads one or several files",
                 "l");
+  *backendCommands << cmd;
 
   cmd = 
     new Command("overlay", // command name
@@ -453,7 +454,13 @@ void DataBackend::registerBackendCommands()
                 "Overlay",
                 "Loads files and overlay them",
                 "v");
-  delete lst;
-  delete oo;
-  
+  *backendCommands << cmd;
+}
+
+void DataBackend::cleanupBackends()
+{
+  if(! backendCommands)
+    return;
+  for(Command * cmd : *backendCommands)
+    delete cmd;
 }

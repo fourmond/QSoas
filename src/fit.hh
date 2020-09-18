@@ -167,6 +167,18 @@ protected:
   /// Registers the given fit
   static void registerFit(Fit * fit);
 
+public:
+  /// Returns true if the fit is a custom fit, that is it was created
+  /// after the startup of QSoas.
+  ///
+  /// Returns true if its mfit command is custom.
+  bool isCustom() const;
+
+
+  /// Removes the all the custom fits.
+  static void clearupCustomFits();
+  
+protected:
 
   /// A small helper for copying FitInternalStorage
   template <class T> static T * deepCopy(FitInternalStorage * src) {

@@ -374,8 +374,8 @@ MonteCarloExplorer::opts(QList<Argument*>()
 
 ParameterSpaceExplorerFactoryItem 
 montecarlo("monte-carlo", "Monte Carlo",
-           &MonteCarloExplorer::args,
-           &MonteCarloExplorer::opts,
+           MonteCarloExplorer::args,
+           MonteCarloExplorer::opts,
            [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
              return new MonteCarloExplorer(ws);
            });
@@ -794,8 +794,8 @@ AdaptiveMonteCarloExplorer::opts(QList<Argument*>()
 
 ParameterSpaceExplorerFactoryItem 
 adaptivemontecarlo("adaptive", "Adaptive Monte Carlo",
-           &AdaptiveMonteCarloExplorer::args,
-           &AdaptiveMonteCarloExplorer::opts,
+           AdaptiveMonteCarloExplorer::args,
+           AdaptiveMonteCarloExplorer::opts,
            [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
              return new AdaptiveMonteCarloExplorer(ws);
            });
@@ -919,8 +919,8 @@ ShuffleExplorer::opts(QList<Argument*>()
 
 ParameterSpaceExplorerFactoryItem 
 shuffle("shuffle", "Shuffle",
-        NULL,
-        &ShuffleExplorer::opts,
+        ArgumentList(),
+        ShuffleExplorer::opts,
         [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
           return new ShuffleExplorer(ws);
         });
@@ -1090,8 +1090,8 @@ LinearExplorer::opts(QList<Argument*>()
 
 ParameterSpaceExplorerFactoryItem 
 linear("linear", "Linear ramp",
-       &LinearExplorer::args,
-       &LinearExplorer::opts,
+       LinearExplorer::args,
+       LinearExplorer::opts,
        [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
          return new LinearExplorer(ws);
        });
@@ -1579,8 +1579,8 @@ SimulatedAnnealingExplorer::opts(QList<Argument*>()
 
 ParameterSpaceExplorerFactoryItem 
 sa("simulated-annealing", "Simulated annealing",
-   &SimulatedAnnealingExplorer::args,
-   &SimulatedAnnealingExplorer::opts,
+   SimulatedAnnealingExplorer::args,
+   SimulatedAnnealingExplorer::opts,
    [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
      return new SimulatedAnnealingExplorer(ws);
    });
@@ -1772,8 +1772,8 @@ OrderClassifyExplorer::opts(QList<Argument*>()
 
 ParameterSpaceExplorerFactoryItem 
 om("order-of-magnitude", "Order of magnitude",
-   &OrderClassifyExplorer::args,
-   &OrderClassifyExplorer::opts,
+   OrderClassifyExplorer::args,
+   OrderClassifyExplorer::opts,
    [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
      return new OrderClassifyExplorer(ws);
    });

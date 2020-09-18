@@ -23,12 +23,12 @@
 #define __PARAMETERSPACEEXPLORER_HH
 
 #include <argumentmarshaller.hh>
+#include <argumentlist.hh>
 #include <factory.hh>
 #include <vector.hh>
 
 class ParameterSpaceExplorer;
 class FitWorkspace;
-class ArgumentList;
 class Command;
 class CommandEffector;
 
@@ -44,8 +44,8 @@ public:
   /// Creates and register a factory item.
   ParameterSpaceExplorerFactoryItem(const QString & n, 
                                     const QString & pn,
-                                    ArgumentList * args,
-                                    ArgumentList * opts,
+                                    const ArgumentList &args,
+                                    const ArgumentList &opts,
                                     Creator c);
 };
 
@@ -125,12 +125,6 @@ public:
   /// @name Public interface
   ///
   /// @{
-
-  // /// Returns the arguments for the explorer command
-  // virtual ArgumentList * explorerArguments() const = 0;
-
-  // /// Returns the options for the explorer
-  // virtual ArgumentList * explorerOptions() const = 0;
 
   /// Setup the explorer with the given arguments and options.
   virtual void setup(const CommandArguments & args,

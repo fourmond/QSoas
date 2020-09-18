@@ -35,8 +35,8 @@
 ParameterSpaceExplorerFactoryItem::
 ParameterSpaceExplorerFactoryItem(const QString & n,
                                   const QString & pn,
-                                  ArgumentList * args,
-                                  ArgumentList * opts,
+                                  const ArgumentList & args,
+                                  const ArgumentList & opts,
                                   ParameterSpaceExplorerFactoryItem::Creator c)  :
   Factory(n, c, pn), publicName(description)
 {

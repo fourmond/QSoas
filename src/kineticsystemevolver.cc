@@ -550,6 +550,12 @@ public:
     myEvolver = new KineticSystemEvolver(mySystem);
     makeCommands();
   }
+
+  ~KineticSystemFit()
+  {
+    delete myEvolver;
+    delete mySystem;
+  };
 };
 
 static KineticSystemFit fit_kinetic_system;

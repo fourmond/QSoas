@@ -651,14 +651,10 @@ argList(QList<Argument *>()
                             "Sixth argument to the script"));
 
 static void runForDatasetsCommand(const QString &, QString script,
-                                  QList<const DataSet*> dss, 
+                                  QList<const DataSet*> datasets, 
                                   const CommandOptions & opts)
 {
   // First, copy
-
-  QList<DataSet * > datasets;
-  for(int i = 0; i < dss.size(); i++)
-    datasets << new DataSet(*dss[i]);
 
   bool addToHistory = false;
   updateFromOptions(opts, "add-to-history", addToHistory);

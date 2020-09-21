@@ -5,8 +5,9 @@ step, either by copying the commands to the command prompt or by
 right-clicking and select "Run command", which runs the command
 directly.
 
-Some of the examples require that you download and unzip the example
-files. 
+Some of the examples require the [example files][examples]. Just
+download the [archive][examples-zip], unzip it, and make sure you are
+inside the created directory (using [cmd: cd]).
 
 ## Data generation
 
@@ -114,3 +115,7 @@ QSoas> apply-formula y/=$stats.y_int
 
 
 
+
+
+[examples]:https://github.com/fourmond/QSoasExampleFiles/ "GitHub repository for the example files"
+[examples-zip]:https://github.com/fourmond/QSoasExampleFiles/archive/data.zip "ZIP archive of the example files"

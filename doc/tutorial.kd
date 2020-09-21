@@ -31,7 +31,8 @@ QSoas. You can look at the documentation of each command in the
 
 # A step by step tutorial for QSoas
 
-Download the following [archive](QSoasExampleFiles.zip) and unzip it.
+For this tutorial, you will need a series of [example
+files][examples]. Download the following [archive][examples-zip] and unzip it.
 
 Then start QSoas and take the time you need to go through all steps in
 this tutorial.
@@ -1632,6 +1633,9 @@ ticket](http://sourceforge.net/p/qsoas/tickets/) at the [sourceforge
 project page](http://sf.net/p/qsoas). We don't guarantee a timely reply,
 but at least, it won't go unnoticed.
 
-
 This file was written by Christophe Leger and Vincent Fourmond, and is
 copyright (c) 2013-2020 by CNRS/AMU.
+
+[examples]:https://github.com/fourmond/QSoasExampleFiles/ "GitHub repository for the example files"
+[examples-zip]:https://github.com/fourmond/QSoasExampleFiles/archive/data.zip "ZIP archive of the example files"
+

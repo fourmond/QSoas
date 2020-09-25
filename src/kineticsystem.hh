@@ -39,8 +39,6 @@ class RedoxReaction;
 /// It parses reactions with arbitrary formulas as rate constants. The
 /// concentration of the species are reffered to as c_species from
 /// within the formulas.
-///
-/// @todo Add reporters, ie expressions that make up something
 class KineticSystem {
 
   /// Whether the system is linear or not
@@ -437,6 +435,10 @@ public:
   /// A "reporter" expression. If this exists, then the "time value"
   /// of the system is taken to be the result of this expression.
   Expression * reporterExpression;
+
+  /// Whether or not the reporter expressions involved j_elec, the
+  /// electron flux at the electrode
+  bool reporterUseCurrent;
 
 };
 

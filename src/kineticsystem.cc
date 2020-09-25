@@ -474,7 +474,7 @@ void KineticSystem::Cycle::computeRateConstant() const
 
 KineticSystem::KineticSystem() : 
   linear(false), checkRange(true), redoxReactionScaling(1),
-  reporterExpression(NULL)
+  reporterExpression(NULL), reporterUseCurrent(false)
   
 {
   cachedJacobian = NULL;
@@ -485,7 +485,8 @@ KineticSystem::KineticSystem(const KineticSystem & o) :
   speciesLookup(o.speciesLookup),
   parameters(o.parameters),
   checkRange(o.checkRange),
-  redoxReactionScaling(o.redoxReactionScaling)
+  redoxReactionScaling(o.redoxReactionScaling),
+  reporterUseCurrent(o.reporterUseCurrent)
 {
   cachedJacobian = NULL;
   if(o.cachedJacobian) {
@@ -596,8 +597,17 @@ void KineticSystem::ensureReady(const QStringList & add)
     params += r->parameters();
   }
 
-  if(reporterExpression)
-    params += QSet<QString>::fromList(reporterExpression->currentVariables());
+  if(reporterExpression) {
+    QSet<QString> reporterVariables =
+      QSet<QString>::fromList(reporterExpression->currentVariables());
+    if(reporterVariables.contains("j_elec")) {
+      reporterUseCurrent = true;
+      reporterVariables.remove("j_elec");
+    }
+    else
+      reporterUseCurrent = false;
+    params += reporterVariables;
+  }
 
 
   // We remove the concentrations
@@ -618,11 +628,15 @@ void KineticSystem::ensureReady(const QStringList & add)
   // First concentrations, then additional parameters, then the
   // remaining parameters.
   parameters = conc + add + parameters;
+  QStringList rep = parameters;
 
   for(int i = 0; i < reactions.size(); i++)
     reactions[i]->setParameters(parameters);
-  if(reporterExpression)
-    reporterExpression->setVariables(parameters);
+  if(reporterExpression) {
+    if(reporterUseCurrent)
+      rep.insert(speciesNumber(), "j_elec");
+    reporterExpression->setVariables(rep);
+  }
 
   checkLinearity();
 }

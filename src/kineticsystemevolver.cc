@@ -151,19 +151,32 @@ double KineticSystemEvolver::reporterValue(double t) const
 {
   if(! system->reporterExpression)
     return 0;                   // but really, this should fail
-  QVarLengthArray<double, 1000> tg(system->speciesNumber() + 
+  QVarLengthArray<double, 1000> tg(system->speciesNumber() +
+                                   (system->reporterUseCurrent ? 1 : 0) +
                                    parameterIndex.size());
 
 
   for(int i = 0; i < system->speciesNumber(); i++)
     tg[i] = currentValues()[i];
   int idx = system->speciesNumber();
+  
+  if(system->reporterUseCurrent) {
+    tg[idx] = 0;
+    idx++;
+  }
   for(int i = 0; i < parameterIndex.size(); i++)
     tg[i+idx] = parameters[i];
 
   if(callback != NULL)          // Tweak the time-dependent parameters
                                 // when applicable
     callback(t, tg.data()+idx);
+
+  //
+  if(system->reporterUseCurrent) {
+    QVarLengthArray<double, 1000> tmp(system->speciesNumber());
+    tg[idx-1] = system->computeDerivatives(tmp.data(), tg.data(),
+                                           tg.data()+idx);
+  }
 
   return system->reporterExpression->evaluate(tg.data());
 }

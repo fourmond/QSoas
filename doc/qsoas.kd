@@ -245,8 +245,9 @@ directly used in QSoas.
 
 ### `version` - Version {#cmd-version}
 
-`version` `/show-features=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`version` `/dump-sysinfo=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/show-features=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
+  * `/dump-sysinfo=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true, writes system specific information to standard output -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/show-features=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true, show detailed informations about the capacities of QSoas (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: version {:/}
@@ -352,12 +353,12 @@ file and aliases.
 
 ### `help` - Help on... {#cmd-help}
 
-`help` _command_{:title="the name of one of QSoas's commands"} `/online=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`help` `/command=`_command_{:title="the name of one of QSoas's commands"} `/synopsis=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
 Short name: `?`
 
-  * _command_{:title="the name of one of QSoas's commands"}: The command on which to give help -- values: the name of one of QSoas's commands
-  * `/online=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Show the online documentation in a browser -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/command=`_command_{:title="the name of one of QSoas's commands"} (default option): The command on which to give help -- values: the name of one of QSoas's commands
+  * `/synopsis=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Does not show the help, but print a brief synopsis -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: help {:/}
 {::comment} description-start: help {:/}
@@ -607,8 +608,9 @@ killed if it takes longer than the timeout to execute.
 
 ### `timer` - Timer {#cmd-timer}
 
-`timer` 
+`timer` `/name=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
 
+  * `/name=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: name for the timer -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
 
 {::comment} synopsis-end: timer {:/}
 {::comment} description-start: timer {:/}
@@ -2344,9 +2346,10 @@ files if you want the meta-data to follow.
 
 ### `set-perp` - Set perpendicular {#cmd-set-perp}
 
-`set-perp` _coords..._{:title="several floating-point numbers, separated by ,"}
+`set-perp` `/coords=`_numbers_{:title="several floating-point numbers, separated by ,"} `/from-row=`_integer_{:title="an integer"}
 
-  * _coords..._{:title="several floating-point numbers, separated by ,"}: The values of the coordinates (one for each Y column) -- values: several floating-point numbers, separated by ,
+  * `/coords=`_numbers_{:title="several floating-point numbers, separated by ,"} (default option): The values of the coordinates (one for each Y column) -- values: several floating-point numbers, separated by ,
+  * `/from-row=`_integer_{:title="an integer"}: Sets the values from the given row (and delete it) -- values: an integer
 
 {::comment} synopsis-end: set-perp {:/}
 {::comment} description-start: set-perp {:/}
@@ -4141,7 +4144,7 @@ below for more information.
 `mfit-arb` _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"} **(interactive)**
 
   * _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: \|-separated formulas for the fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
-  * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: datasets that will be fitted to -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
+  * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
   * `/arg1=`_file_{:title="name of a file"}: first argument of the script file -- values: name of a file
   * `/arg2=`_file_{:title="name of a file"}: second argument of the script file -- values: name of a file
   * `/arg3=`_file_{:title="name of a file"}: third argument of the script file -- values: name of a file
@@ -4189,6 +4192,31 @@ QSoas> mfit-arb a*x+b 0 1 2
 and have `a` common to all buffer, but `b` buffer-specific.
 
 {::comment} description-end: mfit-arb {:/}
+
+{::comment} synopsis-start: sim-arb {:/}
+
+### `sim-arb` - Simulation: Arbitrary fit {#cmd-sim-arb}
+
+`sim-arb` _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"}
+
+  * _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: \|-separated formulas for the fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
+  * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
+  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
+  * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`
+  * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
+  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps
+
+{::comment} synopsis-end: sim-arb {:/}
+{::comment} description-start: sim-arb {:/}
+Simulation command for the [cmd: fit-arb] fit. As for [cmd: fit-arb],
+you need to specify the formula on the command-line.
+{::comment} description-end: sim-arb {:/}
 
 {::comment} synopsis-start: load-fits {:/}
 
@@ -7351,6 +7379,7 @@ listed here:
  * [`show`](#cmd-show)
  * [`show-stack`](#cmd-show-stack)
  * [`sim-adsorbed`](#cmd-sim-adsorbed)
+ * [`sim-arb`](#cmd-sim-arb)
  * [`sim-eci-wave`](#cmd-sim-eci-wave)
  * [`sim-ecr-wave`](#cmd-sim-ecr-wave)
  * [`sim-eeci-wave`](#cmd-sim-eeci-wave)
@@ -7448,7 +7477,7 @@ module (that contains, among others, the error function
 
 {::comment} special-functions-start {:/}
 
- * `abs(x)`: $$\|x\|$$
+ * `abs(x)`: $$|x|$$
  * `airy_ai(x)`: Airy Ai function $$AiryAi(x)$$. Precision to about $$10^{-7}$$. Other variants available: `airy_ai_fast` is faster, (precision $$5\times10^{-4}$$) and `airy_ai_double` slower, (precision $$2\times10^{-16}$$).  (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#airy-functions-and-derivatives))
  * `airy_ai_deriv(x)`: First derivative of Airy Ai function $$\mathrm{d}AiryAi(x)/\mathrm{d}x$$. Precision to about $$10^{-7}$$. Other variants available: `airy_ai_deriv_fast` is faster, (precision $$5\times10^{-4}$$) and `airy_ai_deriv_double` slower, (precision $$2\times10^{-16}$$).  (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#airy-functions-and-derivatives))
  * `airy_bi(x)`: Airy Bi function $$AiryBi(x)$$. Precision to about $$10^{-7}$$. Other variants available: `airy_bi_fast` is faster, (precision $$5\times10^{-4}$$) and `airy_bi_double` slower, (precision $$2\times10^{-16}$$).  (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#airy-functions-and-derivatives))
@@ -7491,13 +7520,17 @@ module (that contains, among others, the error function
  * `hyperg_0F1(c,x)`: Hypergeometric function $${}_0F_1$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#hypergeometric-functions))
  * `hyperg_1F1(a,b,x)`: Hypergeometric function $${}_1F_1(a,b,x)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#hypergeometric-functions))
  * `hyperg_U(a,b,x)`: Hypergeometric function $$U(a,b,x)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#hypergeometric-functions))
- * `k_mhc(lambda, eta)`: Marcus-Hush-Chidsey integral $$k(\lambda, \eta) = \int_{-\infty}^{\infty} \exp\left(\frac{ - (x - \lambda + \eta)^2}{4\lambda}\right) \times \frac{1}{1 + \exp x}\,\mathrm{d}x$$
+ * `k_mhc(lambda, eta)`: Marcus-Hush-Chidsey integral $$k(\lambda, \eta) = \int_{-\infty}^{\infty} \exp\left(\frac{ - (x - \lambda + \eta)^2}{4\lambda}\right) \times \frac{1}{1 + \exp x}\,\mathrm{d}x$$. Single precision, computed using the fast trapezoid method.
+ * `k_mhc_double(lambda, eta)`: Marcus-Hush-Chidsey integral $$k(\lambda, \eta) = \int_{-\infty}^{\infty} \exp\left(\frac{ - (x - \lambda + \eta)^2}{4\lambda}\right) \times \frac{1}{1 + \exp x}\,\mathrm{d}x$$. Double precision, computed using the series by Bieniasz, JEAC 2012. (more information [there](http://dx.doi.org/10.1016/j.jelechem.2012.08.015))
+ * `k_mhc_n(lambda, eta)`: Approximation to the Marcus-Hush-Chidsey integral described in Nahir, JEAC 2002, $$k(\lambda, \eta) \approx \int_{-\infty}^{\infty} \exp\left(\frac{ - (x - \lambda + \eta)^2}{4\lambda}\right) \times \frac{1}{1 + \exp x}\,\mathrm{d}x$$ (more information [there](http://dx.doi.org/doi: 10.1016/S0022-0728(01)00688-X))
  * `k_mhc_z(lambda, eta)`: Approximation to the Marcus-Hush-Chidsey integral described in Zeng et al, JEAC 2014, $$k(\lambda, \eta) \approx \int_{-\infty}^{\infty} \exp\left(\frac{ - (x - \lambda + \eta)^2}{4\lambda}\right) \times \frac{1}{1 + \exp x}\,\mathrm{d}x$$ (more information [there](http://dx.doi.org/10.1016/j.jelechem.2014.09.038))
  * `lambert_W(x)`: Principal branch of the Lambert function $$W_0(x)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#lambert-w-functions))
  * `lambert_Wm1(x)`: Secondary branch of the Lambert function $$W_{-1}(x)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#lambert-w-functions))
  * `landau(x)`: Probability density of the Landau distribution, $$p(x) = 1/\pi \int_0^x \mathrm{d}t \exp(-t\log(t) - xt)\sin(\pi t)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/randist.html#the-landau-distribution))
+ * `ln_erfc(x)`: Logarithm of the complementary error function $$\log(\mathop{erfc}(x))$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#error-functions))
+ * `ln_gamma(x)`: The logarithm of the gamma function $$\log (\Gamma(x))$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#gamma-and-beta-functions))
  * `log1p(x)`: $$\ln (1 + x)$$, but accurate for $$x$$ close to 0
- * `lorentzian(x,gamma)`: Normalized gaussian: $$p(x,\gamma) = \frac{1}{ \gamma \pi (1 + (x/\gamma)^2) }$$
+ * `lorentzian(x,gamma)`: Normalized lorentzian: $$p(x,\gamma) = \frac{1}{ \gamma \pi (1 + (x/\gamma)^2) }$$
  * `pseudo_voigt(x, w, mu)`: Pseudo-Voigt function, defined by: $$\frac{1-\mu}{\sqrt{2 \pi w^2}} \exp (-x^2 / 2w^2) + \frac{\mu}{ w \pi (1 + (x/w)^2) }$$
  * `psi(x)`: Digamma function: $$\psi(x) = \Gamma'(x)/\Gamma(x)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#digamma-function))
  * `psi_1(x)`: Trigamma function: $$\psi^{(1)} = \frac{\mathrm d \Gamma'(x)/\Gamma(x)}{\mathrm d x}$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#trigamma-function))
@@ -7516,7 +7549,7 @@ with an **uppercase** letter.
 
  * `Alpha`: The fine structure constant, $$\alpha$$ -- 0.00729735
  * `C`: The speed of light in vacuum, $$c$$ -- 2.99792e+08
- * `Eps_0`: The permeability of vacuum, $$\epsilon_0$$ -- 1.25664e-06
+ * `Eps_0`: The permittivity of vacuum, $$\epsilon_0$$ -- 8.85419e-12
  * `F`: Faraday's constant, $$F$$ -- 96485.3
  * `H`: The Planck constant, $$h$$ -- 6.62607e-34
  * `Hbar`: $$\hbar = h/2\pi$$ -- 1.05457e-34
@@ -7525,7 +7558,7 @@ with an **uppercase** letter.
  * `M_mu`: The mass of the mu, $$m_\mu$$ -- 1.88353e-28
  * `M_n`: The mass of the neutron, $$m_n$$ -- 1.67493e-27
  * `M_p`: The mass of the proton, $$m_p$$ -- 1.67262e-27
- * `Mu_0`: The permittivity of vacuum, $$\mu_0$$ -- 8.85419e-12
+ * `Mu_0`: The permeability of vacuum, $$\mu_0$$ -- 1.25664e-06
  * `Mu_B`: The Bohr Magneton, $$\mu_B$$ -- 9.27401e-24
  * `Na`: The Avogadro number, $$N_A$$ -- 6.02214e+23
  * `Pi`, `PI`: $$\pi$$ -- 3.14159

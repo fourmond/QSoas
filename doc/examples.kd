@@ -51,6 +51,7 @@ This looks for points for which $$y \times \cosh y = x$$. Two caveats:
    the solution, or at least some value for which your equation is
    defined !
 
+
 ## Data processing
 
 ### Average
@@ -112,6 +113,39 @@ spectroscopy:
 ~~~
 QSoas> apply-formula y/=$stats.y_int
 ~~~
+
+## Fits
+
+### Generating smooth curves from fits {#sim-commands}
+
+When fitting a small number of data points, pushing the computed
+values from the fit window is not satisfactory, since they have the
+same number of points as the data, and will look "jaggy" and not
+suitable for publication. Let's imagine you have fitted data with:
+
+~~~
+QSoas> fit-arb vm/(1+km/x)
+~~~
+
+and you have saved the best parameters in a file called
+`parameters.params`. Then, close the fit window, and run the following
+commands:
+
+~~~
+QSoas> generate-buffer 0 100
+~~~
+
+in which the range of X values you want is between 0 and 100. This
+generates a dataset with 1000 equally-spaced points between 0
+and 100. Then, to obtain the smooth curve:
+
+~~~
+QSoas> sim-arb vm/(1+km/x) parameters.params 0
+~~~
+
+In this command, `0` is the current dataset, that is the 1000-points
+one. Then, you get your smooth curve, and you can save it using
+[cmd: save] if you want.
 
 
 

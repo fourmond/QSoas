@@ -2356,6 +2356,10 @@ files if you want the meta-data to follow.
 Sets the perpendicular coordinates for the Y columns, as
 comma-separated values. There must be as many perpendicular
 coordinates as there are Y columns.
+
+Another possibility is to specify a row using `/from-row`. In that
+case, the perpendicular coordinates are taken from the values of the
+row (the first element is ignored), and the row is deleted.
 {::comment} description-end: set-perp {:/}
 
 {::comment} synopsis-start: transpose {:/}

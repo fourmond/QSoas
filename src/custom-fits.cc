@@ -422,7 +422,7 @@ public:
     makeCommands(al, effector(this, &MultiBufferArbitraryFit::runFitCurrentDataSet, true),
                  effector(this, &MultiBufferArbitraryFit::runFit, true),
                  NULL,
-                 effector(this, &MultiBufferArbitraryFit::computeFit, true)
+                 effector(this, &MultiBufferArbitraryFit::computeFit)
                  );
   };
 

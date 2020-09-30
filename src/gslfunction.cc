@@ -263,7 +263,7 @@ static GSLSimpleFunction<gsl_sf_erfc>
 gsl_erfc("gsl_erfc(x)", "Complementary error function $$\\mathrm{erfc}(x) = 1 - \\mathrm{erf}(x)$$", "https://www.gnu.org/software/gsl/doc/html/specfunc.html#error-functions");
 
 static GSLSimpleFunction<gsl_sf_log_erfc> 
-gsl_log_erfc("log_erfc(x)", "Log of the complementary error function $$\\log(\\mathop{erfc}(x))$$", "https://www.gnu.org/software/gsl/doc/html/specfunc.html#error-functions");
+gsl_log_erfc("ln_erfc(x)", "Logarithm of the complementary error function $$\\log(\\mathop{erfc}(x))$$", "https://www.gnu.org/software/gsl/doc/html/specfunc.html#error-functions");
 
 static GSLSimpleFunction<gsl_sf_gamma> 
 gsl_gamma("gamma(x)", "The Gauss gamma function $$\\Gamma(x) = \\int_0^{\\infty} dt t^{x-1} \\exp(-t)$$", "https://www.gnu.org/software/gsl/doc/html/specfunc.html#gamma-and-beta-functions");

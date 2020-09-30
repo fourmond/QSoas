@@ -328,6 +328,22 @@ private:
       }, name, datasets, opts);
   }
 
+  void computeFit(const QString & name, QString formula,
+                  QString params,
+                  QList<const DataSet *> datasets,
+                  const CommandOptions & opts)
+  {
+    Fit::computeFit([this, &formula](FitData * data) {
+        FormulaBasedFit * f = getFbf(data);
+        Terminal::out << "Computing using formula '" << formula << "'" << endl;
+        f->parseFormulas(formula);
+        f->lastFormula = formula;
+        Terminal::out << " -> detected parameters:  " << f->params.join(", ") 
+                      << endl;
+      }, name, params, datasets, opts);
+  }
+
+
   void runFitCurrentDataSet(const QString & n, 
                             QString formula, const CommandOptions & opts)
   {
@@ -406,7 +422,10 @@ public:
                                          "|-separated formulas for the fit"));
 
     makeCommands(al, effector(this, &MultiBufferArbitraryFit::runFitCurrentDataSet, true),
-                 effector(this, &MultiBufferArbitraryFit::runFit, true));
+                 effector(this, &MultiBufferArbitraryFit::runFit, true),
+                 ArgumentList(),
+                 effector(this, &MultiBufferArbitraryFit::computeFit)
+                 );
   };
 
   /// This alternative constructor is to help create named fits based

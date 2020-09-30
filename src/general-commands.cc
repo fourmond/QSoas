@@ -1261,6 +1261,16 @@ void versionCommand(const QString &, const CommandOptions & opts)
       o << "\n    - " << p;
     o << "\n * documentation file: " << HelpBrowser::collectionFile()
       << endl;
+    Terminal::out << " * application dir: "
+                  << QCoreApplication::applicationDirPath()
+                  << "\n * application path: "
+                  << QCoreApplication::applicationFilePath()
+                  << "\n * library paths: ";
+    for(const QString & p: QCoreApplication::libraryPaths())
+      Terminal::out << "\n    - " << p;
+    Terminal::out << "\n * documentation file: "
+                  << HelpBrowser::collectionFile()
+                  << endl;
   }
 }
 

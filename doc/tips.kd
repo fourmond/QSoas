@@ -715,3 +715,13 @@ Automatic completion with the TAB key also works for code, and in
 particular the [special variables](qsoas.html#special-variables)
 `$meta` and `$stats`. They can also help with the quotes when using
 meta-data with spaces in their names.
+
+{::comment} tip: data generation;fits;basic {:/}
+## Generating fitted curves, outside from the fit window {#sim-fit-2}
+
+All fit commands have a corresponding `sim-` command like
+[cmd: sim-exponential-decay] or [cmd: sim-arb] that can be used to
+compute the fit values using a "saved parameters" file and a list of
+datasets to use a "models" for the X values. See also this
+[example](examples.html#sim-commands).
+

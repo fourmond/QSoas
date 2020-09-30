@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# extract-commands: a script to extract the commands from a QSoas log file
+# Copyright 2020 by CNRS/AMU.
+#
+# This script can be used and distributed under the same terms as QSoas itself.
+
+# Use: extract-commands soas.log script-base
+
+log="$1"
+if [ -z "$2" ]; then
+    script=qsoas
+else
+    script="$2"
+fi
+
+echo "Saving commands from '$log' to '$script.cmds'"
+grep '^QSoas>' "$log" | sed -r 's/^QSoas> *//' > "$script".cmds
+grep '^QSoas.fit>' "$log" | sed -r 's/^QSoas.fit> *//' > "$script".fcmds

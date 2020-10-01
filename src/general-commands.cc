@@ -1352,3 +1352,61 @@ head("head", // command name
      "Head");
 
 
+
+//////////////////////////////////////////////////////////////////////
+
+void pauseCommand(const QString &,
+                 const CommandOptions & opts)
+{
+  double time = -1;
+  QString text = "Click OK to continue";
+  updateFromOptions(opts, "time", time);
+  updateFromOptions(opts, "message", text);
+  QDateTime d = QDateTime::currentDateTime();
+  QMessageBox mb(QMessageBox::Information, "Pause", text);
+  mb.setModal(false);
+  
+  if(time < 0) {
+    mb.show();
+    mb.raise();
+    /*mb.activateWindow();*/
+  }
+  else {
+    Terminal::out << "Waiting for " << time << " seconds" << endl;
+    time *= 1000;
+  }
+  while(true) {
+    if(time >= 0) {
+      QDateTime d2 = QDateTime::currentDateTime();
+      if(d.msecsTo(d2) >= time) {
+        break;
+      }
+    }
+    else {
+      if(! mb.isVisible())
+        break;
+    }
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+  }
+  
+}
+
+static ArgumentList 
+pauseO(QList<Argument *>() 
+       << new NumberArgument("time", 
+                             "Pause time",
+                             "time to pause for, in seconds")
+       << new StringArgument("message", 
+                             "Text message",
+                             "the message to display", true)
+       );
+
+static Command 
+pause("pause", // command name
+      effector(pauseCommand), // action
+      "file",  // group name
+      ArgumentList(), // arguments
+      pauseO, // options
+     "Pause");
+
+

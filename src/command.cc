@@ -465,6 +465,7 @@ QString Command::synopsis(bool markup) const
   if(commandOptions()) {
     const ArgumentList &args = *commandOptions();
     QStringList names = args.argumentNames();
+    std::sort(names.begin(), names.end());
     
     for(const QString & a : names) {
       const Argument * arg = args.namedArgument(a);

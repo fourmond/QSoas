@@ -125,13 +125,17 @@ static void helpCommand(const QString & /*name*/,
 
   if(cmd->commandOptions()) {
     const ArgumentList & args = *cmd->commandOptions();
-    for(int i = 0; i < args.size(); i++) {
-      QString a = args[i]->argumentName();
+    
+    QStringList names = args.argumentNames();
+    std::sort(names.begin(), names.end());
+    
+    for(const QString & a : names) {
+      const Argument * arg = args.namedArgument(a);
       synopsis << "/" + a + "=" ;
       descs += QString("  * /%1%3: %2\n").
-        arg(args[i]->argumentName()).
-        arg(args[i]->description()).
-        arg(args[i]->defaultOption ? " (default)" : "");
+        arg(arg->argumentName()).
+        arg(arg->description()).
+        arg(arg->defaultOption ? " (default)" : "");
     }
   }
 

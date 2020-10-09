@@ -2492,3 +2492,78 @@ static void classifyCommand(const QString &, const CommandOptions & opts)
 //          &usOpts, // options
 //          "Classify dataset",
 //          "Tries to identify multiple order of magnitude trends in the data");
+
+
+//////////////////////////////////////////////////////////////////////
+
+// Random generators
+#include <gsl/gsl_rng.h>
+#include <gsl/gsl_randist.h>
+
+
+#include <argument-templates.hh>
+
+typedef double (*generator)(const gsl_rng *, double);
+
+static double uniform(const gsl_rng * r, double sigma)
+{
+  return (0.5 - gsl_rng_uniform(r)) * sigma/(sqrt(3));
+}
+
+QHash<QString, generator> generators = {
+  {"uniform", ::uniform},
+  {"gaussian", ::gsl_ran_gaussian},
+  {"cauchy", ::gsl_ran_cauchy}
+};
+
+static void addNoiseCommand(const QString &, double sigma,
+                            const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+
+  gsl_rng * r = gsl_rng_alloc(gsl_rng_default);
+  generator gen = ::uniform;
+  updateFromOptions(opts, "distribution", gen);
+
+  /// @todo Dump info as in the example in
+  /// https://www.gnu.org/software/gsl/doc/html/rng.html ?
+
+  // Add noise only on Y for now.
+  Vector ny = ds->y();
+  for(int i = 0; i < ny.size(); i++)
+    ny[i] += gen(r, sigma);
+
+  soas().pushDataSet(ds->derivedDataSet(ny, "_noise.dat"));
+
+  gsl_rng_free(r);
+}
+
+
+static ArgumentList 
+anA(QList<Argument *>() 
+    << new NumberArgument("sigma", 
+                          "Amplitude",
+                          "'Amplitude' of the noise")
+    );
+
+static ArgumentList 
+anO(QList<Argument *>() 
+    // << new IntegerArgument("seed", 
+    //                        "Generator seed",
+    //                        "The generator seed. If not specified, uses the current time")
+    << new TemplateChoiceArgument<generator>(generators,
+                                             "distribution", 
+                                             "Distribution",
+                                             "The noise distribution")
+    );
+
+static Command 
+an("add-noise", // command name
+   effector(addNoiseCommand), // action
+   "buffer",  // group name
+   &anA, // arguments
+   &anO, // options
+   "Add noise",
+   "Adds noise to the buffer");
+
+

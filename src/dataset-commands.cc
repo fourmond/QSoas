@@ -2525,6 +2525,15 @@ static void addNoiseCommand(const QString &, double sigma,
   generator gen = ::uniform;
   updateFromOptions(opts, "distribution", gen);
 
+  int sd = -1;
+  updateFromOptions(opts, "seed", sd);
+  unsigned long seed;
+  if(sd >= 0)
+    seed = sd;
+  else
+    seed = QDateTime::currentDateTime().toSecsSinceEpoch();
+  gsl_rng_set(r, seed);
+
   /// @todo Dump info as in the example in
   /// https://www.gnu.org/software/gsl/doc/html/rng.html ?
 
@@ -2548,9 +2557,9 @@ anA(QList<Argument *>()
 
 static ArgumentList 
 anO(QList<Argument *>() 
-    // << new IntegerArgument("seed", 
-    //                        "Generator seed",
-    //                        "The generator seed. If not specified, uses the current time")
+    << new IntegerArgument("seed", 
+                           "Generator seed",
+                           "The generator seed. If not specified or negative, uses the current time")
     << new TemplateChoiceArgument<generator>(generators,
                                              "distribution", 
                                              "Distribution",

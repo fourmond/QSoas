@@ -44,6 +44,7 @@
 
 #include <datasetlist.hh>
 
+
 #include <file.hh>
 
 static Group stack("view", 1,
@@ -52,14 +53,18 @@ static Group stack("view", 1,
 
 //////////////////////////////////////////////////////////////////////
 
+#include <datasetwriter.hh>
+
 
 static void saveCommand(const QString &, QString file, 
                         const CommandOptions & opts)
 {
   File f(file, File::TextWrite, opts);
-  soas().currentDataSet()->write(f);
-  soas().currentDataSet()->name = file;
-  soas().view().repaint();
+  DataSetWriter writer;
+  DataSet * ds = soas().currentDataSet();
+  writer.writeDataSet(f, ds);
+  ds->name = file;
+  // soas().view().repaint();
 }
 
 static QString fileNameProvider() 

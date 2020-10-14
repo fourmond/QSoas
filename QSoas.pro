@@ -402,7 +402,8 @@ SOURCES += src/qmain.cc \
         src/graphicoutput.cc \
         src/argumentsdialog.cc \
         src/filepromptwidget.cc \
-        src/datasetlist.cc
+        src/datasetlist.cc \
+        src/datasetwriter.cc
 
 #        src/conditionsprovider.cc \
 
@@ -548,7 +549,8 @@ HEADERS += src/headers.hh \
         src/argumentsdialog.hh \
         src/filepromptwidget.hh \
         src/namedinstanceargument.hh \
-        src/datasetlist.hh
+        src/datasetlist.hh \
+        src/datasetwriter.hh
 
 # mruby
 HEADERS += src/mruby.hh

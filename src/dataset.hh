@@ -57,6 +57,14 @@ private:
 /// @todo Add support for meta-data.
 class DataSet : public Guardable {
 
+  friend class DataSetWriter;
+
+  /// Writes the contents of the dataset in tab-separated format to \a
+  /// target.
+  ///
+  /// @deprecated This function should be deprecated
+  void write(QIODevice * target) const;
+
   /// The columns
   QList<Vector> columns;
 
@@ -657,12 +665,11 @@ public:
   /// (ie swap columns and rows, somehow)
   DataSet * transpose() const;
   
-  /// Writes the contents of the dataset in tab-separated format to \a
-  /// target.
-  void write(QIODevice * target) const;
 
   /// Writes to the named file, or use the name of the dataset.
   /// @warning Overwrites without warning.
+  ///
+  /// @deprecated
   void write(const QString & fileName = QString()) const;
 
   /// A utility function to compute the first derivative of a given

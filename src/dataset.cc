@@ -40,6 +40,7 @@
 
 #include <datastack.hh>
 #include <datasetexpression.hh>
+#include <datasetwriter.hh>
 #include <file.hh>
 
 #include <mruby.hh>
@@ -988,33 +989,11 @@ double DataSet::yValueAt(double x, bool interpolate) const
   return yvals[0];
 }
 
+
 void DataSet::write(QIODevice * target) const
 {
-  QTextStream o(target);
-  o << "# saved from Soas buffer name " << name << endl;
-  
-  /// @todo Write header ?
-  o << metaData.prettyPrint(1, "# ", "\n#\t") + "\n";
-
-  // Writing column names
-  QList<QStringList> ls = columnNames;
-  while(ls.size() > 0) {
-    QStringList names = ls.takeLast();
-    o << "## " << names.join("\t") << "\n";
-  }
-
-  /// @todo write row names.
-
-  int nb = nbRows();
-  for(int i = 0; i < nb; i++) {
-    for(int j = 0; j < columns.size(); j++) {
-      if(j)
-        o << "\t";
-      o << columns[j][i];
-    }
-    o << "\n";
-  }
-  o << flush;
+  DataSetWriter writer;
+  writer.writeDataSet(target, this);
 }
 
 void DataSet::write(const QString & n) const

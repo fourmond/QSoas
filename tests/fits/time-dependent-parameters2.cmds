@@ -1,0 +1,8 @@
+# A test for the "dependent" TDP
+generate-buffer 0 20
+sim-arb a-b parameters/tdp-2.params 0 /with=a,b:1,exp
+apply-formula 'y-= exp(-(x-5)/10) if x>=5'
+assert $stats.y_norm 0
+
+sim-arb a-2*b parameters/tdp-2.params 0 /with=a,b:1,exp
+assert $stats.y_norm 0

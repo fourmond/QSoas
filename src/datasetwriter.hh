@@ -22,6 +22,8 @@
 #define __DATASETWRITER_HH
 
 class DataSet;
+class Argument;
+#include <argumentmarshaller.hh>
 
 /// A helper class to write a dataset to a file.
 ///
@@ -35,7 +37,19 @@ class DataSet;
 class DataSetWriter {
 public:
 
-  void writeDataSet(QIODevice * target, const DataSet * dataset) const;
+  /// Whether to write row names or not
+  bool writeRowNames;
+
+  DataSetWriter();
+
+  /// Writes the dataset to the given device
+  void writeDataSet(QIODevice * device, const DataSet * dataset) const;
+
+  /// Options for writing.
+  static QList<Argument *> writeOptions();
+
+  /// Sets the writing parameters from the given options.
+  void setFromOptions(const CommandOptions & opts);
 };
 
 #endif

@@ -20,8 +20,14 @@
 #include <datasetwriter.hh>
 #include <dataset.hh>
 
+#include <general-arguments.hh>
 
 
+
+DataSetWriter::DataSetWriter() :
+  writeRowNames(false)
+{
+}
 
 void DataSetWriter::writeDataSet(QIODevice * target,
                                  const DataSet * ds) const
@@ -40,9 +46,15 @@ void DataSetWriter::writeDataSet(QIODevice * target,
   }
 
   /// @todo write row names.
-
+  ls = ds->rowNames;
+  
   int nb = ds->nbRows();
   for(int i = 0; i < nb; i++) {
+    if(writeRowNames) {
+      for(int rn = 0; rn < ls.size(); rn++) {
+        o << ls[rn].value(i,"") << "\t";
+      }
+    }
     for(int j = 0; j < ds->columns.size(); j++) {
       if(j)
         o << "\t";
@@ -50,4 +62,20 @@ void DataSetWriter::writeDataSet(QIODevice * target,
     }
     o << "\n";
   }
+}
+
+QList<Argument *> DataSetWriter::writeOptions()
+{
+  QList<Argument *> rv;
+  rv << new BoolArgument("row-names",
+                         "Row names",
+                         "Wether to write row names or not")
+    ;
+  return rv;
+}
+
+
+void DataSetWriter::setFromOptions(const CommandOptions & opts)
+{
+  updateFromOptions(opts, "row-names", writeRowNames);
 }

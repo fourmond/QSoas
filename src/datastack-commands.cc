@@ -61,6 +61,7 @@ static void saveCommand(const QString &, QString file,
 {
   File f(file, File::TextWrite, opts);
   DataSetWriter writer;
+  writer.setFromOptions(opts);
   DataSet * ds = soas().currentDataSet();
   writer.writeDataSet(f, ds);
   ds->name = file;
@@ -82,6 +83,7 @@ saveArgs(QList<Argument *>()
 static ArgumentList 
 saveOpts(QList<Argument *>() 
          << File::fileOptions(File::OverwriteOption|File::MkPathOption)
+         << DataSetWriter::writeOptions()
          );
 
 

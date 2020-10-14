@@ -21,3 +21,11 @@ assert '$row_names[2]=="c"'
 assert '$row_names[3]=="d"'
 assert '$row_names[4]==""'
 
+generate-buffer 0 10 /samples=5
+apply-formula '$row_name="test_#{i}"'
+assert '$row_names[0]=="test_0"'
+assert '$row_names[1]=="test_1"'
+assert '$row_names[2]=="test_2"'
+assert '$row_names[3]=="test_3"'
+assert '$row_names[4]=="test_4"'
+

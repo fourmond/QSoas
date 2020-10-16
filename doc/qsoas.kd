@@ -366,6 +366,22 @@ Gives all help available on the given command. By default, it spawns
 a browser to show the online help, unless you use `/online=false`.
 {::comment} description-end: help {:/}
 
+{::comment} synopsis-start: tips {:/}
+
+### `tips` - Tips {#cmd-tips}
+
+`tips` `/show-at-startup=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+
+  * `/show-at-startup=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}:  -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+
+{::comment} synopsis-end: tips {:/}
+{::comment} description-start: tips {:/}
+Without any options, it shows the "startup tips" window. With the
+`/show-at-startup` option, you can control whether the tips will show
+at startup in the next run of QSoas or not.
+{::comment} description-end: tips {:/}
+
+
 {::comment} synopsis-start: save-output {:/}
 
 ### `save-output` - Save output {#cmd-save-output}
@@ -3603,6 +3619,28 @@ this command unless `/redefine=true` is specified.
 
 
 {::comment} description-end: define-distribution-fit {:/}
+{::comment} synopsis-start: define-distribution {:/}
+
+### `define-distribution` - Define new parameter distribution {#cmd-define-distribution}
+
+`define-distribution` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _parameters..._{:title="several words, separated by ''"} _weight_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _left_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _right_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
+
+  * _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: name of the new distribution -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _parameters..._{:title="several words, separated by ''"}: parameters of the distribution -- values: several words, separated by ''
+  * _weight_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: expression for the weight -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _left_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: expression for the left boundary -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _right_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: expression for the right boundary -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+
+{::comment} synopsis-end: define-distribution {:/}
+{::comment} description-start: define-distribution {:/}
+Defines a new "distribution of parameters" to be used by
+[cmd: define-distribution-fit]. The arguments taken are the name of
+the new distribution (like `gaussian` for instance), the names of the
+parameters of the distribution, the expressions giving the weight and
+left and right boundaries for the integration (as a function of the
+parameters of the distribution).
+{::comment} description-end: define-distribution {:/}
+
 
 {::comment} synopsis-start: reparametrize-fit {:/}
 
@@ -7310,6 +7348,7 @@ listed here:
  * [`debug`](#cmd-debug)
  * [`define-alias`](#cmd-define-alias)
  * [`define-derived-fit`](#cmd-define-derived-fit)
+ * [`define-distribution`](#cmd-define-distribution)
  * [`define-distribution-fit`](#cmd-define-distribution-fit)
  * [`define-kinetic-system-fit`](#cmd-define-kinetic-system-fit)
  * [`diff`](#cmd-diff)
@@ -7414,6 +7453,7 @@ listed here:
  * [`system`](#cmd-system)
  * [`temperature`](#cmd-temperature)
  * [`timer`](#cmd-timer)
+ * [`tips`](#cmd-tips)
  * [`transpose`](#cmd-transpose)
  * [`tweak-columns`](#cmd-tweak-columns)
  * [`undo`](#cmd-undo)
@@ -7638,4 +7678,3 @@ This file was written by Vincent Fourmond, and is copyright (c)
 [manual-pdf]:http://www.qsoas.org/manual.pdf "The PDF version of the manual for QSoas"
 [qt-regexps]:http://qt-project.org/doc/qt-4.8/qregexp.html#introduction "Documentation for Qt regular expressions"
 [gsl-steppers]:https://www.gnu.org/software/gsl/doc/html/ode-initval.html#c.gsl_odeiv2_step_type
-

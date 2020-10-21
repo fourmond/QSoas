@@ -4319,6 +4319,122 @@ this command unless `/redefine=true` is specified.
 
 {::comment} description-end: custom-fit {:/}
 
+## Implicit fits
+
+QSoas provides facilities for fitting implicit equations to data, for
+which their is no closed form for the $$y$$ values but are defined by
+equations.
+
+
+{::comment} synopsis-start: fit-implicit {:/}
+
+### `fit-implicit` - Fit: Implicit fit {#cmd-fit-implicit}
+
+`fit-implicit` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/iterations=`_integer_{:title="an integer"} `/parameters=`_file_{:title="name of a file"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"} **(interactive)**
+
+  * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: formula for the fit (y is the variable) -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/arg1=`_file_{:title="name of a file"}: first argument of the script file -- values: name of a file
+  * `/arg2=`_file_{:title="name of a file"}: second argument of the script file -- values: name of a file
+  * `/arg3=`_file_{:title="name of a file"}: third argument of the script file -- values: name of a file
+  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
+  * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
+  * `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: runs the fit in expert mode -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/iterations=`_integer_{:title="an integer"}: Maximum number of iterations before giving up -- values: an integer
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/prec-absolute=`_number_{:title="a floating-point number"}: absolute precision required -- values: a floating-point number
+  * `/prec-relative=`_number_{:title="a floating-point number"}: relative precision required -- values: a floating-point number
+  * `/script=`_file_{:title="name of a file"}: runs a script file -- values: name of a file
+  * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
+  * `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines the title of the fit window -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps
+
+{::comment} synopsis-end: fit-implicit {:/}
+{::comment} description-start: fit-implicit {:/}
+Fits an implicit equation to the data. The equation is solved for the
+variable `y`. For instance:
+
+~~~~
+QSoas> fit-implicity y*exp(a*y)-x
+~~~~
+
+Fits the solution (in `y`) of the equation $$y\times \exp a\times y =
+x$$ to the data. The expression is equal to 0.
+{::comment} description-end: fit-implicit {:/}
+
+{::comment} synopsis-start: mfit-implicit {:/}
+
+### `mfit-implicit` - Multi fit: Implicit fit {#cmd-mfit-implicit}
+
+`mfit-implicit` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/iterations=`_integer_{:title="an integer"} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"} **(interactive)**
+
+  * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: formula for the fit (y is the variable) -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
+  * `/arg1=`_file_{:title="name of a file"}: first argument of the script file -- values: name of a file
+  * `/arg2=`_file_{:title="name of a file"}: second argument of the script file -- values: name of a file
+  * `/arg3=`_file_{:title="name of a file"}: third argument of the script file -- values: name of a file
+  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
+  * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
+  * `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: runs the fit in expert mode -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/iterations=`_integer_{:title="an integer"}: Maximum number of iterations before giving up -- values: an integer
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: if specified, it is the name of a meta-data that holds the perpendicular coordinates -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/prec-absolute=`_number_{:title="a floating-point number"}: absolute precision required -- values: a floating-point number
+  * `/prec-relative=`_number_{:title="a floating-point number"}: relative precision required -- values: a floating-point number
+  * `/script=`_file_{:title="name of a file"}: runs a script file -- values: name of a file
+  * `/set-from-meta=`_words_{:title="several words, separated by ','"}: sets parameter values from meta-data -- values: several words, separated by ','
+  * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight buffers (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines the title of the fit window -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps
+
+{::comment} synopsis-end: mfit-implicit {:/}
+{::comment} description-start: mfit-implicit {:/}
+Multibuffer variant of [cmd: fit-implicit].
+{::comment} description-end: mfit-implicit {:/}
+{::comment} synopsis-start: sim-implicit {:/}
+
+### `sim-implicit` - Simulation: Implicit fit {#cmd-sim-implicit}
+
+`sim-implicit` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/iterations=`_integer_{:title="an integer"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"}
+
+  * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: formula for the fit (y is the variable) -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
+  * _datasets..._{:title="comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)"}: the buffers whose X values will be used for simulations -- values: comma-separated lists of buffers in the stack, see [buffers lists](#buffer-lists)
+  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
+  * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the new buffers -- values: several words, separated by ','
+  * `/iterations=`_integer_{:title="an integer"}: Maximum number of iterations before giving up -- values: an integer
+  * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `reexport`, `residuals`, `subfunctions`
+  * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
+  * `/prec-absolute=`_number_{:title="a floating-point number"}: absolute precision required -- values: a floating-point number
+  * `/prec-relative=`_number_{:title="a floating-point number"}: relative precision required -- values: a floating-point number
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created buffers -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
+  * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: exp, ramps, rexp, steps
+
+{::comment} synopsis-end: sim-implicit {:/}
+{::comment} description-start: mfit-implicit {:/}
+Computation command for the  [cmd: fit-implicit] fit.
+{::comment} description-end: mfit-implicit {:/}
+
+{::comment} synopsis-start: define-implicit-fit {:/}
+
+### `define-implicit-fit` - Define implicit fit {#cmd-define-implicit-fit}
+
+`define-implicit-fit` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+
+  * _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Name for the new fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Mathematical expression for the implicit fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If the fit already exists, redefines it -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+
+{::comment} synopsis-end: define-implicit-fit {:/}
+{::comment} description-start: define-implicit-fit {:/}
+This is the equivalent of [cmd: custom-fit] but for [fit: implicit] fits.
+{::comment} description-end: define-implicit-fit {:/}
+
+
 ## Peak fits
 
 The fits in this section can be used to fit various "peaks" obeying to
@@ -7323,7 +7439,6 @@ listed here:
  * [`2`](#cmd-2)
  * [`add`](#cmd-add)
  * [`apply-formula`](#cmd-apply-formula)
- * [`assert`](#cmd-assert)
  * [`auto-correlation`](#cmd-auto-correlation)
  * [`auto-filter-bs`](#cmd-auto-filter-bs)
  * [`auto-filter-fft`](#cmd-auto-filter-fft)
@@ -7350,6 +7465,7 @@ listed here:
  * [`define-derived-fit`](#cmd-define-derived-fit)
  * [`define-distribution`](#cmd-define-distribution)
  * [`define-distribution-fit`](#cmd-define-distribution-fit)
+ * [`define-implicit-fit`](#cmd-define-implicit-fit)
  * [`define-kinetic-system-fit`](#cmd-define-kinetic-system-fit)
  * [`diff`](#cmd-diff)
  * [`diff2`](#cmd-diff2)
@@ -7430,6 +7546,7 @@ listed here:
  * [`sim-eecr-wave`](#cmd-sim-eecr-wave)
  * [`sim-exponential-decay`](#cmd-sim-exponential-decay)
  * [`sim-gaussian`](#cmd-sim-gaussian)
+ * [`sim-implicit`](#cmd-sim-implicit)
  * [`sim-kinetic-system`](#cmd-sim-kinetic-system)
  * [`sim-linear-kinetic-system`](#cmd-sim-linear-kinetic-system)
  * [`sim-lorentzian`](#cmd-sim-lorentzian)

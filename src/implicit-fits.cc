@@ -267,6 +267,13 @@ public:
       );
 
     const Vector &xv = ds->x();
+    const Vector &yv = ds->y();
+
+    // whether we have already found one solution
+    bool found = false;
+    double lastFound = 0;
+
+    QSet<int> notFound;
 
     for(int j = 0; j < xv.size(); j++) {
       while(seg < ds->segments.size() && j >= ds->segments[seg])
@@ -280,9 +287,63 @@ public:
       timeDependentParameters.computeValues(args[0], args.data()+base,
                                             a + params.size());
 
+
       double val = 0;
-      val  = solver.solve(ds->y()[j]);
-      gsl_vector_set(target, k++, val);
+      auto tryVal = [&solver,&val](double seed) -> bool {
+                      try {
+                        val = solver.solve(seed);
+                      }
+                      catch(const RuntimeError & re) {
+                        return false;
+                      }
+                      return true;
+                    };
+      if((found && tryVal(lastFound))
+         || tryVal(yv[j])
+         || tryVal(xv[j])
+         || tryVal(-xv[j])
+         || tryVal(1)
+         ) {
+        gsl_vector_set(target, k++, val);
+        lastFound = val;
+        found = true;
+      }
+      else {
+        notFound.insert(j);
+      }
+    }
+    if(! found)
+      throw RuntimeError("Could not find any proper seed for solving");
+
+    for(int j : notFound) {
+      while(seg < ds->segments.size() && j >= ds->segments[seg])
+        seg++;
+
+      /// @todo Use DatasetExpression ?
+      args[0] = xv[j]; // x
+      args[1] = j;     // i !
+      args[2] = seg;
+      
+      timeDependentParameters.computeValues(args[0], args.data()+base,
+                                            a + params.size());
+      double seed = 0;
+      if(j > 0)
+        seed = gsl_vector_get(target, j-1);
+      else {
+        for(int s = 1; s < xv.size(); s++) {
+          if(! notFound.contains(s)) {
+            seed = gsl_vector_get(target, s);
+            break;
+          }
+        }
+      }
+      try {
+        gsl_vector_set(target, j, solver.solve(seed));
+      }
+      catch(const RuntimeError & re) {
+        throw RuntimeError("Could not solve at X = %1: %2").
+          arg(xv[j]).arg(re.message());
+      }
     }
   };
 

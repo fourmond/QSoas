@@ -10,6 +10,7 @@
 @ polynomials.cmds
 
 @ custom-fits.cmds
+@ implicit-fits.cmds
 @ combined-fits.cmds
 
 @ jacobians.cmds

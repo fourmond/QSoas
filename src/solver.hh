@@ -123,6 +123,9 @@ public:
                gsl_root_fdfsolver_steffenson);
 
   virtual double f(double x) override;
+
+  /// Updates the function.
+  void setFunction(const std::function<double (double)> & f);
 };
 
 #endif

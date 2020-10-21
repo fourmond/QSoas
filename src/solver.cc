@@ -25,7 +25,7 @@
 
 Solver::Solver(const gsl_root_fdfsolver_type * t) :
   fdfsolver(NULL), fsolver(NULL),
-  absolutePrec(0), relativePrec(1e-4), maxIterations(25), type(t)
+  absolutePrec(0), relativePrec(1e-6), maxIterations(35), type(t)
 {
 }
 
@@ -180,7 +180,7 @@ void Solver::parseOptions(const CommandOptions & opts)
   updateFromOptions(opts, "iterations", maxIterations);
 }
 
-    CommandOptions Solver::currentOptions() const
+CommandOptions Solver::currentOptions() const
 {
   CommandOptions opts;
   updateOptions(opts, "prec-relative", absolutePrec);

@@ -67,6 +67,8 @@ public:
   Solver(const gsl_root_fdfsolver_type * type = 
          gsl_root_fdfsolver_steffenson);
 
+  Solver(const Solver & o);
+
   virtual ~Solver();
 
   /// Initializes the solver with the given value for using a
@@ -116,7 +118,7 @@ public:
 /// expression
 class LambdaSolver : public Solver {
 protected:
-  std::function<double (double)> fnc;
+  std::function<double (double)> function;
 public:
   LambdaSolver(const std::function<double (double)> & f, 
                const gsl_root_fdfsolver_type * type = 

@@ -81,9 +81,21 @@ public:
   /// parameters.
   QSet<int> skippedIndices;
 
+  /// The solver
+  LambdaSolver solver;
+
   ImplicitFitBase() :
-    expression(NULL)
+    expression(NULL),
+    solver(0)
   {
+  };
+
+  ImplicitFitBase(const ImplicitFitBase & o) :
+    expression(NULL),
+    solver(o.solver)
+  {
+    if(! o.formula.isEmpty())
+      parseFormula(o.formula);
   };
 
   static ArgumentList * hardOptions() {
@@ -95,6 +107,10 @@ public:
                                       "upon time")
                    );
     
+  };
+
+  static QList<Argument*> softOptions() {
+    return Solver::commandOptions();
   };
 
   void parseFormula(const QString &form)
@@ -178,7 +194,18 @@ public:
     for(int i = params.size()-1; i >=0; i--)
       if(skippedIndices.contains(i))
         params.takeAt(i);
+    processSoftOptions(opts);
   }
+
+  /// Processes the soft options -- solver options.
+  void processSoftOptions(const CommandOptions & opts) {
+    solver.parseOptions(opts);
+  };
+
+  CommandOptions currentSoftOptions() const {
+    return solver.currentOptions();
+  };
+
 
   /// Returns the initial guess for the named parameter
   ///
@@ -202,7 +229,7 @@ public:
         nbt = nbYSteps;
       }
       double d = (r - l)/(nbt + 1);
-      return l + d*re.cap(2).toInt();
+      return l + d*idx;
     }
     else {
       if(name == "dx")
@@ -238,8 +265,7 @@ public:
   void computeDataSet(const double *a, 
                       const DataSet * ds,
                       FitData *data, 
-                      gsl_vector *target,
-                      int formulaIndex = 0) {
+                      gsl_vector *target) {
     int k = 0;
     int nbparams = data->parametersPerDataset() +
       skippedIndices.size();
@@ -260,10 +286,10 @@ public:
 
     timeDependentParameters.initialize(a + params.size());
 
-    LambdaSolver solver([&args,this](double y) -> double {
+    solver.setFunction([&args,this](double y) -> double {
                           args[3] = y;
                           return expression->evaluate(args.data());
-                        }
+                       }
       );
 
     const Vector &xv = ds->x();
@@ -289,7 +315,7 @@ public:
 
 
       double val = 0;
-      auto tryVal = [&solver,&val](double seed) -> bool {
+      auto tryVal = [this,&val](double seed) -> bool {
                       try {
                         val = solver.solve(seed);
                       }
@@ -372,12 +398,7 @@ protected:
   };
 
   virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds*/) const override {
-    Storage * dst = new Storage;
-    Storage * src = dynamic_cast<Storage*>(source);
-    if(!src)
-      throw InternalError("Wrong storage type");
-    dst->fb.parseFormula(src->fb.formula);
-    return dst;
+    return deepCopy<Storage>(source);
   };
 
 protected:
@@ -446,6 +467,13 @@ public:
     return ImplicitFitBase::hardOptions();
   };
 
+  ArgumentList * fitSoftOptions() const override {
+    return new
+      ArgumentList(QList<Argument *>()
+                   << ImplicitFitBase::softOptions()
+                   );
+  };
+
   virtual void function(const double *parameters, FitData *data, 
                         const DataSet *ds, gsl_vector *target) const override {
     ImplicitFitBase * f = getFb(data);
@@ -459,6 +487,18 @@ public:
     ImplicitFitBase * f = getFb(data);
     f->initialGuessForDataset(ds, a);
   };
+  
+  CommandOptions currentSoftOptions(FitData * data) const override {
+    ImplicitFitBase * f = getFb(data);
+    return f->currentSoftOptions();
+  };
+
+  void processSoftOptions(const CommandOptions & opts,
+                          FitData * data) const override {
+    ImplicitFitBase * f = getFb(data);
+    f->processSoftOptions(opts);
+  };
+
 
   ImplicitFit() : 
     PerDatasetFit("implicit", 

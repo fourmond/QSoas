@@ -24,6 +24,7 @@
 #include <group.hh>
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
+#include <file-arguments.hh>
 #include <argument-templates.hh>
 #include <terminal.hh>
 
@@ -49,6 +50,7 @@
 #include <idioms.hh>
 #include <curve-effectors.hh>
 
+#include <file.hh>
 
 
 
@@ -148,6 +150,25 @@ static void findPeaksCommand(const QString &name, const CommandOptions & opts)
   if(nb >= 0)
     PeakInfo::sortByMagnitude(peaks);
   displayPeaks(peaks, ds, opts, nb, write);
+
+  QString file;
+  updateFromOptions(opts, "save-parameters", file);
+  if(! file.isEmpty()) {
+    File f(file, File::TextOverwrite);
+    QTextStream o(f);
+    for(int idx = 0; idx < peaks.size();) {
+      const PeakInfo & pk = peaks[idx];
+      ++idx;
+      o << "x_" << idx << "\t"
+        << pk.x << "\t!\t1\n"
+        << "A_" << idx << "\t"
+        << pk.y << "\t!\t1\n";
+      if(std::isfinite(pk.width())) {
+        o << "sigma_" << idx << "\t"
+          << 0.5*pk.width() << "\t!\t1\n";
+      }
+    }
+  }
 }
 
 
@@ -162,6 +183,9 @@ fpBaseOps(QList<Argument *>()
           << new BoolArgument("include-borders",
                               "Include borders",
                               "whether or not to include borders")
+          << new FileSaveArgument("save-parameters",
+                                  "Parameter file",
+                                  "a file to which to save the fit parameters")
           << new ChoiceArgument(QStringList() 
                                 << "min" << "max" << "both",
                                 "which",

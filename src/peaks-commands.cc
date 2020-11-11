@@ -117,6 +117,7 @@ static void findPeaksCommand(const QString &name, const CommandOptions & opts)
 
   bool trim = false;
   bool max = false;
+  double threshold = std::nan("NaN");
   QString which;
   
 
@@ -124,6 +125,7 @@ static void findPeaksCommand(const QString &name, const CommandOptions & opts)
   updateFromOptions(opts, "peaks", nb);
   updateFromOptions(opts, "include-borders", includeBorders);
   updateFromOptions(opts, "which", which);
+  updateFromOptions(opts, "threshold", threshold);
   
   if(which == "min") {
     trim = true;
@@ -140,7 +142,7 @@ static void findPeaksCommand(const QString &name, const CommandOptions & opts)
   const DataSet * ds = soas().currentDataSet();
   Peaks pk(ds, window);
 
-  QList<PeakInfo> peaks = pk.findPeaks(includeBorders);
+  QList<PeakInfo> peaks = pk.findPeaks(includeBorders, threshold);
   if(trim)
     PeakInfo::removeMinMax(peaks, !max);
   if(nb >= 0)
@@ -154,6 +156,9 @@ fpBaseOps(QList<Argument *>()
           << new IntegerArgument("window", 
                                  "Peak window",
                                  "width of the window")
+          << new NumberArgument("threshold", 
+                                "Threshold",
+                                "threshold for the peak Y value")
           << new BoolArgument("include-borders",
                               "Include borders",
                               "whether or not to include borders")

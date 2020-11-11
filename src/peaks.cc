@@ -90,7 +90,7 @@ Peaks::Peaks(const DataSet * ds, int w) :
 {
 }
 
-QList<PeakInfo> Peaks::findPeaks(bool includeBorders)
+QList<PeakInfo> Peaks::findPeaks(bool includeBorders, double threshold)
 {
   QList<PeakInfo> peaks;
   if(extrema.size() == 0)
@@ -106,9 +106,20 @@ QList<PeakInfo> Peaks::findPeaks(bool includeBorders)
     idx = abs(idx) - 1;
     if(! includeBorders && (idx == 0 || idx == y.size() - 1))
       continue;
+    
     info.index = idx;
     info.x = x[idx];
     info.y = y[idx];
+    if(! std::isnan(threshold)) {
+      if(info.isMin) {
+        if(info.y > threshold)
+          continue;
+      }
+      else {
+        if(info.y < threshold)
+          continue;
+      }
+    }
     info.magnitude = fabs(avg - info.y);
 
     int j = y.findCrossing(idx, y[idx]/2, -1);

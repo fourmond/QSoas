@@ -181,7 +181,8 @@ public:
   ///
   /// @todo This probably should be cached too, and it should be
   /// possible to refine.
-  QList<PeakInfo> findPeaks(bool includeBorders = false);
+  QList<PeakInfo> findPeaks(bool includeBorders = false,
+                            double threshold = std::nan("NaN"));
 
 
 

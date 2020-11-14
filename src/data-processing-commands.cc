@@ -67,6 +67,7 @@ namespace __reg {
     Divide,
     Write,
     Exponential,
+    Peak,
     Quit
   } ReglinActions;
 
@@ -81,6 +82,7 @@ namespace __reg {
     addKey(' ', Write, "write to output file").
     addKey('e', Exponential, "divide by exponential").
     alsoKey('E').
+    addKey('p', Peak, "detect peak").
     addKey('v', Divide, "divide by trend").
     alsoKey('V');
 
@@ -113,6 +115,24 @@ namespace __reg {
 
     // Computed fields:
     double decay_rate = 0;
+
+
+    // the lines used for peak determination
+    CurveLine fp, hp, fpl, hpl;
+    fp.hidden = true;
+
+    hp.hidden = true;
+    fpl.hidden = true;
+    hpl.hidden = true;
+
+    fp.pen = hp.pen = fpl.pen = hpl.pen =
+      gs.getPen(GraphicsSettings::ResultPen);
+
+    view.addItem(&fp);
+    view.addItem(&hp);
+    view.addItem(&fpl);
+    view.addItem(&hpl);
+
 
 
     loop.setHelpString(QString("Linear regression: \n")
@@ -201,6 +221,107 @@ namespace __reg {
         DataSet * newds = ds->derivedDataSet(newy, "_expdiv.dat");
         soas().pushDataSet(newds);
         return;
+      }
+        
+      case Peak: {
+        /// @todo Some of the code here should be merged with code in
+        /// Peak
+        
+        // We look for the first peak in the direction of the dx.
+        int min_idx = ds->x().closestPoint(r.xmin());
+        int max_idx = ds->x().closestPoint(r.xmax());
+
+        // Looking left or right ? If left, we search for min, if
+        // right, for max.
+
+        if(d.xvalues.size() == 0)
+          Terminal::out << "No regression yet" << endl;
+          
+
+        int i_hw = -1;
+        int i_pk = -1;
+        double pk_v;
+
+        if(min_idx > max_idx) {
+          // We look for minima below min_idx
+          for(int i = min_idx; i < ds->x().size(); i++) {
+            double v = d.yvalues[i];
+            if(i_pk < 0 || v < pk_v) {
+              i_pk = i;
+              pk_v = v;
+            }
+            if(i_pk >= 0 && (v > 0 || v > 0.9 * pk_v) &&
+               (v < 0.8*d.yvalues.min()) ) {
+              break;
+            }
+          }
+
+          // now look for half peak position.
+          for(int i = i_pk; i > min_idx; i--) {
+            double v = d.yvalues[i];
+            if(v >= 0.5 * pk_v) {
+              i_hw = i;
+              break;
+            }
+          }
+        }
+        else {
+          // We look for minima below min_idx
+          for(int i = max_idx; i < ds->x().size(); i++) {
+            double v = d.yvalues[i];
+            if(i_pk < 0 || v > pk_v) {
+              i_pk = i;
+              pk_v = v;
+            }
+            if(i_pk >= 0 && (v < 0 || v < 0.9 * pk_v) &&
+               (v > 0.8*d.yvalues.max()) ) {
+              break;
+            }
+          }
+
+          // now look for half peak position.
+          for(int i = i_pk; i > max_idx; i--) {
+            double v = d.yvalues[i];
+            if(v <= 0.5 * pk_v) {
+              i_hw = i;
+              break;
+            }
+          }
+        }
+        if(i_pk >= 0) {
+          Terminal::out << "Peak found: "
+                        << "  x = " << ds->x()[i_pk]
+                        << "\n  val = " << d.yvalues[i_pk];
+          double y = reg.first * xleft + reg.second + d.yvalues[i_pk];
+          fpl.p1 = QPointF(xleft, y);
+          y = reg.first * xright + reg.second + d.yvalues[i_pk];
+          fpl.p2 = QPointF(xright, y);
+          fpl.hidden = false;
+
+
+          y = reg.first * ds->x()[i_pk] + reg.second;
+          fp.p1 = QPointF(ds->x()[i_pk], y);
+          fp.p2 = QPointF(ds->x()[i_pk], ds->y()[i_pk]);
+          fp.hidden = false;
+
+          
+          if(i_hw >= 0) {
+            Terminal::out << "\n  hw = " << d.xvalues[i_hw];
+            y = reg.first * xleft + reg.second + d.yvalues[i_pk] * 0.5;
+            hp.p1 = QPointF(xleft, y);
+            y = reg.first * xright + reg.second + d.yvalues[i_pk] * 0.5;
+            hp.p2 = QPointF(xright, y);
+            hp.hidden = false;
+
+            double y = reg.first * ds->x()[i_hw] + reg.second;
+            hp.p1 = QPointF(ds->x()[i_hw], y);
+            hp.p2 = QPointF(ds->x()[i_hw], ds->y()[i_hw]);
+            hp.hidden = false;
+          }
+          Terminal::out << endl;
+
+          
+        }
       }
       default:
         ;

@@ -1,25 +1,30 @@
 Compilation requires the following packages:
 
-  * The Qt library. QSoas works well with both Qt4 and Qt5
+  * The Qt library. QSoas works only with  Qt5
   * The mruby interpreter, from https://mruby.org/. You need version
     1.4.1, to be downloaded from there:
     https://github.com/mruby/mruby/archive/1.4.1.zip
-    Earlier and later versions do not work (although version 2.0
-    almost works, to the point that most users won't notice it)
+    Version from 2.0 also work
   * Any Ruby interpreter (you don't need the development files, ruby
     is only used to prepare the build, it is not used to build
     against)
   * The GSL libraries, from http://www.gnu.org/software/gsl/, 
-    versions 1.16 until 2.5 are supported
+  versions 1.16 until 2.5 are supported
+
+For Debian-based distributions, you should pull all the necessary
+dependencies using
+
+~~~
+~ apt install ruby-dev libmruby-dev libgsl-dev libqt5opengl5-dev qt5-qmake qtbase5-dev libqt5svg5-dev qttools5-dev
+~~~
   
 
 On mac and linux computers, just running
 
-  ./configure
-
-and
-
-  make
+~~~
+~ ./configure
+~ make
+~~~
 
 should do the trick.
 
@@ -30,4 +35,16 @@ library search paths, you need to specify it to ./configure
 
 On windows, that should do the trick too, provided the GSL, Qt and
 Ruby libraries are in a place where the linker can find it.
+
+Alternatively, you can just use
+
+~~~
+~ qmake QSoas.pro MRUBY_DIR=path/to/mruby
+~ make
+~~~
+
+This produces the `QSoas` executable in place. It is simpler to use it
+from there directly.
+
+
 

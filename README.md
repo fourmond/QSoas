@@ -1,6 +1,6 @@
 # QSoas
 
-![QSoas](https://raw.githubusercontent.com/fourmond/QSoas/release/QSoas-logo.svg)
+<img src='https://raw.githubusercontent.com/fourmond/QSoas/release/QSoas-logo.svg' width=200 />
 
 QSoas is a powerful, scriptable data analysis software. It features:
 
@@ -23,7 +23,7 @@ Browse the [manual](http://qsoas.org/reference/) or take a look at the
 [tutorial](http://qsoas.org/tutorial/).
 
 There is also a series of articles about various features of QSoas
-[there](https://vince-debian.blogspot.com/labels/qsoas).
+[there](https://vince-debian.blogspot.com/search/label/qsoas).
 
 ## Support
 

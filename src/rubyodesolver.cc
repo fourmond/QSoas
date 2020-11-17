@@ -30,6 +30,9 @@
 #include <commandeffector-templates.hh>
 #include <file-arguments.hh>
 
+#include <mruby.hh>
+#include <terminal.hh>
+
 #include <file.hh>
 
 RubyODESolver::RubyODESolver(const QString & init, const QString & der) :
@@ -116,11 +119,24 @@ void RubyODESolver::parseSystem(const QString & init, const QString & der,
   // Now, we prepare the derivatives
   QStringList derivs;
   QStringList inits;
+
+  MRuby * mrb = MRuby::ruby();
+  QStringList derLocals;
+  mrb->detectParameters(der.toUtf8(), &derLocals);
+  
+  QStringList missingDerivs;
   for(int i = 0; i < vars.size(); i++) {
     QString n = QString("d_%1").arg(vars[i]);
     derivs << n;
     inits << QString("%1 = 0").arg(n);
+    if(! derLocals.contains(n))
+      missingDerivs << n;
   }
+  if(missingDerivs.size() > 0)
+    Terminal::out << "The following derivatives are missing: '"
+                  << missingDerivs.join("', '")
+                  << "', maybe you mistyped them ?" << endl;
+  
   code = QString("%2\n%3\n[%1]").arg(derivs.join(",")).
     arg(inits.join("\n")).arg(der);
 

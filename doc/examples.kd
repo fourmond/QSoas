@@ -114,6 +114,38 @@ spectroscopy:
 QSoas> apply-formula y/=$stats.y_int
 ~~~
 
+### Separating voltammograms in several scans
+
+QSoas has several possibilities to split voltammograms. For instance,
+using the [example file][examples] `file1.dat`.
+
+Working on the first scan:
+
+~~~
+QSoas> load file1.dat
+QSoas> splita
+~~~
+
+Working on the second scan:
+
+~~~
+QSoas> load file1.dat
+QSoas> splitb
+~~~
+
+Separating all the scans in one go:
+
+~~~
+QSoas> load file1.dat
+QSoas> split-monotonic
+~~~
+
+In the last case, several datasets are generated, one for each
+scan. Use [cmd: fetch] or [cmd: undo] to get a specific one.
+
+It is also possible to use [cmd: cut] for selecting the scan one wants also.
+
+
 ## Fits
 
 ### Generating smooth curves from fits {#sim-commands}

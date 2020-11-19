@@ -2593,7 +2593,12 @@ Performs a linear regression on a number of points around each point
 of the graph and creates a buffer from the resulting slopes, which
 results in a derivative buffer. This command is similar to but
 provides less noisy output than [cmd: diff], and also similar to
-filtering with FFT (using [cmd: filter-fft]) and taking the derivative.
+filtering with FFT (using [cmd: filter-fft]) and taking the
+derivative.
+
+The option `/window` specifies the number of points on either side of
+each point used for linear regression (defaults is 7, so the linear
+regression is made over 15 points in total).
 {::comment} description-end: auto-reglin {:/}
 
 {::comment} synopsis-start: remove-spikes {:/}
@@ -3351,6 +3356,12 @@ $$ f_0 \times \left[1 - k_{eff} (x - x_0))\right] = a x + b$$
 
 Using the space bar it is possible to save the values displayed in the
 terminal to the [output file](#output-file).
+
+With the key `p`, the linear regression is used as a baseline for
+analyzing the first peak next to the regression (in the direction of
+X values), showing the peak position, amplitude, and the half-peak
+position. This is useful for analyzing electrochemical data, for
+obtaining the half-wave potential.
 {::comment} description-end: reglin {:/}
 
 
@@ -7131,7 +7142,13 @@ d_sin = cos
 d_cos = -sin
 ~~~
 
-After running the commands
+**Important** Make sure that at least one fully blank line separates
+the definition of the initial values and the definition of the
+derivatives. Make sure also that to each variable defined in the first
+section corresponds a derivative in the second, starting with `d_`.
+
+
+After running the commands:
 
 ~~~
 QSoas> generate-buffer 0 10

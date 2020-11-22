@@ -63,17 +63,48 @@ protected slots:
   void enable(bool enabled);
 };
 
+/// A widget that can edit a series of arguments/options.
+class ArgumentsWidget : public QWidget {
 
-/// A dialog box for prompting values of 
+  /// The arguments/options we edit:
+  ArgumentList arguments;
+
+  /// Whether we provide a checkbox for disabling some of the elements
+  /// or not.
+  bool optional;
+
+  /// The editors
+  QList<ArgumentEditor *> editors;
+public:
+  ArgumentsWidget(const ArgumentList & args, bool optional,
+                  QWidget * parent = NULL);
+  
+
+  /// Sets the values from the options
+  void setFromOptions(const CommandOptions & opts);
+
+  /// Set the given options from the values. If clear, then the values
+  /// present in @a opts are cleared first.
+  void setOptions(CommandOptions & opts) const;
+
+  /// Returns the values of the arguments/options as an argument list.
+  CommandArguments asArguments() const;
+  
+  ~ArgumentsWidget();
+};
+
+
+/// A dialog box for prompting values of the arguments and options of
+/// a command. For doing the full prompt before running it.
 class ArgumentsDialog : public QDialog {
   Q_OBJECT;
 
   /// The underlying command.
   const Command * command;
 
-  QList<ArgumentEditor *> arguments;
-  QList<ArgumentEditor *> options;
-  
+  ArgumentsWidget * arguments;
+  ArgumentsWidget * options;
+
 public:
 
   explicit ArgumentsDialog(const Command * command);

@@ -28,9 +28,9 @@
 
 ArgumentEditor::ArgumentEditor(const Argument * arg, bool opt) :
   argument(arg),
+  isOption(opt),
   argName(NULL),
-  optName(NULL),
-  isOption(opt)
+  optName(NULL)
 {
   editor = arg->createEditor();
 
@@ -86,13 +86,55 @@ QString ArgumentEditor::argumentName() const
 {
   return argument->argumentName();
 }
+
+//////////////////////////////////////////////////////////////////////
+
+ArgumentsWidget::ArgumentsWidget(const ArgumentList & args, bool opt,
+                                 QWidget * parent) :
+  QWidget(parent), arguments(args), optional(opt)
+{
+  QGridLayout * grid = new QGridLayout(this);
   
+  for(int i = 0; i < arguments.size(); i++) {
+    const Argument * arg = arguments[i];
+    ArgumentEditor * ed = new ArgumentEditor(arg, optional);
+    ed->addToGrid(grid, editors.size());
+    editors << ed;
+  }
+}
+
+ArgumentsWidget::~ArgumentsWidget()
+{
+}
+
+void ArgumentsWidget::setOptions(CommandOptions & opts) const
+{
+  for(const ArgumentEditor * ed : editors) {
+    QString n = ed->argumentName();
+    if(opts.contains(n))
+      delete opts.take(n);
+    if(ed->isPresent())
+      opts[n] = ed->getValue();
+  }
+}
+
+CommandArguments ArgumentsWidget::asArguments() const
+{
+  CommandArguments rv;
+  for(const ArgumentEditor * ed : editors)
+    rv << ed->getValue();
+  return rv;
+}
+
 
 //////////////////////////////////////////////////////////////////////
 
 
-ArgumentsDialog::ArgumentsDialog(const Command * cmd) : QDialog(),
-                                                        command(cmd)
+ArgumentsDialog::ArgumentsDialog(const Command * cmd) :
+  QDialog(),
+  command(cmd),
+  arguments(NULL),
+  options(NULL)
 {
   QVBoxLayout * global = new QVBoxLayout(this);
 
@@ -103,29 +145,15 @@ ArgumentsDialog::ArgumentsDialog(const Command * cmd) : QDialog(),
   const ArgumentList * args = command->commandArguments();
   if(args && args->size() > 0) {
     global->addWidget(new QLabel("<b>Arguments:</b>"));
-    QGridLayout * grid = new QGridLayout;
-
-    for(int i = 0; i < args->size(); i++) {
-      const Argument * arg = (*args)[i];
-      ArgumentEditor * ed = new ArgumentEditor(arg, false);
-      ed->addToGrid(grid, arguments.size());
-      arguments << ed;
-    }
-    global->addLayout(grid);
+    arguments = new ArgumentsWidget(*args, false);
+    global->addWidget(arguments);
   }
 
   args = command->commandOptions();
   if(args && args->size() > 0) {
     global->addWidget(new QLabel("<b>Options:</b>"));
-    QGridLayout * grid = new QGridLayout;
-
-    for(int i = 0; i < args->size(); i++) {
-      const Argument * arg = (*args)[i];
-      ArgumentEditor * ed = new ArgumentEditor(arg, true);
-      ed->addToGrid(grid, options.size());
-      options << ed;
-    }
-    global->addLayout(grid);
+    options = new ArgumentsWidget(*args, true);
+    global->addWidget(options);
   }
 
   QDialogButtonBox * buttons =
@@ -172,15 +200,11 @@ void ArgumentsDialog::retrieveArgumentsAndOptions(CommandArguments * args,
 
   opts->clear();
 
-  for(const ArgumentEditor * ed : arguments)
-    *args << ed->getValue();
+  if(arguments) 
+    *args = arguments->asArguments();
 
-  for(const ArgumentEditor * ed : options) {
-    if(ed->isPresent()) {
-      (*opts)[ed->argumentName()] = ed->getValue();
-    }
-  }
-
+  if(options)
+    options->setOptions(*opts);
 }
 
 void ArgumentsDialog::showHelp()

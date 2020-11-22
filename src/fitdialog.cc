@@ -51,6 +51,7 @@
 #include <parametersviewer.hh>
 #include <parametersspreadsheet.hh>
 
+#include <argumentsdialog.hh>
 
 #include <nupwidget.hh>
 
@@ -1159,34 +1160,43 @@ void FitDialog::updateResidualsDisplay()
   residualsDisplay->setText(s);
 }
 
-static void fillGridWithOptions(const ArgumentList * args,
-                                const CommandOptions & co,
-                                QHash<QString, QWidget *> & widgets,
-                                QGridLayout * gd,
-                                int base)
-{
-  for(int i = 0; i < args->size(); i++) {
-    const Argument * ag = args->value(i);
-    gd->addWidget(new QLabel(ag->publicName()), i+base, 0);
-    QWidget * w = ag->createEditor(NULL);
-    gd->addWidget(w, i+base, 1);
-    widgets[ag->argumentName()] = w;
-
-    if(co.contains(ag->argumentName())) {
-      ag->setEditorValue(w, co[ag->argumentName()]);
-    }
-  }
-
-}
-
 void FitDialog::setSoftOptions()
 {
   QDialog dlg;
   
   QVBoxLayout * l= new QVBoxLayout(&dlg);
-  QGridLayout * gd = new QGridLayout;
+
+
+  // Now, we populate the grid with editors;
+  CommandOptions co;
+  ArgumentsWidget * fitSoftOpts = NULL;
+  ArgumentsWidget * engineOpts= NULL;
+
   
-  l->addLayout(gd);
+  if(! fitEngineParameters.contains(data->engineFactory))
+    fitEngineParameters[data->engineFactory] =
+      data->engineFactory->engineOptions;
+
+  if(softOptions) {
+    co = parameters.currentSoftOptions();
+    l->addWidget(new QLabel("<b>Fit options:<b>"));
+    
+    fitSoftOpts = new ArgumentsWidget(*softOptions, false);
+    l->addWidget(fitSoftOpts);
+    fitSoftOpts->setFromOptions(co);
+  }
+
+
+  CommandOptions * engineOptionValues =
+    parameters.fitEngineParameters(data->engineFactory);
+  ArgumentList * engineOptions = fitEngineParameters[data->engineFactory];
+  
+  if(engineOptions && engineOptions->size() > 0) {
+    l->addWidget(new QLabel("<b>Fit engine options:<b>"));
+    engineOpts = new ArgumentsWidget(*engineOptions, false);
+    l->addWidget(engineOpts);
+    engineOpts->setFromOptions(*engineOptionValues);
+  }
 
   QHBoxLayout * bot = new QHBoxLayout;
   
@@ -1200,61 +1210,17 @@ void FitDialog::setSoftOptions()
 
   l->addLayout(bot);
 
-  // Now, we populate the grid with editors;
-  CommandOptions co;
-
-  QHash<QString, QWidget *> fitWidgets;
-  QHash<QString, QWidget *> engineWidgets;
-
-  
-  if(! fitEngineParameters.contains(data->engineFactory))
-    fitEngineParameters[data->engineFactory] =
-      data->engineFactory->engineOptions;
-
-  if(softOptions) {
-    co = parameters.currentSoftOptions();
-    gd->addWidget(new QLabel("<b>Fit options:<b>"), 0, 0);
-    fillGridWithOptions(softOptions, co, fitWidgets, gd, 1);
-    for(auto i = co.begin(); i != co.end(); i++)
-      delete i.value();
-
-    co.clear();
-  }
-
-
-  CommandOptions * engineOptionValues =
-    parameters.fitEngineParameters(data->engineFactory);
-  ArgumentList * engineOptions = fitEngineParameters[data->engineFactory];
-  
-  if(engineOptions && engineOptions->size() > 0) {
-    int base = (softOptions ? softOptions->size() + 2 : 1);
-    gd->addWidget(new QLabel("<b>Fit engine options:<b>"), base-1, 0);
-
-    fillGridWithOptions(engineOptions, *engineOptionValues, engineWidgets,
-                        gd, base);
-  }
 
   if(dlg.exec()) {
-    if(softOptions) {
-      for(int i = 0; i < softOptions->size(); i++) {
-        const Argument * ag = softOptions->value(i);
-        QWidget * w = fitWidgets[ag->argumentName()];
-        ArgumentMarshaller * val = ag->getEditorValue(w);
-        if(val)
-          co[ag->argumentName()] = val;
-      }
+    if(fitSoftOpts) {
+      fitSoftOpts->setOptions(co);
       parameters.processSoftOptions(co);
       for(auto i = co.begin(); i != co.end(); i++)
         delete i.value();
     }
 
-    if(engineOptions) {
-      for(int i = 0; i < engineOptions->size(); i++) {
-        const Argument * ag = engineOptions->value(i);
-        QWidget * w = engineWidgets[ag->argumentName()];
-        delete (*engineOptionValues)[ag->argumentName()];
-        (*engineOptionValues)[ag->argumentName()] = ag->getEditorValue(w);
-      }
+    if(engineOpts) {
+      engineOpts->setOptions(*engineOptionValues);
     }
   }
   updateFitName();

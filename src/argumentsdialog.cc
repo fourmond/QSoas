@@ -126,6 +126,15 @@ CommandArguments ArgumentsWidget::asArguments() const
   return rv;
 }
 
+void ArgumentsWidget::setFromOptions(const CommandOptions & opts)
+{
+  for(ArgumentEditor * ed : editors) {
+    QString n = ed->argumentName();
+    if(opts.contains(n))
+      ed->setValue(opts[n]);
+  }
+}
+
 
 //////////////////////////////////////////////////////////////////////
 

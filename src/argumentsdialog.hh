@@ -64,6 +64,9 @@ protected slots:
 };
 
 /// A widget that can edit a series of arguments/options.
+///
+/// @todo Add multiple columns, this is going to be dead useful for
+/// complex commands.
 class ArgumentsWidget : public QWidget {
 
   /// The arguments/options we edit:

@@ -67,6 +67,7 @@ namespace __reg {
     Divide,
     Write,
     Exponential,
+    ShowExponential,
     Peak,
     Quit
   } ReglinActions;
@@ -82,7 +83,9 @@ namespace __reg {
     addKey(' ', Write, "write to output file").
     addKey('e', Exponential, "divide by exponential").
     alsoKey('E').
+    addKey('x', ShowExponential, "show exponential").
     addKey('p', Peak, "detect peak").
+    alsoKey('P').
     addKey('v', Divide, "divide by trend").
     alsoKey('V');
 
@@ -96,10 +99,12 @@ namespace __reg {
     CurveView & view = soas().view();
     CurvePanel bottom;
     CurveData d;
+    CurveData d_exp;
     bottom.drawingXTicks = false;
     bottom.stretch = 30;        // 3/10ths of the main panel.
     view.addItem(&line);
     view.addItem(&r);
+    view.addItem(&d_exp);
     bottom.addItem(&d);
 
     bottom.yLabel = Utils::deltaStr("Y");
@@ -109,6 +114,10 @@ namespace __reg {
     view.addPanel(&bottom);
     line.pen = gs.getPen(GraphicsSettings::ReglinPen);
     d.pen = gs.getPen(GraphicsSettings::ResultPen);
+    d_exp.hidden = true;
+    d_exp.pen = gs.getPen(GraphicsSettings::BaselinePen);
+    d_exp.pen.setColor("#555");
+      
     QPair<double, double> reg;
     double xleft = ds->x().min();
     double xright = ds->x().max();
@@ -168,9 +177,12 @@ namespace __reg {
           d.xvalues = ds->x();
           d.yvalues = ds->y(); // Not really important, only size
           // matters
+          d_exp.xvalues = ds->x();
+          d_exp.yvalues = ds->x();
         }
         double dy_min = 0;
         double dy_max = 0;
+        double y0 = reg.first * r.xmin() + reg.second;
         for(int i = 0; i < d.xvalues.size(); i++) {
           double x = d.xvalues[i];
           double y = ds->y()[i] -  x * reg.first - reg.second;
@@ -181,6 +193,7 @@ namespace __reg {
             if(y > dy_max)
               dy_max = y;
           }
+          d_exp.yvalues[i] = y0*exp(decay_rate * (r.xmin() - x));
         }
         bottom.setYRange(dy_min, dy_max, view.mainPanel());
         break;
@@ -222,7 +235,9 @@ namespace __reg {
         soas().pushDataSet(newds);
         return;
       }
-        
+      case ShowExponential:
+        d_exp.hidden = ! d_exp.hidden;
+        break;
       case Peak: {
         /// @todo Some of the code here should be merged with code in
         /// Peak

@@ -6,17 +6,21 @@ exploration, running many fits with random initial starting positions
 to greatly increase the likelihood of finding the best parameters
 (along with many other new features for fits).
 
-This release also brings in a command to permanently record
-information about a file, such as the conditions in which the
-experiments were made (the sample used, the temperature, etc...), in a
-format that QSoas automatically reads when reading the file. This
-makes it possible to quickly browse through data to find the
-experiments you need.
+Another improvement in the fits is a new implicit fit, to fit an
+implicit equation to data.
+
+This release also brings in a command to permanently record information
+about a file, such as the conditions in which the experiments were
+made (the sample used, the temperature, etc...), in a format that
+QSoas automatically reads when reading the file. This makes it
+possible to quickly browse through data to find the experiments you
+need.
 
 Finally, this release brings in a whole new offline documentation
-system, with and index and search facilities, startup tips, and the
-possibility to specify manually all the command arguments and options
-in a dialog box when running a command from the menus.
+system, with and index and search facilities, startup tips,
+cross-reference examples and the possibility to specify manually all
+the command arguments and options in a dialog box when running a
+command from the menus.
 
 See the full list of changes [below](#v3p0)
 
@@ -71,6 +75,10 @@ featuring:
  * a mode in `sim-` that just writes the residuals
  * a mode in `sim-` to export subfunctions
  * improvements to the parameters spreadsheet
+ * a new fit, [fit: implicit], that fits the results of equations to
+   data, together with a [cmd: define-implicit-fit] to create named
+   implicit fits
+ * the [fit: arb] fit now has its corresponding [cmd: sim-arb] function
 
 ## New commands
 
@@ -97,8 +105,12 @@ featuring:
   * [cmd: run], [cmd: run-for-each] and [cmd: run-for-datasets] now
     provide several ways to deal with errors in the execution of the
     script: ignore, abort or fail
+  * [cmd: reglin] can now be used to define a baseline to characterize
+    peaks, and it can also show the exponential equivalent to the line
   * [cmd: cursor] has new symmetry operations, and can work
     effectively with many curves
+  * [cmd: set-perp] can now take the values of perpendicular
+    coordinates from a dataset row
   * possibility to disable optimization in [cmd: auto-filter-bs]
   * [cmd: show-stack] can also list the meta-data now
   * Gauss-Kronrod integration for distribution of parameters and other
@@ -116,8 +128,11 @@ featuring:
     in `eval '$stats["y_max"]'`
   * completion on the meta/stats names for the code
   * a `%{ruby code}` expansion in scripts or command-line
-  * a `k_mhc` function to compute the "real" Marcus-Hush-Chidsey
-    kinetics (using the integral formula)
+  * a set of functions (`k_mhc` and `k_mhc_double`) to Marcus-Hush-Chidsey
+    rate constants (using the integral formula)
+  * a `trumpet_bv` function to compute the position of peaks in
+    so-called "trumpet plots" when using Butler-Volmer kinetics
+  * several additional functions like `ln_erfc(x)`, `ln_gamma(x)`
   * a `--log` command-line option to choose the log file name
   * a `--version` command-line option 
   * Gauss-Kronrod integrators for parameter distributions
@@ -129,8 +144,11 @@ featuring:
   * new statistics: `y_a` and `y_b`, which correspond to parameters of
     the linear regression of $$y = f(x)$$. Available for `y2` and all
     the others, still as a function of `x`.
-  * a new offline documentation system with index and search
-    capacities
+  * a `_sum` statistic that corresponds to the sum of all elements
+    (available for each column)
+  * a new comprehensive offline documentation system with index,
+    search capacities, cross-referenced examples, and the possibility
+    to execute commands directly from within it
   * a series of startup tips
   * now, using the menus to start a command will show a dialog box in
     which one can choose the arguments and options

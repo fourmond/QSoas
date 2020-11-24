@@ -562,9 +562,118 @@ int FitWorkspace::totalParameterNumber() const
   return datasets * nbParameters;
 }
 
+DataSet * FitWorkspace::exportAsDataSet(bool errors, bool meta)
+{
+  retrieveParameters();
+  double conf = fitData->confidenceLimitFactor(0.975);
+  QStringList colNames;
+
+  QList<Vector> vects;
+  if(hasPerpendicularCoordinates()) {
+    colNames << "Z";
+    vects << perpendicularCoordinates;
+  }
+  else {
+    colNames << "index";
+    Vector v;
+    for(int i = 0; i < datasets; i++)
+      v << i;
+    vects << v;
+  }
+
+  if(meta)
+    throw NOT_IMPLEMENTED;
+
+  const gsl_matrix * cov = (errors ? fitData->covarianceMatrix() : NULL);
+
+
+  for(int j = 0; j < nbParameters; j++) {
+    QString name = fitData->parameterDefinitions[j].name;
+    Vector v, err;
+    for(int i = 0; i < datasets; i++) {
+      v << values[i * nbParameters + j];
+      if(errors) {
+        int idx = (isGlobal(j) ? j : j + i * nbParameters);
+        err << conf*sqrt(gsl_matrix_get(cov, idx, idx));
+      }
+    }
+    colNames << name;
+    vects << v;
+    if(errors) {
+      colNames << name + "_err";
+      vects << v;
+    }
+  }
+
+  // Last, the per-dataset stuff:
+  QList<Vector> extra_vals;
+  class ExtraColumn {
+  public:
+    QString name;
+    std::function<double (int index)> func;
+    // ExtraColumn(const QString & n, std::function<double (int index)> f) :
+    //   name(n), func(f) {
+    // };
+  };
+
+  ExtraColumn extras[] =
+    {
+     {"xstart", [this](int i) -> double {
+                  return fitData->datasets[i]->x().min();
+                }
+     },
+     {"xend", [this](int i) -> double {
+                return fitData->datasets[i]->x().max();
+              }
+     },
+     {"residuals", [this](int i) -> double {
+                     return pointResiduals[i];
+                   }
+     },
+     {"rel_residuals", [this](int i) -> double {
+                         return relativeResiduals[i];
+                       }
+     },
+     {"buffer_weight", [this](int i) -> double {
+                         return fitData->weightsPerBuffer[i];
+                       }
+     }
+    };
+
+  for(const ExtraColumn & c : extras) {
+    colNames << c.name;
+    extra_vals << Vector();
+  }
+
+  QStringList rowNames;
+  for(int i = 0; i < datasets; i++) {
+    rowNames << fitData->datasets[i]->name;
+    int j = 0;
+    for(const ExtraColumn & c : extras) {
+      extra_vals[j] << c.func(i);
+      ++j;
+    }
+  }
+
+  vects += extra_vals;
+
+  // QTextStream o(stdout);
+  // o << "Columns: " << colNames.join(", ")
+  //   << ": " << colNames.size() << "/" << vects.size() << endl;
+
+  DataSet * ds = new DataSet(vects);
+  ds->name = "Parameters";
+  ds->columnNames << colNames;
+  ds->rowNames << rowNames;
+
+  return ds;
+  
+}
+
+
 
 void FitWorkspace::prepareExport(QStringList & lst, QString & lines, 
-                                  bool exportErrors, bool exportMeta)
+                                 bool exportErrors, bool exportMeta)
 {
   retrieveParameters();
   double conf = fitData->confidenceLimitFactor(0.975);

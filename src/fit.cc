@@ -407,7 +407,8 @@ void Fit::makeCommands(const ArgumentList &args,
                                 << "subfunctions"
                                 << "residuals"
                                 << "jacobian"
-                                << "reexport",
+                                << "reexport"
+                                << "push",
                                 "operation", 
                                 "What to do",
                                 "Whether to just compute the function, "
@@ -708,6 +709,14 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
     ws.prepareFit();
     ws.recomputeJacobian();
     ws.exportToOutFile(true);
+  }
+  else if(what == "push") {
+    Terminal::out << "Pushing parameters with errors" << endl;
+    if(! data.engineFactory)
+      data.engineFactory = FitEngine::namedFactoryItem("odrpack");
+    ws.prepareFit();
+    ws.recomputeJacobian();
+    pusher.pushDataSet(ws.exportAsDataSet(true));
   }
   else if(what == "jacobian") {
     Terminal::out << "Computing and exporting the jacobian " << endl;

@@ -335,6 +335,9 @@ protected slots:
   /// state (global and/or fixed)
   void exportParametersWithErrors();
 
+  /// Pushes the parameters
+  void pushParametersWithErrors();
+
   /// Exports parameters to the current output file
   void exportToOutFile();
 

@@ -486,6 +486,12 @@ public:
   /// Retrieve parameters from the fit
   void retrieveParameters();
 
+  /// Exports the parameters as a dataset, with a row for each buffer,
+  /// and a column for each parameter.
+  ///
+  /// The X value is either the perpendicular coordinates or 
+  DataSet * exportAsDataSet(bool errors = false, bool meta = false);
+
 
   /// @name IO functions
   ///

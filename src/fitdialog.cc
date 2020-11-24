@@ -418,6 +418,8 @@ void FitDialog::setupFrame(bool expert)
   ac->addAction("Export to output file (w/errors)", this, 
                 SLOT(exportToOutFileWithErrors()),
                 QKeySequence(tr("Ctrl+Shift+O")));
+  ac->addAction("Push with errors", 
+                this, SLOT(pushParametersWithErrors()));
   ac->addAction("Reset this to initial guess", this, 
                 SLOT(resetThisToInitialGuess()),
                 QKeySequence(tr("Ctrl+T")));
@@ -964,6 +966,15 @@ void FitDialog::exportToOutFile()
     return;
   parameters.exportToOutFile();
   Terminal::out << "Exported fit parameters to output file"  << endl;
+}
+
+void FitDialog::pushParametersWithErrors()
+{
+  if(! checkEngineForExport())
+    return;
+  Terminal::out << "Pushing fit parameters to the stack"  << endl;
+  DataSet * ds = parameters.exportAsDataSet(true);
+  soas().pushDataSet(ds);
 }
 
 void FitDialog::exportToOutFileWithErrors()

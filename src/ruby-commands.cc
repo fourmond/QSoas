@@ -777,6 +777,110 @@ ve("verify", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+#include <gsl/gsl_multifit.h>
+#include <gsl-types.hh>
+
+static void linearLeastSquaresCommand(const QString &, QString formula,
+                                      const CommandOptions & opts)
+{
+
+
+  DataSetList buffers(opts);
+
+  DataStackHelper pusher(opts);
+  for(const DataSet * ds : buffers) {
+    DataSetExpression ex(ds);
+
+    ex.useStats = true;
+    updateFromOptions(opts, "use-stats", ex.useStats);
+    ex.useMeta = true;
+    updateFromOptions(opts, "use-meta", ex.useMeta);
+
+    QStringList params;
+    int sz = ex.dataSetParameters(0, NULL).size();
+    ex.prepareExpression(formula, 0, &params);
+
+    Terminal::out << "Fitting '" << formula << "' to dataset "
+                  << ds->name << "\n"
+                  << " ->  found parameters: " << params.join(", ") << endl;
+
+    int nbparams = params.size();
+    if(nbparams == 0)
+      continue;                 // nothing to do
+    gsl_multifit_linear_workspace * ws =
+      gsl_multifit_linear_alloc(ds->nbRows(), nbparams);
+    GSLMatrix m(ds->nbRows(), nbparams);
+    GSLVector res(nbparams);
+    GSLMatrix cov(nbparams, nbparams);
+
+    // Now, computing the coefficients:
+
+    QVarLengthArray<double, 1000> storage(sz + params.size());
+    int idx = 0;
+    for(int i = 0; i < nbparams; i++)
+      storage[sz+i] = 0;
+    while(ex.nextValues(storage.data(), &idx)) {
+      for(int i = 0; i < nbparams; i++) {
+        storage[sz+i] = 1;
+        gsl_matrix_set(m, idx, i,
+                       ex.expression().
+                       evaluateNoLock(storage.data()));
+        storage[sz+i] = 0;
+      }
+    }
+    // QTextStream o(stdout);
+    // o << "Matrix: " << Utils::matrixString(m) << endl;
+    double chisq = 0;
+    int status = gsl_multifit_linear(m, ds->y(),
+                                     res, cov, &chisq,
+                                     ws);
+    if(status != GSL_SUCCESS)
+      Terminal::out << "Error: " << gsl_strerror(status) << endl;
+    else {
+      ValueHash results;
+      for(int i = 0; i < nbparams; i++)
+        results << params[i] << res[i];
+      Terminal::out << results.prettyPrint() << endl;
+    }
+    
+    gsl_multifit_linear_free(ws);
+  }
+}
+
+static ArgumentList 
+llA(QList<Argument *>() 
+    << new CodeArgument("formula", 
+                        "Formula",
+                        "formula"));
+
+static ArgumentList 
+llO(QList<Argument *>() 
+    << new BoolArgument("use-stats", 
+                        "Use statistics",
+                        "if on (by default), you can use `$stats` to refer to statistics (off by default)")
+    << new BoolArgument("use-meta", 
+                        "Use meta-data",
+                        "if on (by default), you can use `$meta` to refer to "
+                        "the dataset meta-data")
+    << new BoolArgument("use-names", 
+                       "Use column names",
+                       "if on the columns will not be called x,y, and so on, but will take their name based on the column names")
+    << DataSetList::listOptions("Buffers to work on")
+    );
+
+
+static Command 
+lls("linear-least-squares", // command name
+    effector(linearLeastSquaresCommand), // action
+    "math",  // group name
+    &llA, // arguments
+    &llO, // options
+    "Linear least squares",
+    "determines the values of the parameters by linear least squares");
+
+
+//////////////////////////////////////////////////////////////////////
+
 /// The current context for assertions
 static QString assertContext = "general";
 
@@ -1108,3 +1212,5 @@ asf("assert", // command name
     &aO,
     "Assert",
     "Runs an assertion in a test suite", "", CommandContext::fitContext());
+
+

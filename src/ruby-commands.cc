@@ -841,9 +841,11 @@ static void linearLeastSquaresCommand(const QString &, QString formula,
       for(int i = 0; i < nbparams; i++)
         results << params[i] << res[i];
       Terminal::out << results.prettyPrint() << endl;
+      results.handleOutput(ds, opts);
     }
     
     gsl_multifit_linear_free(ws);
+    
   }
 }
 
@@ -866,6 +868,7 @@ llO(QList<Argument *>()
                        "Use column names",
                        "if on the columns will not be called x,y, and so on, but will take their name based on the column names")
     << DataSetList::listOptions("Buffers to work on")
+    << ValueHash::outputOptions()
     );
 
 

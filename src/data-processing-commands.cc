@@ -838,10 +838,10 @@ static ArgumentList
 intArgs(QList<Argument *>() 
               << new DataSetArgument("xvalues", 
                                      "X values",
-                                     "Buffer serving as base for X values")
+                                     "Dataset serving as base for X values")
               << new DataSetArgument("nodes", 
                                      "Nodes",
-                                     "Buffer containing the nodes X/Y values"));
+                                     "Dataset containing the nodes X/Y values"));
 
 static ArgumentList 
 intOpts(QList<Argument *>() 
@@ -2025,7 +2025,7 @@ rsOps(QList<Argument *>()
                             "threshold factor")
       << new BoolArgument("force-new", 
                           "Force new buffer",
-                          "creates a new buffer even if no spikes were removed (default: false)")
+                          "creates a new dataset even if no spikes were removed (default: false)")
       );
 
 

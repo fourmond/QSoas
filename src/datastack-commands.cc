@@ -98,7 +98,7 @@ sv("save", // command name
    &saveArgs, // arguments
    &saveOpts, // options
    "Save",
-   "Saves the current buffer",
+   "",
    "s");
 
 //////////////////////////////////////////////////////////////////////
@@ -159,21 +159,21 @@ static void saveBuffersCommand(const QString &,
 
 static ArgumentList 
 sBArgs(QList<Argument *>() 
-         << new SeveralDataSetArgument("buffers", 
-                                       "Buffers to save",
-                                       "buffers to save"));
+         << new SeveralDataSetArgument("datasets", 
+                                       "Datasets to save",
+                                       "datasets to save"));
 
 static ArgumentList 
 sBOpts(QList<Argument *>() 
        << new StringArgument("format", 
                              "File name format",
-                             "overrides buffer names if present")
+                             "overrides dataset names if present")
        << new StringArgument("expression", 
                              "A full Ruby expression",
                              "a Ruby expression to make file names")
        << new ChoiceArgument(QStringList() << "save" << "both" << "rename", 
                              "mode", 
-                             "How to rename/save buffers",
+                             "What to do with datasets",
                              "if using `/format` or `/expression`, whether to just `save`, to just `rename` or `both` (defaults to 'both')")
        << new BoolArgument("mkpath",
                            "Make path",
@@ -185,13 +185,14 @@ sBOpts(QList<Argument *>()
 
 
 static Command 
-saveBuffers("save-buffers", // command name
+saveBuffers("save-datasets", // command name
             effector(saveBuffersCommand), // action
             "save",  // group name
             &sBArgs, // arguments
             &sBOpts, // options
             "Save",
-            "Saves specified buffers");
+            "Saves specified buffers",
+            "save-buffers");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -209,7 +210,7 @@ static ArgumentList
 showSOpts(QList<Argument *>() 
           << new IntegerArgument("number", 
                                  "Limit display",
-                                 "Display only that many buffers around 0",
+                                 "Display only that many datasets around 0",
                                  true)
           << new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "meta", 
                                         "Meta-data",
@@ -257,8 +258,8 @@ static void dropDataSetCommand(const QString &, const CommandOptions & opts)
 static ArgumentList 
 dropOps(QList<Argument *>() 
         << new SeveralDataSetArgument("buffers", 
-                                      "Buffers",
-                                      "Buffers to drop", true, true));
+                                      "Datasets",
+                                      "Datasets to drop", true, true));
 
 
 static Command 
@@ -611,7 +612,7 @@ static void browseStackCommand(const QString &, const CommandOptions & opts)
 
 static ArgumentList 
 bsOpts(QList<Argument *>() 
-       << DataSetList::listOptions("Buffers to show")
+       << DataSetList::listOptions("Datasets to show")
        );
 
 static Command 
@@ -636,9 +637,9 @@ static void fetchCommand(const QString &, QList<const DataSet *> buffers)
 
 static ArgumentList 
 fetchArgs(QList<Argument *>() 
-          << new SeveralDataSetArgument("buffers", 
-                                        "Buffers",
-                                        "Buffers to fetch", true));
+          << new SeveralDataSetArgument("datasets", 
+                                        "Datasets",
+                                        "Datasets to fetch", true));
 
 
 static Command 
@@ -647,9 +648,7 @@ fetch("fetch", // command name
       "stack",  // group name
       &fetchArgs, // arguments
       NULL, // options
-      "Fetch an old buffer",
-      "Fetch old buffers from the stack and put them back on "
-      "the top of the stack.");
+      "Fetch datasets from the stack");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -797,7 +796,7 @@ static void flagUnFlag(const CommandOptions & opts,
   }
 
   Terminal::out << (flagged ? "Flagged ": "Unflagged ")
-                << nb << " buffers" << endl;
+                << nb << " datasets" << endl;
 
 }
 
@@ -811,8 +810,8 @@ muOps(QList<Argument *>()
       << DataSetList::listOptions("Buffers to flag/unflag")
       << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                     "flags", 
-                                    "Buffers",
-                                    "Buffers to flag/unflag"));
+                                    "Flags",
+                                    "Flags to set/unset"));
 
 
 static ArgumentList 
@@ -822,7 +821,7 @@ flOps(QList<Argument *>(muOps)
                           "If on, clears all the previous flags")
       << new BoolArgument("exclusive", 
                           "Set flags exclusively",
-                          "If on, clears the given flags on all the buffers but the ones specified"));
+                          "If on, clears the given flags on all the datasets but the ones specified"));
 
 
 
@@ -887,9 +886,9 @@ static void showBuffersCommand(const QString &,
 
 static ArgumentList 
 ssBArgs(QList<Argument *>() 
-         << new SeveralDataSetArgument("buffers", 
-                                       "Buffers to show",
-                                       "Buffers to show"));
+         << new SeveralDataSetArgument("datasets", 
+                                       "Datasets to show",
+                                       "Datasets to show"));
 
 
 static Command 
@@ -898,5 +897,4 @@ showBuffers("show", // command name
             "buffer",  // group name
             &ssBArgs, // arguments
             NULL, // options
-            "Show information",
-            "Show details (meta-data and such) about the given buffers");
+            "Show information");

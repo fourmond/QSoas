@@ -151,7 +151,7 @@ fO(QList<Argument *>()
    << new BoolArgument("keep-on-error", 
                        "Keep on error",
                        "if on, the points where the Ruby expression returns a  error are kept, as invalid numbers")
-   << DataSetList::listOptions("Buffers to work on")
+   << DataSetList::listOptions("Datasets to work on")
    );
 
 
@@ -594,7 +594,7 @@ static void eval(const QString &, QString code, const CommandOptions & opts)
   else {
     for(const DataSet * s : buffers) {
       DataSet * ds = const_cast<DataSet *>(s);
-      Terminal::out << "Evaluating with buffer: " << ds->name << endl;
+      Terminal::out << "Evaluating with dataset: " << ds->name << endl;
       value = ds->evaluateWithMeta(code, true, modifyMeta);
       Terminal::out << " => " << strValue(value) << endl;
     }
@@ -609,7 +609,7 @@ eA(QList<Argument *>()
 
 static ArgumentList 
 eO(QList<Argument *>() 
-   << DataSetList::listOptions("Buffers to run eval on")
+   << DataSetList::listOptions("Datasets to run eval on")
    << new BoolArgument("use-dataset", 
                        "Use current dataset",
                        "If on (the default) and if there is a current dataset, the $meta and $stats hashes are available")
@@ -652,7 +652,7 @@ static void verify(const QString &, QString code, const CommandOptions & opts)
       DataSet * ds = const_cast<DataSet *>(s);
       value = ds->evaluateWithMeta(code, true);
       if(! mrb_test(value))
-        throw RuntimeError("'%1' is not verified for buffer %2").
+        throw RuntimeError("'%1' is not verified for dataset %2").
           arg(code).arg(ds->name);
     }
   }
@@ -660,7 +660,7 @@ static void verify(const QString &, QString code, const CommandOptions & opts)
 
 static ArgumentList 
 vO(QList<Argument *>() 
-   << DataSetList::listOptions("Buffers to run verify on")
+   << DataSetList::listOptions("Datasets to run verify on")
    << new BoolArgument("use-dataset", 
                        "Use current dataset",
                        "If on (the default) and if there is a current dataset, the $meta and $stats hashes are available")

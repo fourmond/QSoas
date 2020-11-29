@@ -46,13 +46,13 @@ QList<Argument *> DataStackHelper::helperOptions()
   args << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                      "flags", 
                                      "Flags",
-                                     "Flags to set on the new buffers")
+                                     "Flags to set on the newly created datasets")
        << new StyleGeneratorArgument("style", 
                                      "Style",
                                      "Style for the displayed curves")
        << new MetaHashArgument("set-meta", 
                                "Meta-data to add",
-                               "Meta-data to add to the newly created buffers");
+                               "Meta-data to add to the newly created datasets");
   return args;
 }
 

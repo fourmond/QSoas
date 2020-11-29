@@ -93,7 +93,7 @@ QList<Argument *> DataSetList::listOptions(const QString & txt, bool def)
                                      txt.toLocal8Bit(), true, def)
        << new CodeArgument("for-which", 
                            "For which",
-                           "Only act on buffers matching the code");
+                           "Only act on datasets matching the code");
   return args;
 }
 

@@ -189,7 +189,7 @@ featuring:
    generate buffers step-by-step, to combine with [cmd: pop]
  * new [cmd: stats]: `stddev`, and quantiles: `q10`, `q25`, `q75` and
    `q90`
- * [cmd: save-buffers] can now avoid to overwrite files
+ * [cmd: save-datasets] can now avoid to overwrite files
  * threshold option for [cmd: strip-if] (to avoid creating near-empty
    buffers)
  * [cmd: load-as-csv] now correctly parses CSV files with quotes
@@ -317,14 +317,14 @@ featuring:
  * [cmd: eval] can now use statistics and meta-data of the current buffer
  * Can now push the transform using uppercase T in [cmd: filter-fft], and
    using the `/transform` option in [cmd: auto-filter-fft]
- * [cmd: save-buffers] can now be used to name files (or buffers)
+ * [cmd: save-datasets] can now be used to name files (or buffers)
    based on meta-data; it can also simply rename without saving, and
    create directories if necessary (using `/mkpath=true`)
  * [cmd: run] can change to the directory of a script when it is
    running it, using `/cd-to-script=true`
  * [cmd: flag] can now clear all flags before adding new ones
    (with `/set=true`)
- * [cmd: generate-buffers] can now generate several buffers at once
+ * [cmd: generate-dataset] can now generate several buffers at once
    when using the `/number` option
  * More control in [cmd: split-monotonic]: can now keep only the first
    and/or last parts, and group several segments into datasets

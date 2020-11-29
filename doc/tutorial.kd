@@ -979,7 +979,7 @@ the initial concentration of B is 0 and k=0.5, then the data should look
 like the buffer generated using the following command,
 
 ~~~
-QSoas> generate-buffer .01 10 /samples=100 exp(-0.5*x)+0.01*sin(100*x)
+QSoas> generate-dataset .01 10 /samples=100 exp(-0.5*x)+0.01*sin(100*x)
 ~~~
 
 where the sin() function is added to simulate some noise.

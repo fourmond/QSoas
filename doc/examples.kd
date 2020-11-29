@@ -17,16 +17,16 @@ The following command generates values of the Bessel function
 (regular cylindrical of order 0) for $$x$$ between -15 and 15:
 
 ~~~
-QSoas> generate-buffer -15 15 bessel_j0(x)
+QSoas> generate-dataset -15 15 bessel_j0(x)
 ~~~
 
 The [`bessel_jn(x)`](qsoas.html#special-functions) function gives the
 values of the bessel function of an arbitrary order. Combined with the
-`/number` option to [cmd: generate-buffer], one can generate the
+`/number` option to [cmd: generate-dataset], one can generate the
 values of the bessel functions from the first 5 orders (0 to 4):
 
 ~~~
-QSoas> generate-buffer -15 15 bessel_jn(x,number) /number=5
+QSoas> generate-dataset -15 15 bessel_jn(x,number) /number=5
 ~~~
 
 The use of the `/number` option introduces a `number` parameter that
@@ -38,7 +38,7 @@ QSoas has functionalities to solve numerically for $$y$$
 $$f(x,y) = 0$$ equations, using the [cmd: solve] command. For instance:
 
 ~~~
-QSoas> generate-buffer -10 10
+QSoas> generate-dataset -10 10
 QSoas> solve y*cosh(y)-x
 ~~~
 
@@ -60,7 +60,7 @@ There are several ways to obtain the average of data. Let's look at
 a simple cosine function:
 
 ~~~
-QSoas> generate-buffer -10 10 cos(PI*x)
+QSoas> generate-dataset -10 10 cos(PI*x)
 ~~~
 
 On can obtain the average of the y values by just running:
@@ -164,7 +164,7 @@ and you have saved the best parameters in a file called
 commands:
 
 ~~~
-QSoas> generate-buffer 0 100
+QSoas> generate-dataset 0 100
 ~~~
 
 in which the range of X values you want is between 0 and 100. This

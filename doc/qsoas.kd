@@ -7,6 +7,40 @@ To get a quick introduction at QSoas, you may look at the
 [tutorial](tutorial.html), or look at the list of
 [Frequently Asked Questions](faq.html).
 
+# QSoas datasets {#dataset}
+
+The basic unit to manipulate data in QSoas is the dataset (they are
+sometimes also called "buffer", from the terminology used in SOAS). A
+dataset is a large table of number. First first column contains the X
+values, and the following columns are Y values. A dataset can have
+many columns. QSoas plots a dataset by showing the first `y` column as
+a function of the `x` column.
+
+
+The table cannot contain text. When QSoas reads a file and is not able
+to make a number from what it reads, it uses a special numeric value
+called `nan` (Not A Number). They can be useful, but they "pollute"
+numbers: any operation that involves a `nan` will also have `nan` as a
+result. To get rid of points that have either X or Y values that are
+`nan`, use the following:
+
+~~~
+QSoas> strip-if x.nan?||y.nan?
+~~~
+
+You can use the [cmd: edit] command to see and edit the contents of
+the table.
+
+
+In addition to the raw numbers, a QSoas dataset contains the following
+information:
+ * A **name**, which is originally the name of the loaded file. It is
+ modified with each command applied to the dataset.
+ * A series of [meta data](#meta-data), which are just named
+ informations. It can be numbers, text, dates, even lists.
+ * Perpendicular coordinates, one for each Y column. They are used
+ when the dataset can also be seen as a series of $$y = f(x,z)$$,
+ with a different $$z$$ for each Y column.
 
 # Commands, arguments and options (how to read this document)
 
@@ -6410,6 +6444,24 @@ parameters for a large number of datasets.
 {::comment} description-start: fit-export {:/}
 Exports the parameters to either to the file given to the `/file=`
 option or to the [output file](#output-file) if it is not specified.
+
+This does the same thing as using the "Export" or "Export to output
+file" items of the "Parameters..." combo box.
+
+The parameters are written line by line (a dataset is a single
+line). The format looks like this, for a simple [cmd: fit-arb]` a*x+b`
+fit:
+
+~~~
+## Buffer       a       a_err   b       b_err   xstart  xend    residuals       rel_residuals   overall_res overall_rel_res buffer_weight
+~~~
+
+The rows start with the dataset name, then come the values of the
+parameters, one per column, along with columns for the errors if
+`/errors=true` was specified. Then come the lowest and highest values
+of x, the residuals (including the global residuals for a multifit)
+and finally the buffer weight.
+
 {::comment} description-end: fit-export {:/}
 {::comment} synopsis-start: fit-reset {:/}
 

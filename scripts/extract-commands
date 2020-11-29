@@ -15,5 +15,5 @@ else
 fi
 
 echo "Saving commands from '$log' to '$script.cmds'"
-grep '^QSoas>' "$log" | sed -r 's/^QSoas> *//' > "$script".cmds
-grep '^QSoas.fit>' "$log" | sed -r 's/^QSoas.fit> *//' > "$script".fcmds
+grep -a '^QSoas>' "$log" | sed -r 's/^QSoas> *//' > "$script".cmds
+grep -a '^QSoas.fit>' "$log" | sed -r 's/^QSoas.fit> *//' > "$script".fcmds

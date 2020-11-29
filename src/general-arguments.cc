@@ -515,7 +515,7 @@ ArgumentMarshaller * DataSetArgument::fromString(const QString & str) const
   if(dss.size() > 1)
     throw RuntimeError("Ambiguous specification: %1 datasets for '%2' (but only 1 needed)").arg(dss.size()).arg(str);
   if(dss.size() == 0)
-    throw RuntimeError("Not a buffer: '%1'").arg(str);
+    throw RuntimeError("Not a dataset: '%1'").arg(str);
   DataSet * ds = const_cast<DataSet*>(dss[0]);
 
   return new ArgumentMarshallerChild<DataSet *>(ds);
@@ -553,6 +553,15 @@ void DataSetArgument::setEditorValue(QWidget * editor,
 {
   setTextEditorValue(editor, value);
 }
+
+QString DataSetArgument::typeName() const {
+  return "dataset";
+}
+
+QString DataSetArgument::typeDescription() const {
+  return "A dataset in the stack. Can be designated by its number or by a flag (if it's unique)";
+}
+
 
 ////////////////////////////////////////////////////////////
 
@@ -658,6 +667,17 @@ void SeveralDataSetArgument::setEditorValue(QWidget * editor,
                                             const ArgumentMarshaller * value) const
 {
 }
+
+
+QString SeveralDataSetArgument::typeName() const {
+  return "datasets";
+}
+
+QString SeveralDataSetArgument::typeDescription() const {
+  return "comma-separated lists of datasets in the stack, "
+    "see [dataset lists](#dataset-lists)";
+}
+
 
 ////////////////////////////////////////////////////////////
 
@@ -1020,7 +1040,7 @@ int ColumnArgument::parseFromText(const QString & str, const DataSet * ds)
       throw RuntimeError("No column with such name: '%1'").arg(cn);
     }
   }
-  throw RuntimeError("Invalid buffer column specification '%1'").arg(str);
+  throw RuntimeError("Invalid dataset column specification '%1'").arg(str);
 }
 
 QStringList ColumnArgument::validNames(const DataSet * ds)
@@ -1061,7 +1081,7 @@ QStringList ColumnArgument::toString(const ArgumentMarshaller * arg) const
 
 QString ColumnArgument::typeDescription() const
 {
-  return "The [number/name of a column](#column-names) in a buffer";
+  return "The [number/name of a column](#column-names) in a dataset";
 }
 
 ArgumentMarshaller * ColumnArgument::fromRuby(mrb_value value) const

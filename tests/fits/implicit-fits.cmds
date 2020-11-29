@@ -1,0 +1,4 @@
+generate-buffer 0 10 0
+sim-implicit y**5-a*x parameters/implicit-1.params 0 /prec-relative=1e-10
+apply-formula y-=(0.6*x)**0.2
+assert '$stats["y_norm"]' 1e-14

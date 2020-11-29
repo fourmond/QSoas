@@ -325,15 +325,9 @@ public:
   virtual ArgumentMarshaller * fromString(const QString & str) const override;
   QStringList toString(const ArgumentMarshaller * arg) const override;
 
-  virtual QString typeName() const override {
-    return "buffer";
-  };
+  virtual QString typeName() const override;
 
-  virtual QString typeDescription() const override {
-    return "The number of a buffer in the stack";
-  };
-
-
+  virtual QString typeDescription() const override;
 
   virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
 
@@ -371,14 +365,9 @@ public:
   virtual void concatenateArguments(ArgumentMarshaller * a, 
                                     const ArgumentMarshaller * b) const override;
 
-  virtual QString typeName() const override {
-    return "buffers";
-  };
+  virtual QString typeName() const override;
 
-  virtual QString typeDescription() const override {
-    return "comma-separated lists of buffers in the stack, "
-      "see [buffers lists](#buffer-lists)";
-  };
+  virtual QString typeDescription() const override;
 
   virtual QStringList proposeCompletion(const QString & starter) const override;
 

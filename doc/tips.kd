@@ -21,11 +21,11 @@ This file was written by Vincent Fourmond, and is copyright (c)
 {::comment} tip: data generation;math;basic {:/}
 ## Plotting mathematical functions {#plot-function}
 
-To plot a mathematical function, use [cmd: generate-buffer] to
+To plot a mathematical function, use [cmd: generate-dataset] to
 generate a buffer with the correct range of X values you want:
 
 ~~~
-QSoas> generate-buffer -10 10
+QSoas> generate-dataset -10 10
 ~~~
 
 (here for X for between -10 and 10). Then, just use
@@ -38,10 +38,10 @@ QSoas> apply-formula y=sin(x)
 
 See more about mathematical formulas [here](qsoas.html#ruby).
 You can use the optional argument of
-[cmd: generate-buffer] to shorten that to:
+[cmd: generate-dataset] to shorten that to:
 
 ~~~
-QSoas> generate-buffer -10 10 sin(x)
+QSoas> generate-dataset -10 10 sin(x)
 ~~~
 
 {::comment} tip: basic;command-line{:/}
@@ -147,7 +147,7 @@ on "Data..."/"Push current to stack" (for the currently displayed
 buffer) or "Push all to stack" (for all the fitted buffers).
 
 Then, you can save the buffers using [cmd: save] or
-[cmd: save-buffers] for instance.
+[cmd: save-datasets] for instance.
 
 {::comment} tip: save;basic {:/}
 ## Saving the current buffer {#save-buffer}
@@ -165,7 +165,7 @@ QSoas> s saved_file.dat
 
 Commands in QSoas often take mandatory arguments to specify what to
 work on: the file to load, the file name for saving, the range of X
-values for [cmd: generate-buffer], etc... These arguments can be given
+values for [cmd: generate-dataset], etc... These arguments can be given
 on the command-line, separated by spaces. For instance, the following
 code launches the command [cmd: load] with a single argument,
 `file.dat`.
@@ -473,7 +473,7 @@ the stack, use the [cmd: show-stack] command, or `k` for short. For
 instance:
 
 ~~~
-QSoas> generate-buffer 0 10
+QSoas> generate-dataset 0 10
 QSoas> show-stack
 Normal stack:
 	 F  C	Rows	Segs	Name	

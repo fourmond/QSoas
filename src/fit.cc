@@ -48,12 +48,12 @@ static Group fits("fits", 0,
                   "Fitting of data");
 
 static Group sfit("sfits", 0,
-                  "Single-buffer fits",
-                  "Fitting of data (one buffer at a time)", &fits);
+                  "Single-dataset fits",
+                  "Fitting of data (one dataset at a time)", &fits);
 
 static Group mfit("mfits", 1,
-                  "Multi-buffer fits",
-                  "Fitting of data (one buffer at a time)", &fits);
+                  "Multi-dataset fits",
+                  "Fitting of data (several datasets together)", &fits);
 
 QHash<QString, Fit*> * Fit::fitsByName = NULL;
 
@@ -273,7 +273,7 @@ void Fit::makeCommands(const ArgumentList &args,
 
   QByteArray pn = "Fit: ";
   pn += shortDesc;
-  QByteArray sd = "Single buffer fit: ";
+  QByteArray sd = "Single dataset fit: ";
   sd += shortDesc;
 
   ArgumentList fal = args;
@@ -356,8 +356,8 @@ void Fit::makeCommands(const ArgumentList &args,
   }
   
   options << new BoolArgument("weight-buffers", 
-                              "Weight buffers",
-                              "whether or not to weight buffers (off by default)");
+                               "Weight buffers",
+                               "whether or not to weight datasets (off by default)");
 
   options << new StringArgument("perp-meta", 
                                 "Perpendicular coordinate",
@@ -371,7 +371,7 @@ void Fit::makeCommands(const ArgumentList &args,
                                    true);
   pn = "Multi fit: ";
   pn += shortDesc;
-  sd = "multi buffer fit: ";
+  sd = "multi dataset fit: ";
   sd += shortDesc;
   mfitCommand = 
     new Command((const char*)(QString("mfit-") + name).toLocal8Bit(),
@@ -385,13 +385,14 @@ void Fit::makeCommands(const ArgumentList &args,
     pn += shortDesc;
     sd = "fit simulation: ";
     sd += shortDesc;
+
     al = fal;
     al << new FileArgument("parameters", 
                            "Parameters",
                            "file to load parameters from")
        << new SeveralDataSetArgument("datasets", 
                                      "Dataset",
-                                     "the buffers whose X values will be "
+                                     "the datasetss whose X values will be "
                                      "used for simulations", 
                                      true);
 
@@ -474,7 +475,7 @@ void Fit::runFit(std::function<void (FitData *)> hook,
   QStringList ep = extraParams.split(",", QString::SkipEmptyParts);
 
   if(datasets.size() == 0)
-    throw RuntimeError("No buffers to fit");
+    throw RuntimeError("No datasets to fit");
 
   if(false) {
     QStringList pbs;
@@ -638,7 +639,7 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
   DataStackHelper pusher(opts);
   
   if(datasets.size() == 0)
-    throw RuntimeError("No buffers for computing");
+    throw RuntimeError("No datasets for computing");
 
   // Additional option: overrides
 

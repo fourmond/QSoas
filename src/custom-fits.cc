@@ -259,6 +259,7 @@ public:
     const Vector &xv = ds->x();
 
     const Expression * expr =  &expressions[formulaIndex];
+    /// @todo Use DatasetExpression ?
     for(int j = 0; j < xv.size(); j++) {
       while(seg < ds->segments.size() && j >= ds->segments[seg])
         seg++;

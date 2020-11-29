@@ -113,7 +113,8 @@ double Functions::trumpetBV(double rate, double alpha, double prec)
 //////////////////////////////////////////////////////////////////////
 // Numerical integration of the MHC integral.
 //
-// See Fourmond and Léger, 2020, submitted, for more information.
+// See Fourmond and Leger, JEAC, 2020, 10.1016/j.jelechem.2020.114762
+// for more information.
 
 
 static Credits mhc_z("Zeng et al, JEAC, 2014", "the k_mhc_z function", "10.1016/j.jelechem.2014.09.038");
@@ -235,6 +236,9 @@ static double mhc_trapezoid(double lambda, double eta, double step)
   }
   return v*step;
 }
+
+
+static Credits mhc_s("Fourmond and Leger, JEAC, 2020", "the k_mhc function", "10.1016/j.jelechem.2020.114762");
 
 double Functions::marcusHushChidsey(double lambda, double eta)
 {

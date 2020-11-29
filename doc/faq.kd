@@ -24,7 +24,7 @@ possibility to copy to the clipboard.
 Using the command [cmd: save] you can export data you have modified
 with QSoas. It saves the data as a TAB-separated text file. If you
 need to save many buffers in one go, have a look at
-[cmd: save-buffers].
+[cmd: save-datasets].
 
 ## What is this output file thingy ?
 
@@ -173,7 +173,7 @@ stack. You can save it later using the [cmd: save] command.
 However, if you don't have so many data points, but you would like to
 have a "smooth" curve nevertheless, save the fit parameters, generate
 a buffer with the desired range of $$x$$ values using
-[cmd: generate-buffer], respawn the fit window, load the parameters
+[cmd: generate-dataset], respawn the fit window, load the parameters
 and then export as before ("Data..."/"Push current to stack").
 
 ## My multi-fit is way too slow...

@@ -57,12 +57,12 @@
 #include <unsplicer.hh>
 
 static Group grp("buffer", 2,
-                 "Buffer",
-                 "Buffer manipulations");
+                 "Dataset",
+                 "Dataset manipulations");
 
 static Group g1("split", 3,
                 "Split...",
-                "Cut buffers into bits", &grp);
+                "Cut datasetss into smaller pieces", &grp);
 
 static Group g2("peaks", 5,
                 "Peaks...",
@@ -76,11 +76,11 @@ static Group g0("filters", 6,
 
 static Group g3("math", 7,
                 "Mathematical operations...",
-                "Mathematical operrations on buffers", &grp);
+                "Mathematical operrations on datasets", &grp);
 
 static Group g4("mbuf", 7,
-                "Multi-buffer...",
-                "Operations involving several buffers", &grp);
+                "Multi-dataset...",
+                "Operations involving several datasets", &grp);
 
 static Group g5("segments", 10,
                 "Segments...",
@@ -129,8 +129,7 @@ sa("splita", // command name
    "split",  // group name
    NULL, // arguments
    NULL, // options
-   "Split first",
-   "Gets buffer until dx sign change");
+   "Split first");
     
 static void splitbCommand(const QString &)
 {
@@ -145,8 +144,7 @@ sb("splitb", // command name
    "split",  // group name
    NULL, // arguments
    NULL, // options
-   "Split second",
-   "Gets buffer after first dx sign change");
+   "Split second");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -202,8 +200,7 @@ sm("split-monotonic", // command name
    "split",  // group name
    NULL, // arguments
    &smOpts, // options
-   "Split into monotonic parts",
-   "Splits a buffer into subparts where the change in X are monotonic");
+   "Split into monotonic parts");
 
 
 //////////////////////////////////////////////////////////////////////
@@ -256,8 +253,7 @@ spv("split-on-values", // command name
     "split",  // group name
     &spvArgs, // arguments
     &spvOpts, // options
-    "Split on column values",
-    "Splits a buffer into subsets that share common values in certain columns");
+    "Split on column values");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -274,8 +270,7 @@ tp("transpose", // command name
    "buffer",  // group name
    NULL, // arguments
    NULL, // options
-   "Transpose",
-   "Transpose, ie converts a X,Y,Z grid into a Y,X,Z grid");
+   "Transpose");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -378,8 +373,7 @@ static ArgumentList
    "buffer",  // group name
    NULL, // arguments
    &uwOpts, // options
-   "Unwrap",
-   "Unwrap the buffer so that X is always increasing");
+   "Unwrap");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -472,7 +466,7 @@ static void expandCommand(const QString &,
     pusher.pushDataSet(s);
   }
   Terminal::out << "Expanded '" << ds->name 
-                << "' into " << nb << " buffers" << endl;
+                << "' into " << nb << " datasets" << endl;
 }
 
 static ArgumentList 
@@ -484,8 +478,8 @@ expandOpts(QList<Argument *>()
                                   "X column every nth column",
                                   "specifies the number of columns between successive X values")
            << new IntegerArgument("group-columns", 
-                                  "Group several Y columns in created buffers",
-                                  "specifies the number of Y columns in the created buffers")
+                                  "Group several Y columns in created datasets",
+                                  "specifies the number of Y columns in the created datasets")
            << DataStackHelper::helperOptions()
            );
 
@@ -524,7 +518,7 @@ renameCmd("rename", // command name
           &renameA, // arguments
           NULL, // options
           "Rename",
-          "Renames the current buffer", "a");
+          "", "a");
 
 
 //////////////////////////////////////////////////////////////////////
@@ -602,8 +596,7 @@ chopC("chop", // command name
       "split",  // group name
       &chopA, // arguments
       &chopO, // options
-      "Chop Buffer",
-      "Cuts buffer based on X values");
+      "Chop dataset");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -628,8 +621,7 @@ chopS("segments-chop", // command name
       "segments",  // group name
       NULL, // arguments
       &scO, // options
-      "Chop into segments",
-      "Cuts buffer based on predefined segments");
+      "Chop into segments");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1358,7 +1350,7 @@ static void subCommand(const QString &, QList<const DataSet *> a,
 
   for(int i = 0; i < a.size(); i++) {
     const DataSet * ds = a[i];
-    Terminal::out << QObject::tr("Subtracting buffer '%1' from buffer '%2'").
+    Terminal::out << QObject::tr("Subtracting dataset '%1' from dataset '%2'").
       arg(b->name).arg(ds->name) 
                   << (naive ? " (index mode)" : " (xvalues mode)" ) 
                   << endl;
@@ -1370,8 +1362,8 @@ static void subCommand(const QString &, QList<const DataSet *> a,
 static ArgumentList 
 operationArgs(QList<Argument *>() 
               << new SeveralDataSetArgument("buffers", 
-                                            "Buffers",
-                                            "All buffers")
+                                            "Datasets",
+                                            "The datasets of the operation")
               );
 
 static ArgumentList 
@@ -1396,7 +1388,7 @@ sub("subtract", // command name
     &operationArgs, // arguments
     &operationOpts, // options
     "Subtract",
-    "Subtract one buffer from another",
+    "Subtract one dataset from others",
     "S");
 
 
@@ -1415,7 +1407,7 @@ static void divCommand(const QString &, QList<const DataSet *> a,
     
   for(int i = 0; i < a.size(); i++) {
     const DataSet * ds = a[i];
-    Terminal::out << QObject::tr("Dividing buffer '%2' by buffer '%1'").
+    Terminal::out << QObject::tr("Dividing dataset '%2' by dataset '%1'").
       arg(b->name).arg(ds->name) 
                   << (naive ? " (index mode)" : " (xvalues mode)" ) 
                   << endl;
@@ -1429,8 +1421,7 @@ divc("div", // command name
      "mbuf",  // group name
      &operationArgs, // arguments
      &operationOpts, // options
-     "Divide",
-     "Divide one buffer by another");
+     "Divide");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1472,23 +1463,22 @@ static void mopCommand(const QString &, QList<const DataSet *> a,
 static void addCommand(const QString &n, QList<const DataSet *> a,
                        const CommandOptions & opts)
 {
-  mopCommand(n, a, opts, "Adding buffers: ", " + ",
+  mopCommand(n, a, opts, "Adding datasets: ", " + ",
              &DataSet::add);
 }
 
 static ArgumentList 
 aArgs(QList<Argument *>() 
               << new SeveralDataSetArgument("buffers", 
-                                            "Buffer",
-                                            "Buffers"));
+                                            "Datasets",
+                                            "Datasets to add"));
 static Command 
 add("add", // command name
     effector(addCommand), // action
     "mbuf",  // group name
     &aArgs, // arguments
     &operationOpts, // options
-    "Add",
-    "Add buffers");
+    "Add");
 
 
 //////////////////////////////////////////////////////////////////////
@@ -1496,7 +1486,7 @@ add("add", // command name
 static void mulCommand(const QString &n, QList<const DataSet *> a,
                        const CommandOptions & opts)
 {
-  mopCommand(n, a, opts, "Multiplying buffers: ", " + ",
+  mopCommand(n, a, opts, "Multiplying datasets: ", " + ",
              &DataSet::multiply);
 }
 
@@ -1507,7 +1497,7 @@ mul("multiply", // command name
     &aArgs, // arguments
     &operationOpts, // options
     "Multiply",
-    "Multiply buffers", "mul");
+    "Multiply datasets", "mul");
 
 
 //////////////////////////////////////////////////////////////////////
@@ -1525,7 +1515,7 @@ static void mergeCommand(const QString &, QList<const DataSet *> a,
 
   for(int i = 0; i < a.size(); i++) {
     const DataSet * ds = a[i];
-    Terminal::out << QObject::tr("Merging buffer '%2' with buffer '%1'").
+    Terminal::out << QObject::tr("Merging dataset '%2' with dataset '%1'").
       arg(b->name).arg(ds->name) 
                   << (naive ? " (index mode)" : " (xvalues mode)" ) 
                   << endl;
@@ -1539,8 +1529,7 @@ mergec("merge", // command name
        "mbuf",  // group name
        &operationArgs, // arguments
        &operationOpts, // options
-       "Merge buffers on X values",
-       "Merge two buffer based on X values");
+       "Merge datasets based on X values");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1563,7 +1552,7 @@ static void contractCommand(const QString &, QList<const DataSet *> a,
 
   handleMissingDS(&a);
   if(a.size() < 2)
-    throw RuntimeError("You need more than one buffer to run contract");
+    throw RuntimeError("You need more than one dataset to run contract");
 
   QStringList names;
   names << a[0]->name;
@@ -1599,8 +1588,8 @@ static void contractCommand(const QString &, QList<const DataSet *> a,
 static ArgumentList 
 contractArgs(QList<Argument *>() 
              << new SeveralDataSetArgument("buffers", 
-                                           "Buffers",
-                                           "Buffers to contract"));
+                                           "Datasets",
+                                           "Datasets to contract"));
 
 static ArgumentList 
 contractOpts(ArgumentList()
@@ -1618,8 +1607,7 @@ contractc("contract", // command name
           "mbuf",  // group name
           &contractArgs, // arguments
           &contractOpts, // options
-          "Group buffers on X values",
-          "Group buffers into a X,Y1,Y2");
+          "Group datasets on X values");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1658,9 +1646,9 @@ static void avgCommand(const QString &, QList<const DataSet *> all,
   }
 
   if(data.size() == 0)
-    throw RuntimeError("No buffers to make the average of");
+    throw RuntimeError("No datasets to make the average of");
 
-  Terminal::out << "Averaging over " << data.size() <<  " buffers" << endl;
+  Terminal::out << "Averaging over " << data.size() <<  " datasets" << endl;
 
   // Now, we modify all the datasets to add a column filled with 1 as
   // the third column (we'll shift that as last later on).
@@ -1697,15 +1685,15 @@ static void avgCommand(const QString &, QList<const DataSet *> all,
 static ArgumentList 
 aveArgs(QList<Argument *>() 
               << new SeveralDataSetArgument("buffers", 
-                                            "Buffer",
-                                            "Buffers"));
+                                            "Datasets",
+                                            "Datasets to average"));
 
 static ArgumentList 
 aveOpts(ArgumentList()
         << operationOpts
         << new BoolArgument("split", 
                             "Split into monotonic parts",
-                            "If on, buffers are automatically "
+                            "If on, the datasets are automatically "
                             "split into monotonic parts before averaging.")
         << new BoolArgument("count", 
                             "Adds a number count",
@@ -1720,8 +1708,7 @@ ave("average", // command name
     "mbuf",  // group name
     &aveArgs, // arguments
     &aveOpts, // options
-    "Average",
-    "Average buffers");
+    "Average");
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1736,14 +1723,14 @@ static void catCommand(const QString &, QList<const DataSet *> b, const CommandO
   if(b.size() > 0)
     soas().pushDataSet(DataSet::concatenateDataSets(b, setSegs));
   else
-    throw RuntimeError("No buffers to concatenate");
+    throw RuntimeError("No dataets to concatenate");
 }
 
 static ArgumentList 
 catArgs(QList<Argument *>() 
         << new SeveralDataSetArgument("buffers",
-                                      "Buffers",
-                                      "Buffers to concatenate"));
+                                      "Datasets",
+                                      "Datasets to concatenate"));
 
 
 static ArgumentList 
@@ -1751,7 +1738,7 @@ catOpts(QList<Argument *>()
         << new BoolArgument("add-segments", 
                             "Add segments",
                             "If on (default) segments are added between "
-                            "the old buffers"));
+                            "the old datasets"));
 
 static Command 
 cat("cat", // command name
@@ -1805,7 +1792,7 @@ static void statsOn(const DataSet * ds, const CommandOptions & opts,
   QList<ValueHash> byCols = stats.statsByColumns(&os);
 
   if(sns.isEmpty()) {
-    Terminal::out << "Statistics on buffer: " << ds->name << ":";
+    Terminal::out << "Statistics on dataset: " << ds->name << ":";
     for(int i = 0; i < ds->nbColumns(); i++)
       Terminal::out << "\n" << byCols[i].prettyPrint();
   }
@@ -1869,8 +1856,8 @@ public:
 static ArgumentList 
 statsO(QList<Argument *>() 
        << new SeveralDataSetArgument("buffers", 
-                                     "Buffers",
-                                     "buffers to work on", true, true)
+                                     "Datasets",
+                                     "datasets to work on", true, true)
        << new StatsArgument("stats",
                             "Select stats",
                             "writes only the given stats")
@@ -1986,13 +1973,13 @@ gDSO(QList<Argument *>()
 
 
 static Command 
-gDS("generate-buffer", // command name
+gDS("generate-dataset", // command name
     effector(generateDSCommand), // action
     "math",  // group name
     &gDSA, // arguments
     &gDSO, // options
-    "Generate buffer",
-    "Generate a ramp");
+    "Generate dataset", "",
+    "generate-buffer");
 
 //////////////////////////////////////////////////////////////////////
 

@@ -490,7 +490,7 @@ QString Command::synopsis(bool markup) const
     synopsis << wrapIf("(fit command)", "**", markup);
 
   if(! shortCmdName.isEmpty())
-    descs = "Short name: " + wrapIf(shortCmdName, "`", markup) + "\n\n" + descs;
+    descs = "Other name: " + wrapIf(shortCmdName, "`", markup) + "\n\n" + descs;
 
   // We need to escape |, which comes in too many times
   if(markup)

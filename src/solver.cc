@@ -25,7 +25,16 @@
 
 Solver::Solver(const gsl_root_fdfsolver_type * t) :
   fdfsolver(NULL), fsolver(NULL),
-  absolutePrec(0), relativePrec(1e-4), maxIterations(25), type(t)
+  absolutePrec(0), relativePrec(1e-6), maxIterations(35), type(t)
+{
+}
+
+Solver::Solver(const Solver & o) :
+  fdfsolver(NULL), fsolver(NULL),
+  absolutePrec(o.absolutePrec),
+  relativePrec(o.relativePrec),
+  maxIterations(o.maxIterations),
+  type(o.type)
 {
 }
 
@@ -175,16 +184,16 @@ QList<Argument*> Solver::commandOptions()
 
 void Solver::parseOptions(const CommandOptions & opts)
 {
-  updateFromOptions(opts, "prec-relative", absolutePrec);
-  updateFromOptions(opts, "prec-absolute", relativePrec);
+  updateFromOptions(opts, "prec-absolute", absolutePrec);
+  updateFromOptions(opts, "prec-relative", relativePrec);
   updateFromOptions(opts, "iterations", maxIterations);
 }
 
-    CommandOptions Solver::currentOptions() const
+CommandOptions Solver::currentOptions() const
 {
   CommandOptions opts;
-  updateOptions(opts, "prec-relative", absolutePrec);
-  updateOptions(opts, "prec-absolute", relativePrec);
+  updateOptions(opts, "prec-absolute", absolutePrec);
+  updateOptions(opts, "prec-relative", relativePrec);
   updateOptions(opts, "iterations", maxIterations);
 
   return opts;
@@ -194,13 +203,17 @@ void Solver::parseOptions(const CommandOptions & opts)
 
 LambdaSolver::LambdaSolver(const std::function<double (double)> & f, 
                            const gsl_root_fdfsolver_type * type) :
-  Solver(type), fnc(f)
+  Solver(type), function(f)
 {
   
 }
 
 double LambdaSolver::f(double x)
 {
-  return fnc(x);
+  return function(x);
 }
 
+void LambdaSolver::setFunction(const std::function<double (double)> & f)
+{
+  function = f;
+}

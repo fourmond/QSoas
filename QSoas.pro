@@ -403,9 +403,8 @@ SOURCES += src/qmain.cc \
         src/argumentsdialog.cc \
         src/filepromptwidget.cc \
         src/datasetlist.cc \
+        src/implicit-fits.cc \
         src/datasetwriter.cc
-
-#        src/conditionsprovider.cc \
 
 # Fit engines, grouped in an easy way to disable them:
 # (its missing ODRPACK, though)

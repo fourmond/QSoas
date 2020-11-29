@@ -67,6 +67,8 @@ namespace __reg {
     Divide,
     Write,
     Exponential,
+    ShowExponential,
+    Peak,
     Quit
   } ReglinActions;
 
@@ -81,6 +83,9 @@ namespace __reg {
     addKey(' ', Write, "write to output file").
     addKey('e', Exponential, "divide by exponential").
     alsoKey('E').
+    addKey('x', ShowExponential, "show exponential").
+    addKey('p', Peak, "detect peak").
+    alsoKey('P').
     addKey('v', Divide, "divide by trend").
     alsoKey('V');
 
@@ -94,10 +99,12 @@ namespace __reg {
     CurveView & view = soas().view();
     CurvePanel bottom;
     CurveData d;
+    CurveData d_exp;
     bottom.drawingXTicks = false;
     bottom.stretch = 30;        // 3/10ths of the main panel.
     view.addItem(&line);
     view.addItem(&r);
+    view.addItem(&d_exp);
     bottom.addItem(&d);
 
     bottom.yLabel = Utils::deltaStr("Y");
@@ -107,12 +114,34 @@ namespace __reg {
     view.addPanel(&bottom);
     line.pen = gs.getPen(GraphicsSettings::ReglinPen);
     d.pen = gs.getPen(GraphicsSettings::ResultPen);
+    d_exp.hidden = true;
+    d_exp.pen = gs.getPen(GraphicsSettings::BaselinePen);
+    d_exp.pen.setColor("#555");
+      
     QPair<double, double> reg;
     double xleft = ds->x().min();
     double xright = ds->x().max();
 
     // Computed fields:
     double decay_rate = 0;
+
+
+    // the lines used for peak determination
+    CurveLine fp, hp, fpl, hpl;
+    fp.hidden = true;
+
+    hp.hidden = true;
+    fpl.hidden = true;
+    hpl.hidden = true;
+
+    fp.pen = hp.pen = fpl.pen = hpl.pen =
+      gs.getPen(GraphicsSettings::ResultPen);
+
+    view.addItem(&fp);
+    view.addItem(&hp);
+    view.addItem(&fpl);
+    view.addItem(&hpl);
+
 
 
     loop.setHelpString(QString("Linear regression: \n")
@@ -148,9 +177,12 @@ namespace __reg {
           d.xvalues = ds->x();
           d.yvalues = ds->y(); // Not really important, only size
           // matters
+          d_exp.xvalues = ds->x();
+          d_exp.yvalues = ds->x();
         }
         double dy_min = 0;
         double dy_max = 0;
+        double y0 = reg.first * r.xmin() + reg.second;
         for(int i = 0; i < d.xvalues.size(); i++) {
           double x = d.xvalues[i];
           double y = ds->y()[i] -  x * reg.first - reg.second;
@@ -161,6 +193,7 @@ namespace __reg {
             if(y > dy_max)
               dy_max = y;
           }
+          d_exp.yvalues[i] = y0*exp(decay_rate * (r.xmin() - x));
         }
         bottom.setYRange(dy_min, dy_max, view.mainPanel());
         break;
@@ -201,6 +234,109 @@ namespace __reg {
         DataSet * newds = ds->derivedDataSet(newy, "_expdiv.dat");
         soas().pushDataSet(newds);
         return;
+      }
+      case ShowExponential:
+        d_exp.hidden = ! d_exp.hidden;
+        break;
+      case Peak: {
+        /// @todo Some of the code here should be merged with code in
+        /// Peak
+        
+        // We look for the first peak in the direction of the dx.
+        int min_idx = ds->x().closestPoint(r.xmin());
+        int max_idx = ds->x().closestPoint(r.xmax());
+
+        // Looking left or right ? If left, we search for min, if
+        // right, for max.
+
+        if(d.xvalues.size() == 0)
+          Terminal::out << "No regression yet" << endl;
+          
+
+        int i_hw = -1;
+        int i_pk = -1;
+        double pk_v;
+
+        if(min_idx > max_idx) {
+          // We look for minima below min_idx
+          for(int i = min_idx; i < ds->x().size(); i++) {
+            double v = d.yvalues[i];
+            if(i_pk < 0 || v < pk_v) {
+              i_pk = i;
+              pk_v = v;
+            }
+            if(i_pk >= 0 && (v > 0 || v > 0.9 * pk_v) &&
+               (v < 0.8*d.yvalues.min()) ) {
+              break;
+            }
+          }
+
+          // now look for half peak position.
+          for(int i = i_pk; i > min_idx; i--) {
+            double v = d.yvalues[i];
+            if(v >= 0.5 * pk_v) {
+              i_hw = i;
+              break;
+            }
+          }
+        }
+        else {
+          // We look for minima below min_idx
+          for(int i = max_idx; i < ds->x().size(); i++) {
+            double v = d.yvalues[i];
+            if(i_pk < 0 || v > pk_v) {
+              i_pk = i;
+              pk_v = v;
+            }
+            if(i_pk >= 0 && (v < 0 || v < 0.9 * pk_v) &&
+               (v > 0.8*d.yvalues.max()) ) {
+              break;
+            }
+          }
+
+          // now look for half peak position.
+          for(int i = i_pk; i > max_idx; i--) {
+            double v = d.yvalues[i];
+            if(v <= 0.5 * pk_v) {
+              i_hw = i;
+              break;
+            }
+          }
+        }
+        if(i_pk >= 0) {
+          Terminal::out << "Peak found: "
+                        << "  x = " << ds->x()[i_pk]
+                        << "\n  val = " << d.yvalues[i_pk];
+          double y = reg.first * xleft + reg.second + d.yvalues[i_pk];
+          fpl.p1 = QPointF(xleft, y);
+          y = reg.first * xright + reg.second + d.yvalues[i_pk];
+          fpl.p2 = QPointF(xright, y);
+          fpl.hidden = false;
+
+
+          y = reg.first * ds->x()[i_pk] + reg.second;
+          fp.p1 = QPointF(ds->x()[i_pk], y);
+          fp.p2 = QPointF(ds->x()[i_pk], ds->y()[i_pk]);
+          fp.hidden = false;
+
+          
+          if(i_hw >= 0) {
+            Terminal::out << "\n  hw = " << d.xvalues[i_hw];
+            y = reg.first * xleft + reg.second + d.yvalues[i_pk] * 0.5;
+            hp.p1 = QPointF(xleft, y);
+            y = reg.first * xright + reg.second + d.yvalues[i_pk] * 0.5;
+            hp.p2 = QPointF(xright, y);
+            hp.hidden = false;
+
+            double y = reg.first * ds->x()[i_hw] + reg.second;
+            hp.p1 = QPointF(ds->x()[i_hw], y);
+            hp.p2 = QPointF(ds->x()[i_hw], ds->y()[i_hw]);
+            hp.hidden = false;
+          }
+          Terminal::out << endl;
+
+          
+        }
       }
       default:
         ;
@@ -702,10 +838,10 @@ static ArgumentList
 intArgs(QList<Argument *>() 
               << new DataSetArgument("xvalues", 
                                      "X values",
-                                     "Buffer serving as base for X values")
+                                     "Dataset serving as base for X values")
               << new DataSetArgument("nodes", 
                                      "Nodes",
-                                     "Buffer containing the nodes X/Y values"));
+                                     "Dataset containing the nodes X/Y values"));
 
 static ArgumentList 
 intOpts(QList<Argument *>() 
@@ -1889,7 +2025,7 @@ rsOps(QList<Argument *>()
                             "threshold factor")
       << new BoolArgument("force-new", 
                           "Force new buffer",
-                          "creates a new buffer even if no spikes were removed (default: false)")
+                          "creates a new dataset even if no spikes were removed (default: false)")
       );
 
 

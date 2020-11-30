@@ -53,7 +53,7 @@ functions.
 
 See the full list of changes [below](#v2p0)
 
-# Changes in version 3.0 {#v3p0}
+# Changes in version 3.0 (03.12.2020) {#v3p0}
 
 ## Fits
 
@@ -66,7 +66,7 @@ featuring:
    different starting parameters, to improve the chance of finding the
    best parameters 
  * possibility to run scripts, even as a `fit-` command-line option,
-   which means one can now perform fully automatic scripts
+   which means one can now perform fully automatic fits
  * the display, handling, reuse of all the previous fit attempts in a fit
    session ("fit trajectories"), including ways to highlight changes
  * the possibility to set the fit dialog title bar

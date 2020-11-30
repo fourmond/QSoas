@@ -188,7 +188,7 @@ def convert_equation(eq)
     end
   end
   # Unfortunately not used by Qt... but that's already a start !
-  return "![#{eq}](#{info['file']}){:style='vertical-align: #{-(info['depth']||0)}px'}"
+  return "![#{eq.gsub('|','')}](#{info['file']}){:style='vertical-align: #{-(info['depth']||0)}px'}"
 end
 
 # Returns the example text for the given example hash tag
@@ -381,6 +381,11 @@ def parse_file(info)
     txt << l
   end
 
+  # Make sure all external links are marked as such 
+  txt.gsub!(/\(http.[^()]*(\([^)]+\))?[^()]*\)/) do |x|
+    x + "{: class='external'}"
+  end
+
   if ! $make_web
     # Equation parsing is much much easier done with the full file.
     txt.gsub!(/\$\$(.*?)\$\$/m) do |x|
@@ -388,10 +393,6 @@ def parse_file(info)
     end
   end
 
-  # Make sure all external links are marked as such 
-  txt.gsub!(/\(http.*(\([^)]+\))?.*\)/m) do |x|
-    x + "{: class='external'}"
-  end
 
   Dir.chdir($target_dir) do
     File.open(ofn, "w") do |o|

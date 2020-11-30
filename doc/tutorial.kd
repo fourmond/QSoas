@@ -1531,11 +1531,11 @@ QSoas> eval R*298/F
  => 0.02567967920866274
 ~~~
 
-While this probably isn't the kind of calculator you'll use to prepare
-your solutions, it can be useful because it allows you to test the
-functions loaded with a [cmd: ruby-run] command,
-or because you can use the built-in [special
-functions](qsoas.html#ruby):
+While this probably isn't the kind of calculator you'll use to compute
+the mass of species you need to weight for preparing your samples, it
+can be useful because it allows you to test the functions loaded with
+a [cmd: ruby-run] command, or because you can use the built-in
+[special functions](qsoas.html#ruby):
 
 ~~~
 QSoas> ruby-run exampleRubyFunctions.rb

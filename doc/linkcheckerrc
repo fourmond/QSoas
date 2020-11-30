@@ -1,9 +1,18 @@
 # -*- mode: conf; -*-
+
+# Unfortunately, a bug prevents anchor checking from working. Using
+# the patch in https://github.com/linkchecker/linkchecker/issues/179
+# seems to do the trick.
+#
+# Patching directly the system files work.
 [AnchorCheck]
 
 [filtering]
-checkextern=1
+checkextern=0
 ignore=.*10.234.32.*
 
 [output]
 fileoutput=csv,text,html
+
+[checking]
+threads=0

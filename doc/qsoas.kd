@@ -5414,6 +5414,8 @@ QSoas> fit-kinetic-system /with=o2:3,exp,common kinetic-file.txt
 
   * `steps`, where the given parameter, takes a series of values (1
   more than the _number_ given) at the given times.
+  * `ramps`, in which the given parameter is constant before a certain
+  time, and then varies linearly in time to reach the next values.
   * `rexp`, that combines the `steps` and `exp`: the time is divided
   in _number_ segments (preceded by an initial segment in which the
   parameter is fixed) in which the parameter is given by:

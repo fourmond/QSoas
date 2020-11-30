@@ -83,7 +83,7 @@ featuring:
 ## New commands
 
  * a [cmd: mem] command to query for memory usage and set the size of
-   the load buffer cache
+   the cache for loading datasets
  * a [cmd: record-meta] command to permanently set meta-data
    to a given file
  * a [cmd: verify] command that aborts the current script if a

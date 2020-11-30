@@ -725,3 +725,48 @@ compute the fit values using a "saved parameters" file and a list of
 datasets to use a "models" for the X values. See also this
 [example](examples.html#sim-commands).
 
+{::comment} tip: datasets;dataset operations;basic {:/}
+## Comparing the values in two different datasets with cu {#cursor-compare}
+
+It is possible to run [cmd: cu] when several datasets are displayed
+(using [cmd: V] for instance). In that case, [cmd: cu] follows by
+default the current dataset, but hitting the `n` and `N` keys cycle
+between the different datasets.
+
+This way one can easily compare values of one dataset against values
+of another, using a point of another dataset as a "reference" (right
+click).
+
+{::comment} tip: load;datasets;basic {:/}
+## Loading only certain columns {#load-columns}
+
+When loading large CSV files, one often needs only a small number of
+the columns. This is possible using the `/columns=` option to
+[cmd: load]. First figure out which are the columns you need by
+loading the file and looking at the data using [cmd: edit], then, run:
+
+~~~
+QSoas> load /columns=3,5,8 file.dat
+~~~
+
+(assuming you need only the 3rd, 5th and 8th columns). You can reorder
+them, too:
+
+~~~
+QSoas> load /columns=5,3,8 file.dat
+~~~
+
+(in this case, the X values are the 5th column, not the 3rd).
+
+{::comment} tip: basic;display {:/}
+## Color gradients when displaying many datasets {#color-gradients}
+
+When loading or displaying many related datasets, it is often hard to
+follow the logic (from one dataset to the next) using the standard
+colors (which are optimized for just a couple of datasets at the same
+time). In this case, you can use the `/style=` option (available for
+many commands) to help you discriminate:
+
+~~~
+QSoas> load spectrum*.dat /style=red-to-blue
+~~~

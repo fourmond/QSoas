@@ -136,7 +136,9 @@ QString Argument::typeDescription() const
 
 QWidget * Argument::createTextEditor(QWidget * parent) const
 {
-  return new QLineEdit(parent);
+  QLineEdit * ln = new QLineEdit(parent);
+  ln->setToolTip(typeDescription());
+  return ln;
 }
 
 void Argument::setTextEditorValue(QWidget * editor,

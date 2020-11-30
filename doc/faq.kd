@@ -23,7 +23,7 @@ possibility to copy to the clipboard.
 
 Using the command [cmd: save] you can export data you have modified
 with QSoas. It saves the data as a TAB-separated text file. If you
-need to save many buffers in one go, have a look at
+need to save many datasets in one go, have a look at
 [cmd: save-datasets].
 
 ## What is this output file thingy ?
@@ -67,8 +67,8 @@ the heuristics wrong with your file, send us the data file.
 As of now, `QSoas` does not support configuring fine details in the
 display. You can toggle the display of points using the [cmd: points]
 command, and you can use the `/style=` option to [commands generating
-several buffers](qsoas.html#several-buffers) to use gradients to
-display a set of buffers.
+several datasets](qsoas.html#several-datasets) to use gradients to
+display a set of datasets.
 
 
 
@@ -172,7 +172,7 @@ stack. You can save it later using the [cmd: save] command.
 
 However, if you don't have so many data points, but you would like to
 have a "smooth" curve nevertheless, save the fit parameters, generate
-a buffer with the desired range of $$x$$ values using
+a dataset with the desired range of $$x$$ values using
 [cmd: generate-dataset], respawn the fit window, load the parameters
 and then export as before ("Data..."/"Push current to stack").
 
@@ -182,11 +182,11 @@ Fitting many datasets with parameters in common is quite an expensive
 task. At the beginning of the fit, QSoas says the number of free
 parameters for the fit. The time taken by the Levenberg-Marquardt
 algorithm used by most of the fit engines scales as the cube of the
-number of parameters, which in turns scales as the number of buffers
+number of parameters, which in turns scales as the number of datasets
 in large multi-fits in which some parameters are
-buffer-specific. While this limitation cannot be overcome easily, we
-have written a fit engine (called "Multi") optimized for that kind of
-payload.
+dataset-specific. While this limitation cannot be overcome easily, we
+have developed a specific fit engine (called "Multi") optimized for
+that kind of situation.
 
 If you are fitting kinetics or redox titrations at many wavelengths,
 try reducing the number of wavelengths by applying [cmd: downsample]
@@ -194,7 +194,7 @@ before running [cmd: transpose].
 
 # Data analysis
 
-## How can I cut out data points from a buffer ?
+## How can I cut out data points from a dataset ?
 
 Depends what you want to do. If you want to manually remove a few
 points, try [cmd: deldp]. If you want to cut out a whole segment, try

@@ -2573,7 +2573,7 @@ Hitting the `o` key optimizes the position of the segments in order
 to minimize the difference between the data and the
 approximation. (be careful as this function may fail at times).
 
-If you want to do that non-interactively, look at [cmd: auto-filter-bsplines].
+If you want to do that non-interactively, look at [cmd: auto-filter-bs].
 {::comment} description-end: filter-bsplines {:/}
 
 {::comment} synopsis-start: auto-filter-bs {:/}
@@ -4414,7 +4414,7 @@ Fits an implicit equation to the data. The equation is solved for the
 variable `y`. For instance:
 
 ~~~~
-QSoas> fit-implicity y*exp(a*y)-x
+QSoas> fit-implicit y*exp(a*y)-x
 ~~~~
 
 Fits the solution (in `y`) of the equation $$y\times \exp a\times y =

@@ -95,7 +95,7 @@ featuring:
 
   * [cmd: apply-formula], [cmd: eval] and [cmd: stats] can now work on
     several buffers
-  * [cmd: browse-stack], [cmd: browse-stack], [cmd: overlay-buffers]
+  * [cmd: browse-stack], [cmd: browse-stack], [cmd: overlay-buffer]
     now accept the `/for-which=` option to further select the buffers
   * [cmd: apply-formula] now better handles mathematical errors (like
     `sqrt(-1)`)
@@ -173,7 +173,7 @@ featuring:
  * chi-squared "goodness of fit"
  * `qsoas` and `multi` a much more memory-efficient for massive
    multi-buffer fits
- * [fit: arbitrary] has more "automatic" parameters
+ * [fit: arb] has more "automatic" parameters
  * all the `sim-` commands now also take the `/style=` and
    `/set-meta=` options
 

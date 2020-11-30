@@ -331,7 +331,7 @@ baseline. Try it out with the file `file5.dat`:
 
 ~~~
 QSoas> l file5.dat
-QSoas> split-b
+QSoas> splitb
 QSoas> b
 ~~~
 
@@ -346,7 +346,7 @@ QSoas using the following QSoas commands:
     can either subtract the baseline or divide by the baseline)
 -   [cmd: subtract] (short name `S`) for
     subtracting a control signal.
--   [cmd: divide] (short name `div`) for
+-   [cmd: div] for
     [dividing](http://dx.doi.org/10.1021/ac8025702) by a control signal.
 
 ## Get statistics about the current buffer
@@ -1027,7 +1027,7 @@ ES->E+P[k3]
 ~~~
 
 The command
-[cmd: mfit-kinetic-systems] can be
+[cmd: mfit-kinetic-system] can be
 used to analyze several data sets at once.
 
 ## How to reparametrize fits, more advanced example {#tuto-reparametrize}

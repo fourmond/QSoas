@@ -112,7 +112,7 @@ This will run in turn all the commands that were saved in the
 {::comment} tip: basic;save{:/}
 ## Saving and restoring sessions {#save-stack}
 
-You can save the whole contents of the [data stack](#data-stack),
+You can save the whole contents of the [data stack](qsoas.html#data-stack),
 which is more-or-less all the datasets that were loaded, manipulated
 and so on so far, using the command [cmd: save-stack]. The stack files
 can be reloaded later using [cmd: load-stack].
@@ -660,8 +660,8 @@ QSoas> run-for-each script.cmds file*.dat
 
 {::comment} tip: basic;peaks {:/}
 ## Find peaks {#find-peaks}
-You can use the command [cmd: find-peak] to find the peaks in a
-dataset. By default, [cmd: find-peak] lists and displays all the peaks
+You can use the command [cmd: find-peaks] to find the peaks in a
+dataset. By default, [cmd: find-peaks] lists and displays all the peaks
 it finds, but you can limit that using `/peaks=3` for 3 peaks for
 instance.
 

@@ -1,0 +1,9 @@
+# -*- mode: conf; -*-
+[AnchorCheck]
+
+[filtering]
+checkextern=1
+ignore=.*10.234.32.*
+
+[output]
+fileoutput=csv,text,html

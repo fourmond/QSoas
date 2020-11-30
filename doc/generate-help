@@ -310,7 +310,7 @@ def parse_file(info)
   end
 
   # Make sure all external links are marked as such 
-  txt.gsub!(/\(http[^)]+\)/m) do |x|
+  txt.gsub!(/\(http.*(\([^)]+\))?.*\)/m) do |x|
     x + "{: class='external'}"
   end
 

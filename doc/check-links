@@ -1,4 +1,5 @@
 #! /bin/sh
 
 # This just runs webcheck with the correct arguments
-webcheck -o wc out/*.html
+# webcheck -o wc out/*.html
+linkchecker -f linkcheckerrc out 

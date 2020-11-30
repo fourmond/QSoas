@@ -1,0 +1,7 @@
+clear-stack
+generate-dataset 0 10 2.5*x+3*x**2-12
+linear-least-squares a*x+b*x**2+c /accumulate=a,b,c
+pop
+assert $stats.x_max-2.5 1e-13
+assert $stats.y_max-3 1e-13
+assert $stats.y2_max+12 1e-12

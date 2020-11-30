@@ -8,4 +8,6 @@
 @ solve.cmds
 @ specials.cmds
 
-run-for-each /range-type=lin large-buffer-formulas.cmds 1..40:40 
+run-for-each /range-type=lin large-buffer-formulas.cmds 1..40:40
+
+@ linear-least-squares.cmds

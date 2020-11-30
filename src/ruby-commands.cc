@@ -797,7 +797,7 @@ static void linearLeastSquaresCommand(const QString &, QString formula,
     updateFromOptions(opts, "use-meta", ex.useMeta);
 
     QStringList params;
-    int sz = ex.dataSetParameters(0, NULL).size();
+    int sz = DataSetExpression::dataSetParameters(ds).size();
     ex.prepareExpression(formula, 0, &params);
 
     Terminal::out << "Fitting '" << formula << "' to dataset "

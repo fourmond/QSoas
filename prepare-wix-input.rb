@@ -65,10 +65,10 @@ imgs = {}
 subdirs['imageformats'] = imgs
 
 for ptf in %w[qjpeg qsvg]
-  pltforms['release'] ||= []
-  pltforms['release'] << "#{ENV['QTDIR']}\\plugins\\imageformats\\#{ptf}.dll"
-  pltforms['debug'] ||= []
-  pltforms['debug'] << "#{ENV['QTDIR']}\\plugins\\imageformats\\#{ptf}d.dll"
+  imgs['release'] ||= []
+  imgs['release'] << "#{ENV['QTDIR']}\\plugins\\imageformats\\#{ptf}.dll"
+  imgs['debug'] ||= []
+  imgs['debug'] << "#{ENV['QTDIR']}\\plugins\\imageformats\\#{ptf}d.dll"
 end
 
 

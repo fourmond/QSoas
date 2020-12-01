@@ -60,6 +60,17 @@ for ptf in %w[qsqlite]
   drivers['debug'] << "#{ENV['QTDIR']}\\plugins\\sqldrivers\\#{ptf}d.dll"
 end
 
+# Handling image formats
+imgs = {}
+subdirs['imageformats'] = imgs
+
+for ptf in %w[qjpeg qsvg]
+  pltforms['release'] ||= []
+  pltforms['release'] << "#{ENV['QTDIR']}\\plugins\\imageformats\\#{ptf}.dll"
+  pltforms['debug'] ||= []
+  pltforms['debug'] << "#{ENV['QTDIR']}\\plugins\\imageformats\\#{ptf}d.dll"
+end
+
 
 # Ruby library
 rb = File::join(RbConfig::CONFIG['bindir'], RbConfig::CONFIG['LIBRUBY_SO'])

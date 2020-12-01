@@ -27,6 +27,8 @@
 #include <utils.hh>
 #include <settings-templates.hh>
 
+#include <debug.hh>
+
 #include <soas.hh>
 #include <commandwidget.hh>
 
@@ -41,9 +43,13 @@ public:
 
   virtual QVariant loadResource(int type, const QUrl &name) override {
     // QTextStream o(stdout);
-    // o << "Request: " << name.toString() << endl;
+    if(Debug::debugLevel() > 0)
+      Debug::debug() << "Request: " << name.toString() << endl;
     if(name.scheme() == "qthelp") {
-      return engine->fileData(name);
+      QByteArray data = engine->fileData(name);
+      if(Debug::debugLevel() > 0)
+        Debug::debug() << " -> " << data.size() << " bytes" << endl;
+      return data;
     }
     return QTextBrowser::loadResource(type, name);
   }
@@ -83,8 +89,26 @@ public:
     if(re.indexIn(line, 0) == 0)
       cmd = re.cap(2);
 
+    QAction * action = new QAction("Back");
+    if(! isBackwardAvailable())
+      action->setEnabled(false);
+    else
+      connect(action, SIGNAL(triggered()), SLOT(backward()));
+    menu->addAction(action);
 
-    QAction * action = new QAction("Copy");
+    action = new QAction("Forward");
+    if(! isForwardAvailable())
+      action->setEnabled(false);
+    else
+      connect(action, SIGNAL(triggered()), SLOT(forward()));
+
+    menu->addAction(action);
+    menu->addSeparator();
+
+
+
+
+    action = new QAction("Copy");
     if(sel.isEmpty())
       action->setEnabled(false);
     else

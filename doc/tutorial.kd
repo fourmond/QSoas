@@ -158,6 +158,7 @@ Or you may just type `load` and return, or just `l` and return: a window
 will appear, for you to select the file you want to load.
 
 Alternatively, you may use the comand [cmd: browse] (short name `W`):
+
 ~~~
 QSoas> W
 ~~~

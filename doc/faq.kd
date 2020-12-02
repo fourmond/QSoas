@@ -1,14 +1,29 @@
-If questions do not find answers in this document, nor in the
-[tutorial][tuto] or the [documentation][doc], then please use the
-[forums][forums] to ask your question.
-
 # Help !
 
 ## Where can I get help ?
 
 First, try looking at the [tutorial][tuto], peruse the [FAQ][faq] and
-read the [documentation][doc]. If that doesn't solve your problems,
-you can ask your question in the [forums][forums].
+read the [command reference][doc]. If that doesn't solve your problems,
+you can post an "issue" on [github][github-issues], or contact us on
+[twitter][twitter] or [Facebook][fb].
+
+## I love QSoas ! How can I help ? {#how-can-i-help}
+
+Thanks ! We love it too ! There are many things you can do to help the
+development of QSoas:
+
+ * Report bugs or inaccuracies in the documentation to the
+   [github tracker][github-issues].
+ * Fix them ! You can fork the repository on [github][github].
+ * Ask for new features in the [github tracker][github-issues], and
+   possibly write the code for them also !
+ * Like us on [Facebook][fb], follow us on [twitter][twitter].
+ * Ask questions about your data analysis on [github][github-issues],
+   [twitter][twitter] or [Facebook][fb]. You can also use direct
+   messages if you'd like to keep the question confidential.
+ * Write about your own data analysis in QSoas.
+ * And, most importantly, spread the word: show others how you did
+   benefit from using QSoas !
 
 # Using QSoas
 
@@ -43,8 +58,8 @@ into your favorite spreadsheet program, or even using QSoas itself
 
 This is probably the result of you trying to modify the output file
 while `QSoas` is using it. Just don't do that, or, if you absolutely
-need to, run the following command after saving your modifications to
-the output file:
+need to, run the following command after saving your modifications
+from external programs to the output file:
 
 ~~~
 QSoas> output /reopen=true
@@ -54,7 +69,7 @@ QSoas> output /reopen=true
 
 # Display
 
-## Help, my display looks all messed up with only points !
+## My display looks all messed upand shows only points !
 
 By default, `QSoas` shows datasets by drawing lines between all the
 successive points. On very noisy datasets, this sometimes leads to
@@ -69,8 +84,6 @@ display. You can toggle the display of points using the [cmd: points]
 command, and you can use the `/style=` option to [commands generating
 several datasets](qsoas.html#several-datasets) to use gradients to
 display a set of datasets.
-
-
 
 
 # File formats
@@ -121,7 +134,7 @@ Don't forget the `/decimal=,` option if you are using French decimal
 separator.
 
 
-## Help, QSoas doesn't read my files !
+## QSoas doesn't read my files !
 
 What if load a file and you don't see anything at all, or data that
 really don't look like yours ? QSoas tries to be smart and find under
@@ -146,23 +159,30 @@ setting `/comment=#` (to only ignore lines that start with a `#`).
 You can get an idea of how `QSoas` read the file by launching the
 [cmd: edit] command.
 
-## Help, I only see points in my data files !
+## QSoas loads my file but doesn't show anything
 
-Sometimes, QSoas only draws data points, and does not draw lines
-between them. This happens for very "jaggy" curves, for which drawing
-the lines can be very computationally expensive and slow down
-significantly the display. At the moment, this cannot be controlled,
-and happens when QSoas thinks the curve is too jaggy.
+First of all, look at the data using [cmd: edit], that shows a
+spreadsheet. You can then understand what exactly QSoas loaded.
+
+Sometimes, data files contains lines of text at the beginning, which
+are sometimes by QSoas for real data lines. If that's the case, the
+first few lines in [cmd: edit] would show entries with `nan`. To get
+rid of them, try:
+
+~~~
+QSoas> strip-if x.nan?||y.nan?
+~~~
 
 
 # Fits
 
 ## Can QSoas be used to fit a model that is calculated with an external program? Like EasySpin or Matlab?
 
-This is not possible at the moment, but we are currently designing a
+This is not possible at the moment, but we have plans for a
 generic interface for using external programs to compute
 datasets. This would make it possible to fit using results of
-computations done within Matlab for instance, such as Easyspin.
+computations done within Matlab for instance, such as Easyspin. Let us
+know on the [tracker][github-tracker] if you'd like to do that.
 
 ## How can I export "clean" version of the fit data ?
 
@@ -174,13 +194,13 @@ However, if you don't have so many data points, but you would like to
 have a "smooth" curve nevertheless, save the fit parameters, generate
 a dataset with the desired range of $$x$$ values using
 [cmd: generate-dataset], respawn the fit window, load the parameters
-and then export as before ("Data..."/"Push current to stack").
+and then export as before ("Data..."/"Push current to stack"). 
 
 ## My multi-fit is way too slow...
 
 Fitting many datasets with parameters in common is quite an expensive
-task. At the beginning of the fit, QSoas says the number of free
-parameters for the fit. The time taken by the Levenberg-Marquardt
+task. At the beginning of the fit, QSoas writes the total number of
+free parameters for the fit. The time taken by the Levenberg-Marquardt
 algorithm used by most of the fit engines scales as the cube of the
 number of parameters, which in turns scales as the number of datasets
 in large multi-fits in which some parameters are
@@ -188,7 +208,8 @@ dataset-specific. While this limitation cannot be overcome easily, we
 have developed a specific fit engine (called "Multi") optimized for
 that kind of situation.
 
-If you are fitting kinetics or redox titrations at many wavelengths,
+If you are fitting kinetics or redox titrations at many wavelengths
+(like in the [tutorial](tutorial.html#tuto-joliot)),
 try reducing the number of wavelengths by applying [cmd: downsample]
 before running [cmd: transpose].
 
@@ -239,13 +260,10 @@ good because you are contributing to the further development of QSoas !
 
 # Bugs, updates
 
-## I believe I found a bug, can I report it? Can I get my money back?
+## I believe I found a bug, can I report it ? Can I get my money back?
 
 The best way to report a bug is to signal it on the
-[sourceforge bug page][bugs]. Before reporting, first check the
-[documentation][doc] and the [FAQ][faq] if the behaviour really is a
-problem, and then check if it has not been reported before in the
-[bugs page][bugs].
+[github tracker][github-isses].
 
 Please include all information necessary to reproduce the bug, such as
 what you exactly did, what you got, what you expected to get, the
@@ -272,24 +290,22 @@ may consider [compiling QSoas from source](#why-pay).
 
 ## Why isn't there a win64 binary version ? Will there ever be one ?
 
-At the moment, we cannot provide binaries for Win64, as one of the
-main dependences of QSoas, [Qt4](http://qt-project.org) is rather
-delicate to compile under Win64 (and it is not officially supported
-there either).
-
-QSoas, like all other 32 bit applications, works seamlessly in 64 bit
-versions of Windows, thanks to the so-called [WOW64 windows
-layer](https://msdn.microsoft.com/en-us/library/windows/desktop/aa384249.aspx).
+There are currently no plans for a win64 version. However, QSoas, like
+all other 32 bit applications, works seamlessly in 64 bit versions of
+Windows, thanks to the so-called
+[WOW64 windows layer](https://msdn.microsoft.com/en-us/library/windows/desktop/aa384249.aspx).
 The only drawback is that you cannot use more than 3GB or so of memory
-from QSoas, which really should not be a limitation.
+from QSoas, which should seldom be a limitation.
 
 
 This file was written by Vincent Fourmond, and is copyright (c)
 2014-2020 by CNRS/AMU.
 
-[gpl]:https://www.gnu.org/licenses/gpl-2.0.html
-[bugs]:https://sourceforge.net/p/qsoas/tickets/
-[forums]:https://sourceforge.net/p/qsoas/discussion/
+[gpl]:https://www.gnu.org/licenses/gpl-2.0.html "General Public Licence 2.0"
+[github-issues]:https://github.com/fourmond/QSoas/issues
+[github]:https://github.com/fourmond/QSoas
+[fb]:https://facebook.com/QSoasSoftware
+[twitter]:https://twitter.com/QSoasSoftware
 [doc]:http://www.qsoas.org/reference/
 [tuto]:http://www.qsoas.org/tutorial/
 [faq]:http://www.qsoas.org/faq/

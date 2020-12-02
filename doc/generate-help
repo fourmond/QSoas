@@ -350,7 +350,11 @@ def parse_file(info)
         img = $1
         $images[img] = true
         tgt = $make_web ? img.gsub(/^images\//, '/wp-content/uploads/qsoas/images/') : img
-        "![#{img}](#{tgt}){:class='image'} "
+        if $make_web
+          "![#{img}](#{tgt}){:class='image' width='100%'}"
+        else
+          "[![#{img}](#{tgt}){:class='image' width='800' title='Click to see bigger'} ](#{tgt}.html)"
+        end
       end
       if l =~ /^\[.*:http/
         l << "{: class='external'}\n"
@@ -553,7 +557,12 @@ for f in $images.keys
   FileUtils::mkdir_p("#{$target_dir}/images")
   if File::readable? f
     FileUtils::cp(f, "#{$target_dir}/images")
+    base = File::basename(f)
+    File::open("#{$target_dir}/images/#{base}.html", 'w') do |wr|
+      wr.puts "<html><img src='#{base}' /></html>"
+    end
     files_s << "<file>#{f}</file>\n"
+    files_s << "<file>#{f}.html</file>\n"
   else
     puts "Image not found: #{f}"
   end

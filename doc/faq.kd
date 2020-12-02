@@ -182,7 +182,7 @@ This is not possible at the moment, but we have plans for a
 generic interface for using external programs to compute
 datasets. This would make it possible to fit using results of
 computations done within Matlab for instance, such as Easyspin. Let us
-know on the [tracker][github-tracker] if you'd like to do that.
+know on the [tracker][github-issues] if you'd like to do that.
 
 ## How can I export "clean" version of the fit data ?
 
@@ -263,7 +263,7 @@ good because you are contributing to the further development of QSoas !
 ## I believe I found a bug, can I report it ? Can I get my money back?
 
 The best way to report a bug is to signal it on the
-[github tracker][github-isses].
+[github tracker][github-issues].
 
 Please include all information necessary to reproduce the bug, such as
 what you exactly did, what you got, what you expected to get, the

@@ -1,0 +1,11 @@
+#! /bin/sh
+
+if [ "$1" ]; then
+    opts=--check-extern
+fi
+
+# This just runs webcheck with the correct arguments
+# webcheck -o wc out/*.html
+echo "Checking links"
+echo "Make sure you have a patched version of linkchecker else the wrong anchor detection won't work"
+linkchecker -f linkcheckerrc $opts out 

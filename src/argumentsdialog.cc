@@ -38,10 +38,12 @@ ArgumentEditor::ArgumentEditor(const Argument * arg, bool opt) :
     optName = new QCheckBox("/" + arg->argumentName());
     connect(optName, SIGNAL(clicked(bool)), SLOT(enable(bool)));
     optName->setChecked(false);
+    optName->setToolTip(arg->description());
     enable(false);
   }
   else {
     argName = new QLabel(arg->argumentName());
+    argName->setToolTip(arg->description());
   }
 
 }

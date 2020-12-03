@@ -38,7 +38,7 @@ win32:CONFIG += console
 
 # The version should be provided on the command-line.
 isEmpty(VERSION) {
-  VERSION = 2.2
+  VERSION = 3.0
 }
 
 # We attempt to make a universal binary on mac

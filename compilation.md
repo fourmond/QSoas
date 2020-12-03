@@ -1,3 +1,5 @@
+# Compilation
+
 Compilation requires the following packages:
 
   * The Qt library. QSoas works only with  Qt5
@@ -47,4 +49,14 @@ This produces the `QSoas` executable in place. It is simpler to use it
 from there directly.
 
 
+## Error: missing `mrb_protect`
+
+It can happen that the compilation fails with the error "missing
+`mrb_protect`". That comes from missing `mruby-error` mrbgem. Just add
+the following line before the `end` in  `mrbgems/default.gembox` in
+your mruby source code:
+
+~~~
+  conf.gem :core => "mruby-error"
+~~~
 

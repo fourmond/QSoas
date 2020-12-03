@@ -22,7 +22,7 @@ This file was written by Vincent Fourmond, and is copyright (c)
 ## Plotting mathematical functions {#plot-function}
 
 To plot a mathematical function, use [cmd: generate-dataset] to
-generate a buffer with the correct range of X values you want:
+generate a dataset with the correct range of X values you want:
 
 ~~~
 QSoas> generate-dataset -10 10
@@ -112,8 +112,8 @@ This will run in turn all the commands that were saved in the
 {::comment} tip: basic;save{:/}
 ## Saving and restoring sessions {#save-stack}
 
-You can save the whole contents of the [data stack](#data-stack),
-which is more-or-less all the buffers that were loaded, manipulated
+You can save the whole contents of the [data stack](qsoas.html#data-stack),
+which is more-or-less all the datasets that were loaded, manipulated
 and so on so far, using the command [cmd: save-stack]. The stack files
 can be reloaded later using [cmd: load-stack].
 
@@ -144,15 +144,15 @@ QSoas> W */*
 When running a fit, you can save the "fitted" curves, that is the
 theoretical curves predicted from the current parameters by clicking
 on "Data..."/"Push current to stack" (for the currently displayed
-buffer) or "Push all to stack" (for all the fitted buffers).
+dataset) or "Push all to stack" (for all the fitted datasets).
 
-Then, you can save the buffers using [cmd: save] or
+Then, you can save the datasets using [cmd: save] or
 [cmd: save-datasets] for instance.
 
 {::comment} tip: save;basic {:/}
-## Saving the current buffer {#save-buffer}
+## Saving the current dataset {#save-dataset}
 
-You can save the current buffer into a simple text format by using the
+You can save the current dataset into a simple text format by using the
 [cmd: save] command, `s` for short. Give it the name of the target
 file (or let QSoas ask you):
 
@@ -194,12 +194,12 @@ out the name of a command by looking at the help text of the menus, or
 by running the command from the menu and looking at new line, starting
 with `QSoas>`, added at the bottom of the terminal.
 
-{::comment} tip: buffers;tracking changes;basic {:/}
-## Buffer names {#buffer-names}
+{::comment} tip: datasets;tracking changes;basic {:/}
+## Dataset names {#dataset-names}
 
-When QSoas loads buffers, it gives them the same name as the files
+When QSoas loads datasets, it gives them the same name as the files
 they were loaded from. After each operation, QSoas adds a suffix to
-reflect the changes to the buffer. After running:
+reflect the changes to the dataset. After running:
 
 ~~~
 QSoas> l data.dat
@@ -208,21 +208,21 @@ QSoas> filter-fft
 Current buffer now is: 'data_mod_filtered.dat'
 ~~~
 
-The buffer name that was initially `data.dat` is now
+The dataset name that was initially `data.dat` is now
 `data_mod_filtered.dat`. When this becomes too troublesome, you can
-change the name of the current buffer using the [cmd: rename] command
+change the name of the current dataset using the [cmd: rename] command
 (`a` for short):
 
 ~~~
 QSoas> rename process-data.dat
 ~~~
 
-{::comment} tip: buffers;stack;basic {:/}
-## Current buffer and stack {#stack-1}
+{::comment} tip: datasets;stack;basic {:/}
+## Current dataset and stack {#stack-1}
 
-QSoas functions using a stack for buffers: each operation that creates
-data: loading a file, or modifying an existing buffer, creates a new
-buffer that becomes the top of the stack. The *current buffer* is the
+QSoas functions using a stack for datasets: each operation that creates
+data: loading a file, or modifying an existing dataset, creates a new
+dataset that becomes the top of the stack. The *current dataset* is the
 one at the top of the stack. It is the one to which most of the
 operations are applied; it is also always visible.
 
@@ -250,11 +250,11 @@ QSoas> eval sin(PI*3/4)
 {::comment} tip: raw data;basic {:/}
 ## Viewing raw data {#edit}
 
-It is sometimes useful to look at the raw data of the current buffer,
+It is sometimes useful to look at the raw data of the current dataset,
 that is how the numbers are organized; this can help for instance
 spotting data that has not been loaded properly. You can do that using
 the [cmd: edit] command, that opens up a spreadsheet-like view of the
-current buffer.
+current dataset.
 
 As its name suggest, you can also use [cmd: edit] to edit some of the
 values (don't forget to push the new data to the stack !), but don't
@@ -262,10 +262,10 @@ expect advanced facilities: QSoas is not a spreadsheet program. If you
 want to modify data, use other functions, such as
 [cmd: apply-formula].
 
-{::comment} tip: math;buffers;buffer operations;basic {:/}
-## Applying a formula to a buffer {#apply-formula}
+{::comment} tip: math;datasets;dataset operations;basic {:/}
+## Applying a formula to a dataset {#apply-formula}
 
-If you want to modify the data of the current buffer according to a
+If you want to modify the data of the current dataset according to a
 mathematical formula, use the command [cmd: apply-formula]:
 
 ~~~
@@ -280,15 +280,15 @@ the `y` column. You can also modify other columns... Try out:
 QSoas> apply-formula x=y**2
 ~~~
 
-{::comment} tip: buffers;stack;basic {:/}
+{::comment} tip: datasets;stack;basic {:/}
 ## Undo/redo {#undo-redo}
 
 QSoas provides basic undo/redo functionalities via the
 [stack](qsoas.html#data-stack). Running the [cmd: undo] command, or
-`u` for short will remove the latest buffer from the stack, so that
-the previous buffer becomes the current buffer.
+`u` for short will remove the latest dataset from the stack, so that
+the previous dataset becomes the current dataset.
 
-The buffers removed this way are put on the "redo" stack, you can
+The datasets removed this way are put on the "redo" stack, you can
 recover them by running [cmd: redo], or just `r`.
 
 {::comment} tip: math;fits;basic {:/}
@@ -302,7 +302,7 @@ QSoas> fit-arb a*exp(-x/tau)+b
 ~~~
 
 This launches the fit interface to fit the $$y = a\times \exp
--x/\tau$$ formula to the current buffer.
+-x/\tau$$ formula to the current dataset.
 
 QSoas features also many [predefined fits](qsoas.html#fits)
 with smart initial parameters
@@ -332,14 +332,14 @@ QSoas> !appl
 will run the last command you have run starting by `appl`. Pressing
 the Tab key will expand the `!` to the full command
 
-{::comment} tip: math;advanced;buffers;meta-data {:/}
-## Formulas involving the current buffer {#eval-with-buffers}
+{::comment} tip: math;advanced;datasets;meta-data {:/}
+## Formulas involving the current dataset {#eval-with-datasets}
 
 You can use [cmd: eval] to obtain information about the current
-buffer. The statistics are available using the `$stats` global
+dataset. The statistics are available using the `$stats` global
 variable, and the [meta-data](qsoas.html#meta-data) through the
 `$meta` global variable. For instance, to print the maximum `y`
-values of the current buffer, just run:
+values of the current dataset, just run:
 
 ~~~
 QSoas> eval $stats.y_max
@@ -401,16 +401,16 @@ There are also a number of more specialized fits.
 ## Fitting a bi-exponential to data {#fit-biexp}
 
 You can use the command [cmd: fit-exponential-decay] to fit mono or
-multi-exponential decays to the current buffer. Simply running
+multi-exponential decays to the current dataset. Simply running
 
 ~~~
 QSoas> fit-exponential-decay
 ~~~
 
-will fit a mono-exponential decay to the current buffer. To fit
+will fit a mono-exponential decay to the current dataset. To fit
 multi-exponential decay, you need to use the `/exponentials=` option
 to [cmd: fit-exponential-decay]. To fit a bi-exponential decay to the
-current buffer, you should run:
+current dataset, you should run:
 
 ~~~
 QSoas> fit-exponential-decay /exponentials=2
@@ -445,7 +445,7 @@ second. The `c0_A`, `c0_B` and `c0_C` are the initial
 concentrations. The `y_A`, `y_B` and `y_C` parameters are the
 coefficients for generating the modelled data from the concentrations.
 
-{::comment} tip: advanced;math {:/}
+{::comment} tip: advanced;math;dataset operations {:/}
 ## Easy normalization  {#advanced-apply-formula}
 
 You can use statistics, as those given by the [cmd: stats] command,
@@ -464,11 +464,11 @@ integral of 1, just run:
 ~~~
 QSoas> apply-formula y=y/$stats.y_int
 ~~~
-{::comment} tip: basic;stack;buffers {:/}
+{::comment} tip: basic;stack;datasets {:/}
 ## Show the contents of the stack {#show-stack}
 
 As you work in QSoas, you slowly fill the stack: every operation
-creates a new buffer in the stack. To get an idea of the contents of
+creates a new dataset in the stack. To get an idea of the contents of
 the stack, use the [cmd: show-stack] command, or `k` for short. For
 instance:
 
@@ -481,11 +481,11 @@ Normal stack:
 Total size: 15 kB
 ~~~
 
-Here, the stack contains a single buffer, number `#0`, which has 2
+Here, the stack contains a single dataset, number `#0`, which has 2
 columns, 1000 rows, 1 segment and who is called `generated.dat`. When
 the stack is too large, you can specify a number to [cmd: show-stack],
 in which case it shows only the most recent. Here for the 5 most
-recent buffers:
+recent datasets:
 
 ~~~
 QSoas> k 5
@@ -591,34 +591,34 @@ QSoas> load ../file.dat
 ~~~
 
 {::comment} tip: basic;browse;stack {:/}
-## Browsing all the buffers in the stack {#browse-stack}
+## Browsing all the datasets in the stack {#browse-stack}
 
-You can visually look at all the buffers in the stack using
+You can visually look at all the datasets in the stack using
 [cmd: browse-stack], or `K` for short. It brings a window showing all
-the buffers (16 by page). You can change the presentation changing the
+the datasets (16 by page). You can change the presentation changing the
 `4 x 4` box at the bottom, you can also zoom on any of the curves with
 the wheel.
 
-{::comment} tip: basic;stack;buffers {:/}
+{::comment} tip: basic;stack;datasets {:/}
 ## Erasing datasets from memory {#drop}
 
-All operations in QSoas create a new buffer, which sometimes may take
+All operations in QSoas create a new dataset, which sometimes may take
 up a lot of memory, or simply make it too difficult to find the
-buffers you're interested in in the stack...
+datasets you're interested in in the stack...
 
-You can remove permanently a buffer from the stack by
+You can remove permanently a dataset from the stack by
 using [cmd: drop]:
 
 ~~~
 QSoas> drop 1
 ~~~
 
-This command removes the buffer numbered 1 (i.e. the previous buffer,
-the current buffer is 0). After that, the buffer that was 2 before
-becomes the buffer 1, and so on for all higher numbers.
+This command removes the dataset numbered 1 (i.e. the previous dataset,
+the current dataset is 0). After that, the dataset that was 2 before
+becomes the dataset 1, and so on for all higher numbers.
 
 To start with a clean slate, run [cmd: clear-stack] to remove all the
-buffers from the stack.
+datasets from the stack.
 
 {::comment} tip: basic;commands {:/}
 ## QSoas log file {#log-file}
@@ -660,8 +660,8 @@ QSoas> run-for-each script.cmds file*.dat
 
 {::comment} tip: basic;peaks {:/}
 ## Find peaks {#find-peaks}
-You can use the command [cmd: find-peak] to find the peaks in a
-dataset. By default, [cmd: find-peak] lists and displays all the peaks
+You can use the command [cmd: find-peaks] to find the peaks in a
+dataset. By default, [cmd: find-peaks] lists and displays all the peaks
 it finds, but you can limit that using `/peaks=3` for 3 peaks for
 instance.
 
@@ -725,3 +725,48 @@ compute the fit values using a "saved parameters" file and a list of
 datasets to use a "models" for the X values. See also this
 [example](examples.html#sim-commands).
 
+{::comment} tip: datasets;dataset operations;basic {:/}
+## Comparing the values in two different datasets with cu {#cursor-compare}
+
+It is possible to run [cmd: cu] when several datasets are displayed
+(using [cmd: V] for instance). In that case, [cmd: cu] follows by
+default the current dataset, but hitting the `n` and `N` keys cycle
+between the different datasets.
+
+This way one can easily compare values of one dataset against values
+of another, using a point of another dataset as a "reference" (right
+click).
+
+{::comment} tip: load;datasets;basic {:/}
+## Loading only certain columns {#load-columns}
+
+When loading large CSV files, one often needs only a small number of
+the columns. This is possible using the `/columns=` option to
+[cmd: load]. First figure out which are the columns you need by
+loading the file and looking at the data using [cmd: edit], then, run:
+
+~~~
+QSoas> load /columns=3,5,8 file.dat
+~~~
+
+(assuming you need only the 3rd, 5th and 8th columns). You can reorder
+them, too:
+
+~~~
+QSoas> load /columns=5,3,8 file.dat
+~~~
+
+(in this case, the X values are the 5th column, not the 3rd).
+
+{::comment} tip: basic;display {:/}
+## Color gradients when displaying many datasets {#color-gradients}
+
+When loading or displaying many related datasets, it is often hard to
+follow the logic (from one dataset to the next) using the standard
+colors (which are optimized for just a couple of datasets at the same
+time). In this case, you can use the `/style=` option (available for
+many commands) to help you discriminate:
+
+~~~
+QSoas> load spectrum*.dat /style=red-to-blue
+~~~

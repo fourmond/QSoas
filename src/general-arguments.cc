@@ -660,12 +660,13 @@ QStringList SeveralDataSetArgument::toString(const ArgumentMarshaller * arg) con
 
 QWidget * SeveralDataSetArgument::createEditor(QWidget * parent) const
 {
-  return Argument::createEditor(parent);
+  return createTextEditor(parent);
 }
 
 void SeveralDataSetArgument::setEditorValue(QWidget * editor, 
                                             const ArgumentMarshaller * value) const
 {
+  setTextEditorValue(editor, value);
 }
 
 

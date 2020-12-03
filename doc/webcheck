@@ -1,4 +1,0 @@
-#! /bin/sh
-
-# This just runs webcheck with the correct arguments
-webcheck -o wc out/*.html

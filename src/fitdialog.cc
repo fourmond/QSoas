@@ -1320,7 +1320,7 @@ void FitDialog::showTransposed()
 
 void FitDialog::showParameters()
 {
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
   // Dialog has to be modal on mac, as of now
   ParametersViewer dlg(&parameters);
   dlg.exec();

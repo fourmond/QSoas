@@ -196,7 +196,6 @@ HelpBrowser * HelpBrowser::theBrowser = NULL;
 
 QHelpEngine * HelpBrowser::theEngine = NULL;
 
-
 QHelpEngine * HelpBrowser::getEngine()
 {
   if(! theEngine) {
@@ -231,6 +230,9 @@ QHelpEngine * HelpBrowser::getEngine()
     QTextStream o(stdout);
     o << "Collection: '" << collection << "'" << endl;
     theEngine = new QHelpEngine(collection);
+    if(collection.isEmpty())
+      o << "Could not find collection file, search paths used: '"
+        << docPaths.join("', '") << "'" << endl;
     // engine->setupData();
   }
   return theEngine;

@@ -63,7 +63,7 @@ public:
   /// Browses the documentation of the given command.
   static void browseCommand(const Command * command);
 
-  /// Returns the collection file
+  /// Returns the collection file.
   static QString collectionFile();
 
 public slots:

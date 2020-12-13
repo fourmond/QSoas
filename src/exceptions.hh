@@ -28,6 +28,9 @@ protected:
   QString msg;
   QStringList backtrace;
   QByteArray full;
+
+  /// Updates full, the cache of the message 
+  void updateCache();
 public:
   explicit Exception(const QString & msg) throw();
   virtual const char * what() const throw();
@@ -56,6 +59,7 @@ public:
   // we need a redefition to avoid throwing Exception rather than
   template<typename T> RuntimeError & arg(T a) {
     msg = msg.arg(a);
+    updateCache();
     return *this;
   }; 
 
@@ -82,6 +86,7 @@ public:
   // we need a redefition to avoid throwing Exception rather than
   template<typename T> RangeError & arg(T a) {
     msg = msg.arg(a);
+    updateCache();
     return *this;
   }; 
 
@@ -95,6 +100,7 @@ public:
 
   template<typename T> InternalError & arg(T a) {
     msg = msg.arg(a);
+    updateCache();
     return *this;
   }; 
 

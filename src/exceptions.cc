@@ -27,10 +27,14 @@
 Exception::Exception(const QString & m) throw() : 
   msg(m) {
   backtrace = Utils::backtrace();
-  // Conversion is done initially, as when done during what(), it may
-  // trigger memory allocation that may be disallowed.
+  updateCache();
+}
+
+
+void Exception::updateCache()
+{
   full = (msg + "\n" + backtrace.join("\n")).toLocal8Bit();
-};
+}
 
 const char * Exception::what() const throw()
 {
@@ -45,6 +49,7 @@ QString Exception::message() const throw()
 void Exception::appendMessage(const QString & s)
 {
   msg += s;
+  updateCache();
 }
 
 // for now, we brutally remove message handling in Qt5

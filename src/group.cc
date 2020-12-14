@@ -75,7 +75,7 @@ QAction * Group::actionForGroup(QObject * parent,
   for(int i = 0; i < grps.size(); i++) {
     QAction * ac = grps[i]->actionForGroup(parent, context);
     menu->addAction(ac);
-#ifdef Q_WS_MACX
+#ifdef Q_OS_MAC
     QMenu * sub = ac->menu();
     // This is a workaround for bug https://bugreports.qt.nokia.com/browse/QTBUG-19920
     // Hmm, now https://bugreports.qt.io/browse/QTBUG-19920
@@ -88,8 +88,14 @@ QAction * Group::actionForGroup(QObject * parent,
     menu->addSeparator();
 
   for(int i = 0; i < cmds.size(); i++) {
-    if(cmds[i]->commandContext() == context)
-      menu->addAction(cmds[i]->actionForCommand(parent));
+    if(cmds[i]->commandContext() == context) {
+      QAction * act = cmds[i]->actionForCommand(parent);
+      if(cmds[i]->commandName() == "quit")
+        act->setMenuRole(QAction::QuitRole);
+      else
+        act->setMenuRole(QAction::NoRole);
+      menu->addAction(act);
+    }
   }
 
   action->setMenu(menu);
@@ -108,7 +114,7 @@ void Group::fillMenuBar(QMenuBar * menu, const CommandContext * context)
       continue;
     QAction * action = groups[i]->actionForGroup(menu->parent(), context);
     menu->addAction(action);
-#ifdef Q_WS_MACX
+#ifdef Q_OS_MAC
     QMenu * sub = action->menu();
     // This is a workaround for bug https://bugreports.qt.nokia.com/browse/QTBUG-19920
     // Hmm, now https://bugreports.qt.io/browse/QTBUG-19920

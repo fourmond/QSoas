@@ -22,8 +22,6 @@
 #include <group.hh>
 #include <command.hh>
 
-#include <commandlineparser.hh>
-
 QHash<QString, Group*> * Group::availableGroups = NULL;
 
 void Group::registerGroup(Group * grp)

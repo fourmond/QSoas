@@ -35,6 +35,8 @@ class Argument;
 /// @li automatic deletion of this object if the QIODevice has been deleted too ?? This would require making it a QObject.
 /// @li finding a writable place to write the file to
 /// @li rename at write (@todo)
+/// @li transparent reading of ZIP files. But it should not transparently
+/// @b Write ZIP files I guess.
 class File {
 
 

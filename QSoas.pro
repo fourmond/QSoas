@@ -56,12 +56,6 @@ QMAKE_CXXFLAGS += -O2
 macx:ICON = QSoas.icns
 win32:RC_FILE = QSoas-icon.rc
 
-# Compile with static libgcc in win32, but only in Qt4 builds
-# -> just static libgcc results in not catching exceptions...
-# -> one needs to also link stdc++ statically.
-contains(QT_MAJOR_VERSION, 4) {
-  win32:QMAKE_LFLAGS += -static-libgcc -static-libstdc++
-}
 
 DEFINES += SOAS_VERSION=\'\"$$VERSION\"\'
 
@@ -80,6 +74,7 @@ unix:!macx {
   CONFIG += precompile_header
   PRECOMPILED_HEADER = src/headers.hh
 }
+
 
 
 # Do not use compressed debug symbols, more complicated than anything else
@@ -163,26 +158,6 @@ gc {
 # You can specify the full path of ruby on the command-line using:
 # qmake RUBY=/usr/local/ruby1.8/bin/ruby
 isEmpty(RUBY):RUBY = ruby
-
-
-# # Ruby detection/installation
-# RUBY_LIB_ARG = $$system($$RUBY ./get-ruby-config.rb libarg)
-# RUBY_INCLUDE_DIRS = $$system($$RUBY ./get-ruby-config.rb includedir)
-
-# RUBY_LIB_DIR = $$system($$RUBY ./get-ruby-config.rb libdir)
-
-# isEmpty(RUBY_LIB_ARG) {
-#   error("Could not find ruby, make sure $$RUBY is in the PATH !")
-# }
-
-# RUBY_VERSION = $$system($$RUBY ./get-ruby-config.rb version)
-# RUBY_COMPATIBILITY = $$system($$RUBY ./get-ruby-config.rb compatible)
-
-# isEmpty(RUBY_COMPATIBILITY) {
-#   error("$$RUBY (version $$RUBY_VERSION) is not compatible with QSoas, try building with version between 1.9.3 and the 2.2 series. This is possible by running, for instance, qmake RUBY=ruby2.1")
-# }
-
-
 
 # message("Ruby: using $$RUBY, found library: $$RUBY_LIB_ARG and includes at $$RUBY_INCLUDE_DIRS")
 
@@ -593,8 +568,20 @@ unix|macx {
   SOURCES += src/signals.cc
 }
 
+
+
 ######################################################################
-# We link with the converted ODRPACK library
+# Detection and handling of libzip
+exists(/usr/include/zip.h) {
+  DEFINES += HAS_LIBZIP
+  LIBS += -lzip
+  message("Found support for ZIP archives read/write")
+  HEADERS += src/zipfile.hh
+  SOURCES += src/zipfile.cc
+}
+
+######################################################################
+# link with the converted ODRPACK library
 message("Using odrpack")
 
 SOURCES += odrpack/odrpackfitengine.cc \        

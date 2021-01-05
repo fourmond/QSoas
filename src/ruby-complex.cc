@@ -54,7 +54,14 @@ static mrb_value co_wrap(mrb_state * mrb, std::complex<double> * c)
 }
 
 //////////////////////////////////////////////////////////////////////
-// Class creation
+// Object creation
+
+static mrb_value co_create(mrb_state * mrb, struct RClass * c,
+                           const std::complex<double> & z)
+{
+  std::complex<double> * co = new std::complex<double>(z);
+  return mrb_obj_value(Data_Wrap_Struct(mrb, c, &co_data_type, co));
+}
 
 
 static mrb_value co_create(mrb_state * mrb, struct RClass * c,
@@ -93,21 +100,6 @@ static mrb_value co_new(mrb_state * mrb, mrb_value slf)
 //////////////////////////////////////////////////////////////////////
 // Helper functions
 
-// I know this is far from efficient, but for now it will suffice.
-
-static const std::complex<double> * complexOrDoubleArg(mrb_state * mrb,
-                                                       double * val)
-{
-  mrb_value v;
-  mrb_get_args(mrb, "o", &v);
-  MRuby * m = MRuby::ruby();
-  if(mrb_obj_is_kind_of(mrb, v, m->cCplx))
-    return co_get_c(mrb, v);
-  mrb_float f;
-  mrb_get_args(mrb, "f", &f);
-  *val = f;
-  return NULL;
-}
 
 static std::complex<double> argAsComplex(mrb_state * mrb)
 {
@@ -212,6 +204,9 @@ static mrb_value co_to_s(mrb_state * mrb, mrb_value self)
 }
 
 
+//////////////////////////////////////////////////////////////////////
+// MRuby class functions related to complex numbers
+
 void MRuby::initializeComplex()
 {
   cCplx = mrb_define_class(mrb, "Cplx", mrb->object_class);
@@ -266,4 +261,30 @@ void MRuby::initializeComplex()
   mrb_define_method(mrb, cCplx, "to_s",
                     &::co_to_s, MRB_ARGS_REQ(0));
 
+}
+
+bool MRuby::isComplex(mrb_value value)
+{
+  return mrb_obj_is_kind_of(mrb, value, cCplx);
+}
+
+std::complex<double> MRuby::complexValue(mrb_value value)
+{
+  std::complex<double> rv;
+  protect([this, value, &rv]() -> mrb_value {
+      rv = complexValue_up(value);
+      return mrb_nil_value();
+    }
+    );
+  return rv;
+}
+
+std::complex<double> MRuby::complexValue_up(mrb_value value)
+{
+  return *co_get_c(mrb, value);
+}
+
+mrb_value MRuby::newComplex(const std::complex<double> & z)
+{
+  return co_create(mrb, cCplx, z);
 }

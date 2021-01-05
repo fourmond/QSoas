@@ -117,10 +117,20 @@ public:
   /// Returns a new complex value
   mrb_value newComplex(const std::complex<double> & value);
 
+  /// Returns true if the given value is a Cplx 
+  bool isComplex(mrb_value value);
+
+  /// Returns the complex value
+  std::complex<double> complexValue(mrb_value value);
+
+  /// Returns the complex value. This is the unprotected version
+  std::complex<double> complexValue_up(mrb_value value);
+
   /// Returns the value of the object as a double
   double floatValue(mrb_value fv);
 
-  /// Returns the value of the object as a double
+  /// Returns the value of the object as a double.
+  /// This is the unprotected version
   double floatValue_up(mrb_value fv);
 
   /// Returns a new int with the given value

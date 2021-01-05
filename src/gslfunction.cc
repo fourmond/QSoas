@@ -288,12 +288,99 @@ atanhc("atanhc(x)", "$$\\frac{\\tanh^{-1} x}{x}$$");
 
 // Import of a few general functions
 
-static GSLSimpleFunction<::fabs> 
-abs_func("abs(x)", "$$|x|$$");
+// static GSLSimpleFunction<::fabs> 
+// abs_func("abs(x)", "$$|x|$$");
 
 static GSLSimpleFunction<::log1p> 
 log1p_func("log1p(x)", "$$\\ln (1 + x)$$, but accurate for $$x$$ close to 0");
 
+
+
+//////////////////////////////////////////////////////////////////////
+
+template < double (*realf)(double),
+           std::complex<double> (*complexf)(const std::complex<double> &)
+           > class GSLDualFunction : 
+  public GSLFunction {
+
+ 
+  static mrb_value mrFunction(mrb_state * mrb, mrb_value /*self*/) {
+    mrb_value v;
+    MRuby * mr = MRuby::ruby();
+    mrb_get_args(mrb, "o", &v);
+    if(mr->isComplex(v))
+      return mr->newComplex(complexf(mr->complexValue_up(v)));
+    
+    mrb_float flt;
+    mrb_get_args(mrb, "f", &flt);
+    return mrb_float_value(mrb, realf(flt));
+  };
+
+public:
+  GSLDualFunction(const QString & n, const QString & d,
+                  const QString & url = "") : 
+    GSLFunction(n, d, url) {
+  };
+
+  virtual void registerFunction(MRuby * mr, struct RClass * cls) override {
+    mr->defineModuleFunction(cls, rubyName.toLocal8Bit(), &mrFunction,
+                             MRB_ARGS_REQ(1));
+  };
+
+};
+
+static GSLDualFunction<::exp, std::exp> 
+d_exp_func("exp(x)", "$$\\exp x$$, works on complex numbers too");
+
+static GSLDualFunction<::log, std::log> 
+d_log_func("log(x)", "$$\\log x$$, works on complex numbers too");
+
+//////////////////////////////////////////////////////////////////////
+
+template < double (*realf)(double),
+           double (*complexf)(const std::complex<double> &)
+           > class GSLDDualFunction : 
+  public GSLFunction {
+
+ 
+  static mrb_value mrFunction(mrb_state * mrb, mrb_value /*self*/) {
+    mrb_value v;
+    MRuby * mr = MRuby::ruby();
+    mrb_get_args(mrb, "o", &v);
+    double rv;
+    if(mr->isComplex(v))
+      rv = complexf(mr->complexValue_up(v));
+    else {
+      mrb_float flt;
+      mrb_get_args(mrb, "f", &flt);
+      rv = realf(flt);
+    }
+    return mrb_float_value(mrb, rv);
+  };
+
+public:
+  GSLDDualFunction(const QString & n, const QString & d,
+                  const QString & url = "") : 
+    GSLFunction(n, d, url) {
+  };
+
+  virtual void registerFunction(MRuby * mr, struct RClass * cls) override {
+    mr->defineModuleFunction(cls, rubyName.toLocal8Bit(), &mrFunction,
+                             MRB_ARGS_REQ(1));
+  };
+
+};
+
+static GSLDDualFunction<::fabs, std::abs> 
+d_abs_func("abs(x)", "$$\\left| x\\right|$$, works on complex numbers too");
+
+static double rarg(double v)
+{
+  return 0;
+}
+
+static GSLDDualFunction<::rarg, std::arg> 
+d_arg_func("arg(x)", "$$\\arg  x$$, the argument of the complex number");
 
 
 

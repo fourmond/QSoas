@@ -182,6 +182,8 @@
 #include <memory>
 
 #include <cmath>
+// C++ complex
+#include <complex>
 
 #include <mruby.h>
 

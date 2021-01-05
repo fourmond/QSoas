@@ -129,7 +129,8 @@ MRuby * MRuby::ruby()
 
     globalInterpreter->initializeInterface();
     globalInterpreter->initializeRegexp();
-    // globalInterpreter->initializeComplex();
+    // Switching on complex
+    globalInterpreter->initializeComplex();
   }
   return globalInterpreter;
 }

@@ -1,6 +1,6 @@
 /*
   ruby-complex.cc: support of formulas with complex numbers
-  Copyright 2018 by CNRS/AMU
+  Copyright 2018,2021 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,72 +24,53 @@
 #include <mruby/variable.h>
 
 
-class Complex {
-public:
-  double r;
-  double i;
-  Complex(double _r, double _i) : r(_r), i(_i) {
-  };
+//////////////////////////////////////////////////////////////////////
+// Memory management
 
-  QString toString() const {
-    return QString("%1 + %2i").arg(r).arg(i);
-  };
 
-  Complex & operator*=(double val) {
-    r *= val;
-    i *= val;
-    return *this;
-  };
-
-  Complex & operator*=(const Complex & c) {
-    double rv = r*c.r - i*c.i;
-    double iv = r*c.i + i*c.r;
-    r = rv;
-    i = iv;
-    return *this;
-  };
-
-  
-};
 
 static void co_free(mrb_state *mrb, void *p)
 {
-  Complex * c = (Complex *) p;
+  std::complex<double> * c = (std::complex<double> *) p;
   delete c;
 }
 
 
 static const struct mrb_data_type co_data_type = {
-  "complex", co_free,
+  "cplx", co_free,
 };
 
-static Complex * co_get_c(mrb_state * mrb, mrb_value self)
+static std::complex<double> * co_get_c(mrb_state * mrb, mrb_value self)
 {
   void * f = mrb_data_get_ptr(mrb, self, &co_data_type);
-  if(! f) {
-    // pb
-  }
-  return (Complex*) f;
+  return (std::complex<double> *) f;
 }
 
-static mrb_value co_wrap(mrb_state * mrb, Complex * c)
+static mrb_value co_wrap(mrb_state * mrb, std::complex<double> * c)
 {
   MRuby * m = MRuby::ruby();
-  return mrb_obj_value(Data_Wrap_Struct(mrb, m->cComplex, &co_data_type, c));
+  return mrb_obj_value(Data_Wrap_Struct(mrb, m->cCplx,
+                                        &co_data_type, c));
 }
 
+//////////////////////////////////////////////////////////////////////
+// Class creation
 
-static mrb_value co_mk(mrb_state * mrb, struct RClass * c)
+
+static mrb_value co_create(mrb_state * mrb, struct RClass * c,
+                           mrb_float real,
+                           mrb_float imag)
 {
-  mrb_float r, i;
-  mrb_get_args(mrb, "ff", &r, &i);
-
-  Complex * co = new Complex(r, i);
-
+  std::complex<double> * co = new std::complex<double>(real, imag);
   return mrb_obj_value(Data_Wrap_Struct(mrb, c, &co_data_type, co));
 }
 
-
+static mrb_value co_mk(mrb_state * mrb, struct RClass * c)
+{
+  mrb_float real, imag = 0.0;
+  mrb_get_args(mrb, "f|f", &real, &imag);
+  return co_create(mrb, c, real, imag);
+}
 
 
 static mrb_value co_make(mrb_state * mrb, mrb_value cls)
@@ -98,60 +79,191 @@ static mrb_value co_make(mrb_state * mrb, mrb_value cls)
   return co_mk(mrb, c);
 }
 
-static mrb_value co_gbl_make(mrb_state * mrb, mrb_value self)
+static mrb_value co_new(mrb_state * mrb, mrb_value slf)
 {
-  MRuby * m = MRuby::ruby();
-  return co_mk(mrb, m->cComplex);
+  mrb_float real, imag = 0.0;
+  mrb_get_args(mrb, "f|f", &real, &imag);
+  MRuby * mr = MRuby::ruby();
+  return co_create(mrb, mr->cCplx, real, imag);
 }
 
+
+
+
+//////////////////////////////////////////////////////////////////////
+// Helper functions
+
+// I know this is far from efficient, but for now it will suffice.
+
+static const std::complex<double> * complexOrDoubleArg(mrb_state * mrb,
+                                                       double * val)
+{
+  mrb_value v;
+  mrb_get_args(mrb, "o", &v);
+  MRuby * m = MRuby::ruby();
+  if(mrb_obj_is_kind_of(mrb, v, m->cCplx))
+    return co_get_c(mrb, v);
+  mrb_float f;
+  mrb_get_args(mrb, "f", &f);
+  *val = f;
+  return NULL;
+}
+
+static std::complex<double> argAsComplex(mrb_state * mrb)
+{
+  mrb_value v;
+  mrb_get_args(mrb, "o", &v);
+  MRuby * m = MRuby::ruby();
+  if(mrb_obj_is_kind_of(mrb, v, m->cCplx))
+    return *co_get_c(mrb, v);
+  mrb_float f;
+  mrb_get_args(mrb, "f", &f);
+  return std::complex<double>(f, 0);
+}
+
+//////////////////////////////////////////////////////////////////////
+// Mathematic operations
+
+static mrb_value co_mul(mrb_state * mrb, mrb_value self)
+{
+  std::complex<double> * c =
+    new std::complex<double>(*co_get_c(mrb, self));
+  *c *= argAsComplex(mrb);
+  return co_wrap(mrb, c);
+}
+
+static mrb_value co_div(mrb_state * mrb, mrb_value self)
+{
+  std::complex<double> * c =
+    new std::complex<double>(*co_get_c(mrb, self));
+  *c /= argAsComplex(mrb);
+  return co_wrap(mrb, c);
+}
+
+static mrb_value co_add(mrb_state * mrb, mrb_value self)
+{
+  std::complex<double> * c =
+    new std::complex<double>(*co_get_c(mrb, self));
+  *c += argAsComplex(mrb);
+  return co_wrap(mrb, c);
+}
+
+static mrb_value co_sub(mrb_state * mrb, mrb_value self)
+{
+  std::complex<double> * c =
+    new std::complex<double>(*co_get_c(mrb, self));
+  *c -= argAsComplex(mrb);
+  return co_wrap(mrb, c);
+}
+
+static mrb_value co_pow(mrb_state * mrb, mrb_value self)
+{
+  std::complex<double> * c =
+    new std::complex<double>(*co_get_c(mrb, self));
+  *c = std::pow(*c, argAsComplex(mrb));
+  return co_wrap(mrb, c);
+}
+
+//////////////////////////////////////////////////////////////////////
+// Mathematic functions
+
+static mrb_value co_abs(mrb_state * mrb, mrb_value self)
+{
+  const std::complex<double> * c = co_get_c(mrb, self);
+  return mrb_float_value(mrb, std::abs(*c));
+}
+
+static mrb_value co_arg(mrb_state * mrb, mrb_value self)
+{
+  const std::complex<double> * c = co_get_c(mrb, self);
+  return mrb_float_value(mrb, std::arg(*c));
+}
+
+static mrb_value co_real(mrb_state * mrb, mrb_value self)
+{
+  const std::complex<double> * c = co_get_c(mrb, self);
+  return mrb_float_value(mrb, c->real());
+}
+
+static mrb_value co_imag(mrb_state * mrb, mrb_value self)
+{
+  const std::complex<double> * c = co_get_c(mrb, self);
+  return mrb_float_value(mrb, c->imag());
+}
+
+static mrb_value co_conj(mrb_state * mrb, mrb_value self)
+{
+  std::complex<double> * c =
+    new std::complex<double>(std::conj(*co_get_c(mrb, self)));
+  return co_wrap(mrb, c);
+}
+
+
+
+//////////////////////////////////////////////////////////////////////
+// Utility functions
 static mrb_value co_to_s(mrb_state * mrb, mrb_value self)
 {
-  Complex * c = co_get_c(mrb, self);
-  QString s = c->toString();
+  std::complex<double> * c = co_get_c(mrb, self);
+  QString s = QString("%1 + %2*i").arg(c->real()).
+    arg(c->imag());
   MRuby * m = MRuby::ruby();
   return m->fromQString(s);
 }
 
 
-// Operations
-static mrb_value co_mul(mrb_state * mrb, mrb_value self)
-{
-  Complex * c = co_get_c(mrb, self);
-  mrb_value v;
-  mrb_get_args(mrb, "o", &v);
-  MRuby * m = MRuby::ruby();
-  Complex * nc = new Complex(*c);
-  if(mrb_obj_is_kind_of(mrb, v, m->cComplex)) {
-    const Complex * c2 = co_get_c(mrb, v);
-    *(nc) *= *c2;
-  }
-  else {
-    mrb_float f;
-    mrb_get_args(mrb, "f", &f);
-    *(nc) *= f;
-  }
-  return co_wrap(mrb, nc);
-}
-
-
 void MRuby::initializeComplex()
 {
-  cComplex = mrb_define_class(mrb, "Complex", mrb->object_class);
+  cCplx = mrb_define_class(mrb, "Cplx", mrb->object_class);
 
-  mrb_define_class_method(mrb, cComplex, "new",
-                          &::co_make, MRB_ARGS_REQ(2));
+  mrb_define_class_method(mrb, cCplx, "new",
+                          &::co_make, MRB_ARGS_REQ(1)|MRB_ARGS_OPT(1));
+
+  mrb_define_method(mrb, mrb->kernel_module, "Cplx", &::co_new,
+                    MRB_ARGS_REQ(1)|MRB_ARGS_OPT(1));
+  mrb_define_method(mrb, mrb->kernel_module, "Z", &::co_new,
+                    MRB_ARGS_REQ(1)|MRB_ARGS_OPT(1));
 
 
-  // Unsure it is a good idea -- make _(1,2) a complex number
-  mrb_define_method(mrb, mrb->kernel_module, "_",
-                    &::co_gbl_make, MRB_ARGS_REQ(2));
+  // // Unsure it is a good idea -- make _(1,2) a complex number
+  // mrb_define_method(mrb, mrb->kernel_module, "_",
+  //                   &::co_gbl_make, MRB_ARGS_REQ(2));
 
 
+  // mrb_define_method(mrb, cComplex, "inspect",
+  //                   &::co_to_s, MRB_ARGS_REQ(0));
+
+  
   // Operations...
-  mrb_define_method(mrb, cComplex, "to_s",
-                    &::co_to_s, MRB_ARGS_REQ(0));
-  mrb_define_method(mrb, cComplex, "inspect",
-                    &::co_to_s, MRB_ARGS_REQ(0));
-  mrb_define_method(mrb, cComplex, "*",
+  mrb_define_method(mrb, cCplx, "+",
+                    &::co_add, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, cCplx, "-",
+                    &::co_sub, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, cCplx, "*",
                     &::co_mul, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, cCplx, "/",
+                    &::co_div, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, cCplx, "**",
+                    &::co_pow, MRB_ARGS_REQ(1));
+
+  // Mathematic functions
+  mrb_define_method(mrb, cCplx, "abs",
+                    &::co_abs, MRB_ARGS_NONE());
+  mrb_define_method(mrb, cCplx, "arg",
+                    &::co_arg, MRB_ARGS_NONE());
+  mrb_define_method(mrb, cCplx, "conj",
+                    &::co_conj, MRB_ARGS_NONE());
+  mrb_define_method(mrb, cCplx, "real",
+                    &::co_real, MRB_ARGS_NONE());
+  mrb_define_method(mrb, cCplx, "imag",
+                    &::co_imag, MRB_ARGS_NONE());
+
+  mrb_value v = co_create(mrb, cCplx, 0, 1);
+
+  mrb_define_global_const(mrb, "I", v);
+
+  // Utility functions
+  mrb_define_method(mrb, cCplx, "to_s",
+                    &::co_to_s, MRB_ARGS_REQ(0));
+
 }

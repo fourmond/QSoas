@@ -41,8 +41,8 @@ class MRuby {
   mrb_value soasInstance;
 
 public:
-  /// The "Complex" class
-  struct RClass * cComplex;
+  /// The "Cplx" class
+  struct RClass * cCplx;
 private:
 
   friend mrb_value qs_interface(mrb_state *, mrb_value);
@@ -113,6 +113,9 @@ public:
 
   /// Returns a new float with the given value.
   mrb_value newFloat(double value);
+
+  /// Returns a new complex value
+  mrb_value newComplex(const std::complex<double> & value);
 
   /// Returns the value of the object as a double
   double floatValue(mrb_value fv);

@@ -297,14 +297,13 @@ log1p_func("log1p(x)", "$$\\ln (1 + x)$$, but accurate for $$x$$ close to 0");
 
 
 //////////////////////////////////////////////////////////////////////
-/*
 template < double (*realf)(double),
-           std::complex<double> (*complexf)(const std::complex<double> &)
+           gsl_complex (*complexf)(gsl_complex)
            > class GSLDualFunction : 
   public GSLFunction {
 
  
-  static mrb_value mrFunction(mrb_state * mrb, mrb_value self) {
+  static mrb_value mrFunction(mrb_state * mrb, mrb_value /*self*/) {
     mrb_value v;
     MRuby * mr = MRuby::ruby();
     mrb_get_args(mrb, "o", &v);
@@ -329,21 +328,21 @@ public:
 
 };
 
-static GSLDualFunction<::exp, std::exp> 
+static GSLDualFunction<::exp, ::gsl_complex_exp> 
 d_exp_func("exp(x)", "$$\\exp x$$, works on complex numbers too");
 
-static GSLDualFunction<::log, std::log> 
+static GSLDualFunction<::log, ::gsl_complex_log> 
 d_log_func("log(x)", "$$\\log x$$, works on complex numbers too");
 
 //////////////////////////////////////////////////////////////////////
 
 template < double (*realf)(double),
-           double (*complexf)(const std::complex<double> &)
+           double (*complexf)(gsl_complex)
            > class GSLDDualFunction : 
   public GSLFunction {
 
  
-  static mrb_value mrFunction(mrb_state * mrb, mrb_value self) {
+  static mrb_value mrFunction(mrb_state * mrb, mrb_value /*self*/) {
     mrb_value v;
     MRuby * mr = MRuby::ruby();
     mrb_get_args(mrb, "o", &v);
@@ -371,17 +370,16 @@ public:
 
 };
 
-static GSLDDualFunction<::fabs, std::abs> 
+static GSLDDualFunction<::fabs, ::gsl_complex_abs> 
 d_abs_func("abs(x)", "$$\\left| x\\right|$$, works on complex numbers too");
 
-static double rarg(double v)
+static double rarg(double)
 {
   return 0;
 }
 
-static GSLDDualFunction<::rarg, std::arg> 
+static GSLDDualFunction<::rarg, ::gsl_complex_arg> 
 d_arg_func("arg(x)", "$$\\arg  x$$, the argument of the complex number");
-*/
 
 
 //////////////////////////////////////////////////////////////////////

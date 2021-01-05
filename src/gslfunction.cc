@@ -297,14 +297,14 @@ log1p_func("log1p(x)", "$$\\ln (1 + x)$$, but accurate for $$x$$ close to 0");
 
 
 //////////////////////////////////////////////////////////////////////
-
+/*
 template < double (*realf)(double),
            std::complex<double> (*complexf)(const std::complex<double> &)
            > class GSLDualFunction : 
   public GSLFunction {
 
  
-  static mrb_value mrFunction(mrb_state * mrb, mrb_value /*self*/) {
+  static mrb_value mrFunction(mrb_state * mrb, mrb_value self) {
     mrb_value v;
     MRuby * mr = MRuby::ruby();
     mrb_get_args(mrb, "o", &v);
@@ -343,7 +343,7 @@ template < double (*realf)(double),
   public GSLFunction {
 
  
-  static mrb_value mrFunction(mrb_state * mrb, mrb_value /*self*/) {
+  static mrb_value mrFunction(mrb_state * mrb, mrb_value self) {
     mrb_value v;
     MRuby * mr = MRuby::ruby();
     mrb_get_args(mrb, "o", &v);
@@ -381,7 +381,7 @@ static double rarg(double v)
 
 static GSLDDualFunction<::rarg, std::arg> 
 d_arg_func("arg(x)", "$$\\arg  x$$, the argument of the complex number");
-
+*/
 
 
 //////////////////////////////////////////////////////////////////////

@@ -31,7 +31,7 @@
 
 static void co_free(mrb_state *mrb, void *p)
 {
-  std::complex<double> * c = (std::complex<double> *) p;
+  gsl_complex * c = (gsl_complex *) p;
   delete c;
 }
 
@@ -40,13 +40,13 @@ static const struct mrb_data_type co_data_type = {
   "cplx", co_free,
 };
 
-static std::complex<double> * co_get_c(mrb_state * mrb, mrb_value self)
+static gsl_complex * co_get_c(mrb_state * mrb, mrb_value self)
 {
   void * f = mrb_data_get_ptr(mrb, self, &co_data_type);
-  return (std::complex<double> *) f;
+  return (gsl_complex *) f;
 }
 
-static mrb_value co_wrap(mrb_state * mrb, std::complex<double> * c)
+static mrb_value co_wrap(mrb_state * mrb, gsl_complex * c)
 {
   MRuby * m = MRuby::ruby();
   return mrb_obj_value(Data_Wrap_Struct(mrb, m->cCplx,
@@ -56,20 +56,21 @@ static mrb_value co_wrap(mrb_state * mrb, std::complex<double> * c)
 //////////////////////////////////////////////////////////////////////
 // Object creation
 
-static mrb_value co_create(mrb_state * mrb, struct RClass * c,
-                           const std::complex<double> & z)
-{
-  std::complex<double> * co = new std::complex<double>(z);
-  return mrb_obj_value(Data_Wrap_Struct(mrb, c, &co_data_type, co));
-}
 
 
 static mrb_value co_create(mrb_state * mrb, struct RClass * c,
                            mrb_float real,
                            mrb_float imag)
 {
-  std::complex<double> * co = new std::complex<double>(real, imag);
+  gsl_complex * co = new gsl_complex;
+  GSL_SET_COMPLEX(co, real, imag);
   return mrb_obj_value(Data_Wrap_Struct(mrb, c, &co_data_type, co));
+}
+
+static mrb_value co_create(mrb_state * mrb, struct RClass * c,
+                           const gsl_complex & z)
+{
+  return co_create(mrb, c, GSL_REAL(z), GSL_IMAG(z));
 }
 
 static mrb_value co_mk(mrb_state * mrb, struct RClass * c)
@@ -101,7 +102,7 @@ static mrb_value co_new(mrb_state * mrb, mrb_value slf)
 // Helper functions
 
 
-static std::complex<double> argAsComplex(mrb_state * mrb)
+static gsl_complex argAsComplex(mrb_state * mrb)
 {
   mrb_value v;
   mrb_get_args(mrb, "o", &v);
@@ -110,7 +111,7 @@ static std::complex<double> argAsComplex(mrb_state * mrb)
     return *co_get_c(mrb, v);
   mrb_float f;
   mrb_get_args(mrb, "f", &f);
-  return std::complex<double>(f, 0);
+  return gsl_complex_rect(f, 0);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -118,41 +119,41 @@ static std::complex<double> argAsComplex(mrb_state * mrb)
 
 static mrb_value co_mul(mrb_state * mrb, mrb_value self)
 {
-  std::complex<double> * c =
-    new std::complex<double>(*co_get_c(mrb, self));
-  *c *= argAsComplex(mrb);
+  gsl_complex * c =
+    new gsl_complex(*co_get_c(mrb, self));
+  *c = gsl_complex_mul(*c, argAsComplex(mrb));
   return co_wrap(mrb, c);
 }
 
 static mrb_value co_div(mrb_state * mrb, mrb_value self)
 {
-  std::complex<double> * c =
-    new std::complex<double>(*co_get_c(mrb, self));
-  *c /= argAsComplex(mrb);
+  gsl_complex * c =
+    new gsl_complex(*co_get_c(mrb, self));
+  *c = gsl_complex_div(*c, argAsComplex(mrb));
   return co_wrap(mrb, c);
 }
 
 static mrb_value co_add(mrb_state * mrb, mrb_value self)
 {
-  std::complex<double> * c =
-    new std::complex<double>(*co_get_c(mrb, self));
-  *c += argAsComplex(mrb);
+  gsl_complex * c =
+    new gsl_complex(*co_get_c(mrb, self));
+  *c = gsl_complex_add(*c, argAsComplex(mrb));
   return co_wrap(mrb, c);
 }
 
 static mrb_value co_sub(mrb_state * mrb, mrb_value self)
 {
-  std::complex<double> * c =
-    new std::complex<double>(*co_get_c(mrb, self));
-  *c -= argAsComplex(mrb);
+  gsl_complex * c =
+    new gsl_complex(*co_get_c(mrb, self));
+  *c = gsl_complex_sub(*c, argAsComplex(mrb));
   return co_wrap(mrb, c);
 }
 
 static mrb_value co_pow(mrb_state * mrb, mrb_value self)
 {
-  std::complex<double> * c =
-    new std::complex<double>(*co_get_c(mrb, self));
-  *c = std::pow(*c, argAsComplex(mrb));
+  gsl_complex * c =
+    new gsl_complex(*co_get_c(mrb, self));
+  *c = gsl_complex_pow(*c, argAsComplex(mrb));
   return co_wrap(mrb, c);
 }
 
@@ -161,32 +162,32 @@ static mrb_value co_pow(mrb_state * mrb, mrb_value self)
 
 static mrb_value co_abs(mrb_state * mrb, mrb_value self)
 {
-  const std::complex<double> * c = co_get_c(mrb, self);
-  return mrb_float_value(mrb, std::abs(*c));
+  const gsl_complex * c = co_get_c(mrb, self);
+  return mrb_float_value(mrb, gsl_complex_abs(*c));
 }
 
 static mrb_value co_arg(mrb_state * mrb, mrb_value self)
 {
-  const std::complex<double> * c = co_get_c(mrb, self);
-  return mrb_float_value(mrb, std::arg(*c));
+  const gsl_complex * c = co_get_c(mrb, self);
+  return mrb_float_value(mrb, gsl_complex_arg(*c));
 }
 
 static mrb_value co_real(mrb_state * mrb, mrb_value self)
 {
-  const std::complex<double> * c = co_get_c(mrb, self);
-  return mrb_float_value(mrb, c->real());
+  const gsl_complex * c = co_get_c(mrb, self);
+  return mrb_float_value(mrb, GSL_REAL(*c));
 }
 
 static mrb_value co_imag(mrb_state * mrb, mrb_value self)
 {
-  const std::complex<double> * c = co_get_c(mrb, self);
-  return mrb_float_value(mrb, c->imag());
+  const gsl_complex * c = co_get_c(mrb, self);
+  return mrb_float_value(mrb, GSL_IMAG(*c));
 }
 
 static mrb_value co_conj(mrb_state * mrb, mrb_value self)
 {
-  std::complex<double> * c =
-    new std::complex<double>(std::conj(*co_get_c(mrb, self)));
+  gsl_complex * c =
+    new gsl_complex(gsl_complex_conjugate(*co_get_c(mrb, self)));
   return co_wrap(mrb, c);
 }
 
@@ -196,9 +197,9 @@ static mrb_value co_conj(mrb_state * mrb, mrb_value self)
 // Utility functions
 static mrb_value co_to_s(mrb_state * mrb, mrb_value self)
 {
-  std::complex<double> * c = co_get_c(mrb, self);
-  QString s = QString("%1 + %2*i").arg(c->real()).
-    arg(c->imag());
+  gsl_complex * c = co_get_c(mrb, self);
+  QString s = QString("%1 + %2*i").arg(GSL_REAL(*c)).
+    arg(GSL_IMAG(*c));
   MRuby * m = MRuby::ruby();
   return m->fromQString(s);
 }
@@ -268,9 +269,9 @@ bool MRuby::isComplex(mrb_value value)
   return mrb_obj_is_kind_of(mrb, value, cCplx);
 }
 
-std::complex<double> MRuby::complexValue(mrb_value value)
+gsl_complex MRuby::complexValue(mrb_value value)
 {
-  std::complex<double> rv;
+  gsl_complex rv;
   protect([this, value, &rv]() -> mrb_value {
       rv = complexValue_up(value);
       return mrb_nil_value();
@@ -279,12 +280,12 @@ std::complex<double> MRuby::complexValue(mrb_value value)
   return rv;
 }
 
-std::complex<double> MRuby::complexValue_up(mrb_value value)
+gsl_complex MRuby::complexValue_up(mrb_value value)
 {
   return *co_get_c(mrb, value);
 }
 
-mrb_value MRuby::newComplex(const std::complex<double> & z)
+mrb_value MRuby::newComplex(const gsl_complex & z)
 {
   return co_create(mrb, cCplx, z);
 }

@@ -182,8 +182,6 @@
 #include <memory>
 
 #include <cmath>
-// C++ complex
-#include <complex>
 
 #include <mruby.h>
 
@@ -200,6 +198,7 @@
 #define HAVE_INLINE             // Using gsl inline functions
 #endif
 #include <gsl/gsl_vector.h>
+#include <gsl/gsl_complex.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_interp.h>

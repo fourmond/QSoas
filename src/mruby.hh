@@ -115,16 +115,16 @@ public:
   mrb_value newFloat(double value);
 
   /// Returns a new complex value
-  mrb_value newComplex(const std::complex<double> & value);
+  mrb_value newComplex(const gsl_complex & value);
 
   /// Returns true if the given value is a Cplx 
   bool isComplex(mrb_value value);
 
   /// Returns the complex value
-  std::complex<double> complexValue(mrb_value value);
+  gsl_complex complexValue(mrb_value value);
 
   /// Returns the complex value. This is the unprotected version
-  std::complex<double> complexValue_up(mrb_value value);
+  gsl_complex complexValue_up(mrb_value value);
 
   /// Returns the value of the object as a double
   double floatValue(mrb_value fv);

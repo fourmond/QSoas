@@ -684,6 +684,24 @@ Vector Vector::uniformlySpaced(double min, double max, int nb)
   return r;
 }
 
+
+Vector Vector::logarithmicallySpaced(double min, double max, int nb)
+{
+  Vector r(nb, 0);
+  if(nb < 2)
+    throw RuntimeError("Cannot create a segment-spanning vector of "
+                       "less than 2 points !");
+  if(max*min <= 0)
+    throw RuntimeError("Cannot create log scale in this range "
+                       "%1 to %2").arg(min).arg(max);
+  double sgn = max < 0 ? -1 : 1;
+  min = ::log(sgn * min);
+  max = ::log(sgn * max);
+  for(int i = 0; i < nb; i++) 
+    r[i] = sgn * exp(min + (max - min) * i/(nb - 1));
+  return r;
+}
+
 Vector Vector::uniformlySpaced(int nb) const
 {
   if(nb < 2)

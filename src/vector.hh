@@ -304,6 +304,10 @@ public:
   /// With *any* Bijection, for that matter ?
   static Vector uniformlySpaced(double min, double max, int nb);
 
+  /// Returns a vector with nb values spaced logarithmically on the
+  /// [min:max] segment.
+  static Vector logarithmicallySpaced(double min, double max, int nb);
+
 
   /// Integrates the given X,Y data into a single sum.
   static double integrate(const Vector & x, const Vector & y);

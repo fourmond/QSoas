@@ -1900,8 +1900,12 @@ static void generateDSCommand(const QString &, double beg, double end,
   QString name;
   updateFromOptions(opts, "name", name);
 
+  bool logSpace = false;
+  updateFromOptions(opts, "log", logSpace);
+
   for(int k = 0; k < nb; k++) {
-    Vector x = Vector::uniformlySpaced(beg, end, samples);
+    Vector x = logSpace ? Vector::logarithmicallySpaced(beg, end, samples)
+      : Vector::uniformlySpaced(beg, end, samples);
     QList<Vector> cols;
     cols << x;
     Vector y = x;
@@ -1958,6 +1962,9 @@ gDSO(QList<Argument *>()
      << new IntegerArgument("number",
                             "Number of generated datasets",
                             "generates that many datasets")
+     << new BoolArgument("log",
+                         "Log",
+                         "uses logarithmically spaced X values")
      << new IntegerArgument("columns",
                             "Number of columns",
                             "number of columns of the generated datasets")

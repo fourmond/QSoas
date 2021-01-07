@@ -821,4 +821,3 @@ ar("mruby-detect-args", // command name
    NULL,
    "Ruby args",
    "Detects the arguments within a Ruby expression", "");
-

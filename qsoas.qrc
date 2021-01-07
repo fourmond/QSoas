@@ -1,6 +1,7 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
   <file>ruby/fancyhash.rb</file>
+  <file>ruby/complex.rb</file>
   <file>QSoas-logo.svg</file>
   <file>QSoas-logo.png</file>
   <file>licenses/GPL-2.txt</file>

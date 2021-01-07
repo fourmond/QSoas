@@ -198,7 +198,8 @@ static mrb_value co_conj(mrb_state * mrb, mrb_value self)
 static mrb_value co_to_s(mrb_state * mrb, mrb_value self)
 {
   gsl_complex * c = co_get_c(mrb, self);
-  QString s = QString("%1 + %2*i").arg(GSL_REAL(*c)).
+  QString s = QString("%1%2%3*i").arg(GSL_REAL(*c)).
+    arg(GSL_IMAG(*c) < 0 ? "" : "+").
     arg(GSL_IMAG(*c));
   MRuby * m = MRuby::ruby();
   return m->fromQString(s);
@@ -221,15 +222,6 @@ void MRuby::initializeComplex()
                     MRB_ARGS_REQ(1)|MRB_ARGS_OPT(1));
 
 
-  // // Unsure it is a good idea -- make _(1,2) a complex number
-  // mrb_define_method(mrb, mrb->kernel_module, "_",
-  //                   &::co_gbl_make, MRB_ARGS_REQ(2));
-
-
-  // mrb_define_method(mrb, cComplex, "inspect",
-  //                   &::co_to_s, MRB_ARGS_REQ(0));
-
-  
   // Operations...
   mrb_define_method(mrb, cCplx, "+",
                     &::co_add, MRB_ARGS_REQ(1));
@@ -261,6 +253,12 @@ void MRuby::initializeComplex()
   // Utility functions
   mrb_define_method(mrb, cCplx, "to_s",
                     &::co_to_s, MRB_ARGS_REQ(0));
+
+  // And load various other functions easier to implement in Ruby
+  QFile f(":/ruby/complex.rb");
+  f.open(QIODevice::ReadOnly);
+  globalInterpreter->eval(&f);
+
 
 }
 

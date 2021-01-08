@@ -67,9 +67,6 @@ class CommandWidget : public QWidget {
   /// The terminal display
   QTextEdit * terminalDisplay;
 
-  /// A file to the terminal output.
-  QIODevice * watcherDevice;
-
   /// The label on the right of the terminal
   SideBarLabel * sideBarLabel;
 
@@ -96,6 +93,9 @@ class CommandWidget : public QWidget {
   /// Whether we add current commands to the history. Enabled
   /// everywhere but scripts.
   bool addToHistory;
+
+  /// We need Terminal to access the cursors
+  friend class Terminal;
 
 public:
   typedef enum {

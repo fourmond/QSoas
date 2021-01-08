@@ -39,6 +39,10 @@ class Terminal {
   /// A list of spies, i.e. streams that get a copy of the text sent
   /// to the terminal.
   QList<QTextStream *>  spies;
+
+  /// A list of IO devices owned by the object. They are taken
+  /// ownership of when using addSpy with a QIODevice argume,t
+  QList<QIODevice *> ownedDevices;
   
 public:
 
@@ -54,6 +58,9 @@ public:
 
   /// Add a spy to the stream. Terminal takes ownership of the spy.
   void addSpy(QTextStream * spy);
+
+  /// Add a spy to the stream. Terminal takes ownership of the spy.
+  void addSpy(QIODevice * spy);
 
   /// An alway open TextStream
   static Terminal out;

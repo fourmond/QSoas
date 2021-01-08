@@ -50,6 +50,13 @@ void Terminal::addSpy(QTextStream * spy)
   spies << spy;
 }
 
+void Terminal::addSpy(QIODevice * spy)
+{
+  QTextStream * ns = new QTextStream(spy);
+  addSpy(ns);
+  ownedDevices << spy;
+}
+
 Terminal & Terminal::operator<<(QTextStreamFunction t)
 {
   (*internalStream) << t;
@@ -63,8 +70,10 @@ Terminal::~Terminal()
   if(! buffer.isEmpty())
     flushToTerminal();
   delete internalStream;
-  while(spies.size() > 0)
-    delete spies.takeAt(0);
+  for(QTextStream * t : spies)
+    delete t;
+  for(QIODevice * d : ownedDevices)
+    delete d;
 }
 
 static CommandLineOption sto("--stdout", [](const QStringList & /*args*/) {

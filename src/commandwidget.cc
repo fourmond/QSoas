@@ -132,7 +132,6 @@ QStringList & CommandWidget::startupFiles()
 }
 
 CommandWidget::CommandWidget(CommandContext * c) : 
-  watcherDevice(NULL),
   addToHistory(true),
   commandContext(c)
 {
@@ -187,8 +186,9 @@ CommandWidget::CommandWidget(CommandContext * c) :
           << "Rotating file " << logFileName << endl;
         Utils::rotateFile(logFileName, rotation);
       }
-      watcherDevice = new QFile(logFileName);
-      watcherDevice->open(QIODevice::Append);
+      QFile * f = new QFile(logFileName);
+      f->open(QIODevice::Append);
+      Terminal::out.addSpy(f);
       Terminal::out << "Opening log file: " << logFileName << endl;
     }
 
@@ -234,7 +234,6 @@ CommandContext * CommandWidget::promptContext() const
 
 CommandWidget::~CommandWidget()
 {
-  delete watcherDevice;
   soas().leavePrompt();
 }
 
@@ -470,11 +469,6 @@ void CommandWidget::logString(const QString & str)
 {
   if(theCommandWidget) {
     theCommandWidget->appendToTerminal(str);
-    // If there is a watcher file, we duplicate there too.
-    if(theCommandWidget->watcherDevice) {
-      QTextStream o(theCommandWidget->watcherDevice);
-      o << str;
-    }
   }
   else {
     QTextStream o(stdout);

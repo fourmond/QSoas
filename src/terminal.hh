@@ -43,6 +43,23 @@ class Terminal {
   /// A list of IO devices owned by the object. They are taken
   /// ownership of when using addSpy with a QIODevice argume,t
   QList<QIODevice *> ownedDevices;
+
+  /// We maintain two cursors: an "append" cursor that will always be
+  /// used for text insert, and a "delete" cursor that will be at the
+  /// beginning, slowly deleting stuff to avoid accumulation of too
+  /// many lines.
+
+  /// The append cursor
+  QTextCursor * appendCursor;
+
+  /// The delete cursor.
+  QTextCursor * deleteCursor;
+
+  /// Sets up the cursors for the first time.
+  void initializeCursors();
+
+  QTextCharFormat currentFormat;
+  
   
 public:
 
@@ -56,6 +73,8 @@ public:
 
   Terminal & operator<<(QTextStreamFunction t);
 
+  Terminal & operator<<(Terminal & fnc(Terminal &) );
+
   /// Add a spy to the stream. Terminal takes ownership of the spy.
   void addSpy(QTextStream * spy);
 
@@ -67,18 +86,20 @@ public:
 
   /// @name Formatting functions
   ///
-  /// A whole bunch of formatting functions used in conjuction with
-  /// TextStream
+  /// std::endl-like manipulators
   ///
-  /// @todo Formatting is disabled for now, so long as I haven't found
-  /// out a way to pass it around.
+  /// Specifiers cancel each other, unless they follow immediately
+  /// each other.
+  ///
+  /// They last until the next use of the flush stream function.
   ///
   /// @{
 
-  static inline QString bold(const QString & str) {
-    // return QString("<b>%1</b>").arg(str);
-    return str;
-  };
+  /// Sets to bold until flush or until another specifier
+  static Terminal & bold(Terminal & term);
+
+  /// Sets the text to red until flush
+  static Terminal & red(Terminal & term);
 
   /// @}
 

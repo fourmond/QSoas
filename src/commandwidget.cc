@@ -279,7 +279,7 @@ bool CommandWidget::runCommand(const QStringList & raw, bool doFullPrompt)
     }
 
     QString cmd = Command::unsplitWords(fnl);
-    Terminal::out << currentPrompt() << cmd << endl;
+    Terminal::out << Terminal::bold << currentPrompt() << flush << cmd << endl;
     
     if(addToHistory)
       commandLine->addHistoryItem(cmd);
@@ -297,12 +297,14 @@ bool CommandWidget::runCommand(const QStringList & raw, bool doFullPrompt)
   catch(const RuntimeError & error) {
     if(! wroteCmdline) {
       QString cmd = Command::unsplitWords(raw);
-      Terminal::out << currentPrompt() << cmd << endl;
+      Terminal::out << Terminal::bold << currentPrompt() << flush
+                    << cmd << endl;
       if(addToHistory)
         commandLine->addHistoryItem(cmd);
     }
       
-    Terminal::out << "Error: " << error.message() << endl;
+    Terminal::out << Terminal::bold << Terminal::red << "Error: "
+                  << Terminal::red  << error.message() << endl;
     status = false;
     if(Debug::debugLevel() > 0)
       Debug::debug() << "Error: " << error.message() << endl

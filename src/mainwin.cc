@@ -359,7 +359,8 @@ void MainWin::menuActionTriggered(QAction * action)
     commandWidget->runCommand(cmd, true);
   }
   catch(const ControlFlowException & flow) {
-    Terminal::out << Terminal::bold("Error: ") << "control flow command " 
+    Terminal::out << Terminal::bold << "Error: " << flush 
+                  << "control flow command " 
                   << flow.message()
                   << " cannot be used outside of a script" << endl;
   }

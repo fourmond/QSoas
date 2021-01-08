@@ -25,25 +25,77 @@
 Terminal Terminal::out;
 
 Terminal::Terminal() :
-  buffer("")
+  buffer(""), appendCursor(NULL), deleteCursor(NULL)
 {
   internalStream = new QTextStream(&buffer);
+}
+
+void Terminal::initializeCursors()
+{
+  if(appendCursor)
+    return;                     // nothing to do
+  if(! CommandWidget::theCommandWidget)
+    return;                     // Nothing possible yet
+  appendCursor = new QTextCursor(CommandWidget::theCommandWidget->
+                                 terminalDisplay->document());
+  appendCursor->movePosition(QTextCursor::End);
+  deleteCursor = new QTextCursor(CommandWidget::theCommandWidget->
+                                 terminalDisplay->document());
+  deleteCursor->movePosition(QTextCursor::Start);
 }
 
 void Terminal::flushToTerminal()
 {
   /// @todo If I want to use formatting with that, I need to use
   /// QTextDocumentFragment straight from here.
+  if(buffer.size() == 0)
+    return;                     // nothing to do Note that it means
+                                // that you can chain format
+                                // specifiers.
+  
+  initializeCursors();
+  if(appendCursor) {
+    QTextEdit * edit = CommandWidget::theCommandWidget->
+      terminalDisplay;
+    appendCursor->insertText(buffer, currentFormat);
+    currentFormat = QTextCharFormat();
 
-  // Convert line feeds to HTML
-  // buffer.replace("\n", "<br/>\n");
-  CommandWidget::logString(buffer);
+
+    // and scroll to the bottom
+    QScrollBar * sb = edit->verticalScrollBar();
+    sb->setSliderPosition(sb->maximum());
+
+    // Always clear undo stacks, we don't need those
+    edit->document()->clearUndoRedoStacks();
+  }
+  else {
+    QTextStream o(stdout);
+    o << buffer;
+  }
 
   for(int i = 0; i < spies.size(); i++)
     (*spies[i]) << buffer << flush;
   
   buffer.clear();
 }
+
+Terminal & Terminal::bold(Terminal & term)
+{
+  term.currentFormat.setFontWeight(QFont::Bold);
+  return term;
+}
+
+Terminal & Terminal::red(Terminal & term)
+{
+  term.currentFormat.setForeground(Qt::red);
+  return term;
+}
+
+// Terminal & Terminal::normal(Terminal & term)
+// {
+//   term.currentFormat = QTextCharFormat()
+//   return term;
+// }
 
 void Terminal::addSpy(QTextStream * spy)
 {
@@ -65,10 +117,19 @@ Terminal & Terminal::operator<<(QTextStreamFunction t)
   return *this;
 }
 
+Terminal & Terminal::operator<<(Terminal & fnc(Terminal &) )
+{
+  flushToTerminal();
+  fnc(*this);
+  return *this;
+}
+
 Terminal::~Terminal()
 {
   if(! buffer.isEmpty())
     flushToTerminal();
+  delete appendCursor;
+  delete deleteCursor;
   delete internalStream;
   for(QTextStream * t : spies)
     delete t;

@@ -174,7 +174,8 @@ CommandArguments ArgumentList::parseArguments(const QStringList & args,
         continue;
       }
       else {
-        Terminal::out << Terminal::bold(QString("Warning: ")) 
+        Terminal::out << Terminal::bold
+                      << "Warning: " << flush
                       << QString("too many arguments: %1 for %2").
           arg(nb).arg(size())
                       << endl;

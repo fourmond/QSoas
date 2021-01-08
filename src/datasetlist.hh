@@ -31,11 +31,22 @@ class Argument;
 /// the current buffer if none is found
 class DataSetList {
 
+  /// The list of selected datasets
   QList<const DataSet *> datasets;
+
+  /// A list of external datasets to pick from (e.g. for the fit
+  /// parameters).
+  QList<const DataSet *> pickFrom;
+
+  /// The selected indices
+  QSet<int> selectedIndices;
+  
+
 
   /// This is when there was no current dataset
   bool noDataSet;
 
+  void parseOptions(const CommandOptions & opts, bool all = false);
   
 public:
   /// Creates and parses a DataSetList from the options.
@@ -43,6 +54,13 @@ public:
   /// @li the current buffer when @a all is false
   /// @li all the stack when @a all is true
   DataSetList(const CommandOptions & opts, bool all = false);
+
+  /// In this command list, we look in all the stacks, but are only
+  /// interested in the datasets provided in the
+  /// pickFromList. Typically the list of datasets we're fitting.
+  DataSetList(const CommandOptions & opts,
+              const QList<const DataSet *> & pickFrom);
+  
   ~DataSetList();
 
   /// These so we can use a for loop.
@@ -58,6 +76,10 @@ public:
   int size() const;
 
   operator const QList<const DataSet *> &() const;
+
+  /// Returns true whether the given index is selected. Only returns
+  /// something meaningful if the second constructor was used.
+  bool isSelected(int index) const; 
 
   /// Returns the static list of options.
   /// The @a txt argument is the help text.

@@ -22,7 +22,7 @@
 #include <soas.hh>
 #include <general-arguments.hh>
 
-DataSetList::DataSetList(const CommandOptions & opts, bool all) 
+void DataSetList::parseOptions(const CommandOptions & opts, bool all) 
 {
   DataStack & s = soas().stack();
   if(! opts.contains("buffers") && ! s.currentDataSet(true)) {
@@ -53,9 +53,34 @@ DataSetList::DataSetList(const CommandOptions & opts, bool all)
   }
 }
 
+DataSetList::DataSetList(const CommandOptions & opts,
+                         const QList<const DataSet *> & pF) :
+  pickFrom(pF)
+{
+  // By default look in all the stack
+  parseOptions(opts, true);
+  QHash<const DataSet *, int> indices;
+  for(int i = 0; i < pickFrom.size(); i++)
+    indices[pickFrom[i]] = i;
+  for(const DataSet * ds : datasets) {
+    if(indices.contains(ds))
+      selectedIndices.insert(indices[ds]);
+  }
+}
+
+DataSetList::DataSetList(const CommandOptions & opts, bool all) 
+{
+  parseOptions(opts, all);
+}
+
 DataSetList::~DataSetList()
 {
   
+}
+
+bool DataSetList::isSelected(int index) const
+{
+  return selectedIndices.contains(index);
 }
 
 

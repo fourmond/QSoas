@@ -35,6 +35,8 @@
 #include <fitdata.hh>
 #include <dataset.hh>
 
+#include <datasetlist.hh>
+
 #include <fwexpression.hh>
 #include <mruby.hh>
 
@@ -297,6 +299,7 @@ static void setCommand(const QString & /*name*/, QList<QPair<int, int> > params,
                        QString value, const CommandOptions & opts)
 {
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  DataSetList sel(opts, ws->data()->datasets);
   bool expression = false;
   updateFromOptions(opts, "expression", expression);
 
@@ -309,6 +312,8 @@ static void setCommand(const QString & /*name*/, QList<QPair<int, int> > params,
     MRuby * mr = MRuby::ruby();
     FWExpression exp(value, ws);
     for(QPair<int, int> ps : params) {
+      if(! sel.isSelected(ps.second))
+        continue;   // Skip this
       // We use the first dataset as source for the meta
       mrb_value v = exp.evaluate(ps.second >= 0 ? ps.second : 0);
       /// @todo Here: check for a string return value
@@ -319,6 +324,8 @@ static void setCommand(const QString & /*name*/, QList<QPair<int, int> > params,
   }
   else {
     for(QPair<int, int> ps : params) {
+      if(! sel.isSelected(ps.second))
+        continue;   // Skip this
       if(fix || unfix)
         ws->setFixed(ps.first, ps.second, fix);
       ws->setValue(ps.first, ps.second, value);
@@ -346,6 +353,8 @@ ArgumentList sOpts(QList<Argument*>()
                    << new BoolArgument("unfix", 
                                        "Unfix",
                                        "if true, also unfixes the parameters")
+                   << DataSetList::listOptions("restrict to selected datasets",
+                                               false)
                    );
 
 static Command 
@@ -419,12 +428,18 @@ sfd("set-from-dataset", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void fixUnfix(const QString & name, QList<QPair<int, int> > params)
+static void fixUnfix(const QString & name, QList<QPair<int, int> > params,
+                     const CommandOptions & opts)
 {
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  DataSetList sel(opts, ws->data()->datasets);
+
   bool fix = (name == "fix");
-  for(QPair<int, int> ps : params)
+  for(QPair<int, int> ps : params) {
+    if(! sel.isSelected(ps.second))
+        continue;   // Skip this
     ws->setFixed(ps.first, ps.second, fix);
+  }
 }
 
 ArgumentList fuArgs(QList<Argument*>() 
@@ -433,22 +448,29 @@ ArgumentList fuArgs(QList<Argument*>()
                                                 "the parameters to fix/unfix")
                    );
 
+
+ArgumentList fuOpts(QList<Argument*>() 
+                    << DataSetList::listOptions("restrict to selected datasets",
+                                                false)
+                    );
+
+
 static Command 
 fix("fix", // command name
-    optionLessEffector(fixUnfix), // action
+    effector(fixUnfix), // action
     "fits",  // group name
     &fuArgs, // arguments
-    NULL, // options
+    &fuOpts, // options
     "Fix parameter",
     "Fixs the parameter",
     "", CommandContext::fitContext());
 
 static Command 
 ufix("unfix", // command name
-     optionLessEffector(fixUnfix), // action
+     effector(fixUnfix), // action
      "fits",  // group name
      &fuArgs, // arguments
-     NULL, // options
+     &fuOpts, // options
      "Unfix parameter",
      "Lets the parameter be free again",
      "", CommandContext::fitContext());

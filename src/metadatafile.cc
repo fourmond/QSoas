@@ -97,3 +97,13 @@ bool MetaDataFile::isMetaDataFile(const QString & fileName)
   }
   return true;
 }
+
+QDateTime MetaDataFile::metaDataLastModified(const QString & fileName)
+{
+  /// @todo Switch to using a File-based class...
+  QFileInfo info(metaDataForFile(fileName));
+  if(info.exists()) {
+    return info.lastModified();
+  }
+  return QDateTime();
+}

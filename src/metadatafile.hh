@@ -54,5 +54,11 @@ public:
   /// Returns true if the target file exists and is a meta-data file
   static bool isMetaDataFile(const QString & fileName);
 
+  /// Returns the last modified date for the meta-data file
+  /// corresponding to the given file.
+  ///
+  /// Returns an invalid date if no meta data file is available.
+  static QDateTime metaDataLastModified(const QString & fileName);
+
 };
 #endif

@@ -43,6 +43,7 @@
 #include <datastackhelper.hh>
 #include <datasetoptions.hh>
 #include <metadataprovider.hh>
+#include <metadatafile.hh>
 
 QList<DataBackend*> * DataBackend::availableBackends = NULL;
 
@@ -192,9 +193,13 @@ QList<DataSet *> DataBackend::loadFile(const QString & fileName,
        ignoreCache = true;
   }
 
+  /// @todo Switch to using a File-based class...
   QFileInfo info = file.info();
   QString key = info.canonicalFilePath();
   QDateTime lastModified = info.lastModified();
+  QDateTime metaModified = MetaDataFile::metaDataLastModified(fileName);
+  if(metaModified.isValid() && metaModified > lastModified)
+    lastModified = metaModified; // so we reload if the meta is too young.
 
   QList<DataSet *> datasets;
 

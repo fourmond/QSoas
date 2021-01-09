@@ -20,12 +20,16 @@
 #include <terminal.hh>
 #include <commandwidget.hh>
 
+#include <settings-templates.hh>
 #include <commandlineparser.hh>
+
+static SettingsValue<int> maxLines("command/maxlines", 1000);
 
 Terminal Terminal::out;
 
 Terminal::Terminal() :
-  buffer(""), appendCursor(NULL), deleteCursor(NULL)
+  buffer(""), appendCursor(NULL), deleteCursor(NULL),
+  totalLines(0), deletedLines(0)
 {
   internalStream = new QTextStream(&buffer);
 }
@@ -41,7 +45,6 @@ void Terminal::initializeCursors()
   appendCursor->movePosition(QTextCursor::End);
   deleteCursor = new QTextCursor(CommandWidget::theCommandWidget->
                                  terminalDisplay->document());
-  deleteCursor->movePosition(QTextCursor::Start);
 }
 
 void Terminal::flushToTerminal()
@@ -59,6 +62,20 @@ void Terminal::flushToTerminal()
       terminalDisplay;
     appendCursor->insertText(buffer, currentFormat);
     currentFormat = QTextCharFormat();
+    
+    totalLines += buffer.count('\n');
+
+    // Remove lines at the beginning
+    if(totalLines > ::maxLines) {
+      int nbdel = totalLines - (::maxLines + deletedLines);
+      deleteCursor->movePosition(QTextCursor::Start);
+      deleteCursor->movePosition(QTextCursor::Down,
+                                 QTextCursor::KeepAnchor,
+                                 nbdel);
+      deleteCursor->removeSelectedText();
+      deletedLines += nbdel;
+    }
+
 
 
     // and scroll to the bottom

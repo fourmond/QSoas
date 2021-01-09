@@ -59,6 +59,12 @@ class Terminal {
   void initializeCursors();
 
   QTextCharFormat currentFormat;
+
+  /// The total number of lines since beginning
+  int totalLines;
+
+  /// The number of deleted lines
+  int deletedLines;
   
   
 public:

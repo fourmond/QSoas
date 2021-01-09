@@ -58,12 +58,6 @@ class CommandWidget : public QWidget {
 
   Q_OBJECT;
 
-  /// The number of lines in the terminal
-  int termLines;
-
-  /// Maximum number of lines in the terminal
-  int maxTermLines;
-
   /// The terminal display
   QTextEdit * terminalDisplay;
 
@@ -176,11 +170,6 @@ public:
   /// @}
   
 
-  /// Logs the given string to the application-wide CommandWidget
-  /// terminal, or to standard output in the case we don't have one of
-  /// those ready.
-  static void logString(const QString & str);
-
   /// The name of the log file.
   static QString logFileName;
 
@@ -253,9 +242,6 @@ public slots:
   /// If @a doFullPrompt is true, then launch a dialog box for
   /// prompting for all the arguments/options.
   bool runCommand(const QStringList & raw, bool doFullPrompt = false);
-
-  /// Appends the given (HTML) text to the log output.
-  void appendToTerminal(const QString & str);
 
   /// Scrolls the terminal by that many half screens.
   void scrollTerminal(int nb);

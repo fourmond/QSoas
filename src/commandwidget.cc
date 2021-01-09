@@ -107,7 +107,6 @@ QString CommandWidget::logFileName;
 static SettingsValue<QString> defaultLogFileName("command/logfile", 
                                                  QString("soas.log"));
 
-static SettingsValue<int> maxLines("command/maxlines", 1000);
 
 static CommandLineOption cmd("--log", [](const QStringList & args) {
     CommandWidget::logFileName = args[0];
@@ -135,9 +134,6 @@ CommandWidget::CommandWidget(CommandContext * c) :
   addToHistory(true),
   commandContext(c)
 {
-  termLines = 0;
-  maxTermLines = ::maxLines;
-    
   QVBoxLayout * layout = new QVBoxLayout(this);
   QHBoxLayout * h1;
   if(! commandContext) {
@@ -442,41 +438,6 @@ void CommandWidget::commandEntered()
 void CommandWidget::copyToPrompt(const QString & str)
 {
   commandLine->setText(commandLine->text() + str);
-}
-
-
-
-void CommandWidget::appendToTerminal(const QString & str)
-{
-  terminalDisplay->moveCursor(QTextCursor::End);
-  terminalDisplay->insertPlainText(str);
-  termLines += str.count('\n');
-  // QTextStream o(stdout);
-  // o << "Current term line: " << termLines << endl;
-  if(termLines > maxTermLines) {
-    QTextCursor c(terminalDisplay->document());
-    c.movePosition(QTextCursor::Down, QTextCursor::KeepAnchor,
-                   termLines - maxTermLines);
-    c.removeSelectedText();
-    termLines = maxTermLines;
-    // Without this, we have huge memory leaks
-    terminalDisplay->document()->clearUndoRedoStacks();
-  }
-  // and scroll to the bottom
-  QScrollBar * sb = terminalDisplay->verticalScrollBar();
-  sb->setSliderPosition(sb->maximum());
-}
-
-void CommandWidget::logString(const QString & str)
-{
-  if(theCommandWidget) {
-    theCommandWidget->appendToTerminal(str);
-  }
-  else {
-    QTextStream o(stdout);
-    o << str;
-  }
-
 }
 
 void CommandWidget::setLoopMode(bool loop)

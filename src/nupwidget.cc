@@ -26,52 +26,44 @@
 
 
 NupWidget::NupWidget(QWidget * parent) : 
-  QWidget(parent), currentPage(0), width(-1), height(-1)
+  QWidget(parent), currentPage(0), width(-1), height(-1),
+  totalGeneratable(-1)
 {
-  pageStackLayout = new QStackedLayout(this);
+  layout = new QGridLayout(this);
 }
 
 NupWidget::~NupWidget()
 {
 }
 
-void NupWidget::setupPages()
+
+int NupWidget::widgetsCount() const
 {
-  if(width <= 0 || height <= 0)
-    return;                     // Nothing to do for so long as there
-                                // is no nup.
-
-  int nbPerPage = width * height;
-  int pgs = (subWidgets.size() - 1)/nbPerPage + 1;
-
-  QList<QWidget * > oldpages = pages;
-  pages.clear();
-
-  
-  for(int i = 0; i < pgs; i++) {
-    int base = i * nbPerPage;
-    QWidget * page = new QWidget(this);
-    QGridLayout * layout = new QGridLayout(page);
-    for(int j = 0; j < nbPerPage; j++) {
-      QWidget * w = subWidgets.value(base + j, NULL);
-      if(w)
-        layout->addWidget(w, j/width, j % width);
-      else 
-        layout->addWidget(new QWidget, j/width, j % width);
-    }
-    /// @todo Customize the possibility not to have that ?
-    for(int k = 0; k < width; k++)
-      layout->setColumnStretch(k, 1);
-    for(int k = 0; k < height; k++)
-      layout->setRowStretch(k, 1);
-    pageStackLayout->addWidget(page);
-    pages << page;
-  }
-
-  // we delete later so that the child widgets have already changed parents.
-  while(oldpages.size() > 0)
-    delete oldpages.takeAt(0);
+  if(generator)
+    return totalGeneratable;
+  return widgets.size();
 }
+
+
+QWidget * NupWidget::widget(int index) const
+{
+  if(generator) {
+    int sz = width*height;
+    if(sz < 1)
+      sz = 1;
+    return generator(index, index%sz);
+  }
+  return widgets.value(index, NULL);
+}
+
+void NupWidget::setupGenerator(GeneratorFunc fn, int total)
+{
+  if(widgets.size() > 0)
+    throw InternalError("Should not use both addWidget and setupGenerator");
+  generator = fn;
+  totalGeneratable = total;
+}
+
 
 int NupWidget::widgetIndex() const
 {
@@ -86,16 +78,58 @@ bool NupWidget::isNup() const
   return (width != 1) || (height != 1);
 }
 
+void NupWidget::clearGrid()
+{
+  while(layout->count() > 0) {
+    QLayoutItem * child = layout->takeAt(0);
+    if(child->widget())
+      child->widget()->hide();
+    delete child;
+  }
+}
+
+int NupWidget::totalPages() const
+{
+  int nb = width * height;
+  int cnt = widgetsCount();
+  if(nb > 0) {
+    return cnt/nb + (cnt % nb > 0 ? 1 : 0);
+  }
+  return -1;
+}
+
+int NupWidget::nupWidth() const
+{
+  return width;
+}
+
+int NupWidget::nupHeight() const
+{
+  return height;
+}
 
 void NupWidget::showPage(int newpage)
 {
   currentPage = newpage;
-  if(currentPage >= pages.size())
-    currentPage = pages.size() - 1;
+  if(currentPage >= totalPages())
+    currentPage = totalPages() - 1;
   if(currentPage < 0)
     currentPage = 0;
 
-  pageStackLayout->setCurrentIndex(currentPage);
+  clearGrid();
+  // Here, we assume that the grid layout is the correct size.
+  int nb = width*height;
+  int base = currentPage * nb;
+  if(nb > 0) {
+    for(int i = 0; i < nb; i++) {
+      if(i + base >= widgetsCount())
+        break;
+      QWidget * w = widget(base + i);
+      layout->addWidget(w, i/width, i % width);
+      w->show();
+    }
+  }
+
   emit(pageChanged(currentPage));
 }
 
@@ -121,7 +155,9 @@ void NupWidget::setNup(int w, int h)
   int cur = currentPage * width * height;
   width = w;
   height = h;
-  setupPages();
+  clearGrid();
+  delete layout;
+  layout = new QGridLayout(this);
   if(width > 0 && height > 0)
     showPage(cur/(width * height));
   nupChanged(width, height);
@@ -139,12 +175,16 @@ void NupWidget::setNup(const QString & nup)
 
 void NupWidget::addWidget(QWidget * wd)
 {
-  subWidgets << wd;
-  setupPages();
+  wd->setParent(this);
+  wd->hide();
+  widgets << wd;
 }
 
 void NupWidget::clear()
 {
-  while(subWidgets.size() > 0)
-    delete subWidgets.takeAt(0);
+  for(QWidget * w : widgets)
+    delete w;
+  widgets.clear();
+  totalGeneratable = -1;
+  generator = 0;
 }

@@ -137,21 +137,28 @@ void DatasetBrowser::displayDataSets(const QList<const DataSet *> &ds,
 {
   extendedSelection = es;
   nup->clear();
+  selected.clear();
   int wd = nup->nupWidth();
   int ht = nup->nupHeight();
   nup->setNup(0,0);
   cleanupViews();
   datasets = ds;
-  for(int i = 0; i < datasets.size(); i++) {
-    CheckableWidget * cw = 
-      new CheckableWidget(new CurveView(this), this);
-    cw->subWidget<CurveView>()->showDataSet(datasets[i]);
-    views << cw;
-    nup->addWidget(cw);
-  }
+  nup->setupGenerator([this] (int idx, int inW) -> QWidget * {
+                        return viewForDataset(idx, inW);
+                      }, datasets.size());
   nup->setNup(wd, ht);
   nup->showPage(0);
 }
+
+CheckableWidget * DatasetBrowser::viewForDataset(int index, int inWindow)
+{
+  while(views.size() <= inWindow)
+    views << new CheckableWidget(new CurveView(this), this);
+  views[inWindow]->subWidget<CurveView>()->showDataSet(datasets[index]);
+  views[inWindow]->useSet(&selected, index);
+  return views[inWindow];
+}
+
 
 void DatasetBrowser::displayDataSets(const QList<DataSet *> &ds, 
                                      bool es)
@@ -166,9 +173,8 @@ void DatasetBrowser::displayDataSets(const QList<DataSet *> &ds,
 QList<const DataSet*> DatasetBrowser::selectedDatasets() const
 {
   QList<const DataSet*> ret;
-  for(int i = 0; i < views.size(); i++)
-    if(views[i]->isChecked())
-      ret << datasets[i];
+  for(int sel : selected)
+    ret << datasets[sel];
   return ret;
 }
 

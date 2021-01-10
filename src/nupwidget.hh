@@ -36,18 +36,17 @@ class NupWidget : public QWidget {
 
 private:
 
-  /// Widgets embedding all datasets for a given page
-  QList<QWidget *> pages;
-
-
   /// The list of sub-widgets this widget manages
-  QList<QWidget *> subWidgets;
+  QList<QWidget *> widgets;
+
+  /// returns the number of subwidgets
+  int widgetsCount() const;
+
+  /// Returns the n-th widget
+  QWidget * widget(int index) const;
 
   /// Distribute all the datasets into pages...
   void setupPages();
-
-  /// Stacked layout for the pages
-  QStackedLayout * pageStackLayout;
 
   /// The current index
   int currentPage;
@@ -58,13 +57,41 @@ private:
   /// Current number of rows
   int height;
 
+  /// The grid layout. Remade every time the nup changes.
+  QGridLayout * layout;
+
+  /// Clears the grid layout, hiding all the widgets that are
+  /// currently inside
+  void clearGrid();
+
+
 public:
   NupWidget(QWidget * parent = 0);
   ~NupWidget();
 
+  /// A function to generate datasets on the fly.
+  typedef std::function<QWidget * (int idx, int id) > GeneratorFunc;
+
+protected:
+
+  /// The generator function
+  GeneratorFunc generator;
+
+  /// The number of widgets that can be generated
+  int totalGeneratable;
+
 public:
-  /// Adds a widget to manage
+  
+  /// Adds a widget to manage. The NupWidget takes ownership of the
+  /// added widget.
   void addWidget(QWidget * widget);
+
+  /// Sets up on-the-fly widget generation. Mutually exclusive with
+  /// the use of addWidget. Contrary to addWidget(), the widgets are
+  /// not deleted. A widget can be reused, so long as it is not
+  /// displayed several times in the page.
+  void setupGenerator(GeneratorFunc function, int total);
+
 
   /// Clears the list of widgets (and deletes them)
   void clear();
@@ -73,21 +100,15 @@ public:
   bool isNup() const;
 
   /// Returns the total number of pages
-  int totalPages() const {
-    return pages.size();
-  };
+  int totalPages() const;
 
   /// The width of the nup
-  int nupWidth() const {
-    return width;
-  };
+  int nupWidth() const;
 
   /// The height of the nup
-  int nupHeight() const {
-    return height;
-  };
+  int nupHeight() const;
 
-  /// The index of the first visible
+  /// The index of the first visible widget?
   int widgetIndex() const;
 
 public slots:

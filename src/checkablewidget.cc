@@ -21,7 +21,7 @@
 
 CheckableWidget::CheckableWidget(QWidget * sub,
                                  QWidget * parent) :
-  QFrame(parent) , widget(sub)
+  QFrame(parent), widget(sub), present(NULL)
 {
   QHBoxLayout * l = new QHBoxLayout(this);
   checkBox = new QCheckBox();
@@ -40,10 +40,25 @@ bool CheckableWidget::isChecked() const
   return checkBox->isChecked();
 }
 
+void CheckableWidget::useSet(QSet<int> * tgt, int idx)
+{
+  present = NULL;
+  index = idx;
+  if(tgt)
+    checkBox->setChecked(tgt->contains(index));
+  present = tgt;
+}
+
 void CheckableWidget::cbStateChanged(int state)
 {
-  if(isChecked())
+  if(isChecked()) {
     setFrameShadow(QFrame::Sunken);
-  else
+    if(present)
+      present->insert(index);
+  }
+  else {
     setFrameShadow(QFrame::Raised);
+    if(present)
+      present->remove(index);
+  }
 }

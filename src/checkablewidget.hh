@@ -33,9 +33,20 @@ class CheckableWidget : public QFrame {
 
   /// A check box
   QCheckBox * checkBox;
+
+  /// If this is not NULL, then the check state of the widget is taken
+  /// from the presence of the number @a index in the given set.
+  QSet<int> * present;
+
+  /// The index for the @a present member.
+  int index;
 public:
   CheckableWidget(QWidget * sub,
                   QWidget * parent = NULL);
+
+  /// when this is used, then the QSet and the check state of the
+  /// widget are bound together.
+  void useSet(QSet<int> * tgt, int index);
 
   /// Whether the widget is checked or not.
   bool isChecked() const;

@@ -37,8 +37,14 @@ private:
   /// The widget holding the whole nup stuff
   NupWidget * nup;
 
-  /// The dataset views
+  /// The dataset views. There are only so many as there are in the
+  /// nup (were at the maximum).
   QList<CheckableWidget *> views;
+
+  /// The index of the currently selected datasets.
+  QSet<int> selected;
+
+  CheckableWidget * viewForDataset(int index, int inWindow);
 
   /// The currently displayed datasets
   QList<const DataSet *> datasets;

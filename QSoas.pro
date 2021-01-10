@@ -561,7 +561,8 @@ SOURCES += src/parameterspaceexplorers.cc
 SOURCES += src/formats/gpesprovider.cc \
         src/formats/chi.cc \
         src/formats/eclab.cc \
-        src/formats/parametersbackend.cc
+        src/formats/parametersbackend.cc \
+        src/formats/ignorebackend.cc
 
 # Using signals on platforms that support them
 unix|macx {

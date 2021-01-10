@@ -631,6 +631,7 @@ namespace __cu {
     PickPoint,
     PickRef,
     QuitSubtracting,
+    QuitSubtractingX,
     QuitDividing,
     QuitSubtractingRespRef,
     QuitDividingRespRef,
@@ -658,6 +659,7 @@ namespace __cu {
     alsoKey('V').
     addKey('u', QuitSubtracting, "quit subtracting Y value").
     alsoKey('U').
+    addKey(Qt::CTRL + 's', QuitSubtractingX, "quit subtracting X value").
     addKey(Qt::CTRL + 'u', QuitSubtractingRespRef, "subtract y - yref").
     addKey(Qt::CTRL + 'v', QuitDividingRespRef, "divide by y/yref").
     addKey(Qt::CTRL + 'x', ShiftX, "shift X by x-xref and keep going").
@@ -800,6 +802,14 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
       Vector ny = ds->y() - m.p.y();
       Terminal::out << "Subtracting Y value: " << m.p.y() << endl;
       soas().pushDataSet(ds->derivedDataSet(ny, "_sub.dat"));
+      return;
+    }
+    case QuitSubtractingX: {
+      Vector nx = ds->x() - m.p.x();
+      Terminal::out << "Subtracting X value: " << m.p.x() << endl;
+      DataSet * nds = ds->derivedDataSet("_shifted.dat");
+      nds->x() = nx;
+      soas().pushDataSet(nds);
       return;
     }
     case QuitDividing: {

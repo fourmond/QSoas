@@ -615,23 +615,43 @@ public:
 
 };
 
+/// This class simply wraps a column specification until the moment it
+/// is actually used on a DataSet. It is essentially just a wrapped
+/// QString
+///
+/// Known formats:
+///
+/// @li just a number: 1-based index (1 = X, 2 = Y, etc...)
+/// @li #number: 0-based index
+/// @li x, y, z, y2...yN
+/// @li last
+/// @li named:(main column name)
+/// @li $c.name (as will happen in apply-formula later on)
+class ColumnSpecification {
+  QString spec;
+public:
+  explicit ColumnSpecification(const QString & str);
+  /// This creates an invalid one, to be used in ranges.
+  ColumnSpecification();
+
+  /// Returns the value, for the specific dataset.
+  int getValue(const DataSet * ds) const;
+
+  /// Returns true if the string isn't empty
+  bool isValid() const;
+
+  /// Returns the text specification
+  QString specification() const;
+
+  /// Returns all the valid column names for the given dataset.
+  static QStringList validNames(const DataSet * ds);
+};
+
 
 /// The column of a dataset
 class ColumnArgument : public Argument {
 public:
 
-  /// Parses a column specification. Known formats:
-  ///
-  /// @li just a number: 1-based index (1 = X, 2 = Y, etc...)
-  /// @li #number: 0-based index
-  /// @li x, y, z, y2...yN
-  /// @li named:(main column name)
-  /// @li $c.name (as will happen in apply-formula later on)
-  /// @bug This function will @b not @b work if the command that uses the columns works on something else than the current dataset.
-  static int parseFromText(const QString & str, const DataSet * ds = NULL);
-
-  /// Returns all the valid column names for the given dataset.
-  static QStringList validNames(const DataSet * ds);
 
   ColumnArgument(const char * cn, const char * pn,
                  const char * d = "", bool def = false) : 
@@ -657,6 +677,15 @@ public:
   /// Proposes a completion, based on the current dataset.
   virtual QStringList proposeCompletion(const QString & starter) const override;
 
+};
+
+/// A list of columns
+class ColumnListSpecification {
+public:
+  QList<QPair<ColumnSpecification, ColumnSpecification> > columns;
+
+  /// Returns the value, for the specific dataset.
+  QList<int> getValues(const DataSet * ds) const;
 };
 
 /// Several integers

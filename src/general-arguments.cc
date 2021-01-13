@@ -1000,24 +1000,41 @@ void RegexArgument::setEditorValue(QWidget * editor,
 
 //////////////////////////////////////////////////////////////////////
 
-int ColumnArgument::parseFromText(const QString & str, const DataSet * ds)
+ColumnSpecification::ColumnSpecification()
+{
+}
+
+ColumnSpecification::ColumnSpecification(const QString & s) :
+  spec(s)
+{
+}
+
+bool ColumnSpecification::isValid() const
+{
+  return ! spec.isEmpty();
+}
+
+int ColumnSpecification::getValue(const DataSet * ds) const
 {
   QRegExp num1("^\\s*\\d+\\s*$");
   QRegExp num2("^\\s*#(\\d+)\\s*$");
 
   QRegExp name("^\\s*((x)|(y)|(z)|(y(\\d+))|(non?e?))\\s*$", Qt::CaseInsensitive);
   QRegExp named("^\\s*(?:named:|\\$c.)(\\w+)\\s*$", Qt::CaseInsensitive);
+
+  if(spec == "last")
+    return ds->nbColumns()-1;
   
-  if(num1.indexIn(str, 0) >= 0) {
-    int nb = str.toInt() - 1;
+  if(num1.indexIn(spec, 0) >= 0) {
+    int nb = spec.toInt() - 1;
     if(nb >= 0)
       return nb;
   }
-  if(num2.indexIn(str, 0) >= 0) {
+  if(num2.indexIn(spec, 0) >= 0) {
     return num2.cap(1).toInt();
   }
 
-  if(name.indexIn(str, 0) >= 0) {
+  if(name.indexIn(spec, 0) >= 0) {
     if(! name.cap(2).isEmpty())
       return 0;                 // X
     else if(! name.cap(3).isEmpty())
@@ -1030,7 +1047,7 @@ int ColumnArgument::parseFromText(const QString & str, const DataSet * ds)
       return -1;                // None
   }
   if(ds) {
-    if(named.indexIn(str, 0) >= 0) {
+    if(named.indexIn(spec, 0) >= 0) {
       QString cn = named.cap(1);
       if(ds->columnNames.size() > 0) {
         for(int i = 0; i < ds->nbColumns(); i++) {
@@ -1041,10 +1058,11 @@ int ColumnArgument::parseFromText(const QString & str, const DataSet * ds)
       throw RuntimeError("No column with such name: '%1'").arg(cn);
     }
   }
-  throw RuntimeError("Invalid dataset column specification '%1'").arg(str);
+  throw RuntimeError("Invalid dataset column specification '%1'").arg(spec);
 }
 
-QStringList ColumnArgument::validNames(const DataSet * ds)
+
+QStringList ColumnSpecification::validNames(const DataSet * ds)
 {
   QStringList rv;
   if(ds) {
@@ -1055,14 +1073,25 @@ QStringList ColumnArgument::validNames(const DataSet * ds)
         rv << QString("named:%1").arg(ds->columnNames[0][i])
            << QString("$c.%1").arg(ds->columnNames[0][i]);
     }
+    rv << "last";
   }
-
+  else {
+    rv << "x" << "y";           // by default.
+  }
   return rv;
 }
 
+QString ColumnSpecification::specification() const
+{
+  return spec;
+}
+
+//////////////////////////////////////////////////////////////////////
+
 QStringList ColumnArgument::proposeCompletion(const QString & starter) const
 {
-  QStringList cn = validNames(soas().stack().currentDataSet(false));
+  QStringList cn = ColumnSpecification::validNames(soas().stack().
+                                                   currentDataSet(false));
   return Utils::stringsStartingWith(cn, starter);
 }
 
@@ -1070,13 +1099,14 @@ QStringList ColumnArgument::proposeCompletion(const QString & starter) const
 
 ArgumentMarshaller * ColumnArgument::fromString(const QString & str) const
 {
-  return new ArgumentMarshallerChild<int>(parseFromText(str, soas().stack().currentDataSet(false)));
+  return new ArgumentMarshallerChild<ColumnSpecification>(ColumnSpecification(str));
 }
 
 QStringList ColumnArgument::toString(const ArgumentMarshaller * arg) const
 {
   QStringList rv;
-  rv << QString("#%1").arg(arg->value<int>());
+  rv << QString("#%1").arg(arg->value<ColumnSpecification>().
+                           specification());
   return rv;
 }
 
@@ -1103,38 +1133,59 @@ void ColumnArgument::setEditorValue(QWidget * editor,
 
 //////////////////////////////////////////////////////////////////////
 
+QList<int> ColumnListSpecification::getValues(const DataSet * ds) const
+{
+  QList<int> cols;
+  for(const QPair<ColumnSpecification, ColumnSpecification> & p : columns) {
+    int first = p.first.getValue(ds);
+    if(p.second.isValid()) {
+      int second = p.second.getValue(ds);
+      while(first <= second) {
+        cols << first;
+        ++first;
+      }
+    }
+    else
+      cols << first;
+  }
+  return cols;
+}
+
+//////////////////////////////////////////////////////////////////////
+
 ArgumentMarshaller * SeveralColumnsArgument::fromString(const QString & str) const
 {
   QStringList elems = str.split(",");
 
   QRegExp range("(.*)\\.\\.(.*)");
 
-  QList<int> ret;
-  const DataSet * ds = soas().stack().currentDataSet(false);
+  ColumnListSpecification rv;
   for(int i = 0; i < elems.size(); i++) {
     const QString & s = elems[i];
+    QPair<ColumnSpecification, ColumnSpecification> spc;
     if(range.indexIn(s, 0) >= 0) {
-      int fst = ColumnArgument::parseFromText(range.cap(1), ds);
-      int lst = ColumnArgument::parseFromText(range.cap(2), ds);
-      int dx = (fst > lst ? -1 : 1);
-      for(int j = fst; j != lst; j+= dx)
-        ret << j;
-      ret << lst;
+      spc.first = ColumnSpecification(range.cap(1));
+      spc.second = ColumnSpecification(range.cap(2));
     }
     else
-      ret << ColumnArgument::parseFromText(s, ds);
+      spc.first = ColumnSpecification(s);
+    rv.columns << spc;
   }
 
-  return new ArgumentMarshallerChild<QList<int> >(ret);
+  return new ArgumentMarshallerChild<ColumnListSpecification >(rv);
 }
 
 QStringList SeveralColumnsArgument::toString(const ArgumentMarshaller * arg) const
 {
   QStringList lst, rv;
-  QList<int> vals = arg->value<QList<int> >();
-  for(int i : vals)
-    lst << QString("#%1").arg(i);
-  rv << lst.join(",");
+  ColumnListSpecification spc = arg->value<ColumnListSpecification >();
+  for(const QPair<ColumnSpecification,
+        ColumnSpecification>  & p : spc.columns) {
+    if(p.second.isValid())
+      rv << p.first.specification() + ".." + p.second.specification();
+    else
+      rv << p.first.specification();
+  }
   return rv;
 }
 
@@ -1172,7 +1223,8 @@ void SeveralColumnsArgument::setEditorValue(QWidget * editor,
 
 QStringList SeveralColumnsArgument::proposeCompletion(const QString & starter) const
 {
-  QStringList cn = ColumnArgument::validNames(soas().stack().currentDataSet(false));
+  QStringList cn = ColumnSpecification::validNames(soas().stack().
+                                                   currentDataSet(false));
   // OK, so now a bit of fun.
   QRegExp ign("^(.*(\\.\\.|,))?(.*)");
   ign.indexIn(starter);

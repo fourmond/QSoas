@@ -663,10 +663,10 @@ namespace __cu {
     addKey(Qt::CTRL + 's', QuitSubtractingX, "quit subtracting X value").
     addKey(Qt::CTRL + 'u', QuitSubtractingRespRef, "subtract y - yref").
     addKey(Qt::CTRL + 'v', QuitDividingRespRef, "divide by y/yref").
-    addKey(Qt::CTRL + 'x', ShiftX, "shift X by x-xref and keep going").
-    addKey(Qt::CTRL + Qt::SHIFT + 'x', ScaleX, "scale X by x/xref and keep going").
-    addKey(Qt::CTRL + 'y', ShiftY, "shift Y by y-yref and keep going").
-    addKey(Qt::CTRL + Qt::SHIFT + 'y', ScaleY, "scale Y by y/yref and keep going").
+    addKey(Qt::CTRL + 'x', ShiftX, "subtract x-xref from X of current and keep going").
+    addKey(Qt::CTRL + Qt::SHIFT + 'x', ScaleX, "divide X of current by x/xref and keep going").
+    addKey(Qt::CTRL + 'y', ShiftY, "subtract y-yref from Y of current and keep going").
+    addKey(Qt::CTRL + Qt::SHIFT + 'y', ScaleY, "divide X of current by y/yref and keep going").
     addKey('a', VerticalSymmetry, "vertical symmetry around the current point").
     addKey('A', HorizontalSymmetry, "horizontal symmetry around the current point").
     addKey('c', CentralSymmetry, "central symmetry around the current point").
@@ -712,8 +712,6 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
   ValueHash e;
 
   QList<DataSet *> newDatasets;
-
-  
 
   auto ensureEditableDS = [&nds, &view, &pick, &newDatasets] () -> bool {
     DataSet * cds = const_cast<DataSet *>(pick.dataset());
@@ -839,7 +837,7 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
         break;
       }
       if(ensureEditableDS()) {
-        Terminal::out << "Shifting X by: " << dx << endl;
+        Terminal::out << "Subtracting " << dx << " from X" << endl;
         nds->x() = nds->x() - dx;
       }
       break;
@@ -852,7 +850,7 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
         break;
       }
       if(ensureEditableDS()) {
-        Terminal::out << "Scaling X by: " << xs << endl;
+        Terminal::out << "Dividing X by: " << xs << endl;
         nds->x() = nds->x()/xs;
       }
       break;
@@ -865,7 +863,7 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
         break;
       }
       if(ensureEditableDS()) {
-        Terminal::out << "Shifting Y by: " << dy << endl;
+        Terminal::out << "Subtracting " << dy << " from Y" << endl;
         nds->y() = nds->y() - dy;
       }
       break;
@@ -878,7 +876,7 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
         break;
       }
       if(ensureEditableDS()) {
-        Terminal::out << "Scaling Y by: " << ys << endl;
+        Terminal::out << "Dividing Y by: " << ys << endl;
         nds->y() = nds->y()/ys;
       }
       break;

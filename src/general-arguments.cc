@@ -21,6 +21,7 @@
 #include <headers.hh>
 #include <general-arguments.hh>
 #include <argumentmarshaller.hh>
+#include <argument-templates.hh>
 #include <utils.hh>
 
 #include <cmath>
@@ -1084,6 +1085,16 @@ QStringList ColumnSpecification::validNames(const DataSet * ds)
 QString ColumnSpecification::specification() const
 {
   return spec;
+}
+
+void ColumnSpecification::updateFromOptions(const CommandOptions & opts,
+                                            const QString & key,
+                                            int & target, const DataSet * ds)
+{
+  ColumnSpecification spec;
+  ::updateFromOptions(opts, key, spec);
+  if(spec.isValid())
+    target = spec.getValue(ds);
 }
 
 //////////////////////////////////////////////////////////////////////

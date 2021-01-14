@@ -2341,20 +2341,10 @@ static void binCommand(const QString &,
   int boxes = std::max(ds->nbRows()/15, 10);
   updateFromOptions(opts, "boxes", boxes);
   int col = 1;
-  {
-    /// @todo This should have been turned into a specific idiom
-    ColumnSpecification cl;
-    updateFromOptions(opts, "column", cl);
-    if(cl.isValid())
-      col = cl.getValue(ds);
-  }
+  ColumnSpecification::updateFromOptions(opts, "column", col, ds);
   int weight = -1;
-  {
-    ColumnSpecification cl;
-    updateFromOptions(opts, "weight", weight);
-    if(cl.isValid())
-      weight = cl.getValue(ds);
-  }
+  ColumnSpecification::updateFromOptions(opts, "weight", weight, ds);
+  
   bool lg = false;
   updateFromOptions(opts, "log", lg);
   bool nrm = false;

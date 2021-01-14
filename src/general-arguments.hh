@@ -645,6 +645,11 @@ public:
 
   /// Returns all the valid column names for the given dataset.
   static QStringList validNames(const DataSet * ds);
+
+  /// Updates the target integer to be the givne option
+  static void updateFromOptions(const CommandOptions & opts,
+                                const QString & key,
+                                int & target, const DataSet * ds);
 };
 
 

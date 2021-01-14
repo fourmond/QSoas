@@ -80,9 +80,9 @@ void DatasetOptions::setDatasetOptions(DataSet * ds,
                                        const CommandOptions & opts)
 {
   if(opts.contains("yerrors")) {
-    int col = 0;
+    ColumnSpecification col;
     updateFromOptions(opts, "yerrors", col);
-    ds->options.setYErrors(col);
+    ds->options.setYErrors(col.getValue(ds));
   }
   updateFromOptions(opts, "histogram", ds->options.histogram);
 }

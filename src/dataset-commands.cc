@@ -208,11 +208,12 @@ sm("split-monotonic", // command name
 
 static void splitOnValues(const QString &,
                           QStringList meta,
-                          QList<int> cols,
+                          ColumnListSpecification cspec,
                           const CommandOptions & opts)
 {
   DataStackHelper pusher(opts);
   const DataSet * ds = soas().currentDataSet();
+  QList<int> cols = cspec.getValues(ds);
   if(meta.size() != cols.size())
     throw RuntimeError("The list of meta and columns must be matched");
 
@@ -1553,32 +1554,36 @@ static void contractCommand(const QString &, QList<const DataSet *> a,
 
   QString pc;
   updateFromOptions(opts, "perp-meta", pc);
-  QList<int> useCols;
+  ColumnListSpecification useCols;
   updateFromOptions(opts, "use-columns", useCols);
-  if(useCols.size() > 0)
-    // We forcibly add x at the beginning, necessary for DataSet::contract
-    useCols.insert(0,0);
   
 
   handleMissingDS(&a);
   if(a.size() < 2)
     throw RuntimeError("You need more than one dataset to run contract");
 
+  auto trimColumns = [useCols](DataSet * ds) {
+                       if(useCols.columns.size() > 0) {
+                         QList<int> cls = useCols.getValues(ds);
+                         cls.insert(0,0);
+                         ds->selectColumns(cls);
+                       }
+                       
+                     };
+
   QStringList names;
   names << a[0]->name;
   DataSet * cur = new DataSet(*a[0]);
   if(pc.size() > 0)
     cur->setPerpendicularCoordinates(cur->getMetaData(pc).toDouble());
-  if(useCols.size() > 0)
-    cur->selectColumns(useCols);
+  trimColumns(cur);
   
   for(int i = 1; i < a.size(); i++) {
     DataSet * ds = new DataSet(*a[i]);
     names << a[i]->name;
     if(pc.size() > 0)
       ds->setPerpendicularCoordinates(ds->getMetaData(pc).toDouble());
-    if(useCols.size() > 0)
-      ds->selectColumns(useCols);
+    trimColumns(ds);
 
     DataSet * n = cur->contract(ds, naive, useSteps);
     delete cur;
@@ -2214,20 +2219,21 @@ static void tweakColumnsCommand(const QString &,
 
   bool flip = false;
   bool flipAll = false;
-  QList<int> toRemove;
-  QList<int> toSelect;
+  ColumnListSpecification toRemove;
+  ColumnListSpecification toSelect;
   
   updateFromOptions(opts, "flip", flip);
   updateFromOptions(opts, "flip-all", flipAll);
   updateFromOptions(opts, "remove", toRemove);
   updateFromOptions(opts, "select", toSelect);
-  if(toSelect.size() > 0) {
-    cols = toSelect;
+  if(toSelect.columns.size() > 0) {
+    cols = toSelect.getValues(ds);
   }
-  else if(toRemove.size() > 0) {
-    qSort(toRemove);
-    for(int i = toRemove.size() - 1; i >= 0; i--)
-      cols.removeAt(toRemove[i]);
+  else if(toRemove.columns.size() > 0) {
+    QList<int> tr = toRemove.getValues(ds);
+    qSort(tr);
+    for(int i = tr.size() - 1; i >= 0; i--)
+      cols.removeAt(tr[i]);
   }
   else if(flipAll) {
     Utils::reverseList(cols);

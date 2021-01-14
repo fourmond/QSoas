@@ -1170,9 +1170,12 @@ namespace __bs {
 
     {
       int weights = -1;
-      updateFromOptions(opts, "weight-column", weights);
-      if(weights >= 0) 
+      ColumnSpecification cl;
+      updateFromOptions(opts, "weight-column", cl);
+      if(cl.isValid()) {
+        weights = cl.getValue(ds);
         splines.setWeights(ds->column(weights));
+      }
     }
     x = splines.getBreakPoints();
 
@@ -1657,7 +1660,11 @@ static void autoFilterBSCommand(const QString &, const CommandOptions & opts)
   updateFromOptions(opts, "order", order);
   updateFromOptions(opts, "optimize", optimize);
   updateFromOptions(opts, "derivatives", derivatives);
-  updateFromOptions(opts, "weight-column", weights);
+
+  ColumnSpecification cl;
+  updateFromOptions(opts, "weight-column", cl);
+  if(cl.isValid())
+    weights = cl.getValue(ds);
 
   BSplines splines(ds, order, derivatives);
   splines.autoBreakPoints(nb);
@@ -2334,9 +2341,20 @@ static void binCommand(const QString &,
   int boxes = std::max(ds->nbRows()/15, 10);
   updateFromOptions(opts, "boxes", boxes);
   int col = 1;
-  updateFromOptions(opts, "column", col);
+  {
+    /// @todo This should have been turned into a specific idiom
+    ColumnSpecification cl;
+    updateFromOptions(opts, "column", cl);
+    if(cl.isValid())
+      col = cl.getValue(ds);
+  }
   int weight = -1;
-  updateFromOptions(opts, "weight", weight);
+  {
+    ColumnSpecification cl;
+    updateFromOptions(opts, "weight", weight);
+    if(cl.isValid())
+      weight = cl.getValue(ds);
+  }
   bool lg = false;
   updateFromOptions(opts, "log", lg);
   bool nrm = false;

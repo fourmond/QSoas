@@ -98,7 +98,7 @@ void Terminal::flushToTerminal()
 
 Terminal & Terminal::bold(Terminal & term)
 {
-  term.currentFormat.setFontWeight(QFont::Bold);
+  term.currentFormat.setFontWeight(QFont::ExtraBold);
   return term;
 }
 

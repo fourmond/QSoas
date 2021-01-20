@@ -75,6 +75,12 @@ public:
 
 int main(int argc, char ** argv)
 {
+  const char * qsdebug = getenv("QSOAS_DEBUG");
+  if(qsdebug) {
+    int level = atoi(qsdebug);
+    if(level >= 0)
+      Debug::setDebugLevel(level);
+  }
   DataBackend::registerBackendCommands();
   CommandContext::crosslinkAllCommands();
   QSoasApplication main(argc, argv);

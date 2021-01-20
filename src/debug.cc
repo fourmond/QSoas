@@ -175,3 +175,13 @@ void Debug::timeStamp()
   QDateTime dt = QDateTime::currentDateTime();
   (*this) << "[" << dt.toString() << "] ";
 }
+
+//////////////////////////////////////////////////////////////////////
+#include <commandlineparser.hh>
+
+static CommandLineOption sp("--debug",
+                            [](const QStringList & /*args*/) {
+                              Debug::setDebugLevel(Debug::debugLevel() + 1);
+                              Debug::debug() << "Set debug level to "
+                                             << Debug::debugLevel() << endl;
+                            }, 0, "increase debug level by 1");

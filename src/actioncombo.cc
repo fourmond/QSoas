@@ -21,7 +21,10 @@
 
 ActionCombo::ActionCombo(const QString & title)
 {
+  
   addItem(title);
+  setMinimumContentsLength(title.length()+1);
+  setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
   connect(this, SIGNAL(activated(int)), SLOT(elementSelected(int)));
 }
 

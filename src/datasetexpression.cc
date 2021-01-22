@@ -153,7 +153,7 @@ QStringList DataSetExpression::dataSetParameters(const DataSet * ds,
     QRegExp valid("^[_a-z]\\w*$");
     for(const QString & n : colNames) {
       if(valid.indexIn(n) != 0)
-        throw RuntimeError("Column name '%1' is not a valid variable name").
+        throw RuntimeError("Column name '%1' is not a valid variable name. Consider using set-column-names /sanitize-names=true").
           arg(n);
     }
     for(int i = 0; i < extra; i++)

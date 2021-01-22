@@ -2326,14 +2326,17 @@ cm("correlation-matrix", // command name
 // Series of commands to change the names of rows or columns
 
 static void setColumnNamesCommand(const QString &,
-                                  QStringList names,
                                   const CommandOptions & opts)
 {
   const DataSet * ds = soas().currentDataSet();
   DataSet * nds = ds->derivedDataSet(".dat");
 
-  bool autoFill = true;
-  updateFromOptions(opts, "auto-fill", autoFill);
+  QStringList names;
+  updateFromOptions(opts, "names", names);
+
+
+  bool sanitize = false;
+  updateFromOptions(opts, "sanitize-names", sanitize);
 
   QList<int> cols;
   ColumnListSpecification spec;
@@ -2350,32 +2353,60 @@ static void setColumnNamesCommand(const QString &,
       cols << i;
   }
 
-  
   for(int i = 0; i < names.size(); i++)
     nds->setColumnName(cols[i], names[i]);
+
+  if(sanitize) {
+    names = nds->mainColumnNames();
+    QSet<QString> usedNames;
+    QRegExp valid("^[_a-z]\\w*$");
+    for(int i = 0; i < names.size(); i++) {
+      QString n = names[i];
+      if(valid.indexIn(n) != 0) {
+        QString n2 = n;
+        if(n2[0].isUpper())
+          n2[0] = n2[0].toLower();
+        if(n2[0].isDigit())
+          n2 = "_" + n2;
+        n2.replace(QRegExp("[^A-Za-z_0-9]"), "_");
+        QString n3 = n2;
+        int idx = 0;
+        while(usedNames.contains(n3)) {
+          idx += 1;
+          n3 = QString("%1_%2").arg(n2).arg(idx);
+        }
+        Terminal::out << "Replaced '" << n << "' (corresponding to "
+                      << DataSet::standardNameForColumn(i) << ") by '"
+                      << n3 << "'" << endl;
+        nds->setColumnName(i, n3);
+        usedNames.insert(n3);
+      }
+    }
+  }
+  
   
   soas().pushDataSet(nds);
 }
 
-static ArgumentList 
-scA(QList<Argument *>() 
-    << new SeveralStringsArgument("names", 
-                                  "Names",
-                                  "Names of the columns")
-    );
 
 static ArgumentList 
 scO(QList<Argument *>() 
+    << new SeveralStringsArgument("names", 
+                                  "Names",
+                                  "Names of the columns", true, true)
     << new SeveralColumnsArgument("columns", 
                                   "Columns",
                                   "Sets the names of these columns only")
+    << new BoolArgument("sanitize-names", 
+                        "Sanitize names",
+                        "Adapts the names so that they can be used with apply-formula /use-names=true")
     );
 
 static Command 
 scn("set-column-names", // command name
     effector(setColumnNamesCommand), // action
     "buffer",  // group name
-    &scA, // arguments
+    NULL, // arguments
     &scO, // options
     "Set column names",
     "Sets the column names of the buffer");
@@ -2420,12 +2451,18 @@ static void setRowNamesCommand(const QString &,
   soas().pushDataSet(nds);
 }
 
+static ArgumentList 
+srA(QList<Argument *>() 
+    << new SeveralStringsArgument("names", 
+                                  "Names",
+                                  "Names of the columns")
+    );
 
 static Command 
 srn("set-row-names", // command name
     effector(setRowNamesCommand), // action
     "buffer",  // group name
-    &scA, // arguments
+    &srA, // arguments
     NULL, // options
     "Set row names",
     "Sets the row names of the buffer");

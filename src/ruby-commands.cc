@@ -249,6 +249,8 @@ static void stripIfCommand(const QString &, QString formula,
   updateFromOptions(opts, "use-stats", ex.useStats);
   ex.useMeta = true;
   updateFromOptions(opts, "use-meta", ex.useMeta);
+  ex.useNames = true;         // But that may be a severe
+  // performance hit ?
   int threshold = 0;
   updateFromOptions(opts, "threshold", threshold);
 

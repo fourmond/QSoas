@@ -34,18 +34,29 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
                                              const QString & decimalSep,
                                              const QRegExp & blankREt,
                                              QStringList * comments,
-                                             int skip)
+                                             int skip,
+                                             QList<int> textColumns,
+                                             QList<QList<QStringList> > * savedTexts)
 {
 
   QList<QList<Vector> > retval;
   retval << QList<Vector>();
+  if(savedTexts)
+    *savedTexts << QList<QStringList>();
 
   QList<Vector> * curCols = &retval.first();
+  QList<QStringList> * curTexts = NULL;
+  if(savedTexts)
+    curTexts = &savedTexts->last();
   int lineNumber = 0;
   QRegExp commentRE(commentREt);
   QRegExp blankLineRE(blankREt);
 
   QLocale locale = QLocale::c(); /// @todo offer the possibility to customize.
+
+  // We need the text column list in reverse order
+  std::sort(textColumns.begin(), textColumns.end()); 
+  std::reverse(textColumns.begin(), textColumns.end());
 
   LineReader s(source);
   int numberRead = 0;
@@ -63,6 +74,10 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
       if(splitOnBlank && curCols->size() > 0 && curCols->first().size() > 0) {
         // we split !
         retval << QList<Vector>();
+        if(savedTexts) {
+          *savedTexts << QList<QStringList>();
+          curTexts = &savedTexts->last();
+        }
         curCols = &retval.last();
         numberRead = 0;
       }
@@ -72,6 +87,24 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
     /// allocation). I think DVector::fast_fancy_read greatly
     /// outperforms this, but well...
     QStringList elements = splitter(line.trimmed());
+    int idx = textColumns.size();
+    QStringList taken;
+    for(int txt : textColumns) {
+      if(txt > elements.size())
+        continue;
+      taken.insert(0, elements.takeAt(txt));
+    }
+    if(curTexts) {
+      for(int i = 0; i < taken.size(); i++) {
+        if(curTexts->size() <= i)
+          *curTexts << QStringList();
+        QStringList & l = (*curTexts)[i];
+        while(l.size() < numberRead)
+          l << "";
+        l << taken[i];
+      }
+    }
+
     /// @todo customize trimming.
     while(curCols->size() < elements.size()) {
       *curCols << Vector(numberRead, std::nan(""));
@@ -92,6 +125,7 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
     }
     // We remove lines fully made of NaNs
     if(nbNans == curCols->size()) {
+      /// @todo This will not go well with text
       for(int i = 0; i < curCols->size(); i++)
         (*curCols)[i].resize((*curCols)[i].size() - 1);
     }
@@ -120,14 +154,17 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
                                              const QString & decimalSep,
                                              const QRegExp & blankREt,
                                              QStringList * comments,
-                                             int skip)
+                                             int skip,
+                                             QList<int> textColumns,
+                                             QList<QList<QStringList> > * savedTexts)
 {
   QRegExp separatorRE(separatorREt);
   return Vector::readFromStream(source,
                                 [&separatorRE](const QString & str) -> QStringList {
                                   return str.split(separatorRE);
                                 }, commentREt, splitOnBlank,
-                                decimalSep, blankREt, comments, skip);
+                                decimalSep, blankREt, comments, skip,
+                                textColumns, savedTexts);
 }
 
 QList<QList<Vector> > Vector::readFromStream(QTextStream * source,

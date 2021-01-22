@@ -275,7 +275,10 @@ public:
                                               const QString & decimalSep = QString(),
                                               const QRegExp & blankRE = QRegExp("^\\s*$"),
                                               QStringList * comments = NULL,
-                                              int skip = 0);
+                                              int skip = 0,
+                                              QList<int> textColumns = QList<int>(),
+                                              QList<QList<QStringList> > * savedTexts = NULL
+                                              );
 
   /// Convenience overload in which the splitting is done by the
   /// separator regexp
@@ -286,7 +289,9 @@ public:
                                               const QString & decimalSep = QString(),
                                               const QRegExp & blankRE = QRegExp("^\\s*$"),
                                               QStringList * comments = NULL,
-                                              int skip = 0);
+                                              int skip = 0,
+                                              QList<int> textColumns = QList<int>(),
+                                              QList<QList<QStringList> > * savedTexts = NULL);
 
 
   /// Convenience overload

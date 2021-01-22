@@ -1017,19 +1017,21 @@ bool ColumnSpecification::isValid() const
 
 int ColumnSpecification::getValue(const DataSet * ds) const
 {
-  QRegExp num1("^\\s*\\d+\\s*$");
+  QRegExp num1("^\\s*-?\\d+\\s*$");
   QRegExp num2("^\\s*#(\\d+)\\s*$");
 
   QRegExp name("^\\s*((x)|(y)|(z)|(y(\\d+))|(non?e?))\\s*$", Qt::CaseInsensitive);
   QRegExp named("^\\s*(?:named:|\\$c.)(\\w+)\\s*$", Qt::CaseInsensitive);
 
-  if(spec == "last")
+  if(spec == "last")            // Identical to -1
     return ds->nbColumns()-1;
   
   if(num1.indexIn(spec, 0) >= 0) {
-    int nb = spec.toInt() - 1;
-    if(nb >= 0)
-      return nb;
+    int nb = spec.toInt();
+    if(nb > 0)
+      return nb-1;
+    if(nb < 0)
+      return ds->nbColumns()+nb;
   }
   if(num2.indexIn(spec, 0) >= 0) {
     return num2.cap(1).toInt();

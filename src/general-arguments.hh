@@ -622,6 +622,7 @@ public:
 /// Known formats:
 ///
 /// @li just a number: 1-based index (1 = X, 2 = Y, etc...)
+/// @li negative numbers: -1 is the last one, -2, the one before last...
 /// @li #number: 0-based index
 /// @li x, y, z, y2...yN
 /// @li last

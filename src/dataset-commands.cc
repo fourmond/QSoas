@@ -612,7 +612,7 @@ static void chopIntoSegmentsCommand(const QString &, const CommandOptions & opts
 }
 
 static ArgumentList 
-scO(QList<Argument *>() 
+scOpts(QList<Argument *>() 
     << DataStackHelper::helperOptions()
     );
 
@@ -621,7 +621,7 @@ chopS("segments-chop", // command name
       effector(chopIntoSegmentsCommand), // action
       "segments",  // group name
       NULL, // arguments
-      &scO, // options
+      &scOpts, // options
       "Chop into segments");
 
 //////////////////////////////////////////////////////////////////////
@@ -2325,6 +2325,85 @@ cm("correlation-matrix", // command name
 //////////////////////////////////////////////////////////////////////
 // Series of commands to change the names of rows or columns
 
+static void setColumnNamesCommand(const QString &,
+                                  QStringList names,
+                                  const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+  DataSet * nds = ds->derivedDataSet(".dat");
+
+  bool autoFill = true;
+  updateFromOptions(opts, "auto-fill", autoFill);
+
+  QList<int> cols;
+  ColumnListSpecification spec;
+  updateFromOptions(opts, "columns", spec);
+  cols = spec.getValues(ds);
+  if(cols.size() > 0) {
+    if(cols.size() != names.size())
+      throw RuntimeError("Mismatch between number of names (%1) "
+                         "and number of columns (%2)").
+        arg(names.size()).arg(cols.size());
+  }
+  else {
+    for(int i = 0; i < names.size(); i++)
+      cols << i;
+  }
+
+  
+  for(int i = 0; i < names.size(); i++)
+    nds->setColumnName(cols[i], names[i]);
+
+  // // Here, auto-complete
+  // if(autoFill) {
+  //   if(nds->columnNames.size() > 0) {
+  //     QStringList createdNames;
+  //     for(int i = 0; i < nds->nbColumns(); i++) {
+  //       if(nds->columnNames[0][i].isEmpty()) {
+  //         QString cn = DataSet::standardNameForColumn(i);
+  //         nds->setColumnName(i, cn);
+  //         createdNames << cn;
+  //       }
+  //     }
+  //     if(createdNames.size() > 0)
+  //       Terminal::out << "Automatically named the remaining columns: "
+  //                     << createdNames.join(", ") << endl;
+  //   }
+  //   else {
+  //     // Feels like a bug, but is it ?
+  //   }
+  // }
+  
+  soas().pushDataSet(nds);
+}
+
+static ArgumentList 
+scA(QList<Argument *>() 
+    << new SeveralStringsArgument("names", 
+                                  "Names",
+                                  "Names of the columns")
+    );
+
+static ArgumentList 
+scO(QList<Argument *>() 
+    << new SeveralColumnsArgument("columns", 
+                                  "Columns",
+                                  "Sets the names of these columns only")
+    // << new BoolArgument("auto-fill", 
+    //                     "Auto fill",
+    //                     "Automatically give name to columns which do not have one (on by default)")
+    );
+
+static Command 
+scn("set-column-names", // command name
+    effector(setColumnNamesCommand), // action
+    "buffer",  // group name
+    &scA, // arguments
+    &scO, // options
+    "Set column names",
+    "Sets the column names of the buffer");
+
+
 static QHash<int, QString> parseNameSpecs(const QStringList & names)
 {
   QHash<int, QString> spcs;
@@ -2345,40 +2424,6 @@ static QHash<int, QString> parseNameSpecs(const QStringList & names)
   }
   return spcs;
 }
-
-// Two modes: sets all the names, or if the strings start with #\d:,
-// then set only those
-static void setColumnNamesCommand(const QString &,
-                                  QStringList names,
-                                  const CommandOptions & opts)
-{
-  const DataSet * ds = soas().currentDataSet();
-  DataSet * nds = ds->derivedDataSet(".dat");
-
-  // Parses the spec:
-  QHash<int, QString> sp = ::parseNameSpecs(names);
-
-  for(int col : sp.keys())
-    nds->setColumnName(col, sp[col]);
-  
-  soas().pushDataSet(nds);
-}
-
-static ArgumentList 
-scA(QList<Argument *>() 
-    << new SeveralStringsArgument("names", 
-                                  "Names",
-                                  "Names of the columns")
-    );
-
-static Command 
-scn("set-column-names", // command name
-    effector(setColumnNamesCommand), // action
-    "buffer",  // group name
-    &scA, // arguments
-    NULL, // options
-    "Set column names",
-    "Sets the column names of the buffer");
 
 // Two modes: sets all the names, or if the strings start with #\d:,
 // then set only those

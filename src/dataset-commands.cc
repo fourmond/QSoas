@@ -2353,26 +2353,6 @@ static void setColumnNamesCommand(const QString &,
   
   for(int i = 0; i < names.size(); i++)
     nds->setColumnName(cols[i], names[i]);
-
-  // // Here, auto-complete
-  // if(autoFill) {
-  //   if(nds->columnNames.size() > 0) {
-  //     QStringList createdNames;
-  //     for(int i = 0; i < nds->nbColumns(); i++) {
-  //       if(nds->columnNames[0][i].isEmpty()) {
-  //         QString cn = DataSet::standardNameForColumn(i);
-  //         nds->setColumnName(i, cn);
-  //         createdNames << cn;
-  //       }
-  //     }
-  //     if(createdNames.size() > 0)
-  //       Terminal::out << "Automatically named the remaining columns: "
-  //                     << createdNames.join(", ") << endl;
-  //   }
-  //   else {
-  //     // Feels like a bug, but is it ?
-  //   }
-  // }
   
   soas().pushDataSet(nds);
 }
@@ -2389,9 +2369,6 @@ scO(QList<Argument *>()
     << new SeveralColumnsArgument("columns", 
                                   "Columns",
                                   "Sets the names of these columns only")
-    // << new BoolArgument("auto-fill", 
-    //                     "Auto fill",
-    //                     "Automatically give name to columns which do not have one (on by default)")
     );
 
 static Command 

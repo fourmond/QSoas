@@ -136,6 +136,9 @@ textLoadOptions(QList<Argument *>()
                 << new SeveralIntegersArgument("columns", 
                                                "Columns",
                                                "columns loaded from the file")
+                << new SeveralIntegersArgument("text-columns", 
+                                               "Text columns",
+                                               "text columns ")
                 << new BoolArgument("auto-split", 
                                     "auto split",
                                     "if on, create a new dataset at every fully blank line (off by default)")
@@ -180,7 +183,9 @@ TextFileHeader TextBackend::parseComments(const QStringList & comments) const
 
 QList<QList<Vector> > TextBackend::readColumns(QTextStream & s,
                                                const CommandOptions & opts,
-                                               QStringList * cmts) const
+                                               QStringList * cmts,
+                                               const QList<int> & textColumns,
+                                               QList<QList<QStringList> > * savedTexts) const
 {
   Regex cmt = comments;
   updateFromOptions(opts, "comments", cmt);
@@ -216,8 +221,9 @@ QList<QList<Vector> > TextBackend::readColumns(QTextStream & s,
   updateFromOptions(opts, "auto-split", autoSplit);
 
   return Vector::readFromStream(&s, sep.toQRegExp(), 
-                                 cmt.toQRegExp(), autoSplit, dSep,
-                                 QRegExp("^\\s*$"), cmts, skip);
+                                cmt.toQRegExp(), autoSplit, dSep,
+                                QRegExp("^\\s*$"), cmts, skip,
+                                textColumns, savedTexts);
 }
 
 QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
@@ -238,11 +244,41 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
   s.setCodec(cd);
 
   QStringList comments;
+  QList<QList<QStringList> > savedTexts;
 
-  QList<QList<Vector> > allColumns = readColumns(s, opts, &comments);
+  QList<int> textColumns;
+  updateFromOptions(opts, "text-columns", textColumns);
+
+  std::sort(textColumns.begin(), textColumns.end());
+  std::reverse(textColumns.begin(), textColumns.end());
+
+  // Here, shift the columns to remove text columns
+  for(int & col : textColumns) {
+    for(int & i : cols) {
+      if(i == col) {
+        throw RuntimeError("Cannot specify a column both as /column and as /text-column");
+      }
+      if(i > col)
+        i--;
+    }
+    col -= 1;                   // So we keep the logic 1 = first column
+  }
+
+  QList<QList<Vector> > allColumns = readColumns(s, opts, &comments,
+                                                 textColumns,
+                                                 &savedTexts);
   TextFileHeader hd = parseComments(comments);
 
   QList<DataSet *> ret;
+
+  for(int col : textColumns) {
+    if(hd.columnNames.size() > col)
+      hd.columnNames.takeAt(col);
+  }
+
+
+
+  
 
   int total = allColumns.size();
   for(int j = 0; j < total; j++) {
@@ -282,6 +318,9 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
     setMetaDataForFile(ds, fileName);
     ds->columnNames.clear();
     ds->columnNames << cn;
+    if(savedTexts.size() > j)
+      ds->rowNames = savedTexts[j];
+
     ret << ds;
   }
   return ret;
@@ -347,7 +386,9 @@ protected:
   
   virtual QList<QList<Vector> > readColumns(QTextStream & s,
                                             const CommandOptions & opts,
-                                            QStringList * cmts) const override {
+                                            QStringList * cmts,
+                                            const QList<int> & textColumns,
+                                            QList<QList<QStringList> > * savedTexts) const override {
 
     Regex sep = separator;
     updateFromOptions(opts, "separator", sep);
@@ -373,7 +414,8 @@ protected:
                                return CSVBackend::splitCSVLine(str, sp, quote);
                              }, 
                              cmt.toQRegExp(), autoSplit, dSep,
-                             QRegExp("^\\s*$"), cmts, skip);
+                             QRegExp("^\\s*$"), cmts, skip,
+                             textColumns, savedTexts);
   };
   
   virtual ArgumentList loadOptions() const override {

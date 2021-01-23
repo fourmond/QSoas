@@ -55,15 +55,17 @@ protected:
   virtual ArgumentList loadOptions() const override;
 
   virtual QList<DataSet *> readFromStream(QIODevice * stream,
-                                   const QString & fileName,
-                                   const CommandOptions & opts) const override;
+                                          const QString & fileName,
+                                          const CommandOptions & opts) const override;
 
   virtual TextFileHeader parseComments(const QStringList & cmts) const;
 
 
   virtual QList<QList<Vector> > readColumns(QTextStream & s,
                                             const CommandOptions & opts,
-                                            QStringList * comments) const;
+                                            QStringList * comments,
+                                            const QList<int> & textColumns,
+                                            QList<QList<QStringList> > * savedTexts) const;
 public:
   TextBackend(const QString & sep,
               const char * n, const char * pn, const char * d = "");

@@ -85,9 +85,9 @@ QPen GraphicsSettings::getPen(PenRoles role) const
   case PeaksPen:
     return QPen(QColor("darkCyan"), baseLineWidth, Qt::DotLine);
   case LeftSidePen:
-    return QPen(QColor("darkGreen"), baseLineWidth, Qt::DashLine);
+    return QPen(QColor("#0B0"), baseLineWidth*1.3, Qt::DashLine);
   case RightSidePen:
-    return QPen(QColor("darkRed"), baseLineWidth, Qt::DashLine);
+    return QPen(QColor("red"), baseLineWidth*1.3, Qt::DashLine);
   case BaselinePen:
     return QPen(QColor("blue"), baseLineWidth*0.8, Qt::DotLine);
   case ReglinPen:

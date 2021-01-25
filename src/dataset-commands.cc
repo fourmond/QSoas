@@ -957,6 +957,7 @@ namespace __cut {
     const GraphicsSettings & gs = soas().graphicsSettings();
 
     CurveHorizontalRegion r;
+    r.autoSwap = true;
     CurveView & view = soas().view();
 
     /// We remove the current display

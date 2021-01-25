@@ -280,7 +280,10 @@ gsl_complex MRuby::complexValue(mrb_value value)
 
 gsl_complex MRuby::complexValue_up(mrb_value value)
 {
-  return *co_get_c(mrb, value);
+  if(mrb_obj_is_kind_of(mrb, value, cCplx))
+    return *co_get_c(mrb, value);
+  double v = floatValue_up(value);
+  return gsl_complex_rect(v, 0);
 }
 
 mrb_value MRuby::newComplex(const gsl_complex & z)

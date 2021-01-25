@@ -33,18 +33,25 @@
 /// @li QSoas's .qsm files
 /// @li PDF files
 /// @li ...
-/// They are detected
+/// They are detected but not loaded, so as to avoid spending too much time reading useless files.
 class IgnoreBackend : public DataBackend {
 protected:
 
+  /// Returns a string containing the detected format, or just an
+  /// empty string if the format was not detected.
+  static QString detectFormat(const QByteArray & peek) {
+    if(peek.startsWith("// QSoas JSON meta-data"))
+       return "QSoas meta data";
+    if(peek.startsWith("%PDF-1."))
+      return "PDF";
+    return QString();
+  };
+
   virtual int couldBeMine(const QByteArray & peek, 
                           const QString & fileName) const override {
-    QString s(peek);
-    int p = 0;
-    if(peek.startsWith("// QSoas JSON meta-data"))
-       return 900;              // QSOas meta-data
-    if(peek.startsWith("%PDF-1."))
-      return 900;               // PDF file
+    QString f = detectFormat(peek);
+    if(! f.isEmpty())
+      return 900;
     return 0;
   };
 
@@ -52,7 +59,9 @@ protected:
                                           const QString & fileName,
                                           const CommandOptions & opts) const override {
     QList<DataSet *> rv;
-    throw RuntimeError("File '%1' is not data, ignoring").arg(fileName);
+    QByteArray peek = stream->peek(4096);
+    throw RuntimeError("File '%1' is not data, but a %2 file, ignoring.\n  -> if you think the detection is wrong, use the appropriate load-as-xxx command").
+      arg(fileName).arg(detectFormat(peek));
     return rv;
   };
 

@@ -1,0 +1,3 @@
+ruby-run helpers.rb
+@ run-directory-tests.cmds ${1}
+assert /dump=summary all

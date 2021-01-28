@@ -117,7 +117,36 @@ private:
   /// The various opening modes for the file.
   OpenModes mode;
 
+  /// @name Dependency tracking
+  ///
+  /// @{
+
+  /// The list of full path of files read so far. The file paths are
+  /// absolute.
+  static QStringList * filesRead;
+
+  /// The list of files written so far. The number corresponds to the
+  /// size of filesRead at the time of their creation. The file paths
+  /// are absolute.
+  static QHash<QString, int> * filesWritten;
+
+  /// Adds the tracking information of the given file. Absolute file
+  /// path used.
+  static void trackFile(const QString & path, OpenModes m);
+
 public:
+
+  /// Write a Makefile file for the dependencies
+  ///
+  /// @b Note: this function can be called with std::atexit because
+  /// the global variables filesRead and filesWritten are NOT
+  /// DESTROYED.
+  ///
+  /// It could also be a custom destroyable object.
+  static void writeDependencies(const QString & outputFile);
+
+  /// @}
+  
 
   /// Constructs a file with the given mode, taking into account the
   /// options given in @a opts.
@@ -186,6 +215,7 @@ public:
   static QString checkOpen(const QString & fileName,
                            const CommandOptions & opts,
                            OpenModes mode = OpenModes(SimpleWriteMode)|PromptOverwrite);
+
 
 };
 

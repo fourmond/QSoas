@@ -65,6 +65,60 @@ File::File(const QString & fn, OpenModes m,
     fileName = Utils::expandTilde(fileName);
 }
 
+/// @todo We could use std::unique_ptr for all of those to further
+/// decrease the footprint at exit, but OTOH, the unique ptr must be
+/// initialized and we're back to the original problem... Hooks ?
+QStringList * File::filesRead = NULL;
+
+QHash<QString, int> * File::filesWritten = NULL;
+
+void File::trackFile(const QString & path, OpenModes m)
+{
+  if(! filesRead) {
+    filesRead = new QStringList;
+    filesWritten = new QHash<QString, int>;
+  }
+  if((m & IOMask) == ReadOnlyMode ) {
+    *filesRead << path;
+  }
+  else {
+    (*filesWritten)[path] = filesRead->size();
+  }
+}
+
+/// Takes an absolute path. Returns a path relative to the given
+/// directory, or an absolute path if the latter is shorter.
+///
+/// @todo Integrate into Utils ?
+static QString simplifyPath(const QDir & ref, const QString & path)
+{
+  QString rv = ref.relativeFilePath(path);
+  if(rv.size() < path)
+    return rv;
+  return path;
+}
+
+void File::writeDependencies(const QString & outputFile)
+{
+  if(! filesRead)
+    return;                      // Nothing to do
+  QDir cwd = QDir::current();
+  File out(outputFile, TextOverwrite|MkPath);
+  QString ot = out.info().absoluteFilePath();
+  QTextStream o(out);
+  for(const QString & n : filesWritten->keys()) {
+    int nb = (*filesWritten)[n];
+    QStringList deps = filesRead->mid(0, nb);
+    if(n == ot)
+      continue;                 // No need !
+    for(QString & d : deps)
+      d = simplifyPath(cwd, d);
+      /// @todo Quote spaces ?
+    QString n2 = simplifyPath(cwd, n);
+    o << n2 << ": " << deps.join(" ") << "\n";
+  }
+}
+
 void File::preOpen()
 {
   // QTextStream o(stdout);
@@ -102,6 +156,8 @@ void File::preOpen()
   }
 
   /// @todo Here, handle move-at-close
+
+  trackFile(info().absoluteFilePath(), mode);
 }
 
 void File::open()
@@ -235,3 +291,34 @@ QString File::checkOpen(const QString & fileName, const CommandOptions & opts,
   f.preOpen();
   return f.actualName;
 }
+
+
+//////////////////////////////////////////////////////////////////////
+#include <commandlineparser.hh>
+
+
+/// This relies on the internal file pointers still being valid at
+/// exit. Should be OK.
+///
+/// Even if there are std::unique_ptr up.
+class WriteDeps {
+public:
+  QString file;
+
+  ~WriteDeps() {
+    if(! file.isEmpty())
+      File::writeDependencies(file);
+  };
+  
+};
+
+static WriteDeps deps;
+
+//////////////////////////////////////////////////////////////////////
+
+static CommandLineOption
+hlp("--write-deps",
+    [](const QStringList & args) {
+      deps.file = args[0];
+    }, 1, "write the dependencies of created files to the given makefile");
+

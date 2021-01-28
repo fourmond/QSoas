@@ -156,6 +156,7 @@ void File::preOpen()
   }
 
   /// @todo Here, handle move-at-close
+  actualName = fileName;
 
   trackFile(info().absoluteFilePath(), mode);
 }
@@ -185,13 +186,13 @@ void File::open()
   // QTextStream o(stdout);
   // o << "Opening file: " << fileName << " with mode: "
   //   << m <<  " (internal mode: " << mode << ")" << endl;
-  std::unique_ptr<QFile> f(new QFile(fileName));
+  std::unique_ptr<QFile> f(new QFile(actualName));
   if(!f->open(m)) {
     QString error = f->errorString();
     QString mdStr = (m & QIODevice::ReadWrite) == QIODevice::ReadOnly ?
       "for reading" : "for writing";
     throw RuntimeError("Could not open file %1 %2: %3").
-      arg(fileName).arg(mdStr).arg(error);
+      arg(actualName).arg(mdStr).arg(error);
   }
   device = f.release();
   // Successful opening !

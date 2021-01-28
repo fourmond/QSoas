@@ -603,6 +603,26 @@ psh("push", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+static void pushParametersCommand(const QString & /*name*/,
+                                  const CommandOptions & opts)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  DataSet * ds = ws->exportAsDataSet(true);
+  soas().pushDataSet(ds);
+}
+
+static Command 
+pp("push-parameters", // command name
+   effector(pushParametersCommand), // action
+   "fits",  // group name
+   NULL, // arguments
+   NULL, // options
+   "Push parameters",
+   "Push parameters to stack",
+   "", CommandContext::fitContext());
+
+//////////////////////////////////////////////////////////////////////
+
 static void evalCommand(const QString & /*name*/, QString formula,
                         const CommandOptions & /*opts*/)
 {

@@ -379,7 +379,8 @@ SOURCES += src/qmain.cc \
         src/filepromptwidget.cc \
         src/datasetlist.cc \
         src/implicit-fits.cc \
-        src/datasetwriter.cc
+        src/datasetwriter.cc \
+        src/externalfunction.cc
 
 # Fit engines, grouped in an easy way to disable them:
 # (its missing ODRPACK, though)
@@ -524,7 +525,8 @@ HEADERS += src/headers.hh \
         src/filepromptwidget.hh \
         src/namedinstanceargument.hh \
         src/datasetlist.hh \
-        src/datasetwriter.hh
+        src/datasetwriter.hh \
+        src/externalfunction.hh
 
 # mruby
 HEADERS += src/mruby.hh

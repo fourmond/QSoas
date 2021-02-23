@@ -1,13 +1,19 @@
-<!DOCTYPE RCC><RCC version="1.0">
-<qresource>
-  <file>ruby/fancyhash.rb</file>
-  <file>ruby/complex.rb</file>
-  <file>QSoas-logo.svg</file>
-  <file>QSoas-logo.png</file>
-  <file>licenses/GPL-2.txt</file>
-  <file>licenses/GPL-3.txt</file>
-  <file>licenses/mruby.txt</file>
-  <file>licenses/LICENSE.GPL3-EXCEPT</file>
-  <file>licenses/LGPL-2.1.txt</file>
-</qresource>
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource>
+    <!-- Embedded ruby code -->
+    <file>ruby/fancyhash.rb</file>
+    <file>ruby/complex.rb</file>
+    <!-- External function wrappers -->
+    <file>resources/python-wrapper.py</file>
+    <!-- Logos -->
+    <file>QSoas-logo.svg</file>
+    <file>QSoas-logo.png</file>
+    <!-- Licences -->
+    <file>licenses/GPL-2.txt</file>
+    <file>licenses/GPL-3.txt</file>
+    <file>licenses/mruby.txt</file>
+    <file>licenses/LICENSE.GPL3-EXCEPT</file>
+    <file>licenses/LGPL-2.1.txt</file>
+  </qresource>
 </RCC>

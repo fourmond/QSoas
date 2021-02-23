@@ -18,9 +18,6 @@
 
 ## CODE
 
-def func(x, e1=2, e2=2):
-    return x**2 + e1*x + e2
-
 import sys
 import json
 

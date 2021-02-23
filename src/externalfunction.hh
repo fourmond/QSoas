@@ -44,6 +44,13 @@ public:
   /// Returns default values for the parameters (the parameters can be
   /// missing)
   virtual QHash<QString, double> defaultValues() const;
+
+  virtual ~ExternalFunction();
+
+  /// Returns a newly created external function for the given python
+  /// file and function
+  static ExternalFunction * pythonFunction(const QString & file,
+                                           const QString & function);
 };
 
 #endif

@@ -23,8 +23,12 @@ import json
 
 for l in sys.stdin:
     cmd = json.loads(l)
-    fnc = lambda x: func(x, *cmd['parameters'])
-    rv = list(map(fnc, cmd['xvalues']))
+    rv = dict()
+    try:
+        fnc = lambda x: func(x, *cmd['parameters'])
+        rv['values'] = list(map(fnc, cmd['xvalues']))
+    except Exception as ex:
+        rv['error'] = str(ex)
     print(json.dumps(rv))
     print("// -> DONE", flush=True)
     

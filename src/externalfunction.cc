@@ -82,10 +82,12 @@ public:
   };
 
   ~JSONBasedFunction() {
-    process->closeWriteChannel();
-    // Wait 10 ms before closing
-    process->waitForFinished(10);
-    delete process;
+    if(process) {
+      process->closeWriteChannel();
+      // Wait 10 ms before closing
+      process->waitForFinished(10);
+      delete process;
+    }
   };
 
   Vector compute(const Vector & xv, const double * params) override {
@@ -124,9 +126,16 @@ public:
       throw RuntimeError("Failed to parse the JSON response:");
     }
 
-    if(! doc.isArray())
-      throw RuntimeError("The JSON data should be an array");
-    vals = doc.array();
+    if(! doc.isObject())
+      throw RuntimeError("The JSON data should be an object");
+    obj = doc.object();
+    if(obj.contains("error"))
+      throw RuntimeError("Error executing function: %1").
+        arg(obj["error"].toString());
+    if(! obj.contains("values"))
+      throw RuntimeError("Subprocess failed to return values");
+    vals = obj["values"].toArray();
+    
 
     Vector rv;
     for(const QJsonValue & v : vals)

@@ -61,8 +61,7 @@ protected:
   /// Reads a line from the subprocess
   QByteArray readLine() {
     QByteArray rv;
-    char buffer[1024];
-    QTextStream o(stdout);
+    char buffer[20000];
     while(true) {
       qint64 read = process->readLine(buffer, sizeof(buffer));
       if(read > 0) {
@@ -109,7 +108,6 @@ public:
     process->waitForStarted();
     process->write(doc.toJson(QJsonDocument::Compact) + "\n");
     process->waitForBytesWritten();
-    process->waitForReadyRead();
 
     // Now read the response
 
@@ -118,7 +116,10 @@ public:
       QByteArray ln = readLine();
       if(ln.startsWith("// -> DONE"))
         break;
-      resp += ln;
+      if(ln.size() == 0)
+        process->waitForReadyRead();
+      else 
+        resp += ln;
     }
     QJsonParseError err;
     doc = QJsonDocument::fromJson(resp, &err);
@@ -184,7 +185,7 @@ protected:
 
     // Look for all functions
 
-    QRegExp fundef("def\\s+(\\w+)\\s*\\(([^:]+\\))\\s*:");
+    QRegExp fundef("def\\s+(\\w+)\\s*\\(([^:]+)\\)\\s*:");
     int pos = 0;
     QString args;
     while(true) {
@@ -211,10 +212,14 @@ protected:
     parameterList.clear();
     for(const QString & s : lst) {
       QStringList l = s.split(QRegExp("\\s*=\\s*"));
+      if(l.size() > 1) {
+        bool ok = false;
+        double v = l[1].toDouble(&ok);
+        if(! ok)
+          break;
+        defaults[l.first()] = v;
+      }
       parameterList << l.first();
-      if(l.size() > 1)
-        /// @todo Stop at first non double found.
-        defaults[l.first()] = l[1].toDouble();
     }
     code = s;
     code += QString("\nfunc = %1\n").arg(function);
@@ -264,6 +269,10 @@ public:
       const_cast<PythonFunction*>(this)->generateCode();
     }
     return parameterList;
+  };
+
+  QHash<QString, double> defaultValues() const override {
+    return defaults;
   };
 };
 

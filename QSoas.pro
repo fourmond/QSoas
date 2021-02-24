@@ -380,7 +380,8 @@ SOURCES += src/qmain.cc \
         src/datasetlist.cc \
         src/implicit-fits.cc \
         src/datasetwriter.cc \
-        src/externalfunction.cc
+        src/externalfunction.cc \
+        src/externalfunctionfit.cc
 
 # Fit engines, grouped in an easy way to disable them:
 # (its missing ODRPACK, though)

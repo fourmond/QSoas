@@ -109,10 +109,14 @@ void File::writeDependencies(const QString & outputFile)
   for(const QString & n : filesWritten->keys()) {
     int nb = (*filesWritten)[n];
     QStringList deps = filesRead->mid(0, nb);
+    for(int i = deps.size()-1; i >=0; i--) {
+      if(deps[i].startsWith(":"))
+        deps.takeAt(i);
+    }
     if(n == ot)
       continue;                 // No need !
-    for(QString & d : deps)
-      d = simplifyPath(cwd, d);
+    // for(QString & d : deps)
+    //   d = simplifyPath(cwd, d);
       /// @todo Quote spaces ?
     QString n2 = simplifyPath(cwd, n);
     o << n2 << ": " << deps.join(" ") << "\n";

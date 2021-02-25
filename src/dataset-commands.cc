@@ -2339,6 +2339,9 @@ static void setColumnNamesCommand(const QString &,
   bool sanitize = false;
   updateFromOptions(opts, "sanitize-names", sanitize);
 
+  bool clear = false;
+  updateFromOptions(opts, "clear", clear);
+
   QList<int> cols;
   ColumnListSpecification spec;
   updateFromOptions(opts, "columns", spec);
@@ -2353,6 +2356,9 @@ static void setColumnNamesCommand(const QString &,
     for(int i = 0; i < names.size(); i++)
       cols << i;
   }
+
+  if(clear)
+    nds->columnNames.clear();
 
   for(int i = 0; i < names.size(); i++)
     nds->setColumnName(cols[i], names[i]);
@@ -2401,6 +2407,9 @@ scO(QList<Argument *>()
     << new BoolArgument("sanitize-names", 
                         "Sanitize names",
                         "Adapts the names so that they can be used with apply-formula /use-names=true")
+    << new BoolArgument("clear", 
+                        "Clear names",
+                        "Removes all the names")
     );
 
 static Command 
@@ -2437,11 +2446,18 @@ static QHash<int, QString> parseNameSpecs(const QStringList & names)
 // Two modes: sets all the names, or if the strings start with #\d:,
 // then set only those
 static void setRowNamesCommand(const QString &,
-                               QStringList names,
                                const CommandOptions & opts)
 {
   const DataSet * ds = soas().currentDataSet();
   DataSet * nds = ds->derivedDataSet(".dat");
+
+  QStringList names;
+  updateFromOptions(opts, "names", names);
+
+  bool clear = false;
+  updateFromOptions(opts, "clear", clear);
+  if(clear)
+    nds->rowNames.clear();
 
   // Parses the spec:
   QHash<int, QString> sp = ::parseNameSpecs(names);
@@ -2453,18 +2469,21 @@ static void setRowNamesCommand(const QString &,
 }
 
 static ArgumentList 
-srA(QList<Argument *>() 
+srO(QList<Argument *>() 
     << new SeveralStringsArgument("names", 
                                   "Names",
-                                  "Names of the columns")
+                                  "Names of the columns", true, true)
+    << new BoolArgument("clear", 
+                        "Clear names",
+                        "Removes all the names")
     );
 
 static Command 
 srn("set-row-names", // command name
     effector(setRowNamesCommand), // action
     "buffer",  // group name
-    &srA, // arguments
-    NULL, // options
+    NULL, // arguments
+    &srO, // options
     "Set row names",
     "Sets the row names of the buffer");
 

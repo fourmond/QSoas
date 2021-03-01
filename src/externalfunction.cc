@@ -113,11 +113,18 @@ public:
 
     QByteArray resp;
     while(true) {
+      // if(process->atEnd())
+      //   throw RuntimeError("Premature end of subprocess %1 %2").
+      //     arg(process->program()).arg(process->arguments().join(" "));
       QByteArray ln = readLine();
       if(ln.startsWith("// -> DONE"))
         break;
-      if(ln.size() == 0)
+      if(ln.size() == 0) {
+        if(process->state() == QProcess::NotRunning)
+            throw RuntimeError("Premature end of subprocess %1 %2").
+              arg(process->program()).arg(process->arguments().join(" "));
         process->waitForReadyRead();
+      }
       else 
         resp += ln;
     }
@@ -173,6 +180,9 @@ protected:
 
   // The code for the function
   QString code;
+
+  /// The path to the python interpreter
+  QString python;
 
   /// Reads the file, parses the argument list and generates the code
   /// necessary.
@@ -249,7 +259,7 @@ protected:
 
     process = new QProcess();
     process->setProcessChannelMode(QProcess::ForwardedErrorChannel);
-    process->start("python3",
+    process->start(python,
                    QStringList() << "temporary-python-code.py",
                    QIODevice::ReadWrite|QIODevice::Unbuffered);
     
@@ -257,8 +267,10 @@ protected:
 
 public:
 
-  PythonFunction(const QString & file, const QString & fn) :
-    function(fn), fileName(file)
+  PythonFunction(const QString & file, const QString & fn,
+                 const QString & py = QString()) :
+    function(fn), fileName(file), python(py.isEmpty() ?
+                                         QString("python3") : py)
   {
   };
 
@@ -279,9 +291,11 @@ public:
 //////////////////////////////////////////////////////////////////////
 
 ExternalFunction * ExternalFunction::pythonFunction(const QString & file,
-                                                    const QString & function)
+                                                    const QString & function,
+                                                    const QString & interpreter)
 {
-  std::unique_ptr<ExternalFunction> fn(new PythonFunction(file, function));
+  std::unique_ptr<ExternalFunction>
+    fn(new PythonFunction(file, function, interpreter));
   /// Ensure opening woks
   fn->parameters();
 

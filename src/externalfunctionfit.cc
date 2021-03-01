@@ -120,7 +120,12 @@ static void definePythonFitCommand(const QString &,
 {
   bool overwrite  = false;
   updateFromOptions(opts, "redefine", overwrite);
-  ExternalFunction * fun = ExternalFunction::pythonFunction(file, func);
+
+  QString python;
+  updateFromOptions(opts, "interpreter", python);
+  
+  ExternalFunction * fun =
+    ExternalFunction::pythonFunction(file, func, python);
   Terminal::out << "Found function : " << func << " with parameters: "
                 << fun->parameters().join(", ") << endl;
   createExternalFit(name, fun, overwrite);
@@ -144,6 +149,9 @@ cfOpts(QList<Argument *>()
         << new BoolArgument("redefine", 
                             "Redefine",
                             "If the fit already exists, redefines it")
+        << new FileArgument("interpreter", 
+                            "Python interpreter",
+                            "Path to the python3 interpreter")
        );
 
 static Command 

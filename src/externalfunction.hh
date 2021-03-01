@@ -50,7 +50,8 @@ public:
   /// Returns a newly created external function for the given python
   /// file and function
   static ExternalFunction * pythonFunction(const QString & file,
-                                           const QString & function);
+                                           const QString & function,
+                                           const QString & interpreter = "");
 };
 
 #endif

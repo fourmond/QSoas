@@ -160,6 +160,7 @@ public:
 
 #include <file.hh>
 
+#include <QTemporaryFile>
 
 /// This class implements an ExternalFunction communicating to a
 /// python process.
@@ -252,17 +253,23 @@ protected:
     QString s = in.readAll();
     s.replace("## CODE", code);
 
+    /// @todo Move to File ?
+    QTemporaryFile file;
+    file.setAutoRemove(false); // Accumulation of temporary files ?
+    file.setFileTemplate("python-temporary-code-XXXXXX.py");
+    file.open();
     {
-      File fl("temporary-python-code.py", File::TextOverwrite);
-
-      QTextStream out(fl);
+      QTextStream out(&file);
       out << s;
     }
+    file.close();
+
+    
 
     process = new QProcess();
     process->setProcessChannelMode(QProcess::ForwardedErrorChannel);
     process->start(python,
-                   QStringList() << "temporary-python-code.py",
+                   QStringList() << file.fileName(),
                    QIODevice::ReadWrite|QIODevice::Unbuffered);
     
   };

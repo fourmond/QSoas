@@ -222,6 +222,8 @@ protected:
     parameterList.clear();
     for(const QString & s : lst) {
       QStringList l = s.split(QRegExp("\\s*=\\s*"));
+      if(l[0].startsWith("**"))
+        break;
       if(l.size() > 1) {
         bool ok = false;
         double v = l[1].toDouble(&ok);

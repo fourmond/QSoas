@@ -121,6 +121,12 @@ for k in keys
   end
 end
 
+# This is not very clear, but it seems that, for upgrades to replace
+# the previous things, the upgradeID should be identical.
+#
+# According to https://docs.microsoft.com/en-us/windows/win32/msi/upgradecode, the UpgradeID represents a related set of products...
+uuids['UpgradeID'] = "C51849DD-372B-416D-8934-1036B01892B5"
+
 store = uuids.dup
 
 # These are UUIDS that should change at every run

@@ -55,6 +55,10 @@ CurveView::CurveView(QWidget * parent) :
   setCursor(Qt::CrossCursor);
 
   setOpenGL(soas().graphicsSettings().openGL());
+
+  setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
+          SLOT(showContextMenu(const QPoint &)));
 }
 
 CurveView::~CurveView()
@@ -388,9 +392,48 @@ QPixmap CurveView::renderDatasetAsPixmap(const DataSet * dataset,
   return QPixmap::grabWidget(&v);
 }
 
+void addCMAction(QMenu * menu, const QString & text,
+                 std::function<void ()> func)
+{
+  QAction * act = menu->addAction(text);
+  QObject::connect(act, &QAction::triggered, func);
+}
+
+void CurveView::showContextMenu(const QPoint & pos)
+{
+  CurvePanel * panel = panelAt(pos);
+  QMenu menu;
+  // QTextStream o(stdout);
+  // o << "Pos: " << pos.x() << "," << pos.y()
+  //   <<  " -> " << panel << endl;
+  if(panel) {
+    QPointF pt = panel->fromWidget(pos);
+    menu.addSection(QString("(%1, %2)").
+                    arg(pt.x(), 0, 'g', 4).arg(pt.y(), 0, 'g', 4));
+    addCMAction(&menu, "Copy X",
+                [pt] {
+                  QGuiApplication::clipboard()->setText(QString::number(pt.x(), 'g', 4));  
+                });
+    addCMAction(&menu, "Copy Y",
+                [pt] {
+                  QGuiApplication::clipboard()->setText(QString::number(pt.y(), 'g', 4));  
+                });
+    addCMAction(&menu, "Copy X,Y",
+                [pt] {
+                  QGuiApplication::clipboard()->
+                    setText(QString("%1,%2").
+                            arg(pt.x(), 0, 'g', 4).
+                            arg(pt.y(),  0, 'g', 4));  
+                });
+  }
+
+  menu.exec(pos);
+}
+
+
 
 //////////////////////////////////////////////////////////////////////
-/// Event-related functions.
+/// Event functions.
 
 bool CurveView::event(QEvent * event)
 {
@@ -402,6 +445,13 @@ bool CurveView::event(QEvent * event)
     return QAbstractScrollArea::event(event);
   }
 }
+
+// void CurveView::contextMenuEvent(QContextMenuEvent *event)
+// {
+//   CurvePanel * panel = panelAt(event->pos());
+//   showContextMenu(event->pos());
+//   event->accept();
+// }
 
 void CurveView::helpEvent(QHelpEvent * event)
 {

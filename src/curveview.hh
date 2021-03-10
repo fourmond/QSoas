@@ -200,20 +200,27 @@ public:
 
 
 protected:
-  virtual void resizeEvent(QResizeEvent * event);
-  virtual void paintEvent(QPaintEvent * event);
+  virtual void resizeEvent(QResizeEvent * event) override;
+  virtual void paintEvent(QPaintEvent * event) override;
 
 
-  virtual bool event(QEvent * event);
+  virtual bool event(QEvent * event) override;
 
-  virtual void mouseMoveEvent(QMouseEvent * event);
-  virtual void mousePressEvent(QMouseEvent * event);
-  virtual void mouseReleaseEvent(QMouseEvent * event);
+  virtual void mouseMoveEvent(QMouseEvent * event) override;
+  virtual void mousePressEvent(QMouseEvent * event) override;
+  virtual void mouseReleaseEvent(QMouseEvent * event) override; 
 
-  virtual void helpEvent(QHelpEvent * event);
 
-  virtual void keyPressEvent(QKeyEvent * event);
-  virtual void wheelEvent(QWheelEvent * event);
+  virtual void keyPressEvent(QKeyEvent * event) override;
+  virtual void wheelEvent(QWheelEvent * event) override;
+  
+  // virtual void contextMenuEvent(QContextMenuEvent *event) override;
+
+  void helpEvent(QHelpEvent * event);
+
+protected slots:
+  /// Shows the context menu at the given point
+  void showContextMenu(const QPoint & pos);
 };
 
 #endif

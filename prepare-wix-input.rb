@@ -125,7 +125,7 @@ end
 # the previous things, the upgradeID should be identical.
 #
 # According to https://docs.microsoft.com/en-us/windows/win32/msi/upgradecode, the UpgradeID represents a related set of products...
-uuids['UpgradeID'] = "C51849DD-372B-416D-8934-1036B01892B5"
+uuids['UpgradeID'] = "BF4BE0DE-BC7C-438A-AC28-DC4310B28EEA"
 
 store = uuids.dup
 
@@ -189,6 +189,11 @@ substs['DEBUG_DLL_REFS'] = dll_refs['debug']
 
 substs['VERSION'] = full_version
 substs['WIN_VERSION'] = win_version
+
+# Dumping some informations...
+puts "Preparing the wix input files. Using the following substititions:"
+puts YAML::dump(substs)
+
 
 # OK, now the generation of the XML source file, in the current directory ?
 

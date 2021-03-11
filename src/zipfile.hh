@@ -28,6 +28,9 @@
 #include <zip.h>
 
 /// This class represents a ZIP file, opened only for reading for now.
+///
+/// @todo Use shared pointer semantics for avoiding premature deletion
+/// of the Zip File ?
 class ZipFile {
   /// The underlying ZIP archive
   struct zip * zipFile;
@@ -37,6 +40,9 @@ class ZipFile {
 
   /// Opens the archive when it is not open. Or fail.
   void openArchive();
+
+  /// Throws an error corresponding to the currently stored error.
+  void throwError();
 public:
 
   ZipFile(const QString & path);
@@ -48,6 +54,9 @@ public:
   /// @todo Return QIODevice subclass for reading from the
   /// Archive. This would integrate nicely in the File system.
   /// The game will be to properly cache the archive.
+
+  /// Opens the given file, and returns an appropriate QIODevice
+  QIODevice * openFile(const QString & file);
   
 };
 

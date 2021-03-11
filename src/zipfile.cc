@@ -63,9 +63,53 @@ QStringList ZipFile::fileNames()
   return rv;
 }
 
+void ZipFile::throwError()
+{
+  if(! zipFile)
+    throw InternalError("Somehow not using an initialized ZIP file");
+  throw RuntimeError("Error in zip file: %1 -- %2").
+    arg(zipPath).arg(zip_strerror(zipFile));
+}
+
+/// A QIODevice subclass for reading the contents of an archive
+class ZipIO : public QIODevice {
+  zip_file_t * file;
+  ZipFile * zip;
+public:
+  ZipIO(ZipFile * z, zip_file_t * fl) : file(fl), zip(z) {
+    
+  };
+
+  ~ZipIO() {
+    zip_fclose(file);
+  };
+    
+
+  virtual qint64 readData(char *data, qint64 maxSize) override {
+    return zip_fread(file, data, maxSize);
+  };
+  
+  virtual qint64 writeData(const char *data, qint64 maxSize) override {
+    throw InternalError("Really, this shouldn't be called");
+    return -1;
+  };
+};
 
 
 
+QIODevice * ZipFile::openFile(const QString & file)
+{
+  openArchive();
+  if(! zipFile)
+    throw InternalError("Somehow not using an initialized ZIP file");
+  zip_file_t * fl = zip_fopen(zipFile, file.toUtf8(), 0);
+  if(! fl)
+    throwError();
+  return new ZipIO(this, fl);
+}
+
+
+//////////////////////////////////////////////////////////////////////
 
 #include <commandlineparser.hh>
 
@@ -82,4 +126,21 @@ static void readZip(const QStringList & args)
   ::exit(0);
 }
 
-static CommandLineOption hlp("--zip-lst", &::readZip, 1, "test: read zip");
+static CommandLineOption zl("--zip-lst", &::readZip, 1, "test: read zip");
+
+static void readZipFile(const QStringList & args)
+{
+  QString file = args[0];
+  ZipFile zip(file);
+  QString fn = args[1];
+  {
+    std::unique_ptr<QIODevice> dev(zip.openFile(fn));
+    dev->open(QIODevice::ReadOnly);
+    QFile out(fn);
+    out.open(QIODevice::WriteOnly);
+    out.write(dev->readAll());
+  }
+  ::exit(0);
+}
+
+static CommandLineOption zr("--zip-extract", &::readZipFile, 2, "test: read zip");

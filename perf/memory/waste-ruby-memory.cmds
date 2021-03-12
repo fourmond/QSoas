@@ -1,6 +1,6 @@
-run-for-each s/waste-ruby-memory.cmds 0..1:100 /range-type=lin
+run-for-each s/waste-ruby-memory.cmds 0..1:100 /range-type=lin /silent=true
 mem
 clear-stack
-run-for-each s/waste-ruby-memory.cmds 0..1:100 /range-type=lin
+run-for-each s/waste-ruby-memory.cmds 0..1:100 /range-type=lin /silent=true
 mem
 clear-stack

@@ -236,6 +236,18 @@ CommandWidget::~CommandWidget()
 
 bool CommandWidget::runCommand(const QStringList & raw, bool doFullPrompt)
 {
+  /// @hack Hmmm.
+  ///
+  /// I don't fully understand the use of the arena in mruby, but it
+  /// seems that the command level is "top-level enough" that we don't
+  /// clutter temporary objects here ? I guess it really shouldn't ?
+  /// My understanding is that if a command does not return a ruby
+  /// value, then it has to be arena-neutral ?
+  MRuby * mr = MRuby::ruby();
+  MRubyArenaContext c(mr);
+  
+    
+  
   /// @todo use a different prompt whether the call is internal or
   /// external ?
   Debug::debug().startCommand(raw);

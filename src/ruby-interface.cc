@@ -26,6 +26,9 @@
 
 #include <valuehash.hh>
 
+#include <mruby/variable.h>
+#include <mruby/gc.h>
+
 static mrb_value qs_method_missing(mrb_state * mrb, mrb_value self)
 {
   mrb_sym sym;
@@ -78,6 +81,20 @@ mrb_value qs_config(mrb_state * /*mrb*/, mrb_value /*self*/)
   return Soas::versionInfo().toRuby();
 }
 
+
+mrb_value qs_get_gc_root(mrb_state * mrb, mrb_value /*self*/)
+{
+  mrb_sym root = mrb_intern_lit(mrb, "_gc_root_");
+  return mrb_gv_get(mrb, root);
+}
+
+// mrb_value qs_get_gc_arena(mrb_state * mrb, mrb_value self, mrb_value idx)
+// {
+//   int i = mrb_fixnum(idx);
+//   return mrb->gc.arena[mrb->gc.arena_idx - 1 - i];
+// }
+
+
 void MRuby::initializeInterface()
 {
   if(! Soas::soasInstance())
@@ -93,6 +110,12 @@ void MRuby::initializeInterface()
 
   mrb_define_method(mrb, cQSoasInterface, "config",
                     &::qs_config, MRB_ARGS_NONE());
+
+  mrb_define_method(mrb, cQSoasInterface, "__get_gc_root__",
+                    &::qs_get_gc_root, MRB_ARGS_NONE());
+
+  // mrb_define_method(mrb, cQSoasInterface, "__get_gc_arena__",
+  //                   &::qs_get_gc_arena, MRB_ARGS_ANY());
 
   
   soasInstance = mrb_obj_new(mrb, cQSoasInterface, 0, NULL);

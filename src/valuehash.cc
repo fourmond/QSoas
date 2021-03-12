@@ -419,10 +419,10 @@ mrb_value ValueHash::variantToRuby(const QVariant & variant)
 mrb_value ValueHash::toRuby() const
 {
   MRuby * mr = MRuby::ruby();
+  mrb_value ret = mr->newFancyHash();
   MRubyArenaContext c(mr);
 
-  mrb_value ret = mr->newFancyHash();
-  mr->gcRegister(ret);
+  // mr->gcRegister(ret);
   for(const_iterator it = begin(); it != end(); ++it) {
     // Hmmm, QVariant says type() is QVariant::Type, but the
     // documentation says is really is QMetaType::Type.
@@ -440,6 +440,7 @@ mrb_value ValueHash::toRuby() const
                      << er.exceptionBacktrace().join("\n\t") << endl;
     }
   }
+  // mr->gcUnregister(ret);
   return ret;
 }
 

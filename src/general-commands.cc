@@ -253,7 +253,9 @@ static void memCommand(const QString &,
                        const CommandOptions & opts)
 {
   int kb = Utils::memoryUsed();
-  Terminal::out << "Memory used: " << kb << " kB" << endl;
+  MRuby * mr = MRuby::ruby();
+  Terminal::out << "Memory used: " << kb << " kB\n"
+                << "Ruby memory used: " << mr->memoryUse() << endl;
 
   Terminal::out << "Stack: " << soas().stack().textSummary() << endl;
 

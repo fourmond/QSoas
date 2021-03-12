@@ -1,0 +1,4 @@
+# In this script, we try wasting Ruby memory by forcing it to allocate many strings via the row/column name thing
+generate-dataset 0 10 /columns=20
+set-column-names a b c d
+strip-if $c.d>8

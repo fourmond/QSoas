@@ -1274,11 +1274,22 @@ QStringList CodeArgument::completeCode(const QString & starter)
   if(idx >= 0) {
     QString cur = starter.mid(idx);
     QStringList props;
-    props << "$stats" << "$meta";
-    // Prepare completions
+    props << "$stats" << "$meta" << "$nstats";
+
+    // Prepare completions -- stats
     QStringList stats = StatisticsValue::statsAvailable(ds);
     for(const QString & n : stats) 
       props += "$stats." + n;
+    stats = StatisticsValue::statsAvailable(ds, true);
+    QRegExp codeOKRe("^[a-z_]\\w+$");
+    for(const QString & n : stats)  {
+      if(codeOKRe.indexIn(n) == 0)
+        props += "$nstats." + n;
+      else
+        props += "$nstats[\"" + n + "\"]";
+    }
+
+    // -- meta
     QStringList meta = ds->getMetaData().keys();
     meta << "name";
     QRegExp re("^\\w+$");

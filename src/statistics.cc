@@ -38,12 +38,14 @@ void StatisticsValue::registerSelf()
   *allStats << this;
 }
 
-QStringList StatisticsValue::statsAvailable(const DataSet * ds)
+QStringList StatisticsValue::statsAvailable(const DataSet * ds, bool useNames)
 {
   QStringList ret;
   if(! allStats)
     return ret;
-  QStringList colnames = ds->standardColumnNames();
+  QStringList colnames = useNames ?
+    ds->mainColumnNames()
+    : ds->standardColumnNames();
   for(int i = 0; i < allStats->size(); i++) {
     const StatisticsValue * s = allStats->value(i);
     if(s->global() && s->available(ds, -1))
@@ -364,7 +366,8 @@ Statistics::~Statistics()
 }
 
 void Statistics::internalStats(ValueHash * overall, 
-                               QList<ValueHash> * byColumn)
+                               QList<ValueHash> * byColumn,
+                               bool useNames)
 {
   // We first sort the stats between global and not
   if(! StatisticsValue::allStats)
@@ -380,6 +383,7 @@ void Statistics::internalStats(ValueHash * overall,
   }
   
   // This is the real job.
+  /// @todo Cache this ? 
   if(overall) {
     for(int i = 0; i < globalStats.size(); i++) {
       StatisticsValue * v = globalStats[i];
@@ -388,7 +392,9 @@ void Statistics::internalStats(ValueHash * overall,
     }
   }
 
-  QStringList names = source->standardColumnNames();
+  QStringList names = useNames ?
+    source->mainColumnNames()
+    : source->standardColumnNames();
   for(int i = 0; i < source->nbColumns(); i++) {
     const QString & n = names[i];
     ValueHash stats;
@@ -409,41 +415,42 @@ void Statistics::internalStats(ValueHash * overall,
   }
 }
 
-ValueHash Statistics::stats()
+ValueHash Statistics::stats(bool useNames)
 {
   ValueHash ret;
-  internalStats(&ret, NULL);
+  internalStats(&ret, NULL, useNames);
   return ret;
 }
 
 
-QList<ValueHash> Statistics::statsByColumns(ValueHash * overall)
+QList<ValueHash> Statistics::statsByColumns(ValueHash * overall, bool useNames)
 {
   QList<ValueHash> ret;
-  internalStats(overall, &ret);
+  internalStats(overall, &ret, useNames);
   return ret;
 }
 
-QList<ValueHash> Statistics::statsBySegments(ValueHash * overall)
+QList<ValueHash> Statistics::statsBySegments(ValueHash * overall,
+                                             bool useNames)
 {
   if(segs.size() == 0)
     segs = source->chopIntoSegments();
   QList<ValueHash> ret;
 
   if(overall)
-    internalStats(overall, NULL);
+    internalStats(overall, NULL, useNames);
 
   for(int i = 0; i < segs.size(); i++) {
     Statistics s(segs[i]);
-    ret << s.stats();
+    ret << s.stats(useNames);
   }
   return ret;
 }
 
-mrb_value Statistics::toRuby()
+mrb_value Statistics::toRuby(bool useNames)
 {
   ValueHash s;
-  QList<ValueHash> sstats = statsBySegments(&s);
+  QList<ValueHash> sstats = statsBySegments(&s, useNames);
   mrb_value hsh = s.toRuby();
   MRuby * mr = MRuby::ruby();
 
@@ -452,6 +459,5 @@ mrb_value Statistics::toRuby()
     mr->hashSet(hsh, mr->newInt(i), v);
     mr->hashSet(hsh, mr->newFloat(i), v);
   }
-  // rbw_gv_set("$stats", hsh);
   return hsh;
 }

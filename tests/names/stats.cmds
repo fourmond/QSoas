@@ -1,0 +1,8 @@
+# We use a small number of samples
+generate-dataset 0 10 x**2
+set-column-names my_x my_y
+assert $stats.y_max-100 0
+assert $stats.y_min 0
+
+assert $nstats.my_y_max-100 0
+assert $nstats.my_y_min 0

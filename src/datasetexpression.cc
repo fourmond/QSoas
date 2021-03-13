@@ -58,6 +58,7 @@ void DataSetExpression::prepareVariables()
   if(useStats && !globals.contains("$stats")) {
     Statistics st(dataset);
     setGlobal("$stats", st.toRuby());
+    setGlobal("$nstats", st.toRuby(true));
   }
 
   if(useMeta && !globals.contains("$meta"))

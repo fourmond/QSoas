@@ -55,7 +55,8 @@ public:
   /// Archive. This would integrate nicely in the File system.
   /// The game will be to properly cache the archive.
 
-  /// Opens the given file, and returns an appropriate QIODevice
+  /// Opens the given file, and returns an appropriate QIODevice,
+  /// which still must be opened.
   QIODevice * openFile(const QString & file);
   
 };

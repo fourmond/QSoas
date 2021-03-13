@@ -65,7 +65,7 @@ public:
   /// Returns all the statistics available for the given dataset.
   ///
   /// @warning Not necessarily in the same order as the stats
-  static QStringList statsAvailable(const DataSet * ds);
+  static QStringList statsAvailable(const DataSet * ds, bool useNames = false);
 
   /// Returns the suffixes of all the available stats.
   static QStringList allSuffixes();
@@ -86,7 +86,8 @@ class Statistics {
   /// Computes the statistics and store them in the given pointers
   /// (that may be NULL)
   void internalStats(ValueHash * overall, 
-                     QList<ValueHash> * byColumn);
+                     QList<ValueHash> * byColumn,
+                     bool useNames = false);
 
 public:
 
@@ -94,20 +95,22 @@ public:
   ~Statistics();
 
   /// Returns the overall statistics
-  ValueHash stats();
+  ValueHash stats(bool useNames = false);
 
   /// Returns column-by-column statistics, and the overall statistics
   /// in the target value hash if not NULL.
-  QList<ValueHash> statsByColumns(ValueHash * overall = NULL);
+  QList<ValueHash> statsByColumns(ValueHash * overall = NULL,
+                                  bool useNames = false);
 
   /// Returns segment-by-segments statistics, and the overall
   /// statistics in the target value hash if not NULL.
-  QList<ValueHash> statsBySegments(ValueHash * overall = NULL);
+  QList<ValueHash> statsBySegments(ValueHash * overall = NULL,
+                                   bool useNames = false);
 
 
   /// Returns a Ruby hash containing the statistics (including
   /// sub-hashes containing stats by segments when applicable)
-  mrb_value toRuby();
+  mrb_value toRuby(bool useNames = false);
   
 };
 

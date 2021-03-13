@@ -433,16 +433,29 @@ QList<ValueHash> Statistics::statsByColumns(ValueHash * overall, bool useNames)
 QList<ValueHash> Statistics::statsBySegments(ValueHash * overall,
                                              bool useNames)
 {
-  if(segs.size() == 0)
-    segs = source->chopIntoSegments();
   QList<ValueHash> ret;
+  if(source->segments.size() > 0) {
+    if(segs.size() == 0)
+      segs = source->chopIntoSegments();
 
-  if(overall)
-    internalStats(overall, NULL, useNames);
+    if(overall)
+      internalStats(overall, NULL, useNames);
 
-  for(int i = 0; i < segs.size(); i++) {
-    Statistics s(segs[i]);
-    ret << s.stats(useNames);
+    for(int i = 0; i < segs.size(); i++) {
+      Statistics s(segs[i]);
+      ret << s.stats(useNames);
+    }
+  }
+  else {
+    /// @todo This will not work properly when overall isn't empty.
+    if(overall) {
+      internalStats(overall, NULL, useNames);
+      ret << *overall;
+    }
+    else {
+      ret << ValueHash();
+      internalStats(&(ret[0]), NULL, useNames);
+    }
   }
   return ret;
 }

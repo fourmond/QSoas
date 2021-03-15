@@ -1911,6 +1911,11 @@ static void generateDSCommand(const QString &, double beg, double end,
   int columns = 2;
   updateFromOptions(opts, "columns", columns);
 
+  if(formulas.size() > 0 && opts.contains("columns")) {
+    Terminal::out << "The /columns option is ignored when there "
+                  << "are one or more formulas specified" << endl;
+  }
+
   QString name;
   updateFromOptions(opts, "name", name);
 

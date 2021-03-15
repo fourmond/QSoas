@@ -636,7 +636,9 @@ public:
   ColumnSpecification();
 
   /// Returns the value, for the specific dataset.
-  int getValue(const DataSet * ds) const;
+  ///
+  /// If no specification is given, returns def
+  int getValue(const DataSet * ds, int def = -1) const;
 
   /// Returns true if the string isn't empty
   bool isValid() const;

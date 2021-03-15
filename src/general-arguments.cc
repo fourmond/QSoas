@@ -1015,8 +1015,10 @@ bool ColumnSpecification::isValid() const
   return ! spec.isEmpty();
 }
 
-int ColumnSpecification::getValue(const DataSet * ds) const
+int ColumnSpecification::getValue(const DataSet * ds, int def) const
 {
+  if(! isValid())
+    return def;
   QRegExp num1("^\\s*-?\\d+\\s*$");
   QRegExp num2("^\\s*#(\\d+)\\s*$");
 

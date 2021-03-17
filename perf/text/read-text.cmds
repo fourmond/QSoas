@@ -1,0 +1,3 @@
+generate-dataset -10 10 /samples=10000
+s data.dat /overwrite=true
+run-for-each s/read-one.cmds /range-type=lin 0..1:100

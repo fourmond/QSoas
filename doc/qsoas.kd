@@ -3439,7 +3439,8 @@ there is a `fit-`_fit_ in addition.
  * The `sim-` command takes a saved parameters file and a series of
    datasets, and pushes the data computed from the parameters on the
    stack using the X values of the datasets given as arguments (their Y
-   values are not used).
+   values are not used). The sim commands are described
+   [below](#sim-commands).
 
 All fits commands share the following options:
 
@@ -3462,20 +3463,6 @@ All fits commands share the following options:
    the fit window, which can be useful if you're running several fits
    at the same time on the same computer.
 
-The `sim-` commands additionally take the following options:
-
- * `/operation=` which tells `sim-` which operation to make: `compute`
-   for just computing the fit function (the default operation),
-   `reexport`, to reexport the values of the fit parameters with the
-   options to the output file, `jacobian` to push the jacobian of
-   the fit to the stack, and `annotate`, that just annotates the
-   datasets by adding the values of the fit parameters as
-   [meta-data](#meta-data).
- * `/override=`, which provides a possibility to change the values of
-   the parameters with respect to the values read from the parameter
-   file. The syntax is a comma or colon-separated list of assignments
-   of the form `parameter=value` or `parameter[#dataset]=value`. 
-
 
 In addition to these commands, QSoas provides commands to combine fits
 together, to fit derivatives of the signals, and to define fits with
@@ -3497,6 +3484,31 @@ following options of the `fit-` and `mfit-` commands:
 The commands for the command-line interface are described
 [below](#fit-commands).
 
+## Sim commands {#sim-commands}
+
+The `sim-` commands are used for non-interactive computations linked
+to fits. They all take a parameters file and a series of
+datasets. What they do depend on the value of the `/operation=`
+option.
+
+ * with `/operation=compute`, the default, the command computes the
+   $$y = f(x)$$ values predicted from the fit, as if one had used the
+   `mfit-` command, loaded the parameters file, and used "Push to
+   stack";
+ * with `/operation=reexport`, the command does the same as loading
+   the parameters and then "Export to output file with errors";
+ * `/operation=subfunctions` is like `compute`, but the fit
+   subfunctions are also computed;
+ * with `/operation=annotate`, the original data is left untouched,
+   but [meta-data](#meta-data) corresponding to the fit parameters are
+   added.
+
+In addition to the options common to all fit commands, the `sim-`
+commands also take an `/override=` option, which provides a
+possibility to change the values of the parameters with respect to the
+values read from the parameter file. The syntax is a comma or
+colon-separated list of assignments of the form `parameter=value` or
+`parameter[#dataset]=value`.
 
 ## Fit engines {#fit-engines}
 
@@ -3843,7 +3855,7 @@ Multi-dataset version of the
 
 {::comment} synopsis-end: sim-exponential-decay {:/}
 {::comment} description-start: sim-exponential-decay {:/}
-Simulation command for the
+[Simulation command](#sim-commands) for the
 [cmd: fit-exponential-decay] fit.
 {::comment} description-end: sim-exponential-decay {:/}
 
@@ -3955,7 +3967,8 @@ This is the multi-dataset version of the [fit: multiexp-multistep] fit.
 
 {::comment} synopsis-end: sim-multiexp-multistep {:/}
 {::comment} description-start: sim-multiexp-multistep {:/}
-This is the simulation command for the [fit: multiexp-multistep] fit.
+This is the [simulation command](#sim-commands) for the
+[fit: multiexp-multistep] fit.
 {::comment} description-end: sim-multiexp-multistep {:/}
 
 
@@ -4065,7 +4078,7 @@ This is the multi-dataset version of the [fit: linear-kinetic-system] fit.
 
 {::comment} synopsis-end: sim-linear-kinetic-system {:/}
 {::comment} description-start: sim-linear-kinetic-system {:/}
-This is the simulation command for the [fit: linear-kinetic-system] fit.
+This is the [simulation command](#sim-commands) for the [fit: linear-kinetic-system] fit.
 {::comment} description-end: sim-linear-kinetic-system {:/}
 
 
@@ -4179,7 +4192,7 @@ This is the multidataset version of the [fit: polynomial] fit.
 
 {::comment} synopsis-end: sim-polynomial {:/}
 {::comment} description-start: sim-polynomial {:/}
-This is the simulation command for the [fit: polynomial] fit.
+This is the [simulation command](#sim-commands) for the [fit: polynomial] fit.
 {::comment} description-end: sim-polynomial {:/}
 
 
@@ -4318,7 +4331,8 @@ and have `a` common to all dataset, but `b` dataset-specific.
 
 {::comment} synopsis-end: sim-arb {:/}
 {::comment} description-start: sim-arb {:/}
-Simulation command for the [cmd: fit-arb] fit. As for [cmd: fit-arb],
+[Simulation command](#sim-commands) for
+the [cmd: fit-arb] fit. As for [cmd: fit-arb],
 you need to specify the formula on the command-line.
 {::comment} description-end: sim-arb {:/}
 
@@ -4478,7 +4492,7 @@ Multidataset variant of [cmd: fit-implicit].
 
 {::comment} synopsis-end: sim-implicit {:/}
 {::comment} description-start: mfit-implicit {:/}
-Computation command for the  [cmd: fit-implicit] fit.
+[Simulation command](#sim-commands) for the  [cmd: fit-implicit] fit.
 {::comment} description-end: mfit-implicit {:/}
 
 {::comment} synopsis-start: define-implicit-fit {:/}
@@ -4600,7 +4614,7 @@ Multi-dataset variant of the [cmd: fit-gaussian] fit.
 
 {::comment} synopsis-end: sim-gaussian {:/}
 {::comment} description-start: sim-gaussian {:/}
-Simulation command for the  [cmd: fit-gaussian] fit.
+[Simulation command](#sim-commands) for the [cmd: fit-gaussian] fit.
 {::comment} description-end: sim-gaussian {:/}
 {::comment} synopsis-start: fit-lorentzian {:/}
 
@@ -4690,7 +4704,7 @@ Multi-dataset variant of the [cmd: fit-lorentzian] fit.
 
 {::comment} synopsis-end: sim-lorentzian {:/}
 {::comment} description-start: sim-lorentzian {:/}
-Simulation command for the  [cmd: fit-lorentzian] fit.
+[Simulation command](#sim-commands) for the [cmd: fit-lorentzian] fit.
 {::comment} description-end: sim-lorentzian {:/}
 
 {::comment} synopsis-start: fit-pseudo-voigt {:/}
@@ -4775,7 +4789,8 @@ Multi-dataset variant of the [cmd: fit-pseudo-voigt] fit.
 
 {::comment} synopsis-end: sim-pseudo-voigt {:/}
 {::comment} description-start: sim-pseudo-voigt {:/}
-Simulation command for the [cmd: fit-pseudo-voigt] fit.
+[Simulation command](#sim-commands) for the [cmd: fit-pseudo-voigt]
+fit.
 {::comment} description-end: sim-pseudo-voigt {:/}
 
 
@@ -4885,7 +4900,7 @@ for fitting multi-wavelength redox titrations.
 
 {::comment} synopsis-end: sim-nernst {:/}
 {::comment} description-start: sim-nernst {:/}
-Simulation command for [cmd: fit-nernst]
+[Simulation command](#sim-commands) for the [cmd: fit-nernst] fit.
 {::comment} description-end: sim-nernst {:/}
 
 
@@ -5016,7 +5031,7 @@ Multi-dataset version of the [fit: adsorbed] fit.
 
 {::comment} synopsis-end: sim-adsorbed {:/}
 {::comment} description-start: sim-adsorbed {:/}
-Simulation command for the [fit: adsorbed] fit.
+[Simulation command](#sim-commands) for the [fit: adsorbed] fit.
 {::comment} description-end: sim-adsorbed {:/}
 
 ## Differential equations fits
@@ -5130,7 +5145,7 @@ Multidataset version of the [fit: ode] fit.
 
 {::comment} synopsis-end: sim-ode {:/}
 {::comment} description-start: sim-ode {:/}
-Simulation command for the  [fit: ode] fit.
+[Simulation command](#sim-commands) for the  [fit: ode] fit.
 {::comment} description-end: sim-ode {:/}
 
 ### ODE steppers {#ode-stepper}
@@ -5341,7 +5356,7 @@ Multi-dataset variant of the
 
 {::comment} synopsis-end: sim-kinetic-system {:/}
 {::comment} description-start: sim-kinetic-system {:/}
-Simulation command for the 
+[Simulation command](#sim-commands) for the 
 [`kinetic-system`](#cmd-fit-kinetic-system) fit.
 {::comment} description-end: sim-kinetic-system {:/}
 
@@ -5612,7 +5627,7 @@ Multi-dataset variant of the
 
 {::comment} synopsis-end: sim-slow-scan-lp {:/}
 {::comment} description-start: sim-slow-scan-lp {:/}
-Simulation command for the 
+[Simulation command](#sim-commands) for the 
 [`slow-scan-lp`](#cmd-fit-slow-scan-lp) fit.
 {::comment} description-end: sim-slow-scan-lp {:/}
 
@@ -5637,7 +5652,7 @@ Simulation command for the
 
 {::comment} synopsis-end: sim-slow-scan-hp {:/}
 {::comment} description-start: sim-slow-scan-hp {:/}
-Simulation command for the 
+[Simulation command](#sim-commands) for the 
 [`slow-scan-hp`](#cmd-fit-slow-scan-hp) fit.
 {::comment} description-end: sim-slow-scan-hp {:/}
 
@@ -5804,7 +5819,7 @@ Multi-dataset version of the [fit: eci-wave] fit.
 
 {::comment} synopsis-end: sim-eci-wave {:/}
 {::comment} description-start: sim-eci-wave {:/}
-Simulation command for the [fit: eci-wave] fit.
+[Simulation command](#sim-commands) for the [fit: eci-wave] fit.
 {::comment} description-end: sim-eci-wave {:/}
 
 
@@ -5905,7 +5920,7 @@ Multi-dataset version of the [`ecr-wave`](#cmd-fit-ecr-wave) fit.
 
 {::comment} synopsis-end: sim-ecr-wave {:/}
 {::comment} description-start: sim-ecr-wave {:/}
-Simulation command for the [`ecr-wave`](#cmd-fit-ecr-wave) fit.
+[Simulation command](#sim-commands) for the [`ecr-wave`](#cmd-fit-ecr-wave) fit.
 {::comment} description-end: sim-ecr-wave {:/}
 
 {::comment} synopsis-start: fit-eeci-wave {:/}
@@ -6010,7 +6025,7 @@ Multidataset version of the [fit: eeci-wave] fit.
 
 {::comment} synopsis-end: sim-eeci-wave {:/}
 {::comment} description-start: mfit-eeci-wave {:/}
-Simulation command for the [fit: eeci-wave] fit.
+[Simulation command](#sim-commands) for the [fit: eeci-wave] fit.
 {::comment} description-end: mfit-eeci-wave {:/}
 
 
@@ -6195,7 +6210,8 @@ Multi-dataset version of the [`eecr-relay-wave`](#cmd-fit-eecr-relay-wave) fit.
 
 {::comment} synopsis-end: sim-eecr-relay-wave {:/}
 {::comment} description-start: sim-eecr-relay-wave {:/}
-Simulation command for the [`eecr-relay-wave`](#cmd-fit-eecr-relay-wave) fit.
+[Simulation command](#sim-commands) for the
+[`eecr-relay-wave`](#cmd-fit-eecr-relay-wave) fit.
 {::comment} description-end: sim-eecr-relay-wave {:/}
 
 # Commands available in the fit command-line interface {#fit-commands}

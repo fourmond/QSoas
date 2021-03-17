@@ -42,6 +42,8 @@ void DataSetWriter::writeDataSet(QIODevice * target,
   QList<QStringList> ls = ds->columnNames;
   while(ls.size() > 0) {
     QStringList names = ls.takeLast();
+    if(writeRowNames)
+      names.insert(0, "row-names");
     o << "## " << names.join("\t") << "\n";
   }
 

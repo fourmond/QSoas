@@ -291,7 +291,8 @@ public:
                                               QStringList * comments = NULL,
                                               int skip = 0,
                                               QList<int> textColumns = QList<int>(),
-                                              QList<QList<QStringList> > * savedTexts = NULL);
+                                              QList<QList<QStringList> > * savedTexts = NULL,
+                                              bool trim = true);
 
 
   /// Convenience overload

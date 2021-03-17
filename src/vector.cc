@@ -86,7 +86,7 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
     /// @todo A manual split would be much much faster (no memory
     /// allocation). I think DVector::fast_fancy_read greatly
     /// outperforms this, but well...
-    QStringList elements = splitter(line.trimmed());
+    QStringList elements = splitter(line);
     int idx = textColumns.size();
     QStringList taken;
     for(int txt : textColumns) {
@@ -156,12 +156,14 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
                                              QStringList * comments,
                                              int skip,
                                              QList<int> textColumns,
-                                             QList<QList<QStringList> > * savedTexts)
+                                             QList<QList<QStringList> > * savedTexts,
+                                             bool trim)
 {
   QRegExp separatorRE(separatorREt);
   return Vector::readFromStream(source,
-                                [&separatorRE](const QString & str) -> QStringList {
-                                  return str.split(separatorRE);
+                                [&separatorRE,trim](const QString & str) -> QStringList {
+                                  return (trim ? str.trimmed() : str).
+                                    split(separatorRE);
                                 }, commentREt, splitOnBlank,
                                 decimalSep, blankREt, comments, skip,
                                 textColumns, savedTexts);

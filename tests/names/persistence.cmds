@@ -16,8 +16,8 @@ assert '$row_names[3]=="d"'
 assert '$row_names[4]==""'
 
 # Check the names survive several ways to save/reload
-s test.dat /overwrite=true
-l test.dat
+s test.dat /overwrite=true /row-names=true
+l test.dat /text-columns=1
 
 assert '$col_names[0]=="my_x"'
 assert '$col_names[1]=="my_y"'

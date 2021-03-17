@@ -204,10 +204,16 @@ QList<QList<Vector> > TextBackend::readColumns(QTextStream & s,
 
   Regex sep = separator;
   // If we have a line starting with ##, we set {tabs} as default
-  QRegExp tryCmts2("(^|\n)\\s*#");
+  QRegExp tryCmts2("(^|\n)\\s*##");
 
-  if(tryCmts2.indexIn(peek) >= 0)
+  
+  bool trim = true;
+
+  if(tryCmts2.indexIn(peek) >= 0) {
+    // Using "strict" mode
     sep = Regex("\t");
+    trim = false;
+  }
 
   updateFromOptions(opts, "separator", sep);
 
@@ -223,7 +229,7 @@ QList<QList<Vector> > TextBackend::readColumns(QTextStream & s,
   return Vector::readFromStream(&s, sep.toQRegExp(), 
                                 cmt.toQRegExp(), autoSplit, dSep,
                                 QRegExp("^\\s*$"), cmts, skip,
-                                textColumns, savedTexts);
+                                textColumns, savedTexts, trim);
 }
 
 QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,

@@ -833,6 +833,8 @@ static void linearLeastSquaresCommand(const QString &, QString formula,
     // QTextStream o(stdout);
     // o << "Matrix: " << Utils::matrixString(m) << endl;
     double chisq = 0;
+    // Zero before ? Might have an influence...
+    gsl_vector_set_zero(res);
     int status = gsl_multifit_linear(m, ds->y(),
                                      res, cov, &chisq,
                                      ws);

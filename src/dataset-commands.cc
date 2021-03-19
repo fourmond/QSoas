@@ -2086,6 +2086,54 @@ rM("record-meta", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+// Takes a dataset, and uses column names/row names to set meta to a
+// series of files.
+//
+// Takes all columns and files
+static void exportMetaCommand(const QString &, 
+                              const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+  if(ds->rowNames.size() < 1)
+    throw RuntimeError("Current dataset has no row names");
+  QStringList cns = ds->mainColumnNames();
+  for(int i = 0; i < ds->nbRows(); i++) {
+    // First find matching files:
+    QString rn = ds->rowNames.first().value(i, "");
+    if(rn.isEmpty())
+      continue;
+    // For now, exact match
+    Terminal::out << "Setting meta-data for file: " << rn << "\n -> ";
+    for(int j = 0; j < ds->nbColumns(); j++) {
+      double v = ds->column(j)[i];
+      Terminal::out << cns[j] << " = " << v << ", ";
+      recordMeta(rn, cns[j], v);
+    }
+    Terminal::out << endl;
+  }
+}
+
+
+/*static ArgumentList 
+eMO(QList<Argument *>()
+    << new SeveralFilesArgument("exclude", 
+                                "Exclude",
+                                "exclude files")
+            
+     );
+*/
+
+
+static Command 
+eM("export-meta", // command name
+   effector(exportMetaCommand), // action
+   "buffer",  // group name
+   NULL, // arguments
+   NULL, // options
+   "Export meta-data from dataset");
+
+//////////////////////////////////////////////////////////////////////
+
 
 static void setMetaCommand(const QString &, QString meta, QString value, 
                            const CommandOptions & opts)

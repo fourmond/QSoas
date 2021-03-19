@@ -38,3 +38,10 @@ apply-formula 'y -= sin((10*x)**(2+$meta["a"]))'
 assert '$stats["y_var"] = 0'
 
 
+# Check we preserve names
+
+generate-buffer /samples=100 -1 1 sin(x**3)
+apply-formula /extra-columns=2 'y2=i%7; y3=i%13'
+set-column-names x y a b
+split-on-values a y2 /flags=splt2
+assert '$col_names[2] == "b"'

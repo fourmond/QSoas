@@ -1867,6 +1867,16 @@ QList<DataSet *> DataSet::autoSplit(const QHash<int, QString> & cols,
   for(int i = 0; i < keys.size(); i++) {
     DataSet * ds = rvs[keys[i]];
     ds->name = ds->cleanedName() + QString("_subset_%1.dat").arg(i);
+    // Remove the column names of the columns that were removed
+    ds->columnNames = columnNames;
+    for(int i = cls.size()-1; i >= 0; i--) {
+      for(QStringList & lst : ds->columnNames) {
+        int idx = cls[i];
+        if(idx < lst.size())
+          lst.takeAt(idx);
+      }
+    }
+
     d << ds;
   }
   return d;

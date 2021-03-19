@@ -28,11 +28,12 @@
 
 DataStackHelper::DataStackHelper(const CommandOptions & opts,
                                  bool upt, bool def) :
-  deferred(def), update(upt)
+  deferred(def), update(upt), reversed(false)
 {
   updateFromOptions(opts, "flags", flags);
   updateFromOptions(opts, "style", style);
   updateFromOptions(opts, "set-meta", meta);
+  updateFromOptions(opts, "reversed", reversed);
 }
 
 DataStackHelper::~DataStackHelper()
@@ -50,6 +51,9 @@ QList<Argument *> DataStackHelper::helperOptions()
        << new StyleGeneratorArgument("style", 
                                      "Style",
                                      "Style for the displayed curves")
+       << new BoolArgument("reversed", 
+                           "Reversed",
+                           "Push the datasets in reverse order")
        << new MetaHashArgument("set-meta", 
                                "Meta-data to add",
                                "Meta-data to add to the newly created datasets");
@@ -100,6 +104,6 @@ void DataStackHelper::flush()
   QScopedPointer<StyleGenerator> 
     gen(StyleGenerator::fromText(style, sz));
   for(int i = 0; i < sz; i++)
-    pushOne(datasets[i], gen.data());
+    pushOne(datasets[reversed ? sz-1-i: i], gen.data());
   datasets.clear();
 }

@@ -66,8 +66,11 @@ class DataStackHelper {
   /// Push one dataset with the given style (can be NULL).
   void pushOne(DataSet * ds, StyleGenerator * style);
 
-  /// Meta-data values to be added to the 
+  /// Meta-data values to be added to the newly-pushed data
   QHash<QString, QVariant> meta;
+
+  /// Whether we push in reverse
+  bool reversed;
 
   
 public:

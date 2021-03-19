@@ -237,7 +237,7 @@ spvArgs(QList<Argument *>()
                                       "Names of the meta to be created")
         << new SeveralColumnsArgument("columns", 
                                       "Columns",
-                                      "Columns whose values one should split on")
+                                      "Columns whose values one should split on", false)
         );
 
 

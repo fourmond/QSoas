@@ -268,6 +268,9 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
         i--;
     }
     col -= 1;                   // So we keep the logic 1 = first column
+    if(col < 0)
+      throw RuntimeError("Text column cannot number be smaller than 1: %1").
+        arg(col+1);
   }
 
   QList<QList<Vector> > allColumns = readColumns(s, opts, &comments,
@@ -282,9 +285,6 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
       hd.columnNames.takeAt(col);
   }
 
-
-
-  
 
   int total = allColumns.size();
   for(int j = 0; j < total; j++) {

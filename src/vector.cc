@@ -90,19 +90,9 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
     int idx = textColumns.size();
     QStringList taken;
     for(int txt : textColumns) {
-      if(txt > elements.size())
+      if(txt > elements.size() || txt < 0)
         continue;
       taken.insert(0, elements.takeAt(txt));
-    }
-    if(curTexts) {
-      for(int i = 0; i < taken.size(); i++) {
-        if(curTexts->size() <= i)
-          *curTexts << QStringList();
-        QStringList & l = (*curTexts)[i];
-        while(l.size() < numberRead)
-          l << "";
-        l << taken[i];
-      }
     }
 
     /// @todo customize trimming.
@@ -129,8 +119,19 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
       for(int i = 0; i < curCols->size(); i++)
         (*curCols)[i].resize((*curCols)[i].size() - 1);
     }
-    else
+    else {
+      if(curTexts) {
+        for(int i = 0; i < taken.size(); i++) {
+          if(curTexts->size() <= i)
+            *curTexts << QStringList();
+          QStringList & l = (*curTexts)[i];
+          while(l.size() < numberRead)
+            l << "";
+          l << taken[i];
+        }
+      }
       numberRead++;
+    }
   }
 
   // We don't leave an empty dataset at the end, excepted if it's the

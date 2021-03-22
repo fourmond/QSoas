@@ -400,6 +400,10 @@ void DataStack::accumulateValues(const ValueHash & data)
   if(! accumulator)
     accumulator = new DataSet;
   accumulator->setMetaData("keys", data.keyOrder);
+  if(accumulator->columnNames.size() == 0)
+    accumulator->columnNames << data.keyOrder;
+  else
+    accumulator->columnNames[0] = data.keyOrder;
   int nbr = accumulator->nbRows();
   for(int i = 0; i < data.keyOrder.size(); i++) {
     const QString & k = data.keyOrder[i];

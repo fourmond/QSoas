@@ -2,5 +2,7 @@
 pop /drop=true
 run-for-each /range-type=lin invert-one.cmds 0..100:101
 pop
+assert '$col_names[0]=="val"'
+assert '$col_names[1]=="x"'
 apply-formula y=exp(y)-y-x-1
 assert '$stats["y_norm"]' 0.2

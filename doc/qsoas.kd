@@ -224,7 +224,11 @@ parts. All these commands share a set of options:
  * `/set-meta`, that can be used to set meta-data to the newly
    generated datasets, using a **key**`=`_value_ syntax (so you have
    two `=` signs in row). This option can be used several times to add
-   several meta-data.
+   several meta-data;
+ * `/reversed`, which can be used to reverse the order in which the
+   datasets are pushed to the stack. Useful for instance to get the
+   result of [`sim-` commands](#sim-commands) in the same order as the
+   original datasets.
 
 For instance, try out:
 
@@ -3509,6 +3513,10 @@ possibility to change the values of the parameters with respect to the
 values read from the parameter file. The syntax is a comma or
 colon-separated list of assignments of the form `parameter=value` or
 `parameter[#dataset]=value`.
+
+**Important note** If you use `/operation=compute`, to make sure the
+generated datasets are in the same order as the original datasets, use
+the `/reverse=true` option.
 
 ## Fit engines {#fit-engines}
 

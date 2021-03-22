@@ -1242,6 +1242,7 @@ static void zoomCommand(CurveEventLoop &loop, const QString &)
                                  "z,Z,Ctrl wheel: in/out\n"
                                  "x,X,wheel: X in/out\n"
                                  "y,Y,Shift wheel: Y in/out\n"
+                                 "l,L: show limits\n"
                                  "q or ESC to quit"));
   while(! loop.finished()) {
     switch(loop.type()) {
@@ -1311,6 +1312,15 @@ static void zoomCommand(CurveEventLoop &loop, const QString &)
       case 'Y':
         p->zoomIn(loop.position(p), Qt::Vertical, -1);
         break;
+      case 'l':
+      case 'L': {
+        QRectF cz = p->currentZoom();
+        Terminal::out << "You can reproduce the current zoom with: \n"
+                      << "limits " << cz.left() << " " << cz.right() << " "
+                      << cz.top() << " " << cz.bottom() << endl;
+        break;
+      }
+        
       default:
         ;
       }

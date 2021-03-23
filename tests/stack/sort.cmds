@@ -1,0 +1,19 @@
+# Test the sort-datasets command
+
+generate-dataset 0 1 /name=1
+generate-dataset 0 2 /name=2
+generate-dataset 0 10 /name=10
+generate-dataset 0 3 /name=3
+generate-dataset 0 8 /name=8
+
+sort-datasets /use-stats=true 0..4 /reversed=true $stats.x_max
+assert $stats.x_max-10 0
+
+sort-datasets /use-stats=true 0..4 $stats.x_max
+assert $stats.x_max-1 0
+
+sort-datasets /use-stats=true 0..2 $stats.x_max /reversed=true
+assert $stats.x_max-3 0
+
+# Because it segfaults sometimes
+clear-stack

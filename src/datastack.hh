@@ -254,6 +254,10 @@ public:
   /// Inserts the given stack into the current one.
   void insertStack(const DataStack & s);
 
+  /// Reorders the datasets given so they are in the order given.
+  /// Will raise exceptions upon missing datasets
+  void reorderDatasets(const QList<const DataSet *> newOrder);
+
 
 signals:
   /// Emitted whenever the current dataset changed.

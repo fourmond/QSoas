@@ -238,6 +238,7 @@ public:
   /// Sets a hash element
   void fancyHashSet(mrb_value hash, mrb_value key, mrb_value elem);
 
+
   /// @}
 
 
@@ -247,6 +248,9 @@ public:
                     int hour = 0, int min = 0, int sec = 0, int usec = 0);
 
   /// @}
+
+  /// Returns true if a < b
+  bool isInferior(mrb_value a, mrb_value b);
 
   /// Returns a string that represents the current memory use of the
   /// mrb object

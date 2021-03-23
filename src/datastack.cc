@@ -440,6 +440,25 @@ void DataStack::insertStack(const DataStack & s)
 }
 
 
+void DataStack::reorderDatasets(const QList<const DataSet *> newOrder)
+{
+  QList<int> indices;
+  for(const DataSet * ds : newOrder) {
+    int idx;
+    if(! indexOf(ds, &idx))
+      throw RuntimeError("Trying to sort a dataset which isn't in the stack");
+    indices << idx;
+  }
+  std::sort(indices.begin(), indices.end());
+  for(int i = 0; i < newOrder.size(); i++) {
+    int idx = indices[i];
+    if(idx < 0)
+      redoStack[redoStack.size() - idx] = const_cast<DataSet*>(newOrder[i]);
+    else
+      dataSets[dataSets.size() - 1 - idx] = const_cast<DataSet*>(newOrder[i]);
+  }
+}
+
 
 qint32 DataStack::serializationVersion = 0;
 
@@ -531,6 +550,9 @@ void DataStack::readStack(QDataStream & in)
   emit(currentDataSetChanged());
 }
 
+
+
+
 QDataStream & operator>>(QDataStream & in, DataStack & stack)
 {
   DataStack::readSerializationHeader(in);
@@ -545,3 +567,4 @@ QDataStream & operator>>(QDataStream & in, DataStack & stack)
   stack.readStack(in);
   return in;
 }
+

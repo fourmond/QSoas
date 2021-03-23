@@ -899,3 +899,67 @@ showBuffers("show", // command name
             &ssBArgs, // arguments
             NULL, // options
             "Show information");
+
+//////////////////////////////////////////////////////////////////////
+
+#include <datasetexpression.hh>
+
+static void sortDatasetsCommand(const QString &, 
+                                QList<const DataSet *> datasets,
+                                QString code,
+                                const CommandOptions & opts)
+{
+  bool useStats = false;
+  updateFromOptions(opts, "use-stats", useStats);
+
+  bool reversed = false;
+  updateFromOptions(opts, "reversed", reversed);
+
+  QList<QPair<mrb_value, const DataSet *> > toSort;
+  for(const DataSet * ds : datasets) {
+    DataSetExpression ex(ds, useStats, true);
+    toSort << QPair<mrb_value, const DataSet *>(ex.evaluate(code), ds);
+  }
+  MRuby * mrb = MRuby::ruby();
+  std::sort(toSort.begin(), toSort.end(),
+            [mrb,reversed](QPair<mrb_value, const DataSet *> a,
+                  QPair<mrb_value, const DataSet *> b) -> bool {
+              if(reversed)
+                return mrb->isInferior(b.first, a.first);
+              else
+                return mrb->isInferior(a.first, b.first);
+            });
+  datasets.clear();
+  for(const QPair<mrb_value, const DataSet *> & p : toSort)
+    datasets << p.second;
+  soas().stack().reorderDatasets(datasets);
+}
+
+static ArgumentList 
+sDArgs(QList<Argument *>() 
+         << new SeveralDataSetArgument("datasets", 
+                                       "Datasets to sort",
+                                       "Datasets to sort")
+         << new CodeArgument("key", 
+                             "Sorting key",
+                             "Sorting key (a ruby expression)")
+        );
+
+static ArgumentList 
+sDOpts(QList<Argument *>() 
+       << new BoolArgument("use-stats", 
+                           "Use statistics",
+                           "Use statistics in the expressions")
+       << new BoolArgument("reversed", 
+                           "Reversed",
+                           "Sorts in the reverse order")
+       );
+
+
+static Command 
+sortDatasets("sort-datasets", // command name
+             effector(sortDatasetsCommand), // action
+             "buffer",  // group name
+             &sDArgs, // arguments
+             &sDOpts, // options
+             "Sort datasets");

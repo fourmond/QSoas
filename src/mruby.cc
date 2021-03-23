@@ -785,6 +785,11 @@ QString MRuby::memoryUse()
 
 
                      
+bool MRuby::isInferior(mrb_value a, mrb_value b)
+{
+  mrb_value rv = mrb_funcall(mrb, a, "<", 1, b);
+  return mrb_test(rv);
+}
 
 
 

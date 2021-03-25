@@ -24,6 +24,7 @@
 #include <dataset.hh>
 
 
+/// An sum of exponentials time-dependent parameters
 class ExponentialTDP : public TimeDependentParameter {
 public:
 
@@ -114,6 +115,101 @@ static TimeDependentParameter::TDPFactory ex("exp", [](int nb, const QStringList
         arg(nb);
     tdp->number = nb;
     tdp->independentBits = ! extra.contains("common");
+    return tdp;
+  }
+);
+
+//////////////////////////////////////////////////////////////////////
+
+/// An sum of biexponentials time-dependent parameters
+class BiExponentialTDP : public TimeDependentParameter {
+public:
+
+  /// The number of bits
+  int number;
+
+  /// The number of parameters
+  int realParameterNumber() const override {
+    return number*5; 
+  };
+
+  /// Parameter definitions
+  QList<ParameterDefinition> realParameters(const QString & prefix) const override {
+    QList<ParameterDefinition> ret;
+    for(int i = 0; i < number; i++) { 
+      ret << ParameterDefinition(QString("%2_%1").
+                                 arg(i+1).arg(prefix), true);
+      ret << ParameterDefinition(QString("%2_t_%1").
+                                 arg(i+1).arg(prefix), true);
+      ret << ParameterDefinition(QString("%2_tau_%1").
+                                 arg(i+1).arg(prefix));
+      ret << ParameterDefinition(QString("%2_ov_%1").
+                                 arg(i+1).arg(prefix), true);
+      ret << ParameterDefinition(QString("%2_tau_f_%1").
+                                 arg(i+1).arg(prefix));
+    }
+    return ret;
+  };
+
+  QList<int> sharedParameters() const override {
+    QList<int> rv;
+    for(int i = 0; i < number; i++)
+      rv << i*5+1 << i*5+2 << i*5+3 << i*5+4;
+    return rv;
+  };
+
+  /// Returns the value at the given time...
+  double realComputeValue(double t, const double * parameters) const override {
+    double value = 0;
+    for(int i = 0; i < number; i++) {
+      double conc = parameters[baseIndex + i*5];
+      double t0   = parameters[baseIndex + i*5 + 1];
+      double tau   = parameters[baseIndex + i*5 + 2];
+      double ov   = parameters[baseIndex + i*5 + 3];
+      double tau_f   = parameters[baseIndex + i*5 + 4];
+      if(tau < 0)             // Well, the check happens a lot, but
+        // is less expensive than an
+        // exponential anyway
+        throw RangeError("Negative tau value");
+      if(t >= t0) 
+        value += conc * exp(-(t - t0)/tau) + conc*ov * exp(-(t - t0)/tau_f);
+    }
+    return value;
+  };
+
+  /// Sets a reasonable initial guess for these parameters
+  void realSetInitialGuess(double * parameters, const DataSet * ds) const override {
+    double dx = ds->x().max() - ds->x().min();
+    for(int i = 0; i < number; i++) {
+      double &conc = parameters[baseIndex + i*5];
+      double &t0   = parameters[baseIndex + i*5 + 1];
+      double &tau   = parameters[baseIndex + i*5 + 2];
+      double &ov   = parameters[baseIndex + i*5 + 3];
+      double &tau_f   = parameters[baseIndex + i*5 + 4];
+      tau = 20;
+      conc = 1;
+      t0 = ds->x().min() + (i+1) * dx/(number+1);
+      ov = 2.5;
+      tau_f = 0.3;
+    }
+  };
+
+  /// Returns the time at which there are potential discontinuities
+  Vector realDiscontinuities(const double * parameters) const override {
+    Vector ret;
+    for(int i = 0; i < number; i++)
+      ret << parameters[baseIndex + i*5 + 1];
+    return ret;
+  };
+
+};
+
+static TimeDependentParameter::TDPFactory biex("biexp", [](int nb, const QStringList & extra) -> TimeDependentParameter * {
+    BiExponentialTDP * tdp = new BiExponentialTDP;
+    if(nb <= 0)
+      throw RuntimeError("biexp parameter needs a strictly positive number, got %1").
+        arg(nb);
+    tdp->number = nb;
     return tdp;
   }
 );

@@ -40,12 +40,12 @@ protected:
   ///
   /// Must be a pointer to ensure we don't initialize the hash after
   /// the first registration !
-  static InstanceHash * instances;
+  static std::unique_ptr<InstanceHash> instances;
 
   /// Iterator pointing to the first instance
   static typename InstanceHash::iterator begin() {
     if(! instances)
-      instances = new InstanceHash();
+      instances = std::unique_ptr<InstanceHash>(new InstanceHash());
     return instances->begin();
   };
   
@@ -74,7 +74,7 @@ protected:
   /// defined.
   static void registerInstance(C * instance) {
     if(! instances)
-      instances = new QHash<QString, C * >();
+      instances = std::unique_ptr<InstanceHash>(new QHash<QString, C * >());
 
     QString n = instanceName(instance);
     
@@ -103,13 +103,13 @@ public:
 
   static const InstanceHash * itemsHash() {
     if(! instances)
-      instances = new InstanceHash;
+      instances = std::unique_ptr<InstanceHash>(new InstanceHash());
     return instances;
   };
   
 }; 
 
 template <typename C> 
-QHash<QString, C * > * NamedInstance<C>::instances = NULL;
+std::unique_ptr<QHash<QString, C * > > NamedInstance<C>::instances = NULL;
 
 #endif

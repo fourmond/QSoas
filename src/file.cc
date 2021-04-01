@@ -161,8 +161,6 @@ void File::preOpen()
 
   /// @todo Here, handle move-at-close
   actualName = fileName;
-
-  trackFile(info().absoluteFilePath(), mode);
 }
 
 void File::open()
@@ -200,6 +198,8 @@ void File::open()
   }
   device = f.release();
   // Successful opening !
+
+  trackFile(info().absoluteFilePath(), mode);
 }
 
 void File::close()
@@ -294,6 +294,7 @@ QString File::checkOpen(const QString & fileName, const CommandOptions & opts,
 {
   File f(fileName, mode, opts);
   f.preOpen();
+  trackFile(f.info().absoluteFilePath(), mode);
   return f.actualName;
 }
 

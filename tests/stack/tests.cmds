@@ -4,3 +4,4 @@
 @ missing-buffers.cmds /error=ignore
 # Run sort twice, just in case
 @ sort.cmds
+@ order-flags.cmds

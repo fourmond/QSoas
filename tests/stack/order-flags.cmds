@@ -1,0 +1,23 @@
+clear-stack
+
+# A series of tests to check that flagged, flagged-, /reversed=true
+# work the way they should (and in particular that they invert the
+# things)
+generate-dataset 0 1 /name=1
+generate-dataset 0 2 /name=2
+generate-dataset 0 10 /name=10
+generate-dataset 0 3 /name=3
+generate-dataset 0 8 /name=8
+
+flag /flags=stuff 0..4
+apply-formula x+=1 flagged:stuff
+assert $stats.x_max-2 0
+
+apply-formula x+=1 flagged:stuff /reversed=true
+assert $stats.x_max-9 0
+
+apply-formula x+=1 flagged-:stuff 
+assert $stats.x_max-9 0
+
+apply-formula x+=1 flagged-:stuff  /reversed=true
+assert $stats.x_max-2 0

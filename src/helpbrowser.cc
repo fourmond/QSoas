@@ -1,6 +1,6 @@
 /*
   helpbrowser.cc: browser for inline help
-  Copyright 2020 by CNRS/AMU
+  Copyright 2020,2021 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -84,10 +84,29 @@ public:
     c.select(QTextCursor::LineUnderCursor);
     QString line = c.selectedText().trimmed();
 
-    QRegExp re("^QSoas(\\..*)?>\\s*(.*)");
+    QRegExp re("^QSoas(\\..*)?>\\s*(.+)");
+
 
     if(re.indexIn(line, 0) == 0)
       cmd = re.cap(2);
+
+    // Commands in the selection
+    QStringList selCmds;
+    int idx = 0;
+    // QTextStream o(stdout);
+    // o << "Sel: " << sel.size() << " ->  '" << sel << "'" << endl;
+    // for(QChar c : sel)
+    //   o << "Ch: " << c << " -> " << c.unicode() << " -- "
+    //     << (int) c.toLatin1() << endl;
+
+    // Unicode x2029 is the "new paragraph" code point.
+
+    for(const QString & l : sel.split(QRegExp("\\r|\\n|\\x2029"))) {
+      // o << "ln: '" << l << "'" << endl;
+      if(re.indexIn(l) >= 0)
+        selCmds << re.cap(2);
+    }
+    
 
     QAction * action = new QAction("Back");
     if(! isBackwardAvailable())
@@ -107,6 +126,7 @@ public:
 
 
 
+    menu->addSection("Selection");
 
     action = new QAction("Copy");
     if(sel.isEmpty())
@@ -118,28 +138,6 @@ public:
         );
     menu->addAction(action);
 
-    action = new QAction("Copy command");
-    if(cmd.isEmpty())
-      action->setEnabled(false);
-    else
-      QObject::connect(action, &QAction::triggered, this, [cmd]() {
-          QApplication::clipboard()->setText(cmd);
-        }
-        );
-    menu->addAction(action);
-
-    action = new QAction("Copy Link Location");
-    if(link.isEmpty())
-      action->setEnabled(false);
-    else
-      QObject::connect(action, &QAction::triggered, this, [link]() {
-          QApplication::clipboard()->setText(link);
-        }
-        );
-    menu->addAction(action);
-
-    menu->addSeparator();
-
     action = new QAction("Copy to prompt");
     if(sel.isEmpty())
       action->setEnabled(false);
@@ -150,24 +148,49 @@ public:
         );
     menu->addAction(action);
 
-    action = new QAction("Copy command to prompt");
+    action = new QAction("Run selection");
+    if(sel.isEmpty())
+      action->setEnabled(false);
+    else
+      QObject::connect(action, &QAction::triggered, this,
+                       [sel]() {
+                         soas().prompt().runCommand(sel);
+                       }
+                       );
+    menu->addAction(action);
+
+    
+    action = new QAction(QString("Run %1 commands").arg(selCmds.size()));
+    if(selCmds.isEmpty())
+      action->setEnabled(false);
+    else 
+      QObject::connect(action, &QAction::triggered, this,
+                       [selCmds]() {
+                         for(const QString & cmd : selCmds)
+                           soas().prompt().runCommand(cmd);
+                       }
+                       );
+    menu->addAction(action);
+
+
+    menu->addSection("Command from line");
+
+    action = new QAction("Copy command");
+    if(cmd.isEmpty())
+      action->setEnabled(false);
+    else
+      QObject::connect(action, &QAction::triggered, this, [cmd]() {
+          QApplication::clipboard()->setText(cmd);
+        }
+        );
+    menu->addAction(action);
+
+        action = new QAction("Copy command to prompt");
     if(cmd.isEmpty())
       action->setEnabled(false);
     else
       QObject::connect(action, &QAction::triggered, this, [cmd]() {
           soas().prompt().copyToPrompt(cmd);
-        }
-        );
-    menu->addAction(action);
-
-    menu->addSeparator();
-
-    action = new QAction("Run selection");
-    if(sel.isEmpty())
-      action->setEnabled(false);
-    else
-      QObject::connect(action, &QAction::triggered, this, [sel]() {
-          soas().prompt().runCommand(sel);
         }
         );
     menu->addAction(action);
@@ -181,6 +204,24 @@ public:
         }
         );
     menu->addAction(action);
+
+
+    menu->addSeparator();
+
+    action = new QAction("Copy Link Location");
+    if(link.isEmpty())
+      action->setEnabled(false);
+    else
+      QObject::connect(action, &QAction::triggered, this, [link]() {
+          QApplication::clipboard()->setText(link);
+        }
+        );
+    menu->addAction(action);
+
+
+
+
+
     
     menu->exec(event->globalPos());
     delete menu;

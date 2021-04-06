@@ -1189,7 +1189,7 @@ DataSet * DataSet::derivedDataSet(const QString & suffix) const
 void DataSet::firstDerivative(const double *x, int xstride, 
                               const double *y, int ystride, 
                               double * target, int tstride,
-                              int size)
+                              int size, bool silent)
 {
 
   int i;
@@ -1229,6 +1229,8 @@ void DataSet::firstDerivative(const double *x, int xstride,
       delta_3 = x[(i+2) * xstride] - x[i * xstride]; v3 = y[(i+2) * ystride];
       delta_4 = x[(i+1) * xstride] - x[i * xstride]; v4 = y[(i+1) * ystride];
     }
+    if((! silent) && (delta_1 == 0) || (delta_2 == 0))
+      throw RuntimeError("Duplicate value of X in the derivative");
     alpha_1 = delta_2*delta_3*delta_4/
       (delta_1 * (delta_2 - delta_1) * (delta_3 - delta_1) 
        * (delta_4 - delta_1));

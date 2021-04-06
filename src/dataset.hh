@@ -675,10 +675,13 @@ public:
   /// A utility function to compute the first derivative of a given
   /// series of points (not to be used on noisy -- or even simply
   /// experimental -- data !)
+  ///
+  /// If @a silent is false, then an exception is raise whenever a
+  /// duplicate value of X is found.
   static void firstDerivative(const double *x, int xstride, 
                               const double *y, int ystride, 
                               double * target, int tstride,
-                              int nb);
+                              int nb, bool silent = true);
 
   /// Splits into a series of disconnected buffers whose X values (or
   /// the values of the given column) are monotonic.

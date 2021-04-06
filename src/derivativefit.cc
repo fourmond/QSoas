@@ -250,7 +250,7 @@ void DerivativeFit::function(const double * parameters,
                                  derView.vector.data + 
                                  derView.vector.stride * idx, 
                                  derView.vector.stride,
-                                 main->x().size());
+                                 main->x().size(), false);
       }
       else {
         s->underlyingFit->function(parameters + pbase, 
@@ -262,7 +262,7 @@ void DerivativeFit::function(const double * parameters,
                                  derView.vector.data + 
                                  derView.vector.stride * idx, 
                                  derView.vector.stride,
-                                 sub->x().size());
+                                 sub->x().size(), false);
       }
       // And scaling...
       gsl_vector_view sDerView = 

@@ -36,7 +36,11 @@
           </Component>
 
           <!-- This should install a file association for the .qst files  -->
-          <Component Id="QSoasProgId" Guid="#QSoasProgID#" KeyPath="yes">
+          <Component Id="QSoasProgId" Guid="#QSoasProgID#"
+                     KeyPath="yes">
+            <!-- Possible documentation for the "verb" thingy:
+                 https://docs.microsoft.com/en-us/windows/win32/shell/launch
+            -->
             <ProgId Id="QSoasLoadStack" Description="QSoas load stack">
               <Extension Id="qst">
                 <Verb Id="open" TargetFile="QSoasEXE"

@@ -214,8 +214,10 @@ static SettingsValue<QByteArray> splitterState("mainwin/splitter",
                                                QByteArray());
 
 /// an array of commands provided on the command line
-/// @todo not very object-oriented, but, well, for 
+/// @todo not very object-oriented, but, well, for now it works
 static QStringList cmdlineCommands;
+
+
 
 static CommandLineOption cmd("--run", [](const QStringList & args) {
     cmdlineCommands << args.first();
@@ -226,6 +228,23 @@ static bool exitAfterRunning = false;
 static CommandLineOption ext("--exit-after-running", [](const QStringList &) {
     exitAfterRunning = true;
   }, 0, "exits QSoas after running the commands");
+
+/// A script to be run along with its arguments
+static QStringList runScript;
+
+static CommandLineOption rs("--run-script",
+                            [](const QStringList & args) {
+                              runScript = args;
+                              QRegExp re("(.*)\\.[^.]+$");
+                              QString lg;
+                              if(re.indexIn(args[0]) == 0)
+                                lg = re.cap(1) + ".log";
+                              if(lg.isEmpty() || lg == args[0])
+                                lg = args[0] + ".log";
+                              CommandWidget::logFileName = lg;
+                              /// @todo Disable interactive commands when that becomes possible.
+                              
+                            }, -1, "runs a single script with possible arguments and exits");
 
 
 MainWin::MainWin(Soas * theSoas, bool runStartupFiles)
@@ -264,12 +283,19 @@ MainWin::MainWin(Soas * theSoas, bool runStartupFiles)
 
   for(int i = 0; i < cmdlineCommands.size(); i++)
     commandWidget->runCommand(cmdlineCommands[i]);
+    
+  if(runScript.size() > 0) {
+    QStringList cmd = runScript;
+    cmd.insert(0, "@");
+    commandWidget->runCommand(cmd);
+  }
 
-  if(cmdlineCommands.size() > 0 && exitAfterRunning) {
+  if((cmdlineCommands.size() > 0 && exitAfterRunning)
+     || (runScript.size() > 0)) {
     connect(this, SIGNAL(windowReady()),
             qApp,SLOT(quit()), Qt::QueuedConnection);
   }
-  if(cmdlineCommands.size() == 0)
+  if(cmdlineCommands.size() == 0 && runScript.size() == 0)
     connect(this, SIGNAL(windowReady()),
             this, SLOT(showStartupTips()), Qt::QueuedConnection);
   

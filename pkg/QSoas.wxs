@@ -37,10 +37,20 @@
 
           <!-- This should install a file association for the .qst files  -->
           <Component Id="QSoasProgId" Guid="#QSoasProgID#" KeyPath="yes">
-            <ProgId Id="QSoasLoadStack" Description="QSoas">
+            <ProgId Id="QSoasLoadStack" Description="QSoas load stack">
               <Extension Id="qst">
                 <Verb Id="open" TargetFile="QSoasEXE"
                       Argument='--load-stack "%1"' />
+              </Extension>
+            </ProgId>
+            <ProgId Id="QSoasRunScript" Description="QSoas run script">
+              <Extension Id="txt">
+                <Verb Id="play" TargetFile="QSoasEXE"
+                      Argument='--run-script "%1"' />
+              </Extension>
+              <Extension Id="qss"> <!-- QSoas script ! -->
+                <Verb Id="play" TargetFile="QSoasEXE"
+                      Argument='--run-script "%1"' />
               </Extension>
             </ProgId>
           </Component>
@@ -76,7 +86,7 @@
         <Directory Id="ProgramMenuDir" Name="QSoas">
           <Component Id="ProgramMenuDir" Guid="#StartMenuID#">
             <RemoveFolder Id='ProgramMenuDir' On='uninstall' />
-            <RegistryValue Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' Type='string' Value='' KeyPath='yes' />
+            <RegistryValue Root='HKCU' Key="Software\[Manufacturer]\[ProductName]" Type='string' Value='' KeyPath='yes' />
           </Component>
         </Directory>
       </Directory>

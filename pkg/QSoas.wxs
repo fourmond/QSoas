@@ -47,11 +47,13 @@
                       Argument='--load-stack "%1"' />
               </Extension>
             </ProgId>
-            <ProgId Id="QSoasRunScript" Description="QSoas run script">
+            <ProgId Id="QSoasRunTxtScript" Description="QSoas run script">
               <Extension Id="txt">
                 <Verb Id="play" TargetFile="QSoasEXE"
                       Argument='--run-script "%1"' />
               </Extension>
+            </ProgId>
+            <ProgId Id="QSoasRunQssScript" Description="QSoas run script">
               <Extension Id="qss"> <!-- QSoas script ! -->
                 <Verb Id="play" TargetFile="QSoasEXE"
                       Argument='--run-script "%1"' />

@@ -240,50 +240,54 @@ tA(QList<Argument *>()
 static void stripIfCommand(const QString &, QString formula,
                            const CommandOptions & opts)
 {
-  const DataSet * ds = soas().currentDataSet();
-  Terminal::out << QString("Stripping buffer %2 where the data points match '%1' ").
-    arg(formula).arg(ds->name) << endl;
 
-  DataSetExpression ex(ds);
-  ex.useStats = false;
-  updateFromOptions(opts, "use-stats", ex.useStats);
-  ex.useMeta = true;
-  updateFromOptions(opts, "use-meta", ex.useMeta);
-  ex.useNames = true;         // But that may be a severe
-  // performance hit ?
-  int threshold = 0;
-  updateFromOptions(opts, "threshold", threshold);
+  DataSetList buffers(opts);
+  DataStackHelper pusher(opts);
+  for(const DataSet * ds : buffers) {
+    DataSetExpression ex(ds);
+    Terminal::out << QString("Stripping buffer %2 where the data points match '%1' ").
+      arg(formula).arg(ds->name) << endl;
+    
+    ex.useStats = false;
+    updateFromOptions(opts, "use-stats", ex.useStats);
+    ex.useMeta = true;
+    updateFromOptions(opts, "use-meta", ex.useMeta);
+    ex.useNames = true;         // But that may be a severe
+    // performance hit ?
+    int threshold = 0;
+    updateFromOptions(opts, "threshold", threshold);
 
-  int argSize = ex.dataSetParameters().size();
+    int argSize = ex.dataSetParameters().size();
 
-  ex.prepareExpression(formula);
+    ex.prepareExpression(formula);
 
-  QList<Vector> newcols;
-  for(int i = 0; i < ds->nbColumns(); i++)
-    newcols << Vector();
-  int dropped = 0;
+    QList<Vector> newcols;
+    for(int i = 0; i < ds->nbColumns(); i++)
+      newcols << Vector();
+    int dropped = 0;
 
-  QVarLengthArray<double, 100> args(argSize);
-  int idx = 0;
-  OrderedList segs = ds->segments;
-  QList<int> remove;
+    QVarLengthArray<double, 100> args(argSize);
+    int idx = 0;
+    OrderedList segs = ds->segments;
+    QList<int> remove;
   
-  while(ex.nextValues(args.data(), &idx)) {
-    if(ex.expression().evaluateAsBoolean(args.data()))
-      remove << idx;
-  }
+    while(ex.nextValues(args.data(), &idx)) {
+      if(ex.expression().evaluateAsBoolean(args.data()))
+        remove << idx;
+    }
 
-  DataSet * nds = ds->derivedDataSet("_trimmed.dat");
-  for(int j = remove.size()-1; j >= 0; j--)
-    nds->removeRow(remove[j]);
+    DataSet * nds = ds->derivedDataSet("_trimmed.dat");
+    for(int j = remove.size()-1; j >= 0; j--)
+      nds->removeRow(remove[j]);
 
-  Terminal::out << "Removed " << remove.size() << " points" << endl;
-  if(nds->nbRows() < threshold) {
-    Terminal::out << "-> only " << nds->nbRows() << " points left, not creating a new dataset" << endl;
-    delete nds;
+    Terminal::out << "Removed " << remove.size() << " points" << endl;
+    if(nds->nbRows() < threshold) {
+      Terminal::out << "-> only " << nds->nbRows() << " points left, not creating a new dataset" << endl;
+      delete nds;
+    }
+    else
+      pusher << nds;
   }
-  else
-    soas().pushDataSet(nds);
 }
 
 static ArgumentList 
@@ -299,6 +303,8 @@ siO(QList<Argument *>()
                            "Threshold for creating new datasets",
                            "If the stripping operation leaves less than that many points, do not create a new dataset")
                          
+    << DataStackHelper::helperOptions()
+    << DataSetList::listOptions("Datasets to work on")
     );
 
 

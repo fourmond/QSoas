@@ -137,6 +137,41 @@ void ArgumentsWidget::setFromOptions(const CommandOptions & opts)
   }
 }
 
+//////////////////////////////////////////////////////////////////////
+
+/// @todo In real, this should be a more general class, shouldn't it ?
+class ScrolledOptions : public QScrollArea {
+protected:
+
+  ArgumentsWidget * widget;
+public:
+  ScrolledOptions(ArgumentsWidget * w, QWidget * parent = NULL) :
+    QScrollArea(parent), widget(w)
+  {
+    setWidget(widget);
+    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+  }
+
+  virtual QSize sizeHint() const override {
+    QSize sz2 = widget->sizeHint();
+    QSize sz3 = verticalScrollBar()->sizeHint();
+    // sz2.setWidth(sz2.width() + sz3.width());
+    return sz2 + sz3;
+  }
+
+  void resizeEvent(QResizeEvent *event) override {
+    QSize sz = QScrollArea::sizeHint();
+    QSize sz2 = widget->sizeHint();
+    QSize sz3 = verticalScrollBar()->sizeHint();
+    sz2.setWidth(event->size().width() - sz3.width());
+    widget->resize(sz2);
+
+    QScrollArea::resizeEvent(event);
+  };
+
+  
+};
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -164,7 +199,7 @@ ArgumentsDialog::ArgumentsDialog(const Command * cmd) :
   if(args && args->size() > 0) {
     global->addWidget(new QLabel("<b>Options:</b>"));
     options = new ArgumentsWidget(*args, true);
-    global->addWidget(options);
+    global->addWidget(new ScrolledOptions(options));
   }
 
   QDialogButtonBox * buttons =

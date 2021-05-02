@@ -25,7 +25,8 @@
 
 
 DataSetWriter::DataSetWriter() :
-  writeRowNames(false)
+  writeRowNames(false), separator("\t"), commentPrefix("#"),
+  columnNamesPrefix("##")
 {
 }
 
@@ -33,10 +34,11 @@ void DataSetWriter::writeDataSet(QIODevice * target,
                                  const DataSet * ds) const
 {
   QTextStream o(target);
-  o << "# saved from Soas buffer name " << ds->name << endl;
+  o << commentPrefix  <<" saved from Soas buffer name " << ds->name << endl;
   
   /// @todo Write header ?
-  o << ds->metaData.prettyPrint(1, "# ", "\n#\t") + "\n";
+  o << ds->metaData.prettyPrint(1, commentPrefix + " ",
+                                "\n" + commentPrefix + "\t") + "\n";
 
   // Writing column names
   QList<QStringList> ls = ds->columnNames;
@@ -44,7 +46,7 @@ void DataSetWriter::writeDataSet(QIODevice * target,
     QStringList names = ls.takeLast();
     if(writeRowNames)
       names.insert(0, "row-names");
-    o << "## " << names.join("\t") << "\n";
+    o << columnNamesPrefix << names.join(separator) << "\n";
   }
 
   /// @todo write row names.
@@ -54,12 +56,12 @@ void DataSetWriter::writeDataSet(QIODevice * target,
   for(int i = 0; i < nb; i++) {
     if(writeRowNames) {
       for(int rn = 0; rn < ls.size(); rn++) {
-        o << ls[rn].value(i,"") << "\t";
+        o << ls[rn].value(i,"") << separator;
       }
     }
     for(int j = 0; j < ds->columns.size(); j++) {
       if(j)
-        o << "\t";
+        o << separator;
       o << ds->columns[j][i];
     }
     o << "\n";
@@ -72,6 +74,9 @@ QList<Argument *> DataSetWriter::writeOptions()
   rv << new BoolArgument("row-names",
                          "Row names",
                          "Wether to write row names or not")
+     << new StringArgument("separator",
+                           "Separator",
+                           "column separator (default: tab)")
     ;
   return rv;
 }
@@ -80,4 +85,5 @@ QList<Argument *> DataSetWriter::writeOptions()
 void DataSetWriter::setFromOptions(const CommandOptions & opts)
 {
   updateFromOptions(opts, "row-names", writeRowNames);
+  updateFromOptions(opts, "separator", separator);
 }

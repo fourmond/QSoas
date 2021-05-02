@@ -40,6 +40,17 @@ public:
   /// Whether to write row names or not
   bool writeRowNames;
 
+  /// The separator
+  QString separator;
+
+  /// The prefix for comments
+  QString commentPrefix;
+
+  /// The prefix for column names
+  QString columnNamesPrefix;
+
+  
+
   DataSetWriter();
 
   /// Writes the dataset to the given device

@@ -286,8 +286,16 @@ MainWin::MainWin(Soas * theSoas, bool runStartupFiles)
     
   if(runScript.size() > 0) {
     QStringList cmd = runScript;
-    cmd.insert(0, "@");
-    commandWidget->runCommand(cmd);
+    QFileInfo info(cmd[0]);
+    if(QDir::setCurrent(info.dir().path())) {
+      cmd[0] = info.fileName();
+      cmd.insert(0, "@");
+      commandWidget->runCommand(cmd);
+    }
+    else {
+      Terminal::out << "Could not cd to script directory: '"
+                    << info.dir().path() << "'" << endl;
+    }
   }
 
   if((cmdlineCommands.size() > 0 && exitAfterRunning)

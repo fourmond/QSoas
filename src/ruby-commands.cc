@@ -70,6 +70,9 @@ static void applyFormulaCommand(const QString &, QString formula,
   bool keepOnError = false;
   updateFromOptions(opts, "keep-on-error", keepOnError);
 
+  QString operation = "modify";
+  updateFromOptions(opts, "operation", operation);
+
 
   DataSetList buffers(opts);
 
@@ -90,102 +93,139 @@ static void applyFormulaCommand(const QString &, QString formula,
     ex.useNames = true;         // But that may be a severe
                                 // performance hit ?
 
-    Terminal::out << QObject::tr("Applying formula '%1' to buffer %2").
-      arg(formula).arg(ds->name) << endl;
+    if(operation == "modify") {
+      // standard mode
 
-    /// @todo Move this functionality in DataSetExpression  ?
-    // We now only lok at
+      Terminal::out << "Applying formula '" << formula
+                    << "' to buffer " << ds->name << endl;
 
-    QStringList locals;
-    MRuby * mr = MRuby::ruby();
-    mr->detectParameters(formula.toLocal8Bit(), &locals);
-    QSet<QString> l = locals.toSet();
-    QStringList modified;        // The names of columns modified in
-                                // order
+      /// @todo Move this functionality in DataSetExpression  ?
+      // We now only lok at
+
+      QStringList locals;
+      MRuby * mr = MRuby::ruby();
+      mr->detectParameters(formula.toLocal8Bit(), &locals);
+      QSet<QString> l = locals.toSet();
+      QStringList modified;        // The names of columns modified in
+      // order
     
-    int indexInEval[colNames.size()];
-    for(int i = 0; i < colNames.size(); i++) {
-      if(l.contains(colNames[i])) {
-        indexInEval[i] = modified.size();
-        modified << colNames[i];
+      int indexInEval[colNames.size()];
+      for(int i = 0; i < colNames.size(); i++) {
+        if(l.contains(colNames[i])) {
+          indexInEval[i] = modified.size();
+          modified << colNames[i];
+        }
+        else
+          indexInEval[i] = -1;
       }
-      else
-        indexInEval[i] = -1;
-    }
 
-    int nbm = modified.size();
+      int nbm = modified.size();
 
     
     
-    QString finalFormula = QString(nbm != 1 ? "%2\n[%1]" : "%2\n%1").
-      arg(modified.join(",")).
-      arg(formula);
+      QString finalFormula = QString(nbm != 1 ? "%2\n[%1]" : "%2\n%1").
+        arg(modified.join(",")).
+        arg(formula);
 
-    // QTextStream o(stdout);
-    // o << "Found targets: " << modified.join(", ") << endl;
+      // QTextStream o(stdout);
+      // o << "Found targets: " << modified.join(", ") << endl;
   
 
-    ex.prepareExpression(finalFormula, extra);
+      ex.prepareExpression(finalFormula, extra);
 
 
 
-    QList<Vector> newCols;
-    for(int i = 0; i < ds->nbColumns() + extra; i++)
-      newCols << Vector();
-    QStringList newRowNames;
+      QList<Vector> newCols;
+      for(int i = 0; i < ds->nbColumns() + extra; i++)
+        newCols << Vector();
+      QStringList newRowNames;
 
-    {
-      // QMutexLocker m(&Ruby::rubyGlobalLock);
-      QVarLengthArray<double, 100> ret(modified.size());
-      QVarLengthArray<double, 100> args(argSize);
-      int idx = 0;
-      while(ex.nextValues(args.data(), &idx)) {
-        bool error = false;
-        try {
-          if(nbm == 1) 
-            ret[0] = ex.expression().
-              evaluateNoLock(args.data());
-          else
-            ex.expression().
-              evaluateIntoArrayNoLock(args.data(), ret.data(), ret.size());
-            
-        }
-        catch (const RuntimeError & er) {
-          Terminal::out << "Error at X = " << ds->x()[idx]
-                        << " (#" << idx << "): " << er.message()
-                        << " => "
-                        << (keepOnError ? "keeping" : "dropping")
-                        << endl;
-          for(int i = 0; i < ret.size(); i++)
-            ret[i] = 0.0/0.0;
-          error = true;
-        }
-        if(! error || (error && keepOnError)) {
-          for(int j = 0; j < newCols.size(); j++) {
-            double v = indexInEval[j] >= 0 ? ret[indexInEval[j]] :
-              ( j < ds->nbColumns() ? ds->column(j)[idx] : 0);
-            /// @todo Make that more efficient
-            newCols[j].append(v);
-          }
-          mrb_value rn = mr->getGlobal("$row_name");
-          if(newRowNames.size() > 0 || (!mrb_nil_p(rn))) {
-            if(mrb_nil_p(rn))
-              newRowNames << "";
+      {
+        // QMutexLocker m(&Ruby::rubyGlobalLock);
+        QVarLengthArray<double, 100> ret(modified.size());
+        QVarLengthArray<double, 100> args(argSize);
+        int idx = 0;
+        while(ex.nextValues(args.data(), &idx)) {
+          bool error = false;
+          try {
+            if(nbm == 1) 
+              ret[0] = ex.expression().
+                evaluateNoLock(args.data());
             else
-              newRowNames << mr->toQString(rn);
+              ex.expression().
+                evaluateIntoArrayNoLock(args.data(), ret.data(), ret.size());
+            
+          }
+          catch (const RuntimeError & er) {
+            Terminal::out << "Error at X = " << ds->x()[idx]
+                          << " (#" << idx << "): " << er.message()
+                          << " => "
+                          << (keepOnError ? "keeping" : "dropping")
+                          << endl;
+            for(int i = 0; i < ret.size(); i++)
+              ret[i] = 0.0/0.0;
+            error = true;
+          }
+          if(! error || (error && keepOnError)) {
+            for(int j = 0; j < newCols.size(); j++) {
+              double v = indexInEval[j] >= 0 ? ret[indexInEval[j]] :
+                ( j < ds->nbColumns() ? ds->column(j)[idx] : 0);
+              /// @todo Make that more efficient
+              newCols[j].append(v);
+            }
+            mrb_value rn = mr->getGlobal("$row_name");
+            if(newRowNames.size() > 0 || (!mrb_nil_p(rn))) {
+              if(mrb_nil_p(rn))
+                newRowNames << "";
+              else
+                newRowNames << mr->toQString(rn);
+            }
           }
         }
       }
-    }
   
-    DataSet * newDs = ds->derivedDataSet(newCols, "_mod.dat");
-    if(newRowNames.size() > 0) {
-      if(newDs->rowNames.size() == 0)
-        newDs->rowNames << newRowNames;
-      else
-        newDs->rowNames[0] = newRowNames;
+      DataSet * newDs = ds->derivedDataSet(newCols, "_mod.dat");
+      if(newRowNames.size() > 0) {
+        if(newDs->rowNames.size() == 0)
+          newDs->rowNames << newRowNames;
+        else
+          newDs->rowNames[0] = newRowNames;
+      }
+      pusher << newDs;
     }
-    pusher << newDs;
+    else if(operation == "add-column") {
+      
+      Terminal::out << "Creating new column ("
+                    << DataSet::standardNameForColumn(ds->nbColumns())
+                    << ") using formula '" << formula
+                    << "' on buffer " << ds->name << endl;
+      ex.prepareExpression(formula);
+      Vector newCol;
+      {
+        QVarLengthArray<double, 100> args(argSize);
+        int idx = 0;
+        while(ex.nextValues(args.data(), &idx)) {
+          double val = std::nan("");
+          try {
+            val = ex.expression().
+              evaluateNoLock(args.data());
+          }
+          catch (const RuntimeError & er) {
+            Terminal::out << "Error at X = " << ds->x()[idx]
+                          << " (#" << idx << "): " << er.message()
+                          << endl;
+          }
+          newCol << val;
+        }
+      }
+      QList<Vector> ncls = ds->allColumns();
+      ncls << newCol;
+      DataSet * newDs = ds->derivedDataSet(ncls, "_mod.dat");
+      pusher << newDs;
+    }
+    else
+      throw RuntimeError("Unknown operation: %1").arg(operation);
+    
   }
 }
 
@@ -198,6 +238,9 @@ fA(QList<Argument *>()
 static ArgumentList 
 fO(QList<Argument *>() 
    << DataStackHelper::helperOptions()
+   << new ChoiceArgument(QStringList() << "modify" << "add-column",
+                         "operation", "Operation ",
+                         "operation used by apply-formula")
    << new IntegerArgument("extra-columns", 
                           "Extra columns",
                           "number of extra columns to create")

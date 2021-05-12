@@ -362,6 +362,12 @@ QString Utils::deltaStr(const QString & w)
   return ret;
 }
 
+QString Utils::pointerString(const void * ptr)
+{
+  quintptr val = (quintptr) ptr;
+  return QString("0x%1").arg(val, 0, 16);
+}
+
 bool Utils::isPointFinite(const QPointF & p)
 {
   return std::isfinite(p.x()) && std::isfinite(p.y());

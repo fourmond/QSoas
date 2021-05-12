@@ -30,7 +30,8 @@ QStringList Utils::backtrace(int maxframes)
   char ** symbols = ::backtrace_symbols(frames.data(), maxframes);
   QStringList ret;
   for(int i = 0; i < maxframes; i++)
-    ret << QString("0x%1: %2").arg((ulong)frames[i], 0, 16).arg(symbols[i]);
+    ret << QString("%1: %2").
+      arg(Utils::pointerString(frames[i])).arg(symbols[i]);
   ::free(symbols);
   return ret;
 }

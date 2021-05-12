@@ -139,6 +139,9 @@ namespace Utils {
   QStringList nestedSplit(const QString & str, const QChar & delim,
                           const QString & opening, const QString & closing);
 
+  /// Makes a string suitable to represent a pointer
+  QString pointerString(const void * pointer);
+
   /// @}
 
 

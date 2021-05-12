@@ -442,9 +442,9 @@ int FitData::f(const gsl_vector * x, gsl_vector * f,
   /// by checking all parameters.
 
   if(debug > 0) {
-    dumpString(QString("Entering f computation (%1 %2) -- local storage 0x%3").
+    dumpString(QString("Entering f computation (%1 %2) -- local storage %3").
                arg(doSubtract).arg(doWeights).
-               arg((long)getStorage(), 0, 16));
+               arg(Utils::pointerString(getStorage())));
     dumpGSLParameters(x);
     dumpFitParameters(params.data());
 
@@ -567,8 +567,8 @@ int FitData::df(const gsl_vector * x, SparseJacobian * df)
   unpackParameters(x, unpackedParams.data());
 
   if(debug > 0)
-    dumpString(QString("Entering f computation -- local storage 0x%1").
-               arg((long)getStorage(), 0, 16));
+    dumpString(QString("Entering f computation -- local storage %1").
+               arg(Utils::pointerString(getStorage())));
 
   volatile bool & exc = soas().throwFitExcept;
   
@@ -767,8 +767,8 @@ void FitData::initializeSolver(const double * initialGuess,
       dss << datasets[i];
       FitData * d = new FitData(fit, dss, debug, extra);
       if(debug > 0)
-        dumpString(QString("Preparing sub-fit %1 -- 0x%2").
-                   arg(i).arg((long)d,0,16));
+        dumpString(QString("Preparing sub-fit %1 -- %2").
+                   arg(i).arg(Utils::pointerString(d)));
       subordinates.append(d);
 
       for(int j = 0; j < parameters.size(); j++) {
@@ -854,8 +854,8 @@ int FitData::iterate()
 
         if(subordinates[i]->nbIterations >= 0) {
           if(debug > 0)
-            dumpString(QString("Passing to subordinate %1 -- 0x%2").
-                       arg(i).arg((long)subordinates[i],0,16));
+            dumpString(QString("Passing to subordinate %1 -- %2").
+                       arg(i).arg(Utils::pointerString(subordinates[i])));
           int status = subordinates[i]->iterate();
           if(debug > 0)
             dumpString(QString(" -> subordinate %1 return code %2").
@@ -883,8 +883,8 @@ int FitData::iterate()
   else {
     int status = engine->iterate();
     if(debug > 0)
-      dumpString(QString("engine 0x%1 returned status %2").
-                 arg((long)engine,0,16).arg(status));
+      dumpString(QString("engine %1 returned status %2").
+                 arg(Utils::pointerString(engine)).arg(status));
     return status;
   }
 }
@@ -1130,7 +1130,7 @@ void FitData::dumpFitParameterStructure() const
 
   s+= "Buffers:\n";
   for(int i = 0; i < datasets.size(); i++)
-    s += QString(" * 0x%1 %2\n").arg((long)datasets[i],0,16).
+    s += QString(" * %1 %2\n").arg(Utils::pointerString(datasets[i])).
       arg(datasets[i]->name);
   dumpString(s);
 }

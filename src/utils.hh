@@ -443,6 +443,9 @@ namespace Utils {
                     int flags, const QString &text,
                     QRectF *boundingRect = NULL);
 
+  const QStyle::StandardPixmap FreeParameterIcon = QStyle::SP_CustomBase;
+  const QStyle::StandardPixmap FixedParameterIcon = static_cast<QStyle::StandardPixmap>(QStyle::SP_CustomBase+1);
+
   /// Returns the standard icon for the given function
   QIcon standardIcon(QStyle::StandardPixmap standardIcon);
 

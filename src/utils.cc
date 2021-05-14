@@ -960,7 +960,24 @@ void Utils::drawRichText(QPainter * painter, const QRectF &rectangle,
   painter->drawStaticText(rectangle.topLeft(), t);
 }
 
+//
+
+// Returns an icon made from a SVG file (generally internal)
+static QIcon makeSVGIcon(const QString & file)
+{
+  
+  return QIcon(file);
+}
+
+
 QIcon Utils::standardIcon(QStyle::StandardPixmap icon)
 {
-  return qApp->style()->standardIcon(icon);
+  switch(icon) {
+  case FreeParameterIcon:
+    return makeSVGIcon(":/resources/FreeParameter.svg");
+  case FixedParameterIcon:
+    return makeSVGIcon(":/resources/FixedParameter.svg");
+  default:
+    return qApp->style()->standardIcon(icon);
+  }
 }

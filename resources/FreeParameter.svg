@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- 
+     This file is modified from
+     https://commons.wikimedia.org/wiki/File:Autoconfirmedmove.svg and
+     is believed to be free of copyright using the same reasoning as
+     in the original page.
+-->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   viewBox="0 0 32.288136 43.050846"
+   preserveAspectRatio="xMidYMid meet"
+   id="svg8"
+   sodipodi:docname="FreeParameter.svg"
+   width="32.288136"
+   height="43.050846"
+   style="stroke-linecap:round;stroke-linejoin:round"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
+  <metadata
+     id="metadata14">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs12" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#66bdc1"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="2866"
+     inkscape:window-height="1767"
+     id="namedview10"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:pagecheckerboard="true"
+     showborder="true"
+     inkscape:showpageshadow="true"
+     inkscape:zoom="16"
+     inkscape:cx="11.247357"
+     inkscape:cy="20.432328"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg8" />
+  <path
+     style="fill:#808080;stroke-width:0.00952311;fill-opacity:1"
+     d="M 8.868672,1.326541 C 8.6809905,1.416 8.6591742,1.4277397 8.7551709,1.387789 8.8697893,1.34008 8.8708845,1.339714 8.7880939,1.379719 7.6821058,1.9143233 6.6261346,2.6302091 5.7201062,3.4593099 2.4057482,6.49226 0.9291151,11.048003 1.834643,15.44728 c 0.1649455,0.801341 0.4463335,1.708821 0.7403046,2.38765 l 0.051099,0.117869 -0.061887,-0.123407 c -0.034036,-0.06797 0.372393,0.840446 0.903256,2.018793 l 0.9652271,2.142384 2.3305302,-1.052307 c 1.5478193,-0.698888 2.329052,-1.055112 2.3264458,-1.06088 -0.00217,-0.0048 -0.00802,-0.0068 -0.012913,-0.0046 C 9.0705757,19.875582 8.7715332,19.21818 8.1175992,17.7642 7.0887783,15.476625 7.1455064,15.609093 7.0066007,15.170393 6.843164,14.654217 6.7220314,14.035259 6.6803892,13.5035 6.6296058,12.855014 6.6528791,12.275555 6.7553725,11.642274 6.9772002,10.2716 7.58346,8.9582163 8.4800373,7.9054326 9.0960822,7.1820583 9.7869871,6.6185604 10.64882,6.1366235 c 0.212147,-0.1186322 0.850121,-0.4098838 1.061207,-0.4844818 0.698735,-0.2469356 1.255925,-0.3749924 1.925217,-0.4424271 1.288777,-0.1298529 2.646964,0.086259 3.830274,0.6095677 1.661001,0.7345835 2.956888,1.9652551 3.784425,3.5936871 0.126848,0.2496519 1.873257,4.1173536 1.861508,4.1226586 -0.0048,0.0022 -0.007,0.0077 -0.0048,0.01255 0.0027,0.0058 0.786615,-0.344767 2.334435,-1.043655 L 27.771425,11.452293 26.81429,9.337717 C 26.287873,8.1746084 25.89114,7.3038481 25.932787,7.4028541 l 0.07578,0.1800691 -0.131599,-0.2749725 C 25.02529,5.5292083 23.728577,3.9339035 22.155844,2.7296934 21.340463,2.1053745 20.482689,1.5975262 19.527321,1.1733743 19.277093,1.0622412 18.543689,0.78329398 18.294824,0.70459838 17.46404,0.44188458 16.685556,0.27305118 15.862282,0.17687518 13.712363,-0.07415352 11.554289,0.22253518 9.5362308,1.0464802 9.3454275,1.1243792 9.344182,1.1245862 9.4580478,1.0696582 9.5463448,1.0270642 9.5176208,1.0378892 9.3372935,1.1148312 9.207189,1.1703422 8.9963304,1.2655778 8.868645,1.3264404 Z"
+     id="path4594"
+     inkscape:connector-curvature="0"
+     sodipodi:insensitive="true" />
+  <!--Shackle-->
+  <!--Body-->
+  <!--Arrow-->
+  <rect
+     x="0"
+     y="17.877047"
+     width="32.288136"
+     height="25.173801"
+     rx="2.6906779"
+     ry="2.51738"
+     style="display:inline;fill:#48c248;fill-opacity:1;stroke-width:2.08206964"
+     id="rect4"
+     sodipodi:insensitive="true" />
+</svg>

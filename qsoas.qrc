@@ -6,6 +6,9 @@
     <file>ruby/complex.rb</file>
     <!-- External function wrappers -->
     <file>resources/python-wrapper.py</file>
+    <!-- Some icons -->
+    <file>resources/FixedParameter.svg</file>
+    <file>resources/FreeParameter.svg</file>
     <!-- Logos -->
     <file>QSoas-logo.svg</file>
     <file>QSoas-logo.png</file>

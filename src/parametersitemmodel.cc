@@ -33,12 +33,8 @@ ParametersItemModel::ParametersItemModel(FitWorkspace * ws, QObject * parent) :
   // Todo: I should rather use the image of a lock for that, I think.
   QPixmap px(20,20);
 
-  px.fill(QColor(0,128,0));
-  freeIcon = QIcon(px);
-
-  px.fill(QColor(255,0,0));
-  fixedIcon = QIcon(px);
-
+  freeIcon = Utils::standardIcon(Utils::FreeParameterIcon);
+  fixedIcon = Utils::standardIcon(Utils::FixedParameterIcon);
 }
 
 bool ParametersItemModel::dataChanged() const

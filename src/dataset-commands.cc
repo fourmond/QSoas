@@ -2253,8 +2253,13 @@ sP("set-perp", // command name
 static void editCommand(const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
-  DatasetEditor e(ds);
-  e.exec();
+  // this seems necessary to work around what appears to be a Qt bug,
+  // a spurious crash on closing edit
+  static DatasetEditor * editor = NULL;
+  if(editor)
+    delete editor;
+  editor = new DatasetEditor(ds);
+  editor->exec();
 }
 
 static Command 

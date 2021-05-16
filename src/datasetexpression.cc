@@ -30,9 +30,10 @@
 
 DataSetExpression::DataSetExpression(const DataSet * ds,
                                      bool uS, bool uM, bool uN) :
-  dataset(ds), index(-1), 
+  dataset(ds), index(-1), colIndex(-1),
   expr(NULL), useStats(uS),
   useMeta(uM), useNames(uN),
+  xyzMap(false),
   useRealColNames(false)
 {
 }
@@ -138,51 +139,73 @@ Expression & DataSetExpression::expression()
 
 QStringList DataSetExpression::dataSetParameters(int extra, QStringList * cn)
 {
-  return dataSetParameters(dataset, extra, cn, useRealColNames);
+  return dataSetParameters(dataset, extra, cn, useRealColNames, xyzMap);
 }
 
 
 QStringList DataSetExpression::dataSetParameters(const DataSet * ds,
                                                  int extra, QStringList * cn,
-                                                 bool useRealNames)
+                                                 bool useRealNames, bool xyz)
 {
   QStringList vars;
   vars << "i" << "seg" << "x_0" << "i_0";
-  QStringList colNames;
-  if(useRealNames) {
-    colNames = ds->mainColumnNames();
-    QRegExp valid("^[_a-z]\\w*$");
-    for(const QString & n : colNames) {
-      if(valid.indexIn(n) != 0)
-        throw RuntimeError("Column name '%1' is not a valid variable name. Consider using set-column-names /sanitize-names=true").
-          arg(n);
-    }
-    for(int i = 0; i < extra; i++)
-      colNames << DataSet::standardNameForColumn(colNames.size());
+  if(xyz) {
+    vars << "j" << "x" << "z";
   }
   else {
-    for(int i = 0; i < ds->nbColumns() + extra; i++)
-      colNames << DataSet::standardNameForColumn(i);
+    QStringList colNames;
+    if(useRealNames) {
+      colNames = ds->mainColumnNames();
+      QRegExp valid("^[_a-z]\\w*$");
+      for(const QString & n : colNames) {
+        if(valid.indexIn(n) != 0)
+          throw RuntimeError("Column name '%1' is not a valid variable name. Consider using set-column-names /sanitize-names=true").
+            arg(n);
+      }
+      for(int i = 0; i < extra; i++)
+        colNames << DataSet::standardNameForColumn(colNames.size());
+    }
+    else {
+      for(int i = 0; i < ds->nbColumns() + extra; i++)
+        colNames << DataSet::standardNameForColumn(i);
+    }
+    vars += colNames;
+    if(cn)
+      *cn = colNames;
   }
-  vars += colNames;
-  if(cn)
-    *cn = colNames;
   return vars;
 }
 
-bool DataSetExpression::nextValues(double * args, int * idx)
+bool DataSetExpression::nextValues(double * args, int * idx, int * colIdx)
 {
   if(! dataset)
     throw InternalError("nextValues() on an unprepared expression");
-  index++;
-  if(index >= dataset->nbRows())
-    return false;
+  if(xyzMap) {
+    if(index < 0)
+      index = 0;
+    if(dataset->nbColumns() < 2)
+      throw RuntimeError("Not enough columns");
+    if(colIndex + 2 >= dataset->nbColumns()) {
+      index++;
+      if(index >= dataset->nbRows())
+        return false;
+      colIndex = -1;
+    }
+    colIndex++;
+    if(colIdx)
+      *colIdx = colIndex;
+  }
+  else {
+    index++;
+    if(index >= dataset->nbRows())
+      return false;
+  }
   if(idx)
     *idx = index;
-
+  
   int seg = 0;
   while(seg < dataset->segments.size() && index >= dataset->segments[seg]) {
-      seg++;
+    seg++;
   }
   
   args[0] = index;                // the index !
@@ -190,22 +213,28 @@ bool DataSetExpression::nextValues(double * args, int * idx)
   int ib = dataset->segments.value(seg-1, 0);
   args[2] = dataset->x().value(ib);
   args[3] = ib;
-
-  for(int j = 0; j < dataset->nbColumns(); j++)
-    args[j+4] = dataset->column(j)[index];
-
-  if(useNames && dataset->rowNames.size() > 0) {
-    MRuby * mr = MRuby::ruby();
-    mr->setGlobal("$row_name", mr->fromQString(dataset->rowNames[0].
-                                               value(index, QString())));
+  if(xyzMap) {
+    args[4] = colIndex;
+    args[5] = dataset->x()[index];
+    args[6] = dataset->perpendicularCoordinates().value(colIndex, colIndex);
   }
-  if(useNames && dataset->columnNames.size() > 0 && dataset->checkColNames()) {
-    MRuby * mr = MRuby::ruby();
-    ValueHash c;
-    for(int i = 0; i < dataset->columnNames[0].size(); i++) {
-      c[dataset->columnNames[0][i]] = dataset->column(i)[index];
+  else {
+    for(int j = 0; j < dataset->nbColumns(); j++)
+      args[j+4] = dataset->column(j)[index];
+    
+    if(useNames && dataset->rowNames.size() > 0) {
+      MRuby * mr = MRuby::ruby();
+      mr->setGlobal("$row_name", mr->fromQString(dataset->rowNames[0].
+                                                 value(index, QString())));
     }
-    mr->setGlobal("$c", c.toRuby());
+    if(useNames && dataset->columnNames.size() > 0 && dataset->checkColNames()) {
+      MRuby * mr = MRuby::ruby();
+      ValueHash c;
+      for(int i = 0; i < dataset->columnNames[0].size(); i++) {
+        c[dataset->columnNames[0][i]] = dataset->column(i)[index];
+      }
+      mr->setGlobal("$c", c.toRuby());
+    }
   }
   return true;
 }

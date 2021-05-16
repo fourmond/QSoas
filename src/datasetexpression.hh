@@ -50,6 +50,9 @@ private:
   /// Current index in the dataset for iterators.
   int index;
 
+  /// Current column index, used when the xyzMap mode is on.
+  int colIndex;
+
   /// A hash containing the values
   PossessiveHash<QString, SaveGlobal> globals;
 
@@ -75,6 +78,9 @@ public:
 
   /// Whether or not we use $col_names $row_names
   bool useNames;
+
+  /// If this is true, then the DataSetExpression is taken as y=f(x,z).
+  bool xyzMap;
 
   /// If this is true (off by default), the real column names are used
   /// instead of the standard column names.
@@ -111,13 +117,14 @@ public:
   static QStringList dataSetParameters(const DataSet * ds,
                                        int extracols = 0,
                                        QStringList * colNames = NULL,
-                                       bool useRealNames = false);
+                                       bool useRealNames = false,
+                                       bool xyz = false);
 
   /// Prepares the given argument storage space for the evaluation of
   /// the next step. If returns false, then there is no next step.
   ///
   /// Does not initialize the values of the extra columns.
-  bool nextValues(double * storage, int * idx = NULL);
+  bool nextValues(double * storage, int * idx = NULL, int * colIdx = NULL);
   
 };
 

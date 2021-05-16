@@ -70,8 +70,8 @@ static void applyFormulaCommand(const QString &, QString formula,
   bool keepOnError = false;
   updateFromOptions(opts, "keep-on-error", keepOnError);
 
-  QString operation = "modify";
-  updateFromOptions(opts, "operation", operation);
+  QString operation = "xyy2";
+  updateFromOptions(opts, "mode", operation);
 
 
   DataSetList buffers(opts);
@@ -93,7 +93,7 @@ static void applyFormulaCommand(const QString &, QString formula,
     ex.useNames = true;         // But that may be a severe
                                 // performance hit ?
 
-    if(operation == "modify") {
+    if(operation == "xyy2") {
       // standard mode
 
       Terminal::out << "Applying formula '" << formula
@@ -223,9 +223,41 @@ static void applyFormulaCommand(const QString &, QString formula,
       DataSet * newDs = ds->derivedDataSet(ncls, "_mod.dat");
       pusher << newDs;
     }
+    else if(operation == "xyz") {
+      Terminal::out << "Applying y=f(x,z) formula '" << formula
+                    << "' to buffer " << ds->name << endl;
+      ex.xyzMap = true;
+      if(extra > 0)
+        throw RuntimeError("It is not possible to use /extra-columns with /operation=xyz");
+      argSize = ex.dataSetParameters(0).size();
+      ex.prepareExpression(formula);
+      QVarLengthArray<double, 100> args(argSize);
+
+      int idx, idCol;
+      DataSet * newDs = ds->derivedDataSet("_mod.dat");
+      Vector perp = ds->perpendicularCoordinates();
+      while(perp.size() < ds->nbColumns() - 1)
+        perp << perp.size();
+    
+      while(ex.nextValues(args.data(), &idx, &idCol)) {
+        double val = std::nan("0");
+        try {
+          val = ex.expression().evaluateNoLock(args.data());
+        }
+        catch (const RuntimeError & er) {
+          Terminal::out << "Error at X = " << ds->x()[idx]
+                        << ", Z = "
+                        << perp[idCol]
+                        << ": " << er.message()
+                        << endl;
+        }
+        newDs->column(idCol+1)[idx] = val;
+      }
+      newDs->setPerpendicularCoordinates(perp);
+      pusher << newDs;
+    }
     else
       throw RuntimeError("Unknown operation: %1").arg(operation);
-    
   }
 }
 
@@ -238,9 +270,10 @@ fA(QList<Argument *>()
 static ArgumentList 
 fO(QList<Argument *>() 
    << DataStackHelper::helperOptions()
-   << new ChoiceArgument(QStringList() << "modify" << "add-column",
-                         "operation", "Operation ",
-                         "operation used by apply-formula")
+   << new ChoiceArgument(QStringList()
+                         << "xyy2" << "add-column" << "xyz",
+                         "mode", "Mode ",
+                         "operating mode used by apply-formula")
    << new IntegerArgument("extra-columns", 
                           "Extra columns",
                           "number of extra columns to create")

@@ -1,0 +1,19 @@
+# A test for the new modes in apply-formula
+clear-stack
+generate-dataset 0 10 /columns=5
+
+apply-formula /mode=add-column x**2
+assert $stats.columns-6 0
+
+apply-formula y5-=x**2
+assert $stats.y5_norm 0
+
+set-perp 1 2 3 2.5 1.5
+apply-formula /mode=xyz x**2*z
+
+
+apply-formula y5-=x**2*1.5
+assert $stats.y5_norm 0
+
+apply-formula y3-=x**2*3
+assert $stats.y3_norm 0

@@ -11,3 +11,6 @@
 run-for-each /range-type=lin large-buffer-formulas.cmds 1..40:40
 
 @ linear-least-squares.cmds
+
+# And the new modes in apply-formula
+@ mode.cmds

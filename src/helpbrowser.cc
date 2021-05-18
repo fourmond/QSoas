@@ -293,6 +293,7 @@ void HelpBrowser::dumpHelp()
     for(const QUrl & f : engine->files(s, QStringList()))
       Terminal::out << " |- " << f.toString() << endl;
   }
+  Terminal::out << "Last error was: " << engine->error() << endl;
 }
 
 HelpBrowser::HelpBrowser() :

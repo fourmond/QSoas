@@ -66,6 +66,10 @@ public:
   /// Returns the collection file.
   static QString collectionFile();
 
+  /// Dumps the contents of the help file to the terminal and to
+  /// standard output.
+  static void dumpHelp();
+
 public slots:
   /// Shows the given location, i.e. a relative file path, with
   /// optionally a #position

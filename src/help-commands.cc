@@ -93,6 +93,13 @@ QString docUrl("http://www.qsoas.org/manual.html");
 static void helpCommand(const QString & /*name*/,
                         const CommandOptions & opts)
 {
+  bool dump = false;
+  updateFromOptions(opts, "dump", dump);
+  if(dump) {
+    HelpBrowser::dumpHelp();
+    return;
+  }
+
   Command * cmd = NULL;
   updateFromOptions(opts, "command", cmd);
 
@@ -151,7 +158,9 @@ helpO(QList<Argument *>()
       << new CommandArgument("command", "Command",
                              "The command on which to give help", true)
       << new BoolArgument("synopsis", "Synopsis",
-                          "Does not show the help, but print a brief synopsis"));
+                          "Does not show the help, but print a brief synopsis")
+      << new BoolArgument("dump", "Dump",
+                          "Shows information about the contents of the help files"));
 
 
 static Command 

@@ -284,6 +284,17 @@ QString HelpBrowser::collectionFile()
   return getEngine()->collectionFile();
 }
 
+void HelpBrowser::dumpHelp()
+{
+  QHelpEngine * engine = getEngine();
+  Terminal::out << "Collection file: " << engine->collectionFile() << endl;
+  for(const QString & s : engine->registeredDocumentations()) {
+    Terminal::out << " * " << s << endl;
+    for(const QUrl & f : engine->files(s, QStringList()))
+      Terminal::out << " |- " << f.toString() << endl;
+  }
+}
+
 HelpBrowser::HelpBrowser() :
   QWidget(NULL), lastSearchFailed(false)
 {

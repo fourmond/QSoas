@@ -288,8 +288,11 @@ void HelpBrowser::dumpHelp()
 {
   QHelpEngine * engine = getEngine();
   Terminal::out << "Collection file: " << engine->collectionFile() << endl;
+  Terminal::out << "Filters: '" << engine->customFilters().join("', '")
+                << "'\nCurrent filter:" << engine->currentFilter() << endl;
   for(const QString & s : engine->registeredDocumentations()) {
-    Terminal::out << " * " << s << endl;
+    Terminal::out << " * " << s
+                  << "\n    -> " << engine->documentationFileName(s) << endl;
     for(const QUrl & f : engine->files(s, QStringList()))
       Terminal::out << " |- " << f.toString() << endl;
   }

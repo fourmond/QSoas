@@ -1361,7 +1361,8 @@ static void handleMissingDS(QList<const DataSet *> * lst)
 static void subCommand(const QString &, QList<const DataSet *> a,
                        const CommandOptions & opts)
 {
-  bool naive = testOption<QString>(opts, "mode", "indices");
+  DataSet::BinaryOperationMode mode = DataSet::ClosestX;
+  updateFromOptions(opts, "mode", mode);
   bool useSteps = false;
   updateFromOptions(opts, "use-segments", useSteps);
 
@@ -1372,10 +1373,8 @@ static void subCommand(const QString &, QList<const DataSet *> a,
     const DataSet * ds = a[i];
     Terminal::out << QObject::tr("Subtracting dataset '%1' from dataset '%2'").
       arg(b->name).arg(ds->name) 
-                  << (naive ? " (index mode)" : " (xvalues mode)" ) 
                   << endl;
-
-    soas().pushDataSet(ds->subtract(b, naive, useSteps));
+    soas().pushDataSet(ds->subtract(b, mode, useSteps));
   }
 }
 
@@ -1386,15 +1385,24 @@ operationArgs(QList<Argument *>()
                                             "The datasets of the operation")
               );
 
+static QHash<QString, DataSet::BinaryOperationMode> modes =
+  {
+   {"xvalues", DataSet::ClosestX},
+   {"indices", DataSet::Indices},
+   {"extend", DataSet::Extend},
+   {"strict", DataSet::Strict}
+  };
+
+#include <argument-templates.hh>
+
 static ArgumentList 
 operationOpts(QList<Argument *>() 
-              << new ChoiceArgument(QStringList() 
-                                    << "xvalues"
-                                    << "indices",
-                                    "mode", 
-                                    "Operation mode",
-                                    "Whether operations try to match x "
-                                    "values or indices")
+              << new TemplateChoiceArgument
+              <DataSet::BinaryOperationMode>(modes,
+                                             "mode", 
+                                             "Operation mode",
+                                             "Whether operations try to match x "
+                                             "values or indices")
               << new BoolArgument("use-segments", 
                                   "Use segments ?",
                                   "If on, operations are performed "
@@ -1418,7 +1426,8 @@ sub("subtract", // command name
 static void divCommand(const QString &, QList<const DataSet *> a,
                        const CommandOptions & opts)
 {
-  bool naive = testOption<QString>(opts, "mode", "indices");
+  DataSet::BinaryOperationMode mode = DataSet::ClosestX;
+  updateFromOptions(opts, "mode", mode);
   bool useSteps = false;
   updateFromOptions(opts, "use-segments", useSteps);
 
@@ -1427,11 +1436,10 @@ static void divCommand(const QString &, QList<const DataSet *> a,
     
   for(int i = 0; i < a.size(); i++) {
     const DataSet * ds = a[i];
-    Terminal::out << QObject::tr("Dividing dataset '%2' by dataset '%1'").
+    Terminal::out << QString("Dividing dataset '%2' by dataset '%1'").
       arg(b->name).arg(ds->name) 
-                  << (naive ? " (index mode)" : " (xvalues mode)" ) 
                   << endl;
-    soas().pushDataSet(ds->divide(b, naive, useSteps));
+    soas().pushDataSet(ds->divide(b, mode, useSteps));
   }
 }
 
@@ -1449,10 +1457,11 @@ static void mopCommand(const QString &, QList<const DataSet *> a,
                        const CommandOptions & opts,
                        const QString & pref, const QString & cat,
                        DataSet * (DataSet::*ope)(const DataSet * dataset,
-                                                 bool naive, 
+                                                 DataSet::BinaryOperationMode mode, 
                                                  bool useSteps) const )
 {
-  bool naive = testOption<QString>(opts, "mode", "indices");
+  DataSet::BinaryOperationMode mode = DataSet::ClosestX;
+  updateFromOptions(opts, "mode", mode);
   bool useSteps = false;
   handleMissingDS(&a);
   if(a.size() < 2)
@@ -1468,7 +1477,7 @@ static void mopCommand(const QString &, QList<const DataSet *> a,
   for(int i = 1; i < a.size(); i++) {
     const DataSet * ds = a[i];
     names << "'" + ds->name + "'";
-    DataSet * nn = (op->*ope)(ds, naive, useSteps);
+    DataSet * nn = (op->*ope)(ds, mode, useSteps);
     if(n)
       delete n;
     n = nn;
@@ -1526,7 +1535,8 @@ mul("multiply", // command name
 static void mergeCommand(const QString &, QList<const DataSet *> a,
                          const CommandOptions & opts)
 {
-  bool naive = testOption<QString>(opts, "mode", "indices");
+  DataSet::BinaryOperationMode mode = DataSet::ClosestX;
+  updateFromOptions(opts, "mode", mode);
   bool useSteps = false;
   updateFromOptions(opts, "use-segments", useSteps);
 
@@ -1537,9 +1547,8 @@ static void mergeCommand(const QString &, QList<const DataSet *> a,
     const DataSet * ds = a[i];
     Terminal::out << QObject::tr("Merging dataset '%2' with dataset '%1'").
       arg(b->name).arg(ds->name) 
-                  << (naive ? " (index mode)" : " (xvalues mode)" ) 
                   << endl;
-    soas().pushDataSet(ds->merge(b, naive, useSteps));
+    soas().pushDataSet(ds->merge(b, mode, useSteps));
   }
 }
 
@@ -1557,7 +1566,8 @@ mergec("merge", // command name
 static void contractCommand(const QString &, QList<const DataSet *> a,
                             const CommandOptions & opts)
 {
-  bool naive = testOption<QString>(opts, "mode", "indices");
+  DataSet::BinaryOperationMode mode = DataSet::ClosestX;
+  updateFromOptions(opts, "mode", mode);
   bool useSteps = false;
   updateFromOptions(opts, "use-segments", useSteps);
 
@@ -1594,7 +1604,7 @@ static void contractCommand(const QString &, QList<const DataSet *> a,
       ds->setPerpendicularCoordinates(ds->getMetaData(pc).toDouble());
     trimColumns(ds);
 
-    DataSet * n = cur->contract(ds, naive, useSteps);
+    DataSet * n = cur->contract(ds, mode, useSteps);
     delete cur;
     delete ds;
     cur = n;

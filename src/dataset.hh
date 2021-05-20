@@ -117,32 +117,6 @@ class DataSet : public Guardable {
   /// the correct value when not NULL.
   const double * getValues(int col, int * size) const;
 
-  /// Applies a binary operation to all Y columns while trying to keep
-  /// X matching. Returns a brand new DataSet. If \a naive is on, it
-  /// works index by index. If \a useSteps is on, each step on each
-  /// side is compared to each on the other. For that to work, there
-  /// must be at least as many steps in \a b than in \a a.
-  ///
-  /// By default, operations are applied between matching Y columns,
-  /// ie Y1 of a with Y1 of b, Y2 of a with Y2 of b and so
-  /// on. However, if useACol is non-negative, operations are applied
-  /// to all Y columns of b with the correspond Y column of a.
-  ///
-  /// 
-  ///
-  /// The operation takes quadratic time, as all X of a are matched
-  /// against all X of b for each value (which is bad,
-  /// admittedly). There are probably ways to be much more clever than
-  /// that.
-  ///
-  static DataSet * applyBinaryOperation(const DataSet * a,
-                                        const DataSet * b,
-                                        double (*op)(double, double),
-                                        const QString & cat = "_op_",
-                                        bool naive = false, 
-                                        bool useSteps = false,
-                                        int useACol = -1);
-
 
   friend QDataStream & operator<<(QDataStream & out, const DataSet & ds);
   friend QDataStream & operator>>(QDataStream & in, DataSet & ds);
@@ -582,38 +556,90 @@ public:
   /// Returns a sorted copy of the dataset.
   DataSet * sort(bool reverse = false) const;
 
+
+
+    /// The different modes of operation
+  typedef enum {
+        /// Only matching X values, the missing values are replaced
+        /// with NaN
+        Strict,
+        /// Closest X values, what was before default mode, but it
+        /// extends only to a couple of points around the X values
+        /// really present. It throws an exception if it goes too far.
+        ClosestX,
+        /// Closest X values and extend indefinitely
+        Extend,
+        /// Only look at matching indices. Does not extend.
+        Indices
+  } BinaryOperationMode;
+
+protected:
+  /// Applies a binary operation to all Y columns while trying to keep
+  /// X matching. Returns a brand new DataSet. If \a naive is on, it
+  /// works index by index. If \a useSteps is on, each step on each
+  /// side is compared to each on the other. For that to work, there
+  /// must be at least as many steps in \a b than in \a a.
+  ///
+  /// By default, operations are applied between matching Y columns,
+  /// ie Y1 of a with Y1 of b, Y2 of a with Y2 of b and so
+  /// on. However, if useACol is non-negative, operations are applied
+  /// to all Y columns of b with the correspond Y column of a.
+  ///
+  /// 
+  ///
+  /// The operation takes quadratic time, as all X of a are matched
+  /// against all X of b for each value (which is bad,
+  /// admittedly). There are probably ways to be much more clever than
+  /// that.
+  ///
+  static DataSet * applyBinaryOperation(const DataSet * a,
+                                        const DataSet * b,
+                                        double (*op)(double, double),
+                                        const QString & cat = "_op_",
+                                        BinaryOperationMode mode = ClosestX,
+                                        bool useSteps = false,
+                                        int useACol = -1);
+
+public:
+
   /// Subtracts \a dataset from this DataSet and returns the result.
   ///
   /// If \a naive is true, only indices are matched, while a more
   /// complex algorithm is used to match X values in the other case.
-  DataSet * subtract(const DataSet * dataset, bool naive = false, 
+  DataSet * subtract(const DataSet * dataset,
+                     BinaryOperationMode mode = ClosestX,
                      bool useSteps = false) const;
 
   /// Adds \a dataset to this DataSet and returns the result.
   ///
   /// If \a naive is true, only indices are matched, while a more
   /// complex algorithm is used to match X values in the other case.
-  DataSet * add(const DataSet * dataset, bool naive = false, 
-                     bool useSteps = false) const;
+  DataSet * add(const DataSet * dataset,
+                BinaryOperationMode mode = ClosestX,
+                bool useSteps = false) const;
 
   /// Multiplies this DataSet by \a dataset and returns the result.
   ///
   /// If \a naive is true, only indices are matched, while a more
   /// complex algorithm is used to match X values in the other case.
-  DataSet * multiply(const DataSet * dataset, bool naive = false, 
+  DataSet * multiply(const DataSet * dataset,
+                     BinaryOperationMode mode = ClosestX,
                      bool useSteps = false) const;
 
   /// Divides by \a dataset and returns the result. \sa subtract.
-  DataSet * divide(const DataSet * dataset, bool naive = false, 
+  DataSet * divide(const DataSet * dataset,
+                   BinaryOperationMode mode = ClosestX,
                    bool useSteps = false) const;
 
   /// Returns a dataset containing \a dataset's Y and further
   /// columns as a function of Y of this dataset.
-  DataSet * merge(const DataSet * dataset, bool naive = false, 
+  DataSet * merge(const DataSet * dataset,
+                  BinaryOperationMode mode = ClosestX,
                   bool useSteps = false) const;
 
   /// Does the reverse of expand.
-  DataSet * contract(const DataSet * dataset, bool naive = false, 
+  DataSet * contract(const DataSet * dataset,
+                     BinaryOperationMode mode = ClosestX,
                      bool useSteps = false) const;
 
   /// Returns the subset of the dataset contained either within the

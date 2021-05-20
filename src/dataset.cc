@@ -541,8 +541,9 @@ QList<DataSet *> DataSet::splitIntoMonotonic(int col, int group) const
 DataSet * DataSet::applyBinaryOperation(const DataSet * a,
                                         const DataSet * b,
                                         double (*op)(double, double),
-                                        const QString & cat, 
-                                        bool naive, bool useSteps,
+                                        const QString & cat,
+                                        DataSet::BinaryOperationMode mode,
+                                        bool useSteps,
                                         int useACol)
 {
   // only deal with the common columns
@@ -558,7 +559,10 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
     // We first split into segments, shift X values, apply and then
     // combine everything back
     
-    // We use possessive lists to avoid
+    // We use possessive lists to avoid memory leaks on exceptions.
+
+    /// @todo This is rather memory-intensive and a waste of
+    /// resources, it could be optimized by not allocating new things.
     PossessiveList<DataSet> ads(a->chopIntoSegments());
     PossessiveList<DataSet> bds(b->chopIntoSegments());
 
@@ -573,8 +577,8 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
     for(int i = 0; i < ads.size(); i++) {
       ads[i]->x() -= ads[i]->x()[0];
       bds[i]->x() -= bds[i]->x()[0];
-      DataSet * nds = applyBinaryOperation(ads[i], bds[i], op, cat, naive, false, useACol);
-
+      DataSet * nds = applyBinaryOperation(ads[i], bds[i], op,
+                                           cat, mode, false, useACol);
       for(int j = 0; j < nbcols-1; j++)
         vects[j] << nds->columns[j+1];
 
@@ -584,6 +588,7 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
     vects.insert(0, a->x());
   }
   else {
+    
 
     int size_a = a->nbRows();
     const double * xa = a->columns[0].data();
@@ -593,38 +598,67 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
 
     for(int i = 0; i < nbcols; i++)
       vects << Vector();
-    if(naive) {
+    switch(mode) {
+    case Indices:
+      if(size_a > size_b)
+        throw RuntimeError("Not enough points in dataset '%1': %2 vs %3").
+          arg(b->name).arg(size_b).arg(size_a);
+      
       for(int i = 0; i < size_a; i++) {
         vects[0] << xa[i];
-        int si = i;
-        if(i >= size_b)
-          si = size_b - 1;        // Pad with last value
         for(int k = 1; k < nbcols; k++)
-          vects[k] << op(a->columns[useACol >= 0 ? useACol : k][i], b->columns[k][si]);
+          vects[k] << op(a->columns[useACol >= 0 ? useACol : k][i], b->columns[k][i]);
       }
-    }
-    else {
-      /// @todo We may improve all this by looking at all the signs
-      /// and see if things are monotonic or not.
+      break;
+    case ClosestX:
+    case Extend:
+      {
+        double xb_min = b->x().min(),
+          xb_max = b->x().max();
+        double maxDx = (xb_max - xb_min)/size_b * 2;
+        for(int i = 0; i < size_a; i++) {
+          if(mode == ClosestX && ((xa[i] < xb_min - maxDx) ||
+                                  (xa[i] > xb_max - maxDx)))
+            throw RuntimeError("Trying to extend dataset %1 too far: "
+                               "%2 for ([%3,%4])").
+              arg(b->name).arg(xa[i]).arg(xb_min).arg(xb_max);
 
-      for(int i = 0; i < size_a; i++) {
-
-        /* We first look for the closest point */
-        double diff = fabs(xa[i] - xb[0]);
-        int found = 0;
-        // We do not assume that X values are varying 
-        for(int j = 0; j < size_b; j++) {
-          double d = fabs(xa[i] - xb[j]);
-          if(d < diff) {
-            diff  = d;
-            found = j;
+          /* We first look for the closest point */
+          double diff = fabs(xa[i] - xb[0]);
+          int found = 0;
+          // We do not assume that X values are varying 
+          for(int j = 0; j < size_b; j++) {
+            double d = fabs(xa[i] - xb[j]);
+            if(d < diff) {
+              diff  = d;
+              found = j;
+            }
           }
+          vects[0] << xa[i];        // a is the master dataset
+          for(int k = 1; k < nbcols; k++)
+            vects[k] << op(a->columns[useACol >= 0 ? useACol : k][i], b->columns[k][found]);
         }
-
-        vects[0] << xa[i];        // a is the master dataset
-        for(int k = 1; k < nbcols; k++)
-          vects[k] << op(a->columns[useACol >= 0 ? useACol : k][i], b->columns[k][found]);
       }
+      break;
+    case Strict:
+      {
+        for(int i = 0; i < size_a; i++) {
+          int found = -1;
+          for(int j = 0; j < size_b; j++) {
+            if(xb[j] == xa[i]) {
+              found = j;
+              break;
+            }
+          }
+          vects[0] << xa[i];        // a is the master dataset
+          for(int k = 1; k < nbcols; k++)
+            vects[k] << op(a->columns[useACol >= 0 ? useACol : k][i], b->columns[k].value(found, std::nan("0")));
+              
+        }
+      }
+      break;
+    default:
+      throw InternalError("Unknown mode");
     }
   }
 
@@ -643,9 +677,11 @@ static inline double sub(double a, double b)
   return a - b;
 }
 
-DataSet * DataSet::subtract(const DataSet * ds, bool naive, bool useSteps) const
+DataSet * DataSet::subtract(const DataSet * ds,
+                            BinaryOperationMode mode,
+                            bool useSteps) const
 {
-  return applyBinaryOperation(this, ds, sub, "-", naive, useSteps);
+  return applyBinaryOperation(this, ds, sub, "-", mode, useSteps);
 }
 
 static inline double add(double a, double b)
@@ -653,9 +689,11 @@ static inline double add(double a, double b)
   return a + b;
 }
 
-DataSet * DataSet::add(const DataSet * ds, bool naive, bool useSteps) const
+DataSet * DataSet::add(const DataSet * ds,
+                       BinaryOperationMode mode,
+                       bool useSteps) const
 {
-  return applyBinaryOperation(this, ds, ::add, "+", naive, useSteps);
+  return applyBinaryOperation(this, ds, ::add, "+", mode, useSteps);
 }
 
 static inline double mul(double a, double b)
@@ -663,9 +701,11 @@ static inline double mul(double a, double b)
   return a * b;
 }
 
-DataSet * DataSet::multiply(const DataSet * ds, bool naive, bool useSteps) const
+DataSet * DataSet::multiply(const DataSet * ds,
+                            BinaryOperationMode mode,
+                            bool useSteps) const
 {
-  return applyBinaryOperation(this, ds, ::mul, "*", naive, useSteps);
+  return applyBinaryOperation(this, ds, ::mul, "*", mode, useSteps);
 }
 
 static inline double div(double a, double b)
@@ -673,9 +713,11 @@ static inline double div(double a, double b)
   return a/b;
 }
 
-DataSet * DataSet::divide(const DataSet * ds, bool naive, bool useSteps) const
+DataSet * DataSet::divide(const DataSet * ds,
+                          BinaryOperationMode mode,
+                          bool useSteps) const
 {
-  return applyBinaryOperation(this, ds, div, "_div_", naive, useSteps);
+  return applyBinaryOperation(this, ds, div, "_div_", mode, useSteps);
 }
 
 static inline double keep_second(double, double b)
@@ -683,21 +725,23 @@ static inline double keep_second(double, double b)
   return b;
 }
 
-DataSet * DataSet::merge(const DataSet * ds, bool naive, 
+DataSet * DataSet::merge(const DataSet * ds,
+                         BinaryOperationMode mode,
                          bool useSteps) const
 {
   DataSet * nd = applyBinaryOperation(this, ds, keep_second, 
-                                      "_merged_", naive, useSteps);
+                                      "_merged_", mode, useSteps);
   nd->columns << nd->columns[0];
   nd->columns[0] = columns[1];
   return nd;
 }
 
-DataSet * DataSet::contract(const DataSet * ds, bool naive, 
+DataSet * DataSet::contract(const DataSet * ds,
+                            BinaryOperationMode mode,
                             bool useSteps) const
 {
   DataSet * nd = applyBinaryOperation(this, ds, keep_second, 
-                                      "_cont_", naive, useSteps, 0);
+                                      "_cont_", mode, useSteps, 0);
  
   Vector pc = ds->perpCoords;
   for(int i = 1; i < columns.size(); i++)

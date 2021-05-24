@@ -653,7 +653,7 @@ evl("eval", // command name
 //////////////////////////////////////////////////////////////////////
 
 static void verifyCommand(const QString & /*name*/, QString formula,
-                        const CommandOptions & /*opts*/)
+                          const CommandOptions & /*opts*/)
 {
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
   MRuby * mr = MRuby::ruby();

@@ -854,7 +854,7 @@ static Command
 ve("verify", // command name
    effector(verify), // action
    "file",  // group name
-   &eA, // arguments
+   &fA, // arguments
    &vO,
    "Verify",
    "Evaluates a Ruby expression and raises an error if it is false");

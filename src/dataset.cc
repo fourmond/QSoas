@@ -618,7 +618,7 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
         double maxDx = (xb_max - xb_min)/size_b * 2;
         for(int i = 0; i < size_a; i++) {
           if(mode == ClosestX && ((xa[i] < xb_min - maxDx) ||
-                                  (xa[i] > xb_max - maxDx)))
+                                  (xa[i] > xb_max + maxDx)))
             throw RuntimeError("Trying to extend dataset %1 too far: "
                                "%2 for ([%3,%4])").
               arg(b->name).arg(xa[i]).arg(xb_min).arg(xb_max);

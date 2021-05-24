@@ -1,0 +1,31 @@
+# Here we check the various function modes
+generate-dataset 0 10
+generate-dataset 0 9
+
+S 0 1
+assert $stats.y_stddev 4e-3
+assert $stats.x_max-9 0
+
+drop 0
+
+@ ../helpers/assert-except.cmds modes-1.cmds
+
+
+generate-dataset 0 10
+generate-dataset 0 9
+S 1 0 /mode=extend
+
+assert $stats.x_max-10 0
+apply-formula 'if x>9;y-=(x-9);end'
+assert $stats.y_stddev 4e-3
+
+
+# Now check strict mode:
+
+generate-dataset 0 10 /samples=1001
+generate-dataset 0 10 /samples=101
+S 1 0 /mode=strict
+assert $stats.rows==1001
+strip-if y.nan?
+assert $stats.rows==101
+assert $stats.y_norm 0

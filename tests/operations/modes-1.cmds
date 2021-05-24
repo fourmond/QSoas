@@ -1,0 +1,5 @@
+# This should fail
+generate-dataset 0 10
+generate-dataset 0 9
+
+S 1 0

@@ -1499,12 +1499,23 @@ DataSet * DataSet::concatenateDataSets(QList<const DataSet *> datasets,
   for(int i = 0; i < nbcols; i++)
     vects << Vector();
   QStringList names;
+  QList<QStringList> rowNames;
   int idx = 0;
   for(int i = 0; i < datasets.size(); i++) {
     const DataSet * ds = datasets[i];
     names << ds->cleanedName();
     for(int j = 0; j < nbcols; j++)
       vects[j] << ds->column(j);
+
+    // Now add row names, padding to empty strings when appropriate
+    for(int j = 0; j < ds->rowNames.size(); j++) {
+      if(rowNames.size() <= j)
+        rowNames << QStringList();
+      QStringList & lst = rowNames[j];
+      while(lst.size() < idx)
+        lst << QString();
+      lst << ds->rowNames[j];
+    }
 
     if(set && i > 0)
       segs << idx;
@@ -1517,6 +1528,7 @@ DataSet * DataSet::concatenateDataSets(QList<const DataSet *> datasets,
   DataSet * newDs = datasets.first()->derivedDataSet(vects, "");
   newDs->segments = segs;
   newDs->name = Utils::smartConcatenate(names, "+", "(", ")") + ".dat";
+  newDs->rowNames = rowNames;
   return newDs;
 }
 

@@ -1,0 +1,54 @@
+# A series of test to make sure the row names are modified as they
+# should be following various operations.
+
+# Case when it's "full"
+generate-dataset 0 1 /samples=3
+set-row-names a b c
+a rows-1
+assert '$row_names[0]=="a"'
+assert '$row_names[1]=="b"'
+assert '$row_names[2]=="c"'
+
+generate-dataset 0 1 /samples=3
+set-row-names d e f
+a rows-2
+assert '$row_names[0]=="d"'
+assert '$row_names[1]=="e"'
+assert '$row_names[2]=="f"'
+
+cat 2 0 
+assert '$row_names[0]=="a"'
+assert '$row_names[1]=="b"'
+assert '$row_names[2]=="c"'
+assert '$row_names[3]=="d"'
+assert '$row_names[4]=="e"'
+assert '$row_names[5]=="f"'
+drop
+
+cat 0 2 
+assert '$row_names[3]=="a"'
+assert '$row_names[4]=="b"'
+assert '$row_names[5]=="c"'
+assert '$row_names[0]=="d"'
+assert '$row_names[1]=="e"'
+assert '$row_names[2]=="f"'
+
+generate-dataset 0 1 /samples=5
+set-row-names a b c
+a rows-3
+
+generate-dataset 0 1 /samples=5
+set-row-names d e f
+a rows-4
+
+cat 2 0 
+assert '$row_names[0]=="a"'
+assert '$row_names[1]=="b"'
+assert '$row_names[2]=="c"'
+assert '$row_names[3]==""'
+assert '$row_names[4]==""'
+assert '$row_names[5]=="d"'
+assert '$row_names[6]=="e"'
+assert '$row_names[7]=="f"'
+assert '$row_names[8]==""'
+assert '$row_names[9]==""'

@@ -2500,18 +2500,36 @@ scn("set-column-names", // command name
     "Sets the column names of the buffer");
 
 
-static QHash<int, QString> parseNameSpecs(const QStringList & names)
+static QHash<int, QString> parseNameSpecs(const QStringList & names,
+                                          int size)
 {
   QHash<int, QString> spcs;
   if(names.size() == 0)
     return spcs;                // or throw ?
-  QRegExp cn("^#(\\d+):(.*)");
-  if(cn.indexIn(names.first()) >= 0) {
+  QRegExp cn("^#([-]?\\d+):(.*)");
+  QRegExp rng("^#([-]?\\d+)\\.\\.(-?\\d+):(.*)");
+  if(cn.indexIn(names.first()) >= 0 ||
+     rng.indexIn(names.first()) >= 0) {
     // Advanced parsing
     for(const QString & n : names) {
-      if(! cn.indexIn(n) == 0)
-        throw RuntimeError("Invalid column/row name: '%1'").arg(n);
-      spcs[cn.cap(1).toInt()] = cn.cap(2);
+      if(rng.indexIn(n) == 0) {
+        int bg = rng.cap(1).toInt(),
+          ed = rng.cap(2).toInt();
+        if(bg < 0)
+          bg = size + bg;
+        if(ed < 0)
+          ed = size + ed;
+        while(bg <= ed)
+          spcs[bg++] = rng.cap(3);
+      }
+      else if(cn.indexIn(n) == 0) {
+        int tgt = cn.cap(1).toInt();
+        if(tgt <0)
+          tgt = size + tgt;
+        spcs[tgt] = cn.cap(2);
+      }
+      else
+        throw RuntimeError("Invalid row name specitication: '%1'").arg(n);
     }
   }
   else {
@@ -2538,7 +2556,7 @@ static void setRowNamesCommand(const QString &,
     nds->rowNames.clear();
 
   // Parses the spec:
-  QHash<int, QString> sp = ::parseNameSpecs(names);
+  QHash<int, QString> sp = ::parseNameSpecs(names, ds->nbRows());
 
   for(int row : sp.keys())
     nds->setRowName(row, sp[row]);

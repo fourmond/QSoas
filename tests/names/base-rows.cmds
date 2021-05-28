@@ -29,3 +29,31 @@ assert '$row_names[2]=="test_2"'
 assert '$row_names[3]=="test_3"'
 assert '$row_names[4]=="test_4"'
 
+
+# Advanced specifications
+generate-buffer 0 10 /samples=21
+set-row-names a b c
+set-row-names #12:d
+set-row-names #-2:e
+assert '$row_names[0]=="a"'
+assert '$row_names[1]=="b"'
+assert '$row_names[2]=="c"'
+assert '$row_names[3]==""'
+assert '$row_names[12]=="d"'
+assert '$row_names[19]=="e"'
+
+set-row-names #0..3:x
+assert '$row_names[0]=="x"'
+assert '$row_names[1]=="x"'
+assert '$row_names[2]=="x"'
+assert '$row_names[3]=="x"'
+assert '$row_names[12]=="d"'
+assert '$row_names[19]=="e"'
+
+set-row-names #3..-1:y
+assert '$row_names[0]=="x"'
+assert '$row_names[1]=="x"'
+assert '$row_names[2]=="x"'
+assert '$row_names[3]=="y"'
+assert '$row_names[12]=="y"'
+assert '$row_names[19]=="y"'

@@ -194,9 +194,16 @@ static void applyFormulaCommand(const QString &, QString formula,
       pusher << newDs;
     }
     else if(operation == "add-column") {
+
+      QString newName;
+      updateFromOptions(opts, "name", newName);
+
+      QString name = DataSet::standardNameForColumn(ds->nbColumns());
+      if(! newName.isEmpty())
+        name += " -> " + newName;
       
       Terminal::out << "Creating new column ("
-                    << DataSet::standardNameForColumn(ds->nbColumns())
+                    << name
                     << ") using formula '" << formula
                     << "' on buffer " << ds->name << endl;
       ex.prepareExpression(formula);
@@ -221,6 +228,8 @@ static void applyFormulaCommand(const QString &, QString formula,
       QList<Vector> ncls = ds->allColumns();
       ncls << newCol;
       DataSet * newDs = ds->derivedDataSet(ncls, "_mod.dat");
+      if(! newName.isEmpty())
+        newDs->setColumnName(newDs->nbColumns()-1, newName);
       pusher << newDs;
     }
     else if(operation == "xyz") {
@@ -274,6 +283,9 @@ fO(QList<Argument *>()
                          << "xyy2" << "add-column" << "xyz",
                          "mode", "Mode ",
                          "operating mode used by apply-formula")
+   << new StringArgument("name",
+                         "New column name",
+                         "name of the new column (only in 'add-column' mode)")
    << new IntegerArgument("extra-columns", 
                           "Extra columns",
                           "number of extra columns to create")

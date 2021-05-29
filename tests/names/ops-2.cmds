@@ -111,3 +111,9 @@ assert '$col_names[2]=="my_y2"'
 assert '$col_names[3]=="my_y3"'
 assert '$col_names[4]=="new_name"'
 
+
+# Test the /use-names option
+generate-buffer 0 10 /columns=4 /samples=11
+set-column-names my_x my_y my_y2 my_y3
+apply-formula /use-names=true my_y3=2
+assert $stats.y3_average-2 0

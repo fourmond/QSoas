@@ -288,14 +288,9 @@ void FitData::computeWeights()
     if(datasets[i]->options.hasYErrors(datasets[i]))
       nb++;
   }
-  if(nb < datasets.size()) {
-    if(nb > 0) {
-      ;                         /// @todo Emit warning...
-    }
-    // Nothing to do
-  }
-  else {
-    // All datasets have error information
+  if(nb == datasets.size()) {
+    // All datasets have error information If that is not the case,
+    // that is caught with checkWeightsConsistency.
     standardYErrors = gsl_vector_alloc(totalSize);
     pointWeights = gsl_vector_alloc(totalSize);
 
@@ -307,6 +302,9 @@ void FitData::computeWeights()
       int sz = ds->nbRows();
       for(int j = 0; j < sz; j++) {
         double e = ds->yError(j);
+        if(e == 0 || (! std::isfinite(e)))
+          throw RuntimeError("Error is 0 or invalid for point #%1: %2,%3, dataset %4. Change the error or deactivate using dataset-options /yerrors=none").
+            arg(j).arg(ds->x()[j]).arg(ds->y()[j]).arg(ds->name);
         gsl_vector_set(&ve.vector, j, e);
         gsl_vector_set(&vp.vector, j, 1/(e*e));
       }

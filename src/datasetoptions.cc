@@ -68,7 +68,7 @@ ArgumentList DatasetOptions::optionList()
     ArgumentList(QList<Argument *>() 
                  << new ColumnArgument("yerrors", 
                                        "Y errors",
-                                       "name of the column containing y errors")
+                                       "name of the column containing y errors", false, true)
                  << new BoolArgument("histogram", 
                                      "Histogram",
                                      "whether to show as a histogram (defaults to false)")

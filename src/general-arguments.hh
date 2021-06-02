@@ -626,12 +626,15 @@ public:
 /// @li #number: 0-based index
 /// @li x, y, z, y2...yN
 /// @li last
+/// @li none: returns -1
 /// @li named:(main column name)
 /// @li $c.name (as will happen in apply-formula later on)
 class ColumnSpecification {
   QString spec;
+
+  bool acceptNone;
 public:
-  explicit ColumnSpecification(const QString & str);
+  explicit ColumnSpecification(const QString & str, bool acceptNone = false);
   /// This creates an invalid one, to be used in ranges.
   ColumnSpecification();
 
@@ -647,7 +650,7 @@ public:
   QString specification() const;
 
   /// Returns all the valid column names for the given dataset.
-  static QStringList validNames(const DataSet * ds);
+  static QStringList validNames(const DataSet * ds, bool acceptNone);
 
   /// Updates the target integer to be the givne option
   static void updateFromOptions(const CommandOptions & opts,
@@ -658,12 +661,15 @@ public:
 
 /// The column of a dataset
 class ColumnArgument : public Argument {
+
+  bool acceptNone;
 public:
 
 
   ColumnArgument(const char * cn, const char * pn,
-                 const char * d = "", bool def = false) : 
-    Argument(cn, pn, d, false, def) {
+                 const char * d = "", bool def = false,
+                 bool _acceptNone = false) : 
+    Argument(cn, pn, d, false, def), acceptNone(_acceptNone) {
   }; 
   
   /// Returns a wrapped int

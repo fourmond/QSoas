@@ -1005,8 +1005,8 @@ ColumnSpecification::ColumnSpecification()
 {
 }
 
-ColumnSpecification::ColumnSpecification(const QString & s) :
-  spec(s)
+ColumnSpecification::ColumnSpecification(const QString & s, bool an) :
+  spec(s), acceptNone(an)
 {
 }
 
@@ -1027,6 +1027,12 @@ int ColumnSpecification::getValue(const DataSet * ds, int def) const
 
   if(spec == "last")            // Identical to -1
     return ds->nbColumns()-1;
+  if(spec == "none") {
+    if(acceptNone)
+      return -1;
+    else
+      throw RuntimeError("Invalid column specification: %1").arg(spec);
+  }
   
   if(num1.indexIn(spec, 0) >= 0) {
     int nb = spec.toInt();
@@ -1067,7 +1073,7 @@ int ColumnSpecification::getValue(const DataSet * ds, int def) const
 }
 
 
-QStringList ColumnSpecification::validNames(const DataSet * ds)
+QStringList ColumnSpecification::validNames(const DataSet * ds, bool acceptNone)
 {
   QStringList rv;
   if(ds) {
@@ -1083,6 +1089,8 @@ QStringList ColumnSpecification::validNames(const DataSet * ds)
   else {
     rv << "x" << "y";           // by default.
   }
+  if(acceptNone)
+    rv << "none";
   return rv;
 }
 
@@ -1105,8 +1113,10 @@ void ColumnSpecification::updateFromOptions(const CommandOptions & opts,
 
 QStringList ColumnArgument::proposeCompletion(const QString & starter) const
 {
-  QStringList cn = ColumnSpecification::validNames(soas().stack().
-                                                   currentDataSet(false));
+  QStringList cn =
+    ColumnSpecification::validNames(soas().stack().
+                                    currentDataSet(false),
+                                    acceptNone);
   return Utils::stringsStartingWith(cn, starter);
 }
 
@@ -1114,20 +1124,22 @@ QStringList ColumnArgument::proposeCompletion(const QString & starter) const
 
 ArgumentMarshaller * ColumnArgument::fromString(const QString & str) const
 {
-  return new ArgumentMarshallerChild<ColumnSpecification>(ColumnSpecification(str));
+  return new ArgumentMarshallerChild<ColumnSpecification>(ColumnSpecification(str, acceptNone));
 }
 
 QStringList ColumnArgument::toString(const ArgumentMarshaller * arg) const
 {
   QStringList rv;
-  rv << QString("#%1").arg(arg->value<ColumnSpecification>().
-                           specification());
+  rv << arg->value<ColumnSpecification>().specification();
   return rv;
 }
 
 QString ColumnArgument::typeDescription() const
 {
-  return "The [number/name of a column](#column-names) in a dataset";
+  if(acceptNone)
+    return "The [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'";
+  else
+    return "The [number/name of a column](#column-names) in a dataset";
 }
 
 ArgumentMarshaller * ColumnArgument::fromRuby(mrb_value value) const
@@ -1238,8 +1250,9 @@ void SeveralColumnsArgument::setEditorValue(QWidget * editor,
 
 QStringList SeveralColumnsArgument::proposeCompletion(const QString & starter) const
 {
-  QStringList cn = ColumnSpecification::validNames(soas().stack().
-                                                   currentDataSet(false));
+  QStringList cn =
+    ColumnSpecification::validNames(soas().stack().
+                                    currentDataSet(false), false);
   // OK, so now a bit of fun.
   QRegExp ign("^(.*(\\.\\.|,))?(.*)");
   ign.indexIn(starter);

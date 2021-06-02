@@ -2129,63 +2129,159 @@ dif2("diff2", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void deldpCommand(CurveEventLoop &loop, const QString &)
-{
-  const DataSet * ds = soas().currentDataSet();
-  const GraphicsSettings & gs = soas().graphicsSettings();
+namespace __deldp {
+
+  typedef enum {
+                DeletePoint,
+                TogglePoints,
+                SelectRegion,
+                RemoveRegion,
+                Quit,
+                Abort
+  } DeldpActions;
+
+  static EventHandler deldpHandler = EventHandler("deldp").
+    addClick(Qt::LeftButton, DeletePoint, "delete point/select corner").
+    addKey('p', TogglePoints, "toggle display of points/lines").
+    addKey('r', SelectRegion, "start/stop selecting regions").
+    addClick(Qt::MidButton, RemoveRegion, "delete points in selected region").
+    alsoKey('R').
+    addKey('q', Quit, "quit pushing new dataset").
+    alsoKey('Q').
+    addKey(Qt::Key_Escape, Abort, "abort");
+  
+
+  static void deldpCommand(CurveEventLoop &loop, const QString &)
+  {
+    const DataSet * ds = soas().currentDataSet();
+    const GraphicsSettings & gs = soas().graphicsSettings();
 
 
-  CurveView & view = soas().view();
+    CurveView & view = soas().view();
 
-  CEHideAll ha(view.mainPanel());
+    CEHideAll ha(view.mainPanel());
 
-  DataSet * newds = ds->derivedDataSet(ds->y(), "_deldp.dat");
+    std::unique_ptr<DataSet> newds(ds->derivedDataSet(ds->y(), "_deldp.dat"));
 
-  CurveDataSet d(newds);
-  PointTracker t(&loop, newds);
-  view.addItem(&d);
-  d.pen = gs.getPen(GraphicsSettings::ResultPen);
-  view.addItem(&t);
+    CurveRectangle r;
+    view.addItem(&r);
+    r.pen = QPen(Qt::DotLine); /// @todo customize this
+    r.brush = QBrush(QColor(0,0,255,50)); // A kind of transparent blue
+    r.hidden = true;
 
-  t.size = 4;
-  t.pen = QPen(Qt::NoPen);
-  t.brush = QBrush(QColor(0,0,255,100));
+    // Number of selected points. If -1, we're not selecting
+    int selectedPoints = -1;
 
-  loop.setHelpString(QObject::tr("..."));
-  while(! loop.finished()) {
-    t.processEvent();
-    if(loop.isConventionalAccept()) {
-      soas().pushDataSet(newds);
-      return;
+    CurveDataSet d(newds.get());
+    if(ds->options.isJaggy(ds)) {
+      d.tryPaintLines = false;
+      d.paintMarkers = true;
     }
-    switch(loop.type()) {
-    case QEvent::MouseButtonPress: 
-      if(loop.button() == Qt::LeftButton) {
-        if(t.lastIndex >= 0 && t.lastIndex < newds->nbRows())
-          newds->removeRow(t.lastIndex);
+    else {
+      d.tryPaintLines = true;
+      d.paintMarkers = false;
+    }
+    PointTracker t(&loop, newds.get());
+    view.addItem(&d);
+    d.pen = gs.getPen(GraphicsSettings::ResultPen);
+    view.addItem(&t);
+
+    t.size = 4;
+    t.pen = QPen(Qt::NoPen);
+    t.brush = QBrush(QColor(0,0,255,100));
+
+    loop.setHelpString(QString("Delete points: \n")
+                       + deldpHandler.buildHelpString());
+    while(! loop.finished()) {
+      t.processEvent();
+      if(loop.type() == QEvent::MouseMove && selectedPoints >= 0) {
+        QPointF pos = loop.position();
+        if(selectedPoints == 0)
+          soas().
+            showMessage(QString("Selecting first corner... %1,%2").
+                        arg(pos.x()).arg(pos.y()));
+        else {
+          r.p2 = pos;
+          soas().
+            showMessage(QString("Selecting second corner... %1,%2").
+                        arg(pos.x()).arg(pos.y()));
+        }
       }
-      
-      break;
-    case QEvent::KeyPress: 
-      switch(loop.key()) {
-      case Qt::Key_Escape:
-        delete newds;
+      switch(deldpHandler.nextAction(loop)) {
+      case Quit:
+        soas().pushDataSet(newds.release());
         return;
+      case Qt::Key_Escape:
+        return;
+      case SelectRegion:
+        r.hidden = true;
+        if(selectedPoints < 0) {
+          t.hidden = true;
+          selectedPoints = 0;
+        }
+        else {
+          selectedPoints = -1;
+          t.hidden = false;
+        }
+        break;
+      case TogglePoints:
+        if(d.tryPaintLines) {
+          d.tryPaintLines = false;
+          d.paintMarkers = true;
+        }
+        else {
+          d.tryPaintLines = true;
+          d.paintMarkers = false;
+        }
+        break;
+      case RemoveRegion: 
+        if(selectedPoints >= 0) {
+          int i = 0;
+          QRectF reg(r.p1, r.p2);
+          reg = reg.normalized();
+          while(i < newds->nbRows()) {
+            QPointF pt(newds->x()[i], newds->y()[i]);
+            if(reg.contains(pt)) {
+              newds->removeRow(i);
+              --i;
+            }
+            ++i;
+          }
+          selectedPoints = 0;
+        }
+        break;
+      case DeletePoint:
+        if(selectedPoints >= 0) {
+          r.hidden = false;
+          if(selectedPoints == 0) {
+            r.p1 = loop.position();
+            r.p2 = r.p1;
+            selectedPoints = 1;
+          }
+          else
+            selectedPoints = 0;
+        }
+        else {
+          r.hidden = true;
+          if(t.lastIndex >= 0 && t.lastIndex < newds->nbRows())
+            newds->removeRow(t.lastIndex);
+        }
+        break;
+      default:
+        ;
       }
-    default:
-      ;
     }
   }
-}
 
-static Command 
-ddp("deldp", // command name
-    optionLessEffector(deldpCommand), // action
-    "buffer",  // group name
-    NULL, // arguments
-    NULL, // options
-    "Deldp",
-    "Manually remove points");
+  static Command 
+  ddp("deldp", // command name
+      optionLessEffector(deldpCommand), // action
+      "buffer",  // group name
+      NULL, // arguments
+      NULL, // options
+      "Deldp",
+      "Manually remove points");
+}
 
 //////////////////////////////////////////////////////////////////////
 

@@ -29,6 +29,13 @@
 
 #include <pointiterator.hh>
 
+
+CurveDataSet::CurveDataSet(const DataSet * ds) :
+  CurveItem(true), dataSet(ds), lastPointIdx(-1),
+  paintMarkers(false), tryPaintLines(true)
+{
+}
+
 CurveDataSet::~CurveDataSet()
 {
 }
@@ -66,7 +73,7 @@ void CurveDataSet::paint(QPainter * painter, const QRectF &bbox,
   }
 
   painter->setPen(pen); 
-  if(dataSet->options.shouldDrawLines(dataSet)) {
+  if(tryPaintLines && dataSet->options.shouldDrawLines(dataSet)) {
     QPainterPath pp;
     PointIterator it(dataSet, dataSet->options.histogram ? 
                      PointIterator::Steps : PointIterator::Normal);

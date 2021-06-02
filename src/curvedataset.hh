@@ -42,12 +42,11 @@ public:
   /// Whether or not to paint markers.
   bool paintMarkers;
 
-  explicit CurveDataSet(const DataSet * ds): CurveItem(true), 
-                                             dataSet(ds), 
-                                             lastPointIdx(-1),
-                                             paintMarkers(false)
-  {;};
+  /// Whether or not to try to paint lines
+  /// Heuristics still detect whether it is a good idea or not.
+  bool tryPaintLines;
 
+  explicit CurveDataSet(const DataSet * ds);
   virtual ~CurveDataSet();
 
   virtual QRectF boundingRect() const override;

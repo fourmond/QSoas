@@ -30,3 +30,6 @@
 # Time-dependent parameters
 @ time-dependent-parameters.cmds
 @ time-dependent-parameters2.cmds
+
+# Make sure problems with incorrect errors are detected
+@ check-wrong-errors.cmds

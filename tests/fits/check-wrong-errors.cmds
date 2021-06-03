@@ -1,0 +1,5 @@
+# Create dataset with 0 errors
+generate-dataset 0 10
+apply-formula /mode=add-column (i%7)*0.03
+dataset-options /yerrors=y2
+@ ../helpers/assert-except.cmds cmp-fit-one.cmds

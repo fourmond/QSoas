@@ -2195,7 +2195,7 @@ namespace __deldp {
     while(! loop.finished()) {
       t.processEvent();
       if(loop.type() == QEvent::MouseMove && selectedPoints >= 0) {
-        QPointF pos = loop.position();
+        QPointF pos = loop.position(view.mainPanel());
         if(selectedPoints == 0)
           soas().
             showMessage(QString("Selecting first corner... %1,%2").
@@ -2254,7 +2254,7 @@ namespace __deldp {
         if(selectedPoints >= 0) {
           r.hidden = false;
           if(selectedPoints == 0) {
-            r.p1 = loop.position();
+            r.p1 = loop.position(view.mainPanel());
             r.p2 = r.p1;
             selectedPoints = 1;
           }

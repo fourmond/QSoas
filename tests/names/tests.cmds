@@ -3,6 +3,6 @@
 @ base-rows.cmds
 @ operations.cmds
 @ ops-2.cmds
-@ operations-rows
+@ operations-rows.cmds
 @ persistence.cmds
 @ stats.cmds

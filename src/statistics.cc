@@ -250,6 +250,31 @@ static MultiLambdaStat avg(QStringList()
                            }, "the sum, the average, the variance and the standard deviation of the values of the column.");
 
 
+static MultiLambdaStat global(QStringList()
+                              << "all_average"
+                              << "all_sum"
+                              << "yall_average"
+                              << "yall_sum", true, false,
+                              [](const DataSet * ds, int /*c*/) -> QList<QVariant>
+                           {
+                             QList<QVariant> rv;
+                             double all_sum = 0;
+                             double y_sum = 0;
+                             for(int i = 0; i < ds->nbColumns(); i++) {
+                               double a,v,s;
+                               ds->column(i).stats(&a, &v, &s);
+                               all_sum += s;
+                               if(i > 0)
+                                 y_sum += s;
+                             }
+                             rv << all_sum/(ds->nbRows()*ds->nbColumns())
+                                << all_sum
+                                << y_sum/(ds->nbRows()*(ds->nbColumns() -1))
+                                << y_sum;
+                             return rv;
+                           },
+                           "the average and sum of all columns or just of the y columns");
+
 
 
     //   stats << QString("%1_min_pos").arg(n)

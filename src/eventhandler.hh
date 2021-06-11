@@ -104,7 +104,7 @@ public:
   EventHandler & alsoClick(Qt::MouseButton button);
 
   /// Adds PointPicker actions to the handler: (only the key presses)
-  EventHandler & addPointPicker();
+  EventHandler & addPointPicker(bool noPick = false);
 
 
   /// Adds the action corresponding to a conventional accept.

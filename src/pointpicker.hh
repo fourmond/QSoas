@@ -98,12 +98,15 @@ public:
 
   ~PointPicker();
 
+  /// Reset the method to exact:
+  void resetMethod();
+
   /// The buttons that are being followed for this event.
   Qt::MouseButtons trackedButtons;
 
   /// Adds the acions to the given EventHandler. Better use directly
   /// EventHandler::addPointPicker().
-  static void addToHandler(EventHandler & handler);
+  static void addToHandler(EventHandler & handler, bool noPick);
 
   /// Process events from the loop. Returns \a true if the event
   /// shouldn't be processed anymore.

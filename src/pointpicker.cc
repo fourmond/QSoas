@@ -71,6 +71,11 @@ PointPicker::~PointPicker()
   delete marker;
 }
 
+void PointPicker::resetMethod()
+{
+  method = Exact;
+}
+
 void PointPicker::updateMarkerStyle()
 {
   QColor col(0,0,0);
@@ -84,21 +89,25 @@ void PointPicker::updateMarkerStyle()
   marker->brush = QBrush(col);
 }
 
-void PointPicker::addToHandler(EventHandler & handler)
+void PointPicker::addToHandler(EventHandler & handler, bool noPick)
 {
+
+  if(! noPick)
+    handler.
+      addKey('x', ExactMethod, "pick marker: exact").
+      alsoKey('X').
+      addKey('o', OffMethod, "...off").
+      alsoKey('O').
+      addKey('s', SmoothMethod, "...smooth").
+      alsoKey('S').
+      addKey(Qt::CTRL + 'm', LocalMinMethod, "...min").
+      addKey(Qt::CTRL + Qt::SHIFT + 'm', LocalMaxMethod, "...max");
+  
   handler.
-    addKey('x', ExactMethod, "pick marker: exact").
-    alsoKey('X').
-    addKey('o', OffMethod, "...off").
-    alsoKey('O').
-    addKey('s', SmoothMethod, "...smooth").
-    alsoKey('S').
-    addKey(Qt::CTRL + 'm', LocalMinMethod, "...min").
-    addKey(Qt::CTRL + Qt::SHIFT + 'm', LocalMaxMethod, "...max").
     addKey('n', NextDataset, "next dataset").
     addKey('N', PrevDataset, "previous dataset").
     addKey(Qt::CTRL + 't', ToogleTracking, "toogle mouse tracking")
-;
+    ;
 }
 
 void PointPicker::pickAt(int idx)

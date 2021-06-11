@@ -88,9 +88,9 @@ QString EventHandler::clickString(Qt::MouseButton button)
   return QString();
 }
 
-EventHandler & EventHandler::addPointPicker()
+EventHandler & EventHandler::addPointPicker(bool noPick)
 {
-  PointPicker::addToHandler(*this);
+  PointPicker::addToHandler(*this, noPick);
   return *this;
 }
 

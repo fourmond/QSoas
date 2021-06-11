@@ -85,13 +85,15 @@ namespace __reg {
     alsoKey('E').
     addKey('x', ShowExponential, "show exponential").
     addKey('p', Peak, "detect peak").
+    addPointPicker(true).
     alsoKey('P').
     addKey('v', Divide, "divide by trend").
     alsoKey('V');
 
   static void reglinCommand(CurveEventLoop &loop, const QString &)
   {
-    const DataSet * ds = soas().currentDataSet();
+    const DataSet * bds = soas().currentDataSet();
+    const DataSet * ds = bds;
     const GraphicsSettings & gs = soas().graphicsSettings();
 
     CurveLine line;
@@ -142,6 +144,9 @@ namespace __reg {
     view.addItem(&fpl);
     view.addItem(&hpl);
 
+    
+    PointPicker pick(&loop, ds);
+    pick.resetMethod();
 
 
     loop.setHelpString(QString("Linear regression: \n")
@@ -153,9 +158,15 @@ namespace __reg {
 
     /// @todo selection mode ? (do we need that ?)
     while(! loop.finished()) {
-      switch(reglinHandler.nextAction(loop)) {
+      int action = reglinHandler.nextAction(loop);
+      pick.processEvent(action);        // We don't filter actions out.
+      
+      switch(action) {
       case LeftPick:
       case RightPick: {
+        ds = pick.dataset();
+        if(! ds)
+          ds = bds;
         r.setX(loop.position(view.mainPanel()).x(), loop.button());
         reg = ds->reglin(r.xmin(), r.xmax());
         double y = reg.first * xleft + reg.second;
@@ -208,11 +219,11 @@ namespace __reg {
       }
       case Write: {
         ValueHash e;
-        e << "a" << reg.first << "b" << reg.second 
+        e << "dataset" << ds->name
+          << "a" << reg.first << "b" << reg.second 
           << "keff" << decay_rate << "xleft" << r.xleft 
-          << "xright" << r.xright;
-        OutFile::out.writeValueHash(e, ds, QString("Dataset: %1").
-                                    arg(ds->name));
+          << "xright" << r.xright ;
+        OutFile::out.writeValueHash(e, ds);
         Terminal::out << "Writing to output file " << OutFile::out.fileName()
                       << endl;
         break;

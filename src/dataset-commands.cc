@@ -437,20 +437,26 @@ static void expandCommand(const QString &,
   int group = 1;
   updateFromOptions(opts, "group-columns", group);
 
+  int nbx = 1;
+  updateFromOptions(opts, "x-columns", nbx);
+
   if(xevery > 1 && group > 1)
     throw RuntimeError("Cannot use both /x-every-nth and /group-columns "
                        "at the same time");
 
   // Vector ppcd = ds->perpendicularCoordinates();
   int xvs = 0;
+  
   int nb = 0;
-  for(int i = 1; i < ds->nbColumns(); ) {
+  for(int i = nbx; i < ds->nbColumns(); ) {
     if(xevery > 0 && ((i % xevery) == 0)) {
-      xvs = i++;
+      xvs = i;
+      i += nbx;
       continue;
     }
     QList<int> cols;
-    cols << xvs;
+    for(int j = 0; j < nbx; j++)
+      cols << xvs + j;
     QStringList colnames;
     for(int k = 0; k < group; ++k, ++i) {
       if(ds->nbColumns() > i) {
@@ -478,6 +484,9 @@ expandOpts(QList<Argument *>()
            << new IntegerArgument("x-every-nth", 
                                   "X column every nth column",
                                   "specifies the number of columns between successive X values")
+           << new IntegerArgument("x-columns", 
+                                  "Number of X columns",
+                                  "specifies the number X columns")
            << new IntegerArgument("group-columns", 
                                   "Group several Y columns in created datasets",
                                   "specifies the number of Y columns in the created datasets")

@@ -1,6 +1,7 @@
 output test-out.dat /overwrite=true
 run-for-each output-one.cmds /range-type=lin 0..30:101
-load test-out.dat /columns=40,25,2
+load test-out.dat
+tweak-columns /select=$c.meta,$c.y_average,$c.rows
 assert $stats.rows-101 0
 apply-formula y-=x**2;y2-=21
 assert $stats.y_norm 1e-12

@@ -874,7 +874,12 @@ ve("verify", // command name
 //////////////////////////////////////////////////////////////////////
 
 #include <gsl/gsl_multifit.h>
+#include <gsl/gsl_cdf.h>
 #include <gsl-types.hh>
+
+#include <curveview.hh>
+#include <curveitems.hh>
+#include <graphicssettings.hh>
 
 static void linearLeastSquaresCommand(const QString &, QString formula,
                                       const CommandOptions & opts)
@@ -936,10 +941,32 @@ static void linearLeastSquaresCommand(const QString &, QString formula,
       Terminal::out << "Error: " << gsl_strerror(status) << endl;
     else {
       ValueHash results;
+
+      // 5% confidence interval for the error, see
+      // FitData::confidenceLimitFactor and FitWorkspace::exportAsDataSet
+      double conf = gsl_cdf_tdist_Pinv(0.975, ds->nbRows() - nbparams);
       for(int i = 0; i < nbparams; i++)
-        results << params[i] << res[i];
+        results << params[i] << res[i]
+                << params[i] + "_err" << sqrt(gsl_matrix_get(cov, i, i)) * conf;
+
+      results << "residuals" << sqrt(chisq);
+      results << "point_residuals" << sqrt(chisq/ds->nbRows());
+      results << "chi_sqr" << chisq;
+      
       Terminal::out << results.prettyPrint() << endl;
       results.handleOutput(ds, opts);
+
+      // Display the results if the dataset is displayed.
+      QList<DataSet*> displayed = soas().view().displayedDataSets();
+      if(displayed.contains(const_cast<DataSet*>(ds))) {
+        CurveData * reg = new CurveData;
+        const GraphicsSettings & gs = soas().graphicsSettings();
+        reg->pen = gs.getPen(GraphicsSettings::ResultPen);
+        reg->xvalues = ds->x();
+        reg->yvalues = ds->x();
+        gsl_blas_dgemv(CblasNoTrans, 1, m, res, 0, reg->yvalues);
+        soas().view().addItem(reg, true);
+      }
     }
     
     gsl_multifit_linear_free(ws);

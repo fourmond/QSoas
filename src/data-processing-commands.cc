@@ -2597,3 +2597,138 @@ dy("dy", // command name
     NULL, // options
     "DY",
     "Replace Y by delta Y");
+
+//////////////////////////////////////////////////////////////////////
+
+// Series of kernel based filters
+
+#include <gsl/gsl_filter.h>
+
+enum Kernels {
+              Gaussian,
+              Median,
+              RecursiveMedian,
+              ImpulseMAD,
+              ImpulseIQR,
+              ImpulseSN,
+              ImpulseQN
+};
+
+QHash<QString, Kernels> kernels =
+  { {"gaussian", Gaussian},
+    {"median", Median},
+    {"rmedian", RecursiveMedian},
+    {"impulse-mad", ImpulseMAD},
+    {"impulse-iqr", ImpulseIQR},
+    {"impulse-sn", ImpulseSN},
+    {"impulse-qn", ImpulseQN}
+  };
+
+static void kernelFilterCommand(const QString &,
+                                const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+  const Vector & x = ds->x();
+  const Vector & y = ds->y();
+  Vector ny = y;
+  Kernels ker = Gaussian;
+  updateFromOptions(opts, "type", ker);
+
+  int halfWidth = 5;
+  updateFromOptions(opts, "size", halfWidth);
+
+  double alpha = 2;
+  updateFromOptions(opts, "alpha", alpha);
+
+  int derivOrder = 0;
+  // updateFromOptions(opts, "derive", derivOrder);
+
+  double threshold = 0.5;
+  updateFromOptions(opts, "threshold", threshold);
+
+  gsl_filter_end_t endType = GSL_FILTER_END_PADVALUE;
+
+  switch(ker) {
+  case Gaussian: {
+    gsl_filter_gaussian_workspace *gauss_p =
+      gsl_filter_gaussian_alloc(halfWidth);
+    gsl_filter_gaussian(endType, alpha, derivOrder,
+                        y, ny, gauss_p);
+
+    gsl_filter_gaussian_free(gauss_p);
+  }
+  case Median: {
+    gsl_filter_median_workspace * w = gsl_filter_median_alloc(halfWidth);
+    gsl_filter_median(endType, y, ny, w);
+    gsl_filter_median_free(w);
+  }
+  case RecursiveMedian: {
+    gsl_filter_rmedian_workspace * w = gsl_filter_rmedian_alloc(halfWidth);
+    gsl_filter_rmedian(endType, y, ny, w);
+    gsl_filter_rmedian_free(w);
+  }
+  case ImpulseMAD:
+  case ImpulseIQR: 
+  case ImpulseSN: 
+  case ImpulseQN: {
+    gsl_filter_scale_t scl = GSL_FILTER_SCALE_MAD;
+    switch(ker) {
+    case ImpulseMAD:
+      scl = GSL_FILTER_SCALE_MAD;
+      break;
+    case ImpulseIQR:
+      scl = GSL_FILTER_SCALE_IQR;
+      break;
+    case ImpulseSN:
+      scl = GSL_FILTER_SCALE_SN;
+      break;
+    case ImpulseQN:
+      scl = GSL_FILTER_SCALE_QN;
+      break;
+    }
+    gsl_filter_impulse_workspace * w = gsl_filter_impulse_alloc(halfWidth);
+    size_t nb = 0;
+    Vector ym = y, ys = y;
+
+    gsl_filter_impulse(endType, scl, threshold, y, ny,
+                       ym, ys, &nb, NULL, w);
+    // gsl_vector *xmedian, gsl_vector *xsigma, size_t *noutlier, gsl_vector_int *ioutlier, gsl_filter_impulse_workspace *w)
+    gsl_filter_impulse_free(w);
+  }
+  default:
+    break;
+  }
+  
+  soas().pushDataSet(ds->derivedDataSet(ny, "_filtered.dat"));
+}
+
+static ArgumentList 
+kfOpts(QList<Argument *>() 
+       << new IntegerArgument("size", 
+                              "Size",
+                              "Half window size")
+       << new NumberArgument("alpha", 
+                             "Alpha",
+                             "Gaussian spread (only for gaussian)")
+       << new NumberArgument("threshold", 
+                             "Theshold",
+                             "Threshold for impulse filters")
+       << new TemplateChoiceArgument<Kernels>(::kernels,
+                                             "type",
+                                             "Type",
+                                             "Kernel type")
+       // << new IntegerArgument("derive", 
+       //                        "Derivative over",
+       //                        "Order of derivative (only for gaussian)")
+       );
+
+
+static Command 
+kernFilter("kernel-filter", // command name
+           effector(kernelFilterCommand), // action
+           "math",  // group name
+           NULL, // arguments
+           &kfOpts, // options
+           "Kernel filter",
+           "Filters data using a kernel");
+

@@ -123,6 +123,8 @@ for instance:
 QSoas> load file1 file2 file3
 ~~~
 
+### Default option {#default-option}
+
 Some options are marked as "(default option)", which means that, if all
 arguments of the command are already specified, you can omit the
 `/option=` part of the option. For instance, to set the

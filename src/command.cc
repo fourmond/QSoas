@@ -466,11 +466,21 @@ QString Command::synopsis(bool markup) const
     const ArgumentList &args = *commandOptions();
     QStringList names = args.argumentNames();
     std::sort(names.begin(), names.end());
+    const Argument * ar = args.defaultOption();
+    if(ar) {
+      int idx = names.indexOf(ar->argumentName());
+      if(idx < 0)
+        throw InternalError("Inconsistent names in options");
+      names.move(idx, 0);
+    }
     
     for(const QString & a : names) {
       const Argument * arg = args.namedArgument(a);
       QString td = Utils::uncapitalize(arg->typeDescription());
-      QString b = wrapIf("/" + a + "=", "`", markup) + 
+      QString inner = wrapIf("/" + a + "=", "`", markup);
+      if(arg->defaultOption)
+        inner = "(" + inner + ")";
+      QString b = inner + 
         wrapIf(arg->typeName(), "_", markup) + 
         ((markup && !(td.isEmpty())) ? 
          QString("{:title=\"%1\"}").arg(td) : "");
@@ -478,7 +488,10 @@ QString Command::synopsis(bool markup) const
       descs += QString("  * %1%3: %2 -- values: %4\n").
         arg(b).
         arg(arg->description()).
-        arg(arg->defaultOption ? " (default option)" : "").
+        arg(arg->defaultOption ? (markup ?
+                                  " [(default option)](#default-option)" 
+                                  : " (default option)" )
+            : "").
         arg(td);
 
     }

@@ -114,43 +114,10 @@ static void helpCommand(const QString & /*name*/,
     HelpBrowser::browseCommand(cmd);
     return;
   }
-  QStringList synopsis;
-  QString descs;
-
-  if(cmd->commandArguments()) {
-    const ArgumentList & args = *cmd->commandArguments();
-    for(int i = 0; i < args.size(); i++) {
-      QString a = args[i]->argumentName();
-      if(args[i]->greedy)
-        a += "...";
-      synopsis << a;
-      descs += QString("  * %1: %2\n").
-        arg(args[i]->argumentName()).
-        arg(args[i]->description());
-    }
-  }
-
-  if(cmd->commandOptions()) {
-    const ArgumentList & args = *cmd->commandOptions();
-    
-    QStringList names = args.argumentNames();
-    std::sort(names.begin(), names.end());
-    
-    for(const QString & a : names) {
-      const Argument * arg = args.namedArgument(a);
-      synopsis << "/" + a + "=" ;
-      descs += QString("  * /%1%3: %2\n").
-        arg(arg->argumentName()).
-        arg(arg->description()).
-        arg(arg->defaultOption ? " (default)" : "");
-    }
-  }
 
   Terminal::out << "Command: " << cmd->commandName() << " -- "
                 << cmd->publicName() << "\n\n"
-                << "  " << cmd->commandName() << " " 
-                << synopsis.join(" ") << "\n" 
-                << descs << "\n" << endl;
+                << "  " << cmd->synopsis(false) << endl;
 }
 
 static ArgumentList 

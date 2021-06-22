@@ -425,6 +425,45 @@ void CurveView::showContextMenu(const QPoint & pos)
                             arg(pt.x(), 0, 'g', 4).
                             arg(pt.y(),  0, 'g', 4));  
                 });
+    menu.addSeparator();
+    addCMAction(&menu, "Reset zoom",
+                [panel,this] {
+                  panel->resetZoom();
+                  update();
+                });
+    addCMAction(&menu, "Zoom in",
+                [panel,pt,this] {
+                  panel->zoomIn(pt, 2);
+                  update();
+                });
+    addCMAction(&menu, "Zoom out",
+                [panel,pt,this] {
+                  panel->zoomIn(pt, -2);
+                  update();
+                });
+    double dst = 0;
+    CurveItem * it = panel->closestItem(pt, &dst);
+    CurveDataSet * dsi = dynamic_cast<CurveDataSet*>(it);
+    if(dsi && dst < 30 && dsi->displayedDataSet()) {
+      const DataSet * ds = dsi->displayedDataSet();
+      menu.addSeparator();
+      menu.addSection(Utils::shortenString(ds->name, 30, 10));
+      addCMAction(&menu, "Zoom to",
+                  [panel,this, ds] {
+                    QRectF r(QPointF(ds->x().min(), ds->y().min()),
+                             QPointF(ds->x().max(), ds->y().max()));
+                    panel->zoomIn(r);
+                    update();
+                  });
+      int idx = 0;
+      if(soas().stack().indexOf(ds, &idx))
+        addCMAction(&menu, "Copy id",
+                    [idx] {
+                      QGuiApplication::clipboard()->
+                        setText(QString("%1").
+                                arg(idx));
+                    });
+    }
   }
 
   menu.exec(pos);

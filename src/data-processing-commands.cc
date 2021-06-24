@@ -2600,6 +2600,14 @@ dy("dy", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+
+// These filters fail to build on vanilla 2.5 arches because of a bug
+// in the GSL, fixed in:
+//
+// https://savannah.gnu.org/bugs/?54921
+
+#ifdef Q_OS_LINUX
+
 // Series of kernel based filters
 
 #include <gsl/gsl_filter.h>
@@ -2732,3 +2740,4 @@ kernFilter("kernel-filter", // command name
            "Kernel filter",
            "Filters data using a kernel");
 
+#endif

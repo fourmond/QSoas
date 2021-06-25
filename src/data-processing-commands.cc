@@ -2605,12 +2605,13 @@ dy("dy", // command name
 // in the GSL, fixed in:
 //
 // https://savannah.gnu.org/bugs/?54921
-
-#ifdef Q_OS_LINUX
+// 
+// Black magic here to work around the bug
+#define delete delete_dummy
+#include <gsl/gsl_filter.h>
+#undef delete
 
 // Series of kernel based filters
-
-#include <gsl/gsl_filter.h>
 
 enum Kernels {
               Gaussian,
@@ -2655,6 +2656,17 @@ static void kernelFilterCommand(const QString &,
   updateFromOptions(opts, "threshold", threshold);
 
   gsl_filter_end_t endType = GSL_FILTER_END_PADVALUE;
+
+  QString name = "???";
+  for(const QString & n : ::kernels.keys()) {
+    if(::kernels[n] == ker) {
+      name = n;
+      break;
+    }
+  }
+
+  Terminal::out << "Using filter " << name << " with kernel half-width "
+                << halfWidth << endl;
 
   switch(ker) {
   case Gaussian: {
@@ -2707,7 +2719,7 @@ static void kernelFilterCommand(const QString &,
     break;
   }
   
-  soas().pushDataSet(ds->derivedDataSet(ny, "_filtered.dat"));
+  soas().pushDataSet(ds->derivedDataSet(ny, "_" + name + ".dat"));
 }
 
 static ArgumentList 
@@ -2740,4 +2752,3 @@ kernFilter("kernel-filter", // command name
            "Kernel filter",
            "Filters data using a kernel");
 
-#endif

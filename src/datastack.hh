@@ -248,6 +248,9 @@ public:
   /// Returns the current accumulator and release its ownership
   DataSet * popAccumulator();
 
+  /// Returns the current state of the accumulator.
+  const DataSet * peekAccumulator();
+
   // /// Returns the current accumulator without releasing ownership
   // DataSet * getAccumulator();
 

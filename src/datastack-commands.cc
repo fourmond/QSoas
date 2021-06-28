@@ -273,6 +273,22 @@ drop("drop", // command name
 static void popCommand(const QString &, const CommandOptions & opts)
 {
   DataStack & stack = soas().stack();
+  bool status = false;
+  updateFromOptions(opts, "status", status);
+
+  if(status) {
+    const DataSet * ds = stack.peekAccumulator();
+    if(ds) 
+      Terminal::out << "Accumulator has " << ds->nbRows() << " rows and "
+                    << ds->nbColumns() << " columns\n"
+                    << "Column names: " << ds->mainColumnNames().join(", ")
+                    << endl;
+    else
+      Terminal::out << "No current accumulator" << endl;
+    return;
+  }
+
+  
   DataSet * ds = stack.popAccumulator();
   bool drop = false;
   updateFromOptions(opts, "drop", drop);
@@ -291,9 +307,13 @@ static void popCommand(const QString &, const CommandOptions & opts)
 
 static ArgumentList 
 popOps(QList<Argument *>() 
-        << new BoolArgument("drop", 
-                            "Drop",
-                            "Drop the accumulator instead of pushing it on the stack"));
+       << new BoolArgument("drop", 
+                           "Drop",
+                           "Drop the accumulator instead of pushing it on the stack")
+       << new BoolArgument("status", 
+                           "Status",
+                           "Gets the status of the accumulator")
+       );
 
 
 static Command 

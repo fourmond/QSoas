@@ -426,10 +426,10 @@ DataSet * DataStack::popAccumulator()
   return ds;
 }
 
-// DataSet * DataStack::getAccumulator()
-// {
-//   return accumulator;
-// }
+const DataSet * DataStack::peekAccumulator()
+{
+  return accumulator;
+}
 
 
 void DataStack::insertStack(const DataStack & s)

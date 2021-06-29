@@ -79,7 +79,7 @@ QPen GraphicsSettings::getPen(PenRoles role) const
 {
   switch(role) {
   case SegmentsPen:
-    return QPen(QColor("darkBlue"), baseLineWidth, Qt::DotLine);
+    return QPen(QColor("darkBlue"), baseLineWidth*1.2, Qt::DashDotLine);
   case SeparationPen:
     return QPen(QColor("darkMagenta"), baseLineWidth, Qt::DashLine);
   case PeaksPen:

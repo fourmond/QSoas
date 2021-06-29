@@ -29,7 +29,6 @@
 
 #include <pointiterator.hh>
 
-
 CurveDataSet::CurveDataSet(const DataSet * ds) :
   CurveItem(true), dataSet(ds), lastPointIdx(-1),
   paintMarkers(false), tryPaintLines(true)
@@ -91,11 +90,21 @@ void CurveDataSet::paint(QPainter * painter, const QRectF &bbox,
   painter->setPen(gs.getPen(GraphicsSettings::SegmentsPen));
   // Then, we paint the segments if applicable
   Vector segments = dataSet->segmentPositions();
-  for(int i = 0; i < segments.size(); i++)
-    // @todo find a way to display the index of the segment !
-    // (left/right), ie: 1 | 2
-    painter->drawLine(ctw.map(QLineF(segments[i], bbox.top(), 
-                                     segments[i], bbox.bottom())));
+  for(int i = 0; i < segments.size(); i++) {
+    QPen p = painter->pen();
+    p.setColor(i % 2 ? QColor("darkBlue") : QColor(229,140,20));
+    painter->setPen(p);
+    QLineF line(ctw.map(QLineF(segments[i], bbox.top(), 
+                               segments[i], bbox.bottom())));
+    painter->drawLine(line);
+
+    QRectF r(line.p2() + QPointF(-6,15), QSizeF(0,0));
+    painter->drawText(r, Qt::AlignRight | Qt::AlignVCenter | Qt::TextDontClip,
+                      QString("%1").arg(i));
+    r = QRectF(line.p2() + QPointF(6,15), QSizeF(0,0));
+    painter->drawText(r, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextDontClip,
+                      QString("%1").arg(i+1));
+  }
   painter->restore();
 
 }

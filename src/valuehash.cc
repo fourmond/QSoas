@@ -177,10 +177,10 @@ QList<Argument *> ValueHash::variantConversionOptions()
 {
   QHash<QString, VariantTypes>
     variantTypes({{"text", String},
-          {"number", Number},
-          // {"date", Date},
-            //          {"text-list", StringList},
-              {"number-list", NumberList}
+                  {"number", Number},
+                  // {"date", Date},
+                  //          {"text-list", StringList},
+                  {"number-list", NumberList}
       });
   QList<Argument*> args;
   args << new TemplateChoiceArgument<VariantTypes>

@@ -533,13 +533,35 @@ renameCmd("rename", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void chopCommand(const QString &, QList<double> values, 
+static void chopCommand(const QString &, 
                         const CommandOptions & opts)
 {
   DataStackHelper pusher(opts);
 
   const DataSet * ds = soas().currentDataSet();
   QList<DataSet *> splitted;
+
+  QList<double> values;
+  QString meta;
+  updateFromOptions(opts, "from-meta", meta);
+  if(meta.isEmpty()) {
+    updateFromOptions(opts, "lengths", values);
+  }
+  else {
+    if(! ds->hasMetaData(meta))
+      throw RuntimeError("Could not find meta: %1").arg(meta);
+    QVariant val = ds->getMetaData(meta);
+    QList<QVariant> lst = val.toList();
+    if(lst.size() == 0)
+      values << val.toDouble();
+    else {
+      for(const QVariant v : lst)
+        values << v.toDouble();
+    }
+  }
+
+  if(values.size() == 0)
+    throw RuntimeError("No values provided, nothing to do");
   
   /// target for indices
   QList<int> * indices = NULL;
@@ -577,13 +599,13 @@ static void chopCommand(const QString &, QList<double> values,
 }
 
 static ArgumentList 
-chopA(QList<Argument *>() 
+chopO(QList<Argument *>() 
       << new SeveralNumbersArgument("lengths", 
                                     "Lengths",
-                                    "Lengths of the subsets"));
-
-static ArgumentList 
-chopO(QList<Argument *>() 
+                                    "Lengths of the subsets", true, true)
+      << new StringArgument("from-meta",
+                            "From meta"
+                            "Reads the values from a (list) meta-data value")
       << DataStackHelper::helperOptions()
       << new ChoiceArgument(QStringList()
                             << "deltax"
@@ -604,7 +626,7 @@ static Command
 chopC("chop", // command name
       effector(chopCommand), // action
       "split",  // group name
-      &chopA, // arguments
+      NULL, // arguments
       &chopO, // options
       "Chop dataset");
 

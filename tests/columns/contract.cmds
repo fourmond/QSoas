@@ -113,3 +113,15 @@ assert $meta.Zs[1]-4 0
 assert $meta.Zs[2]-5 0
 assert $meta.Zs[3]-0 0
 assert $meta.Zs[4]-1 0
+
+
+
+# Contract meta-data also
+generate-dataset 0 10 1 /set-meta=a=1
+generate-dataset 0 10 2 /set-meta=a=2
+generate-dataset 0 10 3 /set-meta=a=3
+contract 2 1 0 /contract-meta=a
+assert $stats.columns-4 0
+assert $meta.a[0]-1 0
+assert $meta.a[1]-2 0
+assert $meta.a[2]-3 0

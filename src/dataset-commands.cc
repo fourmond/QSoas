@@ -1646,22 +1646,19 @@ static void contractCommand(const QString &, QList<const DataSet *> a,
 
   QStringList names;
   names << a[0]->name;
-  DataSet * cur = new DataSet(*a[0]);
+  std::unique_ptr<DataSet> cur(new DataSet(*a[0]));
   if(pc.size() > 0)
     cur->setPerpendicularCoordinates(cur->getMetaData(pc).toDouble());
-  trimColumns(cur);
+  trimColumns(cur.get());
   
   for(int i = 1; i < a.size(); i++) {
-    DataSet * ds = new DataSet(*a[i]);
+    std::unique_ptr<DataSet> ds(new DataSet(*a[i]));
     names << a[i]->name;
     if(pc.size() > 0)
       ds->setPerpendicularCoordinates(ds->getMetaData(pc).toDouble());
-    trimColumns(ds);
+    trimColumns(ds.get());
 
-    DataSet * n = cur->contract(ds, mode, useSteps);
-    delete cur;
-    delete ds;
-    cur = n;
+    cur.reset(cur->contract(ds.get(), mode, useSteps));
   }
   if(! pc.isEmpty()) {
     QList<QVariant> lst;
@@ -1670,7 +1667,11 @@ static void contractCommand(const QString &, QList<const DataSet *> a,
     cur->setMetaData(pc, lst);
   }
   cur->name = Utils::smartConcatenate(names, "+", "(", ")");
-  soas().pushDataSet(cur);
+
+  QStringList meta;
+  updateFromOptions(opts, "contract-meta", meta);
+  cur->contractMeta(meta, a);
+  soas().pushDataSet(cur.release());
 }
 
 static ArgumentList 
@@ -1687,7 +1688,11 @@ contractOpts(ArgumentList()
                                    "defines the perpendicular coordinate from meta-data")
              << new SeveralColumnsArgument("use-columns", 
                                            "The columns to use",
-                                           "if specified, uses only the given columns for the contraction"));
+                                           "if specified, uses only the given columns for the contraction")
+             << new SeveralStringsArgument("contract-meta",
+                                           "Contract meta data",
+                                           "Contracts all the named meta data meta-data lists")
+             );
 
 static Command 
 contractc("contract", // command name

@@ -1,0 +1,13 @@
+# Not really splitting, but we're almost there
+
+generate-dataset 0 1 0 /set-meta=a=1
+generate-dataset 1 2 1 /set-meta=a=2
+
+assert $meta.a-2 0
+cat 1 0 /contract-meta=a
+assert $stats.x_last-2 0
+assert $stats.y_last-1 0
+assert $meta.a[0]-1 0
+assert $meta.a[1]-2 0
+
+

@@ -1967,6 +1967,26 @@ void DataSet::expandMeta(const QStringList & meta,
   }
 }
 
+void DataSet::contractMeta(const QStringList & meta,
+                           const QList<const DataSet*> & datasets,
+                           bool strict)
+{
+  for(const QString & n : meta) {
+    QList<QVariant> vals;
+    for(const DataSet * ds : datasets) {
+      if(! ds->hasMetaData(n)) {
+        if(strict)
+          throw RuntimeError("Dataset: '%1' has no meta '%2'").
+            arg(ds->name).arg(n);
+        else
+          continue;
+      }
+      vals << ds->getMetaData(n);
+    }
+    metaData[n] = vals;
+  }
+}
+
 
 
 double DataSet::metaScanRate(bool * ok) const

@@ -1808,8 +1808,14 @@ static void catCommand(const QString &, QList<const DataSet *> b, const CommandO
   updateFromOptions(opts, "add-segments", setSegs);
   handleMissingDS(&b);
 
-  if(b.size() > 0)
-    soas().pushDataSet(DataSet::concatenateDataSets(b, setSegs));
+  QStringList meta;
+  updateFromOptions(opts, "contract-meta", meta);
+
+  if(b.size() > 0) {
+    std::unique_ptr<DataSet> ds(DataSet::concatenateDataSets(b, setSegs));
+    ds->contractMeta(meta, b);
+    soas().pushDataSet(ds.release());
+  }
   else
     throw RuntimeError("No dataets to concatenate");
 }
@@ -1826,7 +1832,11 @@ catOpts(QList<Argument *>()
         << new BoolArgument("add-segments", 
                             "Add segments",
                             "If on (default) segments are added between "
-                            "the old datasets"));
+                            "the old datasets")
+        << new SeveralStringsArgument("contract-meta",
+                                      "Contract meta data",
+                                      "Contracts all the named meta data meta-data lists")
+        );
 
 static Command 
 cat("cat", // command name

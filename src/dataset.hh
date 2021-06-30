@@ -776,6 +776,14 @@ public:
   void expandMeta(const QStringList & meta, const QList<DataSet*> & datasets,
                   bool strict = true) const;
 
+  /// Does the opposite of expandMeta and gathers all the named meta
+  /// as lists in this dataset.
+  ///
+  /// If @a strict is true, an exception will be raised on missing meta
+  void contractMeta(const QStringList & meta,
+                    const QList<const DataSet*> & datasets,
+                    bool strict = true);
+
   /// @}
 
   /// @name Special meta-data functions

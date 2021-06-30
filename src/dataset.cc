@@ -1942,6 +1942,30 @@ QList<DataSet *> DataSet::autoSplit(const QHash<int, QString> & cols,
   return d;
 }
 
+void DataSet::expandMeta(const QStringList & meta,
+                         const QList<DataSet*> & datasets,
+                         bool strict) const
+{
+  for(const QString & n : meta) {
+    if(! hasMetaData(n)) {
+      if(strict)
+        throw RuntimeError("No such meta: '%1'").arg(n);
+      else
+        continue;
+    }
+    QVariant var = getMetaData(n);
+    QList<QVariant> lst = var.toList();
+    if(lst.size() != datasets.size()) {
+      if(strict)
+        throw RuntimeError("Not the right number of values for meta '%1': %2 vs %3").
+          arg(n).arg(lst.size()).arg(datasets.size());
+      else
+        continue;
+    }
+    for(int i = 0; i < datasets.size(); i++)
+      datasets[i]->setMetaData(n, lst[i]);
+  }
+}
 
 
 

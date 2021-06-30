@@ -765,6 +765,17 @@ public:
   /// meta-data to the final datasets.
   QList<DataSet *> autoSplit(const QHash<int, QString> & cols, double tolerance = 0) const;
 
+
+  /// Expand meta-data into the target datasets. This takes a list of
+  /// meta-data names, a (modifiable) list of datasets, and expand the
+  /// meta-data present as list in the original dataset to the target
+  /// datasets.
+  ///
+  /// If @a strict is true, an exception will be raised on size
+  /// mismatch or missing meta
+  void expandMeta(const QStringList & meta, const QList<DataSet*> & datasets,
+                  bool strict = true) const;
+
   /// @}
 
   /// @name Special meta-data functions

@@ -72,11 +72,25 @@ class DataStackHelper {
   /// Whether we push in reverse
   bool reversed;
 
+  /// If not valid, this means we destroy datasets on exit, not push
+  bool valid;
+
   
 public:
   DataStackHelper(const CommandOptions & opts, bool update = false,
                   bool deferred = true);
   ~DataStackHelper();
+
+  /// Invalidate the helper. It still accepts datasets, but will
+  /// destroy them rather than pushing them on destruction, unless
+  /// validate() is used. 
+  void invalidate();
+
+  /// Cancels the effect of invalidate()
+  void validate();
+
+  /// Returns the list of datasets currently held.
+  const QList<DataSet *> & currentDataSets() const;
 
   /// Pushes one dataset to the stack, whether directly, or on the
   /// to-do list for when DataStackHelper os destroyed.

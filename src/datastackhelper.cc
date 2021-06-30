@@ -28,7 +28,7 @@
 
 DataStackHelper::DataStackHelper(const CommandOptions & opts,
                                  bool upt, bool def) :
-  deferred(def), update(upt), reversed(false)
+  deferred(def), update(upt), reversed(false), valid(true)
 {
   updateFromOptions(opts, "flags", flags);
   updateFromOptions(opts, "style", style);
@@ -38,8 +38,29 @@ DataStackHelper::DataStackHelper(const CommandOptions & opts,
 
 DataStackHelper::~DataStackHelper()
 {
-  flush();
+  if(valid)
+    flush();
+  else {
+    for(DataSet * ds : datasets)
+      delete ds;
+  }
 }
+
+void DataStackHelper::invalidate()
+{
+  valid = false;
+}
+
+void DataStackHelper::validate()
+{
+  valid = true;
+}
+
+const QList<DataSet *> & DataStackHelper::currentDataSets() const
+{
+  return datasets;
+}
+
 
 QList<Argument *> DataStackHelper::helperOptions()
 {

@@ -423,6 +423,7 @@ static void expandCommand(const QString &,
                           const CommandOptions & opts)
 {
   DataStackHelper pusher(opts);
+  pusher.invalidate();
   const DataSet * ds = soas().currentDataSet();
   if(ds->nbColumns() <= 2) {
     Terminal::out << "No more than 2 columns in '" << ds->name 
@@ -472,6 +473,11 @@ static void expandCommand(const QString &,
       s->setMetaData(pc, s->perpendicularCoordinates()[0]);
     pusher.pushDataSet(s);
   }
+  QStringList meta;
+  updateFromOptions(opts, "expand-meta", meta);
+  ds->expandMeta(meta, pusher.currentDataSets());
+  pusher.validate();
+  
   Terminal::out << "Expanded '" << ds->name 
                 << "' into " << nb << " datasets" << endl;
 }
@@ -490,6 +496,9 @@ expandOpts(QList<Argument *>()
            << new IntegerArgument("group-columns", 
                                   "Group several Y columns in created datasets",
                                   "specifies the number of Y columns in the created datasets")
+           << new SeveralStringsArgument("expand-meta",
+                                         "Expand meta data",
+                                         "Expand all the given meta-data, one value per produced dataset")
            << DataStackHelper::helperOptions()
            );
 
@@ -644,20 +653,9 @@ static void chopIntoSegmentsCommand(const QString &, const CommandOptions & opts
   PossessiveList<DataSet> splitted;
   for(DataSet * d : l)
     splitted << d;
-  
   QStringList meta;
   updateFromOptions(opts, "expand-meta", meta);
-  for(const QString & n : meta) {
-    if(! ds->hasMetaData(n))
-      throw RuntimeError("No such meta: '%1'").arg(n);
-    QVariant var = ds->getMetaData(n);
-    QList<QVariant> lst = var.toList();
-    if(lst.size() != splitted.size())
-      throw RuntimeError("Not the right number of meta: %1 vs %2").
-        arg(lst.size()).arg(splitted.size());
-    for(int i = 0; i < splitted.size(); i++)
-      splitted[i]->setMetaData(n, lst[i]);
-  }
+  ds->expandMeta(meta, splitted);
   
   for(int i = splitted.size() - 1; i >= 0; i--)
     pusher << splitted[i];

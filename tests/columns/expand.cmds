@@ -10,3 +10,15 @@ drop
 assert '$stats["x_max"] == 140'
 drop
 assert '$stats["x_max"] == 150'
+
+
+# Handling of meta-data
+generate-dataset 0 10 /columns=4
+set-meta /type=number-list stuff 1,2,3
+expand /expand-meta=stuff
+assert $meta.stuff-3 0
+drop
+assert $meta.stuff-2 0
+drop
+assert $meta.stuff-1 0
+drop

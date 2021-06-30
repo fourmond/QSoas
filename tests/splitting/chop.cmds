@@ -1,0 +1,87 @@
+# Tests for chop and associated
+
+# Classical chop
+generate-dataset 0 10
+chop 2 3 2 
+assert $stats.x_min 0
+drop 
+assert $stats.x_min-2 2e-2
+drop
+assert $stats.x_min-5 2e-2
+drop
+assert $stats.x_min-7 2e-2
+assert $stats.x_max-10 0
+
+
+
+generate-dataset 0 10 /samples=1001
+chop 2 3 5 /mode=xvalues
+assert $stats.x_min 0
+drop 
+assert $stats.x_min-2 0
+drop
+assert $stats.x_min-3 0
+drop
+assert $stats.x_min-5 0
+assert $stats.x_max-10 0
+
+
+generate-dataset 0 10 /samples=1001
+chop 2 3 5 /mode=xvalues /set-segments=true
+assert $stats.x_min 0
+assert $stats.x_max-10 0
+assert $stats.segments==3
+
+# Now expand and do the same
+segments-chop
+assert $stats.x_min 0
+drop 
+assert $stats.x_min-2 0
+drop
+assert $stats.x_min-3 0
+drop
+assert $stats.x_min-5 0
+assert $stats.x_max-10 0
+
+
+# From meta-data
+generate-dataset 0 10 /samples=1001
+set-meta /type=number-list pos 2,3,5
+chop /from-meta=pos /mode=xvalues
+assert $stats.x_min 0
+drop 
+assert $stats.x_min-2 0
+drop
+assert $stats.x_min-3 0
+drop
+assert $stats.x_min-5 0
+assert $stats.x_max-10 0
+
+
+# Now check expansion
+
+
+generate-dataset 0 10 /samples=1001
+set-meta /type=number-list pos 2,3,5
+chop 2 3 5 /mode=xvalues /set-segments=true
+assert $stats.x_min 0
+assert $stats.x_max-10 0
+assert $stats.segments==3
+
+set-meta /type=number-list meta 3,4,1,0
+
+
+# Now expand and do the same
+segments-chop /expand-meta=meta
+assert $stats.x_min 0
+assert $meta.meta==3
+drop 
+assert $stats.x_min-2 0
+assert $meta.meta==4
+drop
+assert $stats.x_min-3 0
+assert $meta.meta==1
+drop
+assert $stats.x_min-5 0
+assert $meta.meta==0
+assert $stats.x_max-10 0

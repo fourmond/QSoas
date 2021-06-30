@@ -1,3 +1,4 @@
 # The test suite for data-splitting functions
 @ split-on-values.cmds
 @ split-monotonic.cmds
+@ chop.cmds

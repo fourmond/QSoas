@@ -44,6 +44,18 @@ assert $stats.x_min-5 0
 assert $stats.x_max-10 0
 
 
+drop flagged:test
+generate-dataset 0 10 /samples=1001
+chop 2 3 5 /mode=xvalues /set-segments=true
+# Now expand and do the same
+segments-chop /flags=test
+# Contracting again
+i flagged:test
+assert $stats.x_min 0
+assert $stats.x_max-10 0
+assert $stats.segments-3 0
+
+
 # From meta-data
 generate-dataset 0 10 /samples=1001
 set-meta /type=number-list pos 2,3,5

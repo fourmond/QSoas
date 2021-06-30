@@ -462,9 +462,11 @@ QList<DataSet *> DataSet::chop(const QList<int> & indices) const
 QList<DataSet *> DataSet::chopIntoSegments() const
 {
   QList<DataSet *> retvals = chop(segments);
-  for(int i = 0; i < retvals.size(); i++)
+  for(int i = 0; i < retvals.size(); i++) {
     retvals[i]->name = cleanedName() + QString("_seg#%1.dat").
       arg(i);
+    retvals[i]->segments.clear();
+  }
   return retvals;
 }
 

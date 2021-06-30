@@ -632,19 +632,44 @@ chopC("chop", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+
+#include <possessive-containers.hh>
+
 static void chopIntoSegmentsCommand(const QString &, const CommandOptions & opts)
 {
   const DataSet * ds = soas().currentDataSet();
 
   DataStackHelper pusher(opts);
-  QList<DataSet *> splitted = ds->chopIntoSegments();
+  QList<DataSet *> l = ds->chopIntoSegments();
+  PossessiveList<DataSet> splitted;
+  for(DataSet * d : l)
+    splitted << d;
+  
+  QStringList meta;
+  updateFromOptions(opts, "expand-meta", meta);
+  for(const QString & n : meta) {
+    if(! ds->hasMetaData(n))
+      throw RuntimeError("No such meta: '%1'").arg(n);
+    QVariant var = ds->getMetaData(n);
+    QList<QVariant> lst = var.toList();
+    if(lst.size() != splitted.size())
+      throw RuntimeError("Not the right number of meta: %1 vs %2").
+        arg(lst.size()).arg(splitted.size());
+    for(int i = 0; i < splitted.size(); i++)
+      splitted[i]->setMetaData(n, lst[i]);
+  }
+  
   for(int i = splitted.size() - 1; i >= 0; i--)
     pusher << splitted[i];
+  splitted.detach();
 }
 
 static ArgumentList 
 scOpts(QList<Argument *>() 
-    << DataStackHelper::helperOptions()
+       << DataStackHelper::helperOptions()
+       << new SeveralStringsArgument("expand-meta",
+                                     "Expand meta data",
+                                     "Expand all the given meta-data, one value per produced dataset")
     );
 
 static Command 

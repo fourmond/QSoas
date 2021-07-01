@@ -190,8 +190,7 @@ CommandArguments ArgumentList::parseArguments(const QStringList & args,
       value = arg->fromString(args[i]);
     else {
       if(! base)
-        throw RuntimeError("Not enough arguments and no "
-                           "prompting possible");
+        throw HeadlessError("Not enough arguments and no prompting possible");
       value = arg->promptForValue(base);
       if(prompted)
         *prompted = true;

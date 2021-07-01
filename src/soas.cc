@@ -54,17 +54,15 @@
 #include <gsl/gsl_version.h>
 
 
-CurveView & Soas::view()
-{
-  return *mw->curveView;
-}
-
 Soas * Soas::theSoasInstance = NULL;
+
+bool defaultHeadless = false;
 
 static SettingsValue<double> temperature("soas/temperature", 298);
 
 Soas::Soas() : 
-  mw(NULL), shouldStopFit(false), throwFitExcept(false)
+  mw(NULL), headless(defaultHeadless),
+  shouldStopFit(false), throwFitExcept(false)
 {
   startup = QDateTime::currentDateTime();
   theSoasInstance = this;
@@ -100,6 +98,11 @@ double Soas::temperature() const {
   return ::temperature;
 }
 
+CurveView & Soas::view()
+{
+  return *mw->curveView;
+}
+
 void Soas::setTemperature(double d) {
   ::temperature = d;
 }
@@ -122,6 +125,16 @@ DataSet * Soas::currentDataSet(bool silent)
 void Soas::pushDataSet(DataSet * d, bool silent)
 {
   return ds->pushDataSet(d, silent);
+}
+
+bool Soas::isHeadless() const
+{
+  return headless;
+}
+
+void Soas::setHeadless(bool hl) 
+{
+  headless = hl;
 }
 
 void Soas::writeSpecFile(QTextStream & out, bool full)
@@ -223,6 +236,11 @@ static CommandLineOption sp("--spec", [](const QStringList & /*args*/) {
     }
     ::exit(0);
   }, 0, "write command specs");
+
+static CommandLineOption hl("--headless",
+                            [](const QStringList & /*args*/) {
+                              ::defaultHeadless = true;
+                            }, 0, "run in headless mode");
 
 static CommandLineOption lsc("--list-commands", [](const QStringList & /*args*/) {
     {

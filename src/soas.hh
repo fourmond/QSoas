@@ -49,6 +49,10 @@ class Soas {
   /// The date of QSoas's startup
   QDateTime startup;
 
+  /// Whether the instance is headless or not. In headless mode, all
+  /// interactive commands, prompting, and just waiting is disabled.
+  bool headless;
+
   
 public:
 
@@ -108,6 +112,12 @@ public:
   const QDateTime & startupTime() const {
     return startup;
   };
+
+  /// Whether QSoas is run in headless mode or not
+  bool isHeadless() const;
+
+  /// Turns on the headless mode.
+  void setHeadless(bool headless = true);
 
   /// @name Flags
   ///

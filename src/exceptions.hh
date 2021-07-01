@@ -65,6 +65,7 @@ public:
 
 };
 
+
 class GSLError : public RuntimeError {
 public:
   explicit GSLError(const QString & msg) throw() : RuntimeError(msg) {
@@ -99,6 +100,23 @@ public:
   virtual QString message() const throw() override;
 
   template<typename T> InternalError & arg(T a) {
+    msg = msg.arg(a);
+    updateCache();
+    return *this;
+  }; 
+
+};
+
+/// Exception raised specifically when used in headless mode and
+/// shouldn't be
+class HeadlessError : public Exception {
+public:
+  explicit HeadlessError(const QString & msg) throw() : Exception(msg) {
+  };
+  virtual ~HeadlessError() throw() {;};
+
+  // we need a redefition to avoid throwing Exception rather than
+  template<typename T> HeadlessError & arg(T a) {
     msg = msg.arg(a);
     updateCache();
     return *this;

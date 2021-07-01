@@ -116,11 +116,16 @@ int main(int argc, char ** argv)
   // Why on earth do we still call that soas ?
   Settings::loadSettings("bip.cnrs-mrs.fr", "Soas");
   Settings::loadSettings("qsoas.org", "QSoas");
-  
-  {
+
+  try {
     MainWin win(&theSoas, startup);
     win.show();
     retval = main.exec();
+  }
+  catch(const HeadlessError & e) {
+    QTextStream o(stderr);
+    o << "Headless mode run failed: " << e.message() << endl;
+    return 5;
   }
 
   Settings::saveSettings("qsoas.org", "QSoas");

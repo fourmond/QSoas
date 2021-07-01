@@ -25,6 +25,8 @@
 #include <vector.hh>
 #include <linereader.hh>
 
+#include <soas.hh>
+
 /// Helper function for globs
 static QStringList dirGlob(QString directory, QString str,
                            bool isDir, bool parentOK = false)
@@ -266,6 +268,9 @@ QStringList Utils::nestedSplit(const QString & str, const QChar & delim,
 bool Utils::askConfirmation(const QString & what, 
                             const QString & title)
 {
+  if(soas().isHeadless())
+    throw HeadlessError("Cannot ask for confirmation in headless mode: %1").
+      arg(what);
   QString t = (title.isEmpty() ? QObject::tr("Please confirm") : title);
   QMessageBox confirmation(QMessageBox::Question, t, what,
                            QMessageBox::Yes | QMessageBox::No);

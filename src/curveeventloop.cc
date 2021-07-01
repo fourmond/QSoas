@@ -35,6 +35,8 @@ CurveEventLoop::CurveEventLoop(CurveView * v) :
   k(0), done(false), prompt(NULL),
   printingAllowed(true)
 {
+  if(soas().isHeadless())
+    throw HeadlessError("Cannot enter interactive command");
   if(! v)
     v = &(soas().view());
   view = v;

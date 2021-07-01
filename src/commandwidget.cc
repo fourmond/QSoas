@@ -278,7 +278,8 @@ bool CommandWidget::runCommand(const QStringList & raw, bool doFullPrompt)
         throw RuntimeError("Cancelled");
     }
     else
-      prompted = command->parseArgumentsAndOptions(args, &a, &b, this);
+      prompted = command->parseArgumentsAndOptions(args, &a, &b,
+                                                   soas().isHeadless() ? NULL : this);
 
     QStringList fnl = raw;
     if(prompted) {
@@ -334,6 +335,11 @@ bool CommandWidget::runCommand(const QStringList & raw, bool doFullPrompt)
     /// supports std::function
     commandLine->busy();
     throw;                      // rethrow
+  }
+  catch(HeadlessError he) {
+    he.appendMessage(QString("\nCommand stack: %1").
+                     arg(raw.join(" ")));
+    throw he;
   }
   catch(const std::bad_alloc & alc) {
     Terminal::out << "Apparently out of memory: " << alc.what() 

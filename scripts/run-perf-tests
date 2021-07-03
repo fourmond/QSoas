@@ -8,4 +8,4 @@ if [ -z "$qsoas" ]; then
     qsoas=QSoas
 fi
 cd perf
-$qsoas -platform offscreen --run '@ run-all-tests.cmds ' --exit-after-running
+$qsoas -platform offscreen --headless --run '@ run-all-tests.cmds ' --exit-after-running

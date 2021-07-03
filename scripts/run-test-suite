@@ -55,4 +55,4 @@ case $1 in
 esac
 
 cd tests
-$pref $qsoas -platform offscreen --run '@ run-all-tests.cmds '$1 --exit-after-running
+$pref $qsoas -platform offscreen --headless --run '@ run-all-tests.cmds '$1 --exit-after-running

@@ -1353,6 +1353,73 @@ head("head", // command name
      &headO, // options
      "Head");
 
+//////////////////////////////////////////////////////////////////////
+
+void lsCommand(const QString &, 
+               const CommandOptions & opts)
+{
+  QString d(".");
+
+  updateFromOptions(opts, "directory", d);
+  QDir dir(d);
+
+  if(! dir.exists())
+    throw RuntimeError("No such directory: '%1'").arg(d);
+
+  Terminal::out << "Listing directory: " << d << endl;
+
+  int length = 50;
+
+  QList<QFileInfo> entries = dir.entryInfoList(QDir::NoFilter,
+                                               QDir::Name|QDir::DirsFirst);
+  for(const QFileInfo & info : entries) {
+    QString n = info.fileName();
+    if(info.isDir())
+      n += "/";
+
+    if(n.size() > length) {
+      n = Utils::shortenString(n, length);
+    }
+    else {
+      while(n.size() < length)
+        n += " ";
+    }
+
+    qint64 sz = info.size();
+    QString suf = "";
+    if(sz > 10000000000ll) {
+      sz /= 1000000000ll;
+      suf = "G";
+    }
+    else if(sz > 10000000ll) {
+      sz /= 1000000ll;
+      suf = "M";
+    }
+    else if(sz > 10000ll) {
+      sz /= 1000ll;
+      suf = "k";
+    }
+    
+    Terminal::out << n << "\t" << sz << suf << "\t" << info.lastModified().toString() << endl;
+  }
+  
+}
+
+
+static ArgumentList 
+lsO(QList<Argument *>() 
+    << new FileArgument("directory",  
+                        "Directory",
+                        "Directory to list", true, true));
+
+static Command 
+ls("ls", // command name
+   effector(lsCommand), // action
+   "file",  // group name
+   NULL, // arguments
+   &lsO, // options
+   "List files");
+
 
 
 //////////////////////////////////////////////////////////////////////

@@ -1070,9 +1070,9 @@ void KineticSystem::parseFile(QIODevice * device, const QString & n)
       for(int i = 0; i < reactants.size(); i++) {
         if(reactants[i] == "e-") {
           if(els != 0)
-            throw RuntimeError("Line %1: '%2' -- electrons cannot appear "
+            throw RuntimeError("Kinetic file %1 -- line %2:\n '%3' -- electrons cannot appear "
                                "more than once in a reaction").
-              arg(number).arg(orig);
+              arg(Utils::fileName(device)).arg(number).arg(orig);
           els = stoechiometry[i];
           reactants.takeAt(i);
           stoechiometry.takeAt(i);
@@ -1083,7 +1083,8 @@ void KineticSystem::parseFile(QIODevice * device, const QString & n)
       addReaction(reactants, stoechiometry, els, literals, arrow, options);
     }
     else
-      throw RuntimeError(QString("Line %1: '%2' not valid").
+      throw RuntimeError(QString("Kinetic file %1 -- line %2:\n '%3' not valid").
+                         arg(Utils::fileName(device)).
                          arg(number).arg(orig));
   }
   if(reaction == 0)

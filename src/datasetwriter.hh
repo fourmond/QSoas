@@ -56,6 +56,10 @@ public:
   /// Writes the dataset to the given File.
   void writeDataSet(File * file, const DataSet * dataset) const;
 
+  /// Writes the metadata of the given dataset to the given file
+  /// (adding the appropriate .qsm extension)
+  void writeDataSetMeta(const QString & file, const DataSet * dataset) const;
+
   
 
   DataSetWriter();

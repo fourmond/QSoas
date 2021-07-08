@@ -2173,6 +2173,49 @@ rM("record-meta", // command name
    "Set meta-data",
    "Manually set meta-data");
 
+
+//////////////////////////////////////////////////////////////////////
+
+#include <datasetwriter.hh>
+
+// Saves meta-data of the current buffer to the target file, by
+// default the original file. Existing meta-data in the target file
+// are overwritten.
+static void saveMetaCommand(const QString &, 
+                            const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+
+  QString fileName;
+  if(ds->hasMetaData("original_file"))
+    fileName = ds->getMetaData("original_file").toString();
+  updateFromOptions(opts, "file", fileName);
+  if(fileName.isEmpty())
+    throw RuntimeError("Could not find the original file, and no file name specified");
+
+  DataSetWriter writer;
+  writer.writeDataSetMeta(fileName, ds);
+}
+
+
+static ArgumentList 
+saMO(QList<Argument *>()
+     << new FileArgument("file", 
+                         "File",
+                         "save for this file", false, true)
+            
+     );
+
+
+
+static Command 
+saM("save-meta", // command name
+    effector(saveMetaCommand), // action
+    "buffer",  // group name
+    NULL, // arguments
+    &saMO, // options
+    "Save meta-data back to file");
+
 //////////////////////////////////////////////////////////////////////
 
 // Takes a dataset, and uses column names/row names to set meta to a

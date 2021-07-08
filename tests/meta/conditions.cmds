@@ -1,7 +1,0 @@
-l 01.dat
-assert "$meta['m1'] == 2.0"
-assert "$meta['m2'] == 'y'"
-
-l 02.dat
-assert "$meta['m1'] == 'w'"
-assert "$meta['m2'] == 2.0"

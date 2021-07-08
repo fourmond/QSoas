@@ -63,7 +63,7 @@ static void saveCommand(const QString &, QString file,
   DataSetWriter writer;
   writer.setFromOptions(opts);
   DataSet * ds = soas().currentDataSet();
-  writer.writeDataSet(f, ds);
+  writer.writeDataSet(&f, ds);
   ds->name = file;
   // soas().view().repaint();
 }
@@ -123,7 +123,11 @@ static void saveBuffersCommand(const QString &,
     save = false;
     rename = true;
   }
-    
+
+  DataSetWriter writer;
+  writer.setFromOptions(opts);
+  DataSet * ds = soas().currentDataSet();
+
   
   for(int i = 0; i < datasets.size(); i++) {
     QString nm = datasets[i]->name;
@@ -142,14 +146,17 @@ static void saveBuffersCommand(const QString &,
       ds->name = nm;
     }
     if(save) {
-      if(mkpath)
-        QDir::current().mkpath(QFileInfo(nm).dir().path());
       if(! overwrite && QFile::exists(nm)) {
+        // This is to prevent
         Terminal::out << "Not overwriting " << nm
                       << " as requested" << endl;
         continue;
       }
-      datasets[i]->write(nm);
+      /// @todo This should be handled by File
+      if(mkpath)
+        QDir::current().mkpath(QFileInfo(nm).dir().path());
+      File f(nm, File::TextOverwrite, opts);
+      writer.writeDataSet(&f, datasets[i]);
     }
   }
 }
@@ -178,6 +185,7 @@ sBOpts(QList<Argument *>()
        << new BoolArgument("overwrite",
                            "Overwrite",
                            "if false, will not overwrite existing files (warning: default is true)")
+       << DataSetWriter::writeOptions()
        );
 
 

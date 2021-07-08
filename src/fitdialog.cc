@@ -64,6 +64,9 @@
 
 #include <gsl-types.hh>
 
+#include <file.hh>
+#include <datasetwriter.hh>
+
 static SettingsValue<QSize> fitDialogSize("fitdialog/size", QSize(700,500));
 
 static SettingsValue<int> fitIterationLimit("fitdialog/iteration-limit", 100);
@@ -811,12 +814,15 @@ void FitDialog::saveSimulatedCurves()
   QString msg = tr("Save all simulated curves as %1 ?").
     arg(fileNames.join(", "));
   /// @todo check for overwrite !
-  if(Utils::askConfirmation(msg, tr("Save simulated curves")))
-    for(int i = 0; i < newDs.size(); i++)
-      newDs[i]->write();
-
-  for(int i = 0; i < newDs.size(); i++)
-    delete newDs[i];
+  if(Utils::askConfirmation(msg, tr("Save simulated curves"))) {
+    for(DataSet * ds : newDs) {
+      DataSetWriter writer;
+      File f(ds->name, File::TextWrite);
+      writer.writeDataSet(&f, ds);
+      delete ds;
+    }
+  }
+  
 }
 
 void FitDialog::saveParameters()

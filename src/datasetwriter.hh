@@ -23,6 +23,7 @@
 
 class DataSet;
 class Argument;
+class File;
 #include <argumentmarshaller.hh>
 
 /// A helper class to write a dataset to a file.
@@ -35,6 +36,9 @@ class Argument;
 /// @li precision
 /// @li surely something else ?
 class DataSetWriter {
+
+  /// Writes the dataset to the given device
+  void writeData(QIODevice * device, const DataSet * dataset) const;
 public:
 
   /// Whether to write row names or not
@@ -49,12 +53,13 @@ public:
   /// The prefix for column names
   QString columnNamesPrefix;
 
+  /// Writes the dataset to the given File.
+  void writeDataSet(File * file, const DataSet * dataset) const;
+
   
 
   DataSetWriter();
 
-  /// Writes the dataset to the given device
-  void writeDataSet(QIODevice * device, const DataSet * dataset) const;
 
   /// Options for writing.
   static QList<Argument *> writeOptions();

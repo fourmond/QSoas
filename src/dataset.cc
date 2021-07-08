@@ -40,7 +40,6 @@
 
 #include <datastack.hh>
 #include <datasetexpression.hh>
-#include <datasetwriter.hh>
 #include <file.hh>
 
 #include <mruby.hh>
@@ -1036,21 +1035,21 @@ double DataSet::yValueAt(double x, bool interpolate) const
 }
 
 
-void DataSet::write(QIODevice * target) const
-{
-  DataSetWriter writer;
-  writer.writeDataSet(target, this);
-}
+// void DataSet::write(QIODevice * target) const
+// {
+//   DataSetWriter writer;
+//   writer.writeDataSet(target, this);
+// }
 
-void DataSet::write(const QString & n) const
-{
-  QString fileName = n;
-  if(fileName.isEmpty())
-    fileName = cleanedName() + ".dat";
+// void DataSet::write(const QString & n) const
+// {
+//   QString fileName = n;
+//   if(fileName.isEmpty())
+//     fileName = cleanedName() + ".dat";
 
-  File file(fileName, File::TextOverwrite);
-  write(file);
-}
+//   File file(fileName, File::TextOverwrite);
+//   write(file);
+// }
 
 QList<int> DataSet::findSteps(int nb, double threshold) const
 {
@@ -1635,6 +1634,13 @@ QVariant DataSet::getMetaData(const QString & val) const
 
 void DataSet::addMetaData(const ValueHash & val, bool override)
 {
+  ValueHash tmp(val);
+  if(tmp.contains("__segments__")) {
+    segments.clear();
+    for(const QVariant & i : tmp["__segments__"].toList())
+      segments.insert(i.toInt());
+    tmp.remove("__segments__");
+  }
   metaData.merge(val, override);
 }
 

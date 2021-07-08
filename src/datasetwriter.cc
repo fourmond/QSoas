@@ -19,6 +19,8 @@
 #include <headers.hh>
 #include <datasetwriter.hh>
 #include <dataset.hh>
+#include <metadatafile.hh>
+#include <file.hh>
 
 #include <general-arguments.hh>
 
@@ -30,16 +32,14 @@ DataSetWriter::DataSetWriter() :
 {
 }
 
-void DataSetWriter::writeDataSet(QIODevice * target,
-                                 const DataSet * ds) const
+void DataSetWriter::writeData(QIODevice * target,
+                              const DataSet * ds) const
 {
   QTextStream o(target);
   o << commentPrefix  <<" saved from Soas buffer name " << ds->name << endl;
-  
-  /// @todo Write header ?
-  o << ds->metaData.prettyPrint(1, commentPrefix + " ",
-                                "\n" + commentPrefix + "\t") + "\n";
 
+  // Here, we add the 
+  
   // Writing column names
   QList<QStringList> ls = ds->columnNames;
   while(ls.size() > 0) {
@@ -67,6 +67,30 @@ void DataSetWriter::writeDataSet(QIODevice * target,
     o << "\n";
   }
 }
+
+
+void DataSetWriter::writeDataSet(File * file,
+                                 const DataSet * dataset) const
+{
+  writeData(*file, dataset);
+  MetaDataFile mf(file->info().absoluteFilePath());
+  mf.metaData = dataset->metaData;
+  if(dataset->segments.size() > 0) {
+    QList<QVariant> segs;
+    for(int i : dataset->segments)
+      segs << i;
+    mf.metaData["__segments__"] = segs;
+  }
+  // We remove the meta-data that was automatically added and that
+  // does not make much sense to save...
+  mf.metaData.remove("age");
+  mf.metaData.remove("backend");
+  mf.metaData.remove("file_date");
+  
+  if(mf.metaData.size() > 0)
+    mf.write();
+}
+
 
 QList<Argument *> DataSetWriter::writeOptions()
 {

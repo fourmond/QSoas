@@ -30,8 +30,11 @@
 /// This class represents a ZIP file, opened only for reading for now.
 ///
 /// @todo Use shared pointer semantics for avoiding premature deletion
-/// of the Zip File ?
-class ZipFile {
+/// of the Zip File ? Yep.
+///
+/// @todo This class should not be instanceable by others. Maintain a
+/// cache with the currently opened zip files.
+class ZipFile : public QSharedData {
   /// The underlying ZIP archive
   struct zip * zipFile;
 
@@ -43,21 +46,51 @@ class ZipFile {
 
   /// Throws an error corresponding to the currently stored error.
   void throwError();
-public:
 
   ZipFile(const QString & path);
-  ~ZipFile();
+
+  /// A cache "absolute zip file path -> ZipFile"
+  static QCache<QString, QSharedPointer<ZipFile> > * cachedArchives;
 
   /// Returns the list of all the file names.
   QStringList fileNames();
 
-  /// @todo Return QIODevice subclass for reading from the
-  /// Archive. This would integrate nicely in the File system.
-  /// The game will be to properly cache the archive.
-
   /// Opens the given file, and returns an appropriate QIODevice,
   /// which still must be opened.
   QIODevice * openFile(const QString & file);
+
+  ~ZipFile();
+
+  /// Returns the ZipFile corresponding to the given path.
+  /// (it is internally converted into an absolute file path);
+  static ZipFile * openArchive(const QString & path);
+
+
+  public:
+
+  /// Separates the given path into
+  /// @li the path to an archive
+  /// @li the path within the archive
+  /// The first element is empty if no archive is found.
+  ///
+  /// The idea is that one can do:
+  /// directory/archive.zip/archive_dir/file.dat
+  static QPair<QString, QString> separatePath(const QString & path);
+
+
+  /// Lists a directory within the 
+  static QStringList listZipDirectory(const QString & path);
+
+  /// Returns the archive path for the given path, or an empty string
+  /// if this is not within an archive.
+  static QString archiveForFile(const QString & path);
+
+  /// Opens the given file, <b>which must be within an archive</b>.
+  /// The returned device can only be opened for @b reading. 
+  static QIODevice * openFileInArchive(const QString & path);
+
+  /// Returns true if the given file exists and is a ZIP file.
+  static bool isZIP(const QString & path);
   
 };
 

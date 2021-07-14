@@ -1,7 +1,7 @@
 /**
    \file zipfile.hh
    Reading (and writing) of ZIP archives
-   Copyright 2020 by CNRS/AMU
+   Copyright 2020, 2021 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -59,14 +59,14 @@ class ZipFile : public QSharedData {
   /// which still must be opened.
   QIODevice * openFile(const QString & file);
 
-  ~ZipFile();
+private:
 
   /// Returns the ZipFile corresponding to the given path.
   /// (it is internally converted into an absolute file path);
-  static ZipFile * openArchive(const QString & path);
+  /// If @a silent is true, then no exception is raised upon failure.
+  static QSharedPointer<ZipFile> openArchive(const QString & path);
 
 
-  public:
 
   /// Separates the given path into
   /// @li the path to an archive
@@ -77,6 +77,9 @@ class ZipFile : public QSharedData {
   /// directory/archive.zip/archive_dir/file.dat
   static QPair<QString, QString> separatePath(const QString & path);
 
+public:
+
+  ~ZipFile();
 
   /// Lists a directory within the 
   static QStringList listZipDirectory(const QString & path);

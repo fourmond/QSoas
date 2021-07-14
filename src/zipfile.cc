@@ -74,7 +74,7 @@ void ZipFile::throwError()
 /// A QIODevice subclass for reading the contents of an archive
 class ZipIO : public QIODevice {
   zip_file_t * file;
-  ZipFile * zip;
+  QSharedPointer<ZipFile> zip;
 public:
   ZipIO(ZipFile * z, zip_file_t * fl) : file(fl), zip(z) {
     
@@ -108,6 +108,26 @@ QIODevice * ZipFile::openFile(const QString & file)
   return new ZipIO(this, fl);
 }
 
+QCache<QString, QSharedPointer<ZipFile> > * ZipFile::cachedArchives = NULL;
+
+QSharedPointer<ZipFile> ZipFile::openArchive(const QString & path)
+{
+  QFileInfo info(path);
+  if(! info.exists())
+    throw RuntimeError("File '%1' does not exist").arg(path);
+
+  QString ap = info.absoluteFilePath();
+  if(! cachedArchives) {
+    cachedArchives = new QCache<QString, QSharedPointer<ZipFile> >(20);
+  }
+  if(! cachedArchives->contains(ap)) {
+    std::unique_ptr<ZipFile> fl(new ZipFile(ap));
+    fl->openArchive();
+    cachedArchives->insert(ap, new QSharedPointer<ZipFile>(fl.release()));
+  }
+  return *(*cachedArchives)[ap];
+}
+
 
 bool ZipFile::isZIP(const QString & path)
 {
@@ -116,6 +136,9 @@ bool ZipFile::isZIP(const QString & path)
     return false;
   if(info.isDir())
     return false;
+
+  if(cachedArchives && cachedArchives->contains(info.absoluteFilePath()))
+    return true;                // already cached
 
   int err = 0;
   zip_t * zip = zip_open(path.toLocal8Bit().constData(),
@@ -152,6 +175,22 @@ QPair<QString, QString> ZipFile::separatePath(const QString & path)
 }
 
 
+QString ZipFile::archiveForFile(const QString & path)
+{
+  return ZipFile::separatePath(path).first;
+}
+
+QIODevice * ZipFile::openFileInArchive(const QString & path)
+{
+  QPair<QString, QString> spec = separatePath(path);
+  if(spec.first.isEmpty())
+    throw InternalError("For some reason believed that '%1' was in a ZIP archive").arg(path);
+
+  QSharedPointer<ZipFile> archive = openArchive(spec.first);
+  return archive->openFile(spec.second);
+}
+
+
 //////////////////////////////////////////////////////////////////////
 
 #include <commandlineparser.hh>
@@ -169,17 +208,17 @@ static void isZip(const QStringList & args)
 
 static CommandLineOption zc("--zip-check", &::isZip, 1, "test: is zip file");
 
-static void separateZip(const QStringList & args)
-{
-  const QString & fl = args.first();
-  QPair<QString, QString> sep = ZipFile::separatePath(fl);
-  QTextStream o(stdout);
-  o << "Path '" << fl << "' -> "
-    << sep.first << "##" << sep.second << endl;
-  ::exit(0);
-}
+// static void separateZip(const QStringList & args)
+// {
+//   const QString & fl = args.first();
+//   QPair<QString, QString> sep = ZipFile::separatePath(fl);
+//   QTextStream o(stdout);
+//   o << "Path '" << fl << "' -> "
+//     << sep.first << "##" << sep.second << endl;
+//   ::exit(0);
+// }
 
-static CommandLineOption zs("--zip-sep", &::separateZip, 1, "test: is zip file");
+// static CommandLineOption zs("--zip-sep", &::separateZip, 1, "test: is zip file");
 
 
 // static void readZip(const QStringList & args)

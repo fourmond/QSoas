@@ -22,6 +22,10 @@
 #include <utils.hh>
 #include <general-arguments.hh>
 
+#ifdef HAS_LIBZIP
+#include <zipfile.hh>
+#endif
+
 #include <QFile>
 
 File::File(const QString & fn, OpenModes m,
@@ -188,7 +192,19 @@ void File::open()
   // QTextStream o(stdout);
   // o << "Opening file: " << fileName << " with mode: "
   //   << m <<  " (internal mode: " << mode << ")" << endl;
-  std::unique_ptr<QFile> f(new QFile(actualName));
+  std::unique_ptr<QIODevice> f;
+  QString arch;
+#ifdef HAS_LIBZIP
+  // Transparent opening of zip files
+  if((mode & IOMask) == ReadOnlyMode) {
+    arch = ZipFile::archiveForFile(actualName);
+    if(! arch.isEmpty())
+      f.reset(ZipFile::openFileInArchive(actualName));
+  }
+#endif
+  if(! f)
+    f.reset(new QFile(actualName));
+
   if(!f->open(m)) {
     QString error = f->errorString();
     QString mdStr = (m & QIODevice::ReadWrite) == QIODevice::ReadOnly ?
@@ -199,7 +215,9 @@ void File::open()
   device = f.release();
   // Successful opening !
 
-  trackFile(info().absoluteFilePath(), mode);
+  trackFile(arch.isEmpty() ?
+            info().absoluteFilePath() :
+            QFileInfo(arch).absoluteFilePath(), mode);
 }
 
 void File::close()

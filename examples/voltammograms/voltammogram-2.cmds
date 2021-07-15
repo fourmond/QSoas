@@ -1,0 +1,16 @@
+# Two parameters:
+# - k0 (optional, =1)
+# - scan rate v (optional = 1)
+
+# Same as voltammogram.cmds, but this time using the
+# /voltammogram=true feature of kinetic fits
+
+define-kinetic-system-fit redox-couple.sys redox /redefine=true
+generate-dataset -0.5 0.5
+reverse
+# Two voltammograms
+i 1 0 1 0
+
+sim-redox /voltammogram=true /stepper=bsimp /override=k0=${1:-1};v=${2:-1} voltammogram.params 0
+
+

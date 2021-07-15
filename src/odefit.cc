@@ -35,6 +35,7 @@ void ODEFit::processOptions(const CommandOptions & opts, FitData * data) const
   updateFromOptions(opts, "with", lst);
 
   s->voltammogram = false;
+  updateFromOptions(opts, "voltammogram", s->voltammogram);
 
   s->hasOrigTime = false;
   updateFromOptions(opts, "choose-t0", s->hasOrigTime);
@@ -101,8 +102,18 @@ void ODEFit::updateParameters(FitData * data) const
 
   s->parametersCache.clear();
   QList<ParameterDefinition> & defs = s->parametersCache;
-  
-  
+
+  if(s->voltammogram) {
+    // add temperature and scan rate at the beginning
+    defs << ParameterDefinition("temperature", true)
+         << ParameterDefinition("v", true);
+    
+    // reset the indices
+    s->temperatureIndex = -1;
+    s->potentialIndex = -1;
+    s->faraIndex = -1;
+  }
+
   QStringList parameters = systemParameters(data);
   s->timeIndex= -1;
 
@@ -129,6 +140,22 @@ void ODEFit::updateParameters(FitData * data) const
     }
       
     if(s->timeDependentParameters.contains(name)) {
+      s->skippedIndices.insert(i);
+      continue;
+    }
+
+    if(s->voltammogram && name == "temperature") {
+      s->temperatureIndex = i;
+      s->skippedIndices.insert(i);
+      continue;
+    }
+    if(s->voltammogram && name == "e") {
+      s->potentialIndex = i;
+      s->skippedIndices.insert(i);
+      continue;
+    }
+    if(s->voltammogram && name == "fara") {
+      s->faraIndex = i;
       s->skippedIndices.insert(i);
       continue;
     }
@@ -185,11 +212,20 @@ void ODEFit::compute(const double * a, FitData * data,
 
   double sr = 0;
 
+  if(s->voltammogram) {
+    sr = a[1];
+  }
 
   setupCallback([this, a, s](double t, double * params) {
       if(s->timeIndex >= 0)
         params[s->timeIndex] = t;
       s->timeDependentParameters.computeValues(t, params, a + s->tdBase);
+
+      if(s->voltammogram && s->potentialIndex >= 0) {
+        params[s->potentialIndex] = s->lastPot + 
+          s->direction * (t - s->lastTime);
+      }
+      
     }, data);
 
   const Vector & xv = ds->x();
@@ -223,6 +259,13 @@ void ODEFit::compute(const double * a, FitData * data,
     // Here, we must be wary of the discontinuity points (ie those
     // of the time-evolving stuff)
 
+    if(s->voltammogram && i > 0) {
+      double pot = xv[i];
+      if((pot - s->lastPot) * s->direction < 0) // at change of direction
+        s->direction = -s->direction;
+      s->lastTime += (pot - s->lastPot) / s->direction;
+      s->lastPot = pot;
+    }
 
     double tg = (s->voltammogram ? s->lastTime : xv[i]);
     while(discontinuities.size() > 0 && 
@@ -289,6 +332,9 @@ ArgumentList ODEFit::fitHardOptions() const
                                     "Time dependent parameters",
                                     "Make certain parameters depend "
                                     "upon time")
+                 << new BoolArgument("voltammogram", 
+                                     "If on, x is not taken to be time, but "
+                                     "potential in a voltammetric experiment")
                  << new BoolArgument("choose-t0",
                                      "Choose initial time",
                                      "If on, one can choose the initial time")

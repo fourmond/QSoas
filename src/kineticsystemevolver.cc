@@ -373,6 +373,17 @@ protected:
     KineticSystemEvolver * evolver = getEvolver(data);
 
     evolver->setParameters(params + s->parametersBase, s->skippedIndices);
+
+    if(s->voltammogram) {
+      double temp = params[0];
+      if(s->temperatureIndex >= 0)
+        evolver->setParameter(s->temperatureIndex, temp);
+      if(s->faraIndex >= 0)
+        evolver->setParameter(s->faraIndex, 
+                              GSL_CONST_MKSA_FARADAY/ 
+                              (params[0] * GSL_CONST_MKSA_MOLAR_GAS));
+    }
+
     evolver->initialize(t0);
   };
 
@@ -479,6 +490,10 @@ public:
     const Vector & x = ds->x();
     const Vector & y = ds->y();
 
+    if(s->voltammogram) {
+      a[0] = soas().temperature();
+      a[1] = 0.02;
+    }
 
     int nb = system->speciesNumber();
     if(! system->reporterExpression) {

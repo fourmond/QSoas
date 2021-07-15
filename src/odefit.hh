@@ -82,7 +82,10 @@ protected:
     TimeDependentParameters timeDependentParameters;
 
 
+    /// Whether this is a voltammogram (i.e. the X axis needs to be
+    /// "unwrapped")
     bool voltammogram;
+    
     double lastTime;
     double lastPot;
     double direction;

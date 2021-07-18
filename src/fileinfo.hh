@@ -48,6 +48,10 @@ class FileInfo {
 
   /// Does the splitting of the names and also the stat.
   void doSplit() const;
+
+  FileInfo(const QString & archive, const QString & sub);
+
+  friend class File;
 public:
 
   FileInfo(const QString & file);
@@ -58,8 +62,13 @@ public:
   /// Returns the size of the file
   qint64 size() const;
 
-  /// Return true if the file exists
+  /// Return true if the target exists
   bool exists() const;
+
+  /// Return true if the target is a directory.
+  ///
+  /// @todo Think about what one can do with ZIP files
+  bool isDir() const;
 
   /// Returns the canonical file path, stripped of redundant path
   /// elements and symlinks.

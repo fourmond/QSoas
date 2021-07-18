@@ -191,6 +191,54 @@ QIODevice * ZipFile::openFileInArchive(const QString & path)
 }
 
 
+bool ZipFile::zipStat(const QString & arch, const QString & file,
+                      struct zip_stat * stat)
+{
+  QSharedPointer<ZipFile> zip = openArchive(arch);
+  // zip_stat_init(stat);
+  QTextStream o(stdout);
+  o << "Trying to stat: '" << file << "' in '" << arch << "'" << endl;
+  if(zip_stat(zip->zipFile, file.toUtf8(), ZIP_FL_ENC_GUESS, stat)) {
+    stat->valid = 0;
+    return false;
+  }
+  return true;
+}
+
+QStringList ZipFile::listDirectory(const QString & directory)
+{
+  openArchive();
+  if(! zipFile)
+    throw InternalError("Somehow not using an initialized ZIP file");
+  zip_int64_t nb = zip_get_num_entries(zipFile, 0);
+  if(nb < 0)
+    throw InternalError("Negative number of files in archive '%1'").
+      arg(zipPath);
+  QStringList rv;
+  for(zip_int64_t i = 0; i < nb; i++) {
+    const char * name = zip_get_name(zipFile, i, 0);
+    if(! name)
+      throw InternalError("Entry %1 has no file name in archive %2").
+        arg(i).arg(zipPath);
+    QString nm(name);
+    if(nm.endsWith("/"))
+      nm = nm.mid(0, nm.size()-1);
+    QFileInfo info(nm);
+    if(info.path() == directory)
+      rv << info.fileName();
+  }
+  return rv;
+}
+
+QStringList ZipFile::listDirectory(const QString & archive,
+                                   const QString & directory)
+{
+  QSharedPointer<ZipFile> zip = openArchive(archive);
+  return zip->listDirectory(directory);
+}
+
+
+
 //////////////////////////////////////////////////////////////////////
 
 #include <commandlineparser.hh>

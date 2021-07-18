@@ -38,16 +38,29 @@ FileInfo::FileInfo(const QString & file) :
 #endif
 }
 
+FileInfo::FileInfo(const QString & archive, const QString & sub) :
+  zipArchive(archive), subPath(sub)
+{
+  originalPath = archive + "/" + subPath;
+  info.setFile(originalPath);
+  stat.valid = 0;
+}
+
 void FileInfo::doSplit() const
 {
-  if(! subPath.isEmpty())
-    return;
-#ifdef HAS_LIBZIP
-  QPair<QString, QString> pair = ZipFile::separatePath(originalPath);
-  zipArchive = pair.first;
-  subPath = pair.second;
-#else
+#ifndef HAS_LIBZIP
   subPath = originalPath;
+#else
+  if(subPath.isEmpty()) {
+    QPair<QString, QString> pair = ZipFile::separatePath(originalPath);
+    zipArchive = pair.first;
+    subPath = pair.second;
+    stat.valid = 0;
+  }
+  if((! zipArchive.isEmpty()) && (stat.valid == 0)) {
+    subPath = QDir::cleanPath(subPath);
+    ZipFile::zipStat(zipArchive, subPath, &stat);
+  }
 #endif
 }
   
@@ -56,21 +69,50 @@ QDateTime FileInfo::lastModified() const
 #ifdef HAS_LIBZIP
   doSplit();
   if(! zipArchive.isEmpty()) {
-    throw NOT_IMPLEMENTED;
+    QDateTime dt;
+    if(stat.valid & ZIP_STAT_MTIME)
+      dt.setSecsSinceEpoch(stat.mtime);
+    return dt;
   }
 #endif
   return info.lastModified();
+}
+
+qint64 FileInfo::size() const
+{
+#ifdef HAS_LIBZIP
+  doSplit();
+  if(! zipArchive.isEmpty()) {
+    if(stat.valid & ZIP_STAT_SIZE)
+      return stat.size;
+    return -1;
+  }
+#endif
+  return info.size();
 }
 
 bool FileInfo::exists() const
 {
 #ifdef HAS_LIBZIP
   doSplit();
-  if(! zipArchive.isEmpty()) {
-    throw NOT_IMPLEMENTED;
-  }
+  if(! zipArchive.isEmpty())
+    return stat.valid;
 #endif
   return info.exists();
+}
+
+bool FileInfo::isDir() const
+{
+#ifdef HAS_LIBZIP
+  doSplit();
+  if(! zipArchive.isEmpty()) {
+    if(! (stat.valid & ZIP_STAT_NAME))
+      throw InternalError("Somehow could not get the name ?");
+    QString n(stat.name);
+    return n.endsWith("/");
+  }
+#endif
+  return info.isDir();
 }
 
 QString FileInfo::canonicalFilePath() const
@@ -78,7 +120,8 @@ QString FileInfo::canonicalFilePath() const
 #ifdef HAS_LIBZIP
   doSplit();
   if(! zipArchive.isEmpty()) {
-    throw NOT_IMPLEMENTED;
+    QFileInfo zi(zipArchive);
+    return zi.canonicalFilePath() + "/" + subPath;
   }
 #endif
   return info.canonicalFilePath();

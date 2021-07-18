@@ -317,6 +317,28 @@ QString File::checkOpen(const QString & fileName, const CommandOptions & opts,
 }
 
 
+QList<FileInfo> File::listDirectory(const QString & directory)
+{
+  QList<FileInfo> rv;
+#ifdef HAS_LIBZIP
+  QPair<QString, QString> pair = ZipFile::separatePath(directory);
+  if(!pair.first.isEmpty()) {
+    QStringList entries = ZipFile::listDirectory(pair.first, pair.second);
+    for(const QString & s : entries)
+      rv << FileInfo(pair.first, pair.second + "/" + s);
+    return rv;
+  }
+#endif
+
+  QDir dir(directory);
+  QStringList entries = dir.entryList();
+  for(const QString & s : entries)
+    rv << FileInfo(directory + "/" + s);
+  return rv;
+}
+
+
+
 //////////////////////////////////////////////////////////////////////
 #include <commandlineparser.hh>
 

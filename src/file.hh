@@ -194,6 +194,7 @@ public:
 
   Q_DECLARE_FLAGS(Options,Option);
 
+  /// Returns the arguments suitable for opening files
   static QList<Argument *> fileOptions(Options options);
 
   /// Convenience function to read a file in one go
@@ -217,6 +218,8 @@ public:
                            const CommandOptions & opts,
                            OpenModes mode = OpenModes(SimpleWriteMode)|PromptOverwrite);
 
+  /// Lists the contents of the given directory
+  static QList<FileInfo> listDirectory(const QString & directory);
 
 };
 

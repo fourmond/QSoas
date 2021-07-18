@@ -1,6 +1,6 @@
 /**
    \file zipfile.hh
-   Reading (and writing) of ZIP archives
+   Reading (and writing ?) of ZIP archives
    Copyright 2020, 2021 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
@@ -55,12 +55,17 @@ class ZipFile : public QSharedData {
   /// Returns the list of all the file names.
   QStringList fileNames();
 
+  /// Lists the contents of the given directory in the archive, not
+  /// including the files in the sub directories
+  QStringList listDirectory(const QString & directory);
+
   /// Opens the given file, and returns an appropriate QIODevice,
   /// which still must be opened.
   QIODevice * openFile(const QString & file);
 
 
   friend class FileInfo;
+  friend class File;
 
 private:
 
@@ -80,12 +85,15 @@ private:
   /// directory/archive.zip/archive_dir/file.dat
   static QPair<QString, QString> separatePath(const QString & path);
 
+  
+  /// Returns the information about the file in the archive.
+  static bool zipStat(const QString & arch, const QString & file,
+                      struct zip_stat * stat);
+
+
 public:
 
   ~ZipFile();
-
-  /// Lists a directory within the 
-  static QStringList listZipDirectory(const QString & path);
 
   /// Returns the archive path for the given path, or an empty string
   /// if this is not within an archive.
@@ -97,7 +105,11 @@ public:
 
   /// Returns true if the given file exists and is a ZIP file.
   static bool isZIP(const QString & path);
-  
+
+  /// Lists the files/directories contained in the archive/directory
+  static QStringList listDirectory(const QString & archive,
+                                   const QString & directory);
+
 };
 
 

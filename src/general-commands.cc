@@ -1348,18 +1348,17 @@ void lsCommand(const QString &,
   QString d(".");
 
   updateFromOptions(opts, "directory", d);
-  QDir dir(d);
+  FileInfo info(d);
 
-  if(! dir.exists())
-    throw RuntimeError("No such directory: '%1'").arg(d);
+  // if(! info.exists())
+  //   throw RuntimeError("No such directory: '%1'").arg(d);
 
   Terminal::out << "Listing directory: " << d << endl;
 
   int length = 50;
 
-  QList<QFileInfo> entries = dir.entryInfoList(QDir::NoFilter,
-                                               QDir::Name|QDir::DirsFirst);
-  for(const QFileInfo & info : entries) {
+  QList<FileInfo> entries = File::listDirectory(d);
+  for(const FileInfo & info : entries) {
     QString n = info.fileName();
     if(info.isDir())
       n += "/";

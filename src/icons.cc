@@ -18,13 +18,14 @@
 
 #include <headers.hh>
 #include <icons.hh>
+#include <fileinfo.hh>
 
 #include <debug.hh>
 
 QIcon Icons::namedIcon(const QString & name)
 {
   QString path = ":/icons/" + name + ".svg";
-  QFileInfo info(path);
+  FileInfo info(path);
   if(! info.exists()) {
     Debug::debug() << "Asked for icon '" << name
                    << "', but " << path << " does not exist" << endl;

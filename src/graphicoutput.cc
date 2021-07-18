@@ -18,6 +18,7 @@
 
 #include <headers.hh>
 #include <graphicoutput.hh>
+#include <fileinfo.hh>
 
 
 #include <soas.hh>
@@ -99,7 +100,7 @@ void GraphicOutput::shipOut(CurveView * view)
   if(fileOutput.isEmpty())
     throw RuntimeError("Not implemented yet");
 
-  QFileInfo info(fileOutput);
+  FileInfo info(fileOutput);
   if(info.suffix() == "pdf") {
     makePDF(view);
   }

@@ -41,7 +41,8 @@ QString MetaDataFile::metaDataForFile(const QString & fileName)
 
 void MetaDataFile::read(bool silent)
 {
-  if(! QFile::exists(metaDataFileName))
+  FileInfo info(metaDataFileName);
+  if(! info.exists())
     return;                     // Exits silently upon missing file
   try {
     QString ver;
@@ -100,8 +101,7 @@ bool MetaDataFile::isMetaDataFile(const QString & fileName)
 
 QDateTime MetaDataFile::metaDataLastModified(const QString & fileName)
 {
-  /// @todo Switch to using a File-based class...
-  QFileInfo info(metaDataForFile(fileName));
+  FileInfo info(metaDataForFile(fileName));
   if(info.exists()) {
     return info.lastModified();
   }

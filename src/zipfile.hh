@@ -59,6 +59,9 @@ class ZipFile : public QSharedData {
   /// which still must be opened.
   QIODevice * openFile(const QString & file);
 
+
+  friend class FileInfo;
+
 private:
 
   /// Returns the ZipFile corresponding to the given path.

@@ -132,7 +132,7 @@ void File::preOpen()
   // QTextStream o(stdout);
   // o << "Preopen: " << mode << endl;
   if(mode & MkPath) {
-    QDir::current().mkpath(info().dir().path());
+    QDir::current().mkpath(info().path());
   }
   if((mode & IOMask) == RotateMode) {
     Utils::rotateFile(fileName, rotations);
@@ -270,9 +270,9 @@ QList<Argument *> File::fileOptions(Options options)
   return rv;
 }
 
-QFileInfo File::info() const
+FileInfo File::info() const
 {
-  return QFileInfo(fileName);
+  return FileInfo(fileName);
 }
 
 QByteArray File::readFile(const QString & fileName, bool text)

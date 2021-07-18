@@ -183,6 +183,8 @@ double KineticSystemEvolver::reporterValue(double t) const
 
 //////////////////////////////////////////////////////////////////////
 
+#include <fileinfo.hh>
+
 static ArgumentList 
 ksArgs (QList<Argument *>() 
         << new FileArgument("reaction-file", 
@@ -256,7 +258,7 @@ static void kineticSystemCommand(const QString &, QString file,
   QList<Vector> concentrations = evolver.steps(ds->x(), annotate);
   concentrations.insert(0, ds->x());
   DataSet * nds = new DataSet(concentrations);
-  nds->name = QString("ks-%1.dat").arg(QFileInfo(file).fileName());
+  nds->name = QString("ks-%1.dat").arg(FileInfo(file).fileName());
 
   Terminal::out << "Total number of function evaluations: " 
                 << evolver.evaluations << endl;

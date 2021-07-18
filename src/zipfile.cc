@@ -116,7 +116,7 @@ QSharedPointer<ZipFile> ZipFile::openArchive(const QString & path)
   if(! info.exists())
     throw RuntimeError("File '%1' does not exist").arg(path);
 
-  QString ap = info.absoluteFilePath();
+  QString ap = info.canonicalFilePath();
   if(! cachedArchives) {
     cachedArchives = new QCache<QString, QSharedPointer<ZipFile> >(20);
   }
@@ -137,7 +137,7 @@ bool ZipFile::isZIP(const QString & path)
   if(info.isDir())
     return false;
 
-  if(cachedArchives && cachedArchives->contains(info.absoluteFilePath()))
+  if(cachedArchives && cachedArchives->contains(info.canonicalFilePath()))
     return true;                // already cached
 
   int err = 0;

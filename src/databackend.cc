@@ -39,6 +39,7 @@
 #include <datastack.hh>
 
 #include <file.hh>
+#include <fileinfo.hh>
 
 #include <datastackhelper.hh>
 #include <datasetoptions.hh>
@@ -194,7 +195,7 @@ QList<DataSet *> DataBackend::loadFile(const QString & fileName,
   }
 
   /// @todo Switch to using a File-based class...
-  QFileInfo info = file.info();
+  FileInfo info = file.info();
   QString key = info.canonicalFilePath();
   QDateTime lastModified = info.lastModified();
   QDateTime metaModified = MetaDataFile::metaDataLastModified(fileName);
@@ -282,7 +283,7 @@ void DataBackend::loadFilesAndDisplay(bool update, QStringList files,
         Terminal::out << " -> got " << dss.size() << " datasets" << endl;
       else
         Terminal::out << " -> OK" << endl;
-      QFileInfo info(files[i]);
+      FileInfo info(files[i]);
       for(DataSet * s : dss) {
         s->setMetaData("original_file", info.canonicalFilePath());
         
@@ -351,7 +352,7 @@ void DataBackend::setMetaDataForFile(DataSet * dataset,
   QDir dir = QDir::current();
   QString fp = QDir::cleanPath(dir.absoluteFilePath(filename));
   dataset->setMetaData("original_file", fp);
-  QFileInfo info(fp);
+  FileInfo info(fp);
   dataset->setMetaData("file_date", info.lastModified());
 
   dataset->setMetaData("age", info.lastModified().

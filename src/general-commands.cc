@@ -533,7 +533,7 @@ static void runCommand(const QString &, QStringList args,
 
   QString nd;
   if(cd) {
-    QFileInfo info(cmdfile);
+    FileInfo info(cmdfile);
     nd = info.path();
     cmdfile = info.fileName();
   }
@@ -884,7 +884,7 @@ static void cdCommand(const QString &, QString dir,
     if(n.isEmpty())
       throw RuntimeError("Cannot cd relative to script dir outsite "
                          "of a script !");
-    dir = QFileInfo(n).dir().path();
+    dir = FileInfo(n).path();
   }
   else
     dir = Utils::expandTilde(dir);
@@ -896,19 +896,6 @@ static void cdCommand(const QString &, QString dir,
       arg(dir);
   previousDirectories.insert(0,prev);
   soas().mainWin().updateWindowName();
-
-
-  // DO NOT CHANGE THE OUTPUT FILE !
-  
-  // // Change the output file, if it is opened already
-  // if(OutFile::out.isOpened()) {
-  //   QFileInfo inf(OutFile::out.fileName());
-  //   QString f = inf.fileName();
-  //   // Relative to current dir.
-  //   OutFile::out.setFileName(f);
-  //   Terminal::out << "Closing the previous output file at: '" << 
-  //     OutFile::out.filePath() << "'" << endl;
-  // }
 
   Terminal::out << "Current directory now is: " << QDir::currentPath() 
                 << endl;

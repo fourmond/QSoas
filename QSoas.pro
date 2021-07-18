@@ -551,8 +551,8 @@ SOURCES += src/helpbrowser.cc
 
 
 # These are for JSON meta-data files
-HEADERS += src/file.hh
-SOURCES += src/file.cc
+HEADERS += src/file.hh src/fileinfo.hh
+SOURCES += src/file.cc src/fileinfo.cc
 
 ######################################################################
 # Sources for the parameter space explorers

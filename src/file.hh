@@ -22,6 +22,7 @@
 #define __FILE_HH
 
 #include <argumentmarshaller.hh>
+#include <fileinfo.hh>
 
 class Argument;
 
@@ -175,10 +176,10 @@ public:
   /// Returns the underlying device. Never NULL.
   QIODevice * ioDevice();
 
-  /// Return a QFileInfo to get information about the file.  It does
+  /// Return a FileInfo to get information about the file.  It does
   /// not require that the file is open, and will not open a yet
   /// unopened file.
-  QFileInfo info() const;
+  FileInfo info() const;
 
   /// This allows the use of a File where a QIODevice would
   /// do. Automatically calls open().

@@ -1305,7 +1305,7 @@ static void runForTrajectoriesCommand(const QString &, QString cmdfile,
 
   QString nd;
   if(cd) {
-    QFileInfo info(cmdfile);
+    FileInfo info(cmdfile);
     nd = info.path();
     cmdfile = info.fileName();
   }

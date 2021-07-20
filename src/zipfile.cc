@@ -196,9 +196,15 @@ bool ZipFile::zipStat(const QString & arch, const QString & file,
 {
   QSharedPointer<ZipFile> zip = openArchive(arch);
   // zip_stat_init(stat);
-  QTextStream o(stdout);
-  o << "Trying to stat: '" << file << "' in '" << arch << "'" << endl;
+  // QTextStream o(stdout);
+  // o << "Trying to stat: '" << file << "' in '" << arch << "'" << endl;
   if(zip_stat(zip->zipFile, file.toUtf8(), ZIP_FL_ENC_GUESS, stat)) {
+    // Trying a directory
+    if(! file.endsWith("/")) {
+      QString fl2 = file + "/";
+      if(! zip_stat(zip->zipFile, fl2.toUtf8(), ZIP_FL_ENC_GUESS, stat))
+        return true;
+    }
     stat->valid = 0;
     return false;
   }

@@ -43,7 +43,9 @@ FileInfo::FileInfo(const QString & archive, const QString & sub) :
 {
   originalPath = archive + "/" + subPath;
   info.setFile(originalPath);
+#ifdef HAS_LIBZIP
   stat.valid = 0;
+#endif
 }
 
 void FileInfo::doSplit() const

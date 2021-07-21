@@ -243,6 +243,10 @@ QStringList ZipFile::listDirectory(const QString & archive,
   return zip->listDirectory(directory);
 }
 
+QString ZipFile::libzipVersion()
+{
+  return QString(zip_libzip_version());
+}
 
 
 //////////////////////////////////////////////////////////////////////

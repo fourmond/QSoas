@@ -1191,15 +1191,46 @@ static QString join(const QVariant& lst, const QString & jn = ", ")
   return Utils::joinSortedList(l, jn);
 }
 
+#ifdef HAS_LIBZIP
+#include <zipfile.hh>
+#endif
+
 void versionCommand(const QString &, const CommandOptions & opts)
 {
-  Terminal::out << Soas::versionString() << endl;
-  Debug::debug() << Soas::versionString() << endl;
-
   bool specs = false;
   updateFromOptions(opts, "show-features", specs);
   bool dump = false;
   updateFromOptions(opts, "dump-sysinfo", dump);
+
+
+  if(dump) {
+    // Writes information to standard output
+    QString str;
+    QTextStream o(&str);
+    o  << Soas::versionString()
+       << "\n * application dir: "
+       << QCoreApplication::applicationDirPath()
+       << "\n * application path: "
+       << QCoreApplication::applicationFilePath()
+       << "\n * library paths: ";
+    for(const QString & p: QCoreApplication::libraryPaths())
+      o << "\n    - " << p;
+    o << "\n * documentation file: " << HelpBrowser::collectionFile()
+      << endl;
+#ifdef HAS_LIBZIP
+    o << "Built with libzip, runtime version: " << ZipFile::libzipVersion()
+      << "\n";
+#else
+    o << "Not using libzip\n";
+#endif
+    QTextStream os(stdout);
+    os << str << flush;
+    Terminal::out << str << flush;
+    return;
+  }
+
+  Terminal::out << Soas::versionString() << endl;
+  Debug::debug() << Soas::versionString() << endl;
 
   /// Return somewhere the specs as a hash ? A Ruby-available hash, heh ?
   if(specs) {
@@ -1236,30 +1267,6 @@ void versionCommand(const QString &, const CommandOptions & opts)
       << "Constants: "
       << join(info["constants"])
       << endl;
-  }
-  if(dump) {
-    // Writes information to standard output
-    QTextStream o(stdout);
-    o  << Soas::versionString()
-       << "\n * application dir: "
-       << QCoreApplication::applicationDirPath()
-       << "\n * application path: "
-       << QCoreApplication::applicationFilePath()
-       << "\n * library paths: ";
-    for(const QString & p: QCoreApplication::libraryPaths())
-      o << "\n    - " << p;
-    o << "\n * documentation file: " << HelpBrowser::collectionFile()
-      << endl;
-    Terminal::out << " * application dir: "
-                  << QCoreApplication::applicationDirPath()
-                  << "\n * application path: "
-                  << QCoreApplication::applicationFilePath()
-                  << "\n * library paths: ";
-    for(const QString & p: QCoreApplication::libraryPaths())
-      Terminal::out << "\n    - " << p;
-    Terminal::out << "\n * documentation file: "
-                  << HelpBrowser::collectionFile()
-                  << endl;
   }
 }
 

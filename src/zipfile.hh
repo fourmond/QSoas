@@ -110,6 +110,9 @@ public:
   static QStringList listDirectory(const QString & archive,
                                    const QString & directory);
 
+  /// Returns the run-time version of libzip
+  static QString libzipVersion();
+
 };
 
 

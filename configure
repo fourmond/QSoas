@@ -25,7 +25,11 @@ fi
 if [ "$MRUBY_DIR" ]; then
     extra="$extra MRUBY_DIR=$MRUBY_DIR"
 fi
-   
+
+# # Look for the libzip in the port environment:
+# if [ -r /opt/local/include/zip.h ]; then
+#     extra="$extra ZIP_DIR=/opt/local"
+# fi    
 
 $QMAKE $extra $v $univ
 mkdir -p snt

@@ -576,7 +576,13 @@ unix|macx {
 
 ######################################################################
 # Detection and handling of libzip
-exists(/usr/include/zip.h) {
+
+!isEmpty(ZIP_DIR) {
+  INCLUDEPATH += $${ZIP_DIR}/include
+}
+
+
+exists($${ZIP_DIR}/include/zip.h)|exists(/usr/include/zip.h)|exists(/opt/local/include/zip.h) {
   DEFINES += HAS_LIBZIP
   LIBS += -lzip
   message("Found support for ZIP archives read/write")

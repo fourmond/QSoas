@@ -28,11 +28,13 @@
 
 #include <filepromptwidget.hh>
 
+#include <file.hh>
+
 /// A utility function for a clean file completion.
 static QStringList proposeFileCompletion(const QString & str, 
                                          bool isDir = false)
 {
-  QStringList candidates = Utils::glob(str + "*", true, isDir);
+  QStringList candidates = File::glob(str + "*", true, isDir);
   for(int i = 0; i < candidates.size(); i++)
     candidates[i] = QDir::cleanPath(candidates[i]);
   if(candidates.size() == 1) {
@@ -168,7 +170,7 @@ ArgumentMarshaller * SeveralFilesArgument::fromString(const QString & str) const
   
   QStringList rv;
   if(expandGlobs) {
-    rv = Utils::glob(str, false);
+    rv = File::glob(str, false);
     for(int i = 0; i < rv.size(); i++)
       rv[i] = QDir::cleanPath(rv[i]);
   }

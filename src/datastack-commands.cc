@@ -699,7 +699,7 @@ static void browseFilesCommand(const QString &, const CommandOptions & opts)
   DatasetBrowser dlg;
   QString pattern = "*";
   updateFromOptions(opts, "pattern", pattern);
-  QStringList files = Utils::glob(pattern);
+  QStringList files = File::glob(pattern);
 
 
   

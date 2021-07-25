@@ -221,6 +221,30 @@ public:
   /// Lists the contents of the given directory
   static QList<FileInfo> listDirectory(const QString & directory);
 
+
+  /// Returns a list of file names 
+  ///
+  /// If \p trim is true, returns an empty list if no file matches,
+  /// else returns the pattern.
+  ///
+  /// If @p isDir is true, only returns directories
+  ///
+  /// @todo Support selecting only files, hiding hidden files, and so
+  /// on...
+  ///
+  /// @todo Support */ as a glob (not currently supported). That one
+  /// may come in nicely as a side effect of the above transformation.
+  static QStringList glob(const QString & pattern, 
+                          bool trim = true, bool isDir = false);
+
+private:
+  /// Helper for the glob function.
+  ///
+  /// @a patters is the patterns, one by one,
+  /// @a base is the base directory
+  static QStringList globHelper(const QStringList & patterns,
+                                const QString & base,
+                                bool isDir = false);
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(File::OpenModes)

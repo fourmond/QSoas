@@ -337,6 +337,107 @@ QList<FileInfo> File::listDirectory(const QString & directory)
   return rv;
 }
 
+QStringList File::globHelper(const QStringList & patterns,
+                             const QString & base,
+                             bool isDir)
+{
+  /// @todo Optimize when the first in the patterns is not a glob
+  if(patterns.size() == 0)
+    return QStringList();       // Nothing to do here
+  Qt::CaseSensitivity cs = Qt::CaseInsensitive;
+#ifdef Q_OS_LINUX
+  cs = Qt::CaseSensitive;
+#endif
+  bool sub = false;
+  // QTextStream o(stdout);
+  // o << "Glob: (" << base << "): " << patterns.join("/") << endl;
+  if(patterns.first() == "**")
+    sub = true;
+  QRegExp pat(patterns.first(), cs, QRegExp::Wildcard);
+
+  FileInfo bs(base);
+  QString bs2 = base;
+  if(!bs.isDir() && (bs.isDirLike()))
+    bs2 += "/.";
+
+  QList<FileInfo> cur = listDirectory(bs2);
+
+  QStringList lst;
+
+  for(const FileInfo & info : cur) {
+    // o << " -> " << info.fileName() << endl;
+    if(sub) {
+      if(info.fileName() == "." || info.fileName() == "..")
+        continue;
+      if(info.isDir()) {
+        // Here, we do NOT descend into ZIP files
+        QString nb = base + "/" + info.fileName();
+        lst += globHelper(patterns, nb, isDir);
+        lst += globHelper(patterns.mid(1), nb, isDir);
+      }
+      continue;
+    }
+    if(! pat.exactMatch(info.fileName()))
+      continue;
+
+    // o << "Found" << info.fileName() << endl;
+
+    if(patterns.size() > 1) {
+      if(info.isDirLike()) {
+        // o << " -> is dir like" << endl;
+        // here, we can descend into ZIP files
+        QString nb = base + "/" + info.fileName();
+        lst += globHelper(patterns.mid(1), nb, isDir);
+      }
+    }
+    else {
+      if((!isDir) || info.isDir()) {
+        lst << base + "/" + info.fileName();
+      }
+    }
+  }
+  return lst;
+}
+
+
+QStringList File::glob(const QString & pattern, 
+                       bool trim, bool isDir)
+{
+  QStringList pats = QDir::fromNativeSeparators(pattern).split("/");
+  bool rewriteHome = false;
+  QString hp;
+
+  /// Expand home directory
+  if(pats[0] == "~") {
+    pats[0] = QDir::homePath();
+    rewriteHome = true;
+    hp = pats[0] + "/";
+  }
+
+  QRegExp winDrive("^[a-z]:$");
+  QString base = ".";
+  if(pats[0].isEmpty()) {
+    base = "/";
+    pats.takeFirst();
+  }
+  else if(winDrive.indexIn(pats[0]) == 0) {
+    base = pats[0] + "/";
+    pats.takeFirst();
+  }
+
+  QStringList lst = globHelper(pats, base, isDir);
+
+  if(lst.isEmpty() && ! trim)
+    lst << pattern;
+
+  // Sounds a little hackish, but should work anyway
+  if(rewriteHome) {
+    QRegExp rp("^" + QRegExp::escape(hp));
+    lst.replaceInStrings(rp, "~/");
+  }
+
+  return lst;
+}
 
 
 //////////////////////////////////////////////////////////////////////

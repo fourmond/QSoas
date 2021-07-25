@@ -70,6 +70,11 @@ public:
   /// @todo Think about what one can do with ZIP files
   bool isDir() const;
 
+
+  /// Is either a directory or a ZIP archive. Can be looked into for
+  /// finding files but not cd'ed into.
+  bool isDirLike() const;
+
   /// Returns the canonical file path, stripped of redundant path
   /// elements and symlinks.
   QString canonicalFilePath() const;

@@ -117,6 +117,17 @@ bool FileInfo::isDir() const
   return info.isDir();
 }
 
+bool FileInfo::isDirLike() const
+{
+  if(isDir())
+    return true;
+#ifdef HAS_LIBZIP
+  if(ZipFile::isZIP(originalPath))
+    return true;
+#endif
+  return false;
+}
+
 QString FileInfo::canonicalFilePath() const
 {
 #ifdef HAS_LIBZIP

@@ -56,7 +56,7 @@ static QStringList dirGlob(QString directory, QString str,
   return rets;
 }
 
-QStringList Utils::glob(const QString & pattern, bool trim, bool isDir)
+/*QStringList Utils::glob(const QString & pattern, bool trim, bool isDir)
 {
   
   QStringList pats = QDir::fromNativeSeparators(pattern).split("/");
@@ -101,7 +101,7 @@ QStringList Utils::glob(const QString & pattern, bool trim, bool isDir)
   }
 
   return lst;
-}
+  }*/
 
 
 QString Utils::getWritablePath(const QString & file)

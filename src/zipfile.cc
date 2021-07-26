@@ -24,6 +24,8 @@
 ZipFile::ZipFile(const QString & file) :
   zipFile(NULL), zipPath(file)
 {
+  QTextStream o(stdout);
+  o << "Creating zip: " << zipPath << " -> " << this << endl;
 }
 
 ZipFile::~ZipFile()
@@ -31,6 +33,8 @@ ZipFile::~ZipFile()
   if(zipFile)
     zip_discard(zipFile);
   zipFile = NULL;
+  QTextStream o(stdout);
+  o << "Destroying zip: " << zipPath << " -> " << this << endl;
 }
 
 void ZipFile::openArchive()
@@ -74,9 +78,10 @@ void ZipFile::throwError()
 /// A QIODevice subclass for reading the contents of an archive
 class ZipIO : public QIODevice {
   zip_file_t * file;
-  QSharedPointer<ZipFile> zip;
+  QExplicitlySharedDataPointer<ZipFile> zip;
 public:
-  ZipIO(ZipFile * z, zip_file_t * fl) : file(fl), zip(z) {
+  ZipIO(ZipFile * z,
+        zip_file_t * fl) : file(fl), zip(z) {
     
   };
 
@@ -108,9 +113,9 @@ QIODevice * ZipFile::openFile(const QString & file)
   return new ZipIO(this, fl);
 }
 
-QCache<QString, QSharedPointer<ZipFile> > * ZipFile::cachedArchives = NULL;
+QCache<QString, QExplicitlySharedDataPointer<ZipFile> > * ZipFile::cachedArchives = NULL;
 
-QSharedPointer<ZipFile> ZipFile::openArchive(const QString & path)
+QExplicitlySharedDataPointer<ZipFile> ZipFile::openArchive(const QString & path)
 {
   QFileInfo info(path);
   if(! info.exists())
@@ -118,12 +123,12 @@ QSharedPointer<ZipFile> ZipFile::openArchive(const QString & path)
 
   QString ap = info.canonicalFilePath();
   if(! cachedArchives) {
-    cachedArchives = new QCache<QString, QSharedPointer<ZipFile> >(20);
+    cachedArchives = new QCache<QString, QExplicitlySharedDataPointer<ZipFile> >(20);
   }
   if(! cachedArchives->contains(ap)) {
     std::unique_ptr<ZipFile> fl(new ZipFile(ap));
     fl->openArchive();
-    cachedArchives->insert(ap, new QSharedPointer<ZipFile>(fl.release()));
+    cachedArchives->insert(ap, new QExplicitlySharedDataPointer<ZipFile>(fl.release()));
   }
   return *(*cachedArchives)[ap];
 }
@@ -186,7 +191,7 @@ QIODevice * ZipFile::openFileInArchive(const QString & path)
   if(spec.first.isEmpty())
     throw InternalError("For some reason believed that '%1' was in a ZIP archive").arg(path);
 
-  QSharedPointer<ZipFile> archive = openArchive(spec.first);
+  QExplicitlySharedDataPointer<ZipFile> archive = openArchive(spec.first);
   return archive->openFile(spec.second);
 }
 
@@ -194,7 +199,7 @@ QIODevice * ZipFile::openFileInArchive(const QString & path)
 bool ZipFile::zipStat(const QString & arch, const QString & file,
                       struct zip_stat * stat)
 {
-  QSharedPointer<ZipFile> zip = openArchive(arch);
+  QExplicitlySharedDataPointer<ZipFile> zip = openArchive(arch);
   // zip_stat_init(stat);
   // QTextStream o(stdout);
   // o << "Trying to stat: '" << file << "' in '" << arch << "'" << endl;
@@ -221,6 +226,7 @@ QStringList ZipFile::listDirectory(const QString & directory)
     throw InternalError("Negative number of files in archive '%1'").
       arg(zipPath);
   QStringList rv;
+  silentDirectories.clear();
   for(zip_int64_t i = 0; i < nb; i++) {
     const char * name = zip_get_name(zipFile, i, 0);
     if(! name)
@@ -232,6 +238,22 @@ QStringList ZipFile::listDirectory(const QString & directory)
     QFileInfo info(nm);
     if(info.path() == directory)
       rv << info.fileName();
+
+    // Add parents
+    QString dir = info.path();
+    while(true) {
+      if(silentDirectories.contains(dir))
+        break;
+      silentDirectories.insert(dir);
+      info.setFile(dir);
+      dir = info.path();
+      if(dir == directory)
+        rv << info.filePath();
+      if(dir.isEmpty())
+        break;
+      if(dir == ".")
+        break;
+    }
   }
   return rv;
 }
@@ -239,7 +261,7 @@ QStringList ZipFile::listDirectory(const QString & directory)
 QStringList ZipFile::listDirectory(const QString & archive,
                                    const QString & directory)
 {
-  QSharedPointer<ZipFile> zip = openArchive(archive);
+  QExplicitlySharedDataPointer<ZipFile> zip = openArchive(archive);
   return zip->listDirectory(directory);
 }
 

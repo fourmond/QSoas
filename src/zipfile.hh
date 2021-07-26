@@ -41,6 +41,10 @@ class ZipFile : public QSharedData {
   /// The path of the ZIP file
   QString zipPath;
 
+  /// The list of "silent" directories, i.e. directories that have no
+  /// "stat".
+  QSet<QString> silentDirectories;
+
   /// Opens the archive when it is not open. Or fail.
   void openArchive();
 
@@ -49,8 +53,10 @@ class ZipFile : public QSharedData {
 
   ZipFile(const QString & path);
 
+  ZipFile(const ZipFile &) = delete;
+
   /// A cache "absolute zip file path -> ZipFile"
-  static QCache<QString, QSharedPointer<ZipFile> > * cachedArchives;
+  static QCache<QString, QExplicitlySharedDataPointer<ZipFile> > * cachedArchives;
 
   /// Returns the list of all the file names.
   QStringList fileNames();
@@ -72,7 +78,7 @@ private:
   /// Returns the ZipFile corresponding to the given path.
   /// (it is internally converted into an absolute file path);
   /// If @a silent is true, then no exception is raised upon failure.
-  static QSharedPointer<ZipFile> openArchive(const QString & path);
+  static QExplicitlySharedDataPointer<ZipFile> openArchive(const QString & path);
 
 
 

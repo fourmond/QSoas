@@ -108,8 +108,13 @@ bool FileInfo::isDir() const
 #ifdef HAS_LIBZIP
   doSplit();
   if(! zipArchive.isEmpty()) {
-    if(! (stat.valid & ZIP_STAT_NAME))
+    if(! (stat.valid & ZIP_STAT_NAME)) {
+      QExplicitlySharedDataPointer<ZipFile> arch =
+        ZipFile::openArchive(zipArchive);
+      if(arch->silentDirectories.contains(subPath))
+        return true;            // Silent directory
       throw InternalError("Somehow could not get the name ?");
+    }
     QString n(stat.name);
     return n.endsWith("/");
   }
@@ -130,6 +135,8 @@ bool FileInfo::isDirLike() const
 
 QString FileInfo::canonicalFilePath() const
 {
+  QTextStream o(stdout);
+  o << "Canonical path for: '" << originalPath << "'" << endl;
 #ifdef HAS_LIBZIP
   doSplit();
   if(! zipArchive.isEmpty()) {

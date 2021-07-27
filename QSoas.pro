@@ -577,18 +577,15 @@ unix|macx {
 ######################################################################
 # Detection and handling of libzip
 
-!isEmpty(ZIP_DIR) {
-  INCLUDEPATH += $${ZIP_DIR}/include
-}
-
-
-exists($${ZIP_DIR}/include/zip.h)|exists(/usr/include/zip.h)|exists(/opt/local/include/zip.h) {
+exists(/usr/include/zip.h)|exists(/opt/local/include/zip.h) {
   DEFINES += HAS_LIBZIP
   LIBS += -lzip
   message("Found support for ZIP archives read/write")
   HEADERS += src/zipfile.hh
   SOURCES += src/zipfile.cc
 }
+
+
 
 ######################################################################
 # link with the converted ODRPACK library

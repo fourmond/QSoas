@@ -24,8 +24,8 @@
 ZipFile::ZipFile(const QString & file) :
   zipFile(NULL), zipPath(file)
 {
-  QTextStream o(stdout);
-  o << "Creating zip: " << zipPath << " -> " << this << endl;
+  // QTextStream o(stdout);
+  // o << "Creating zip: " << zipPath << " -> " << this << endl;
 }
 
 ZipFile::~ZipFile()
@@ -33,8 +33,8 @@ ZipFile::~ZipFile()
   if(zipFile)
     zip_discard(zipFile);
   zipFile = NULL;
-  QTextStream o(stdout);
-  o << "Destroying zip: " << zipPath << " -> " << this << endl;
+  // QTextStream o(stdout);
+  // o << "Destroying zip: " << zipPath << " -> " << this << endl;
 }
 
 void ZipFile::openArchive()

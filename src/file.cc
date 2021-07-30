@@ -366,6 +366,8 @@ QStringList File::globHelper(const QStringList & patterns,
 
   for(const FileInfo & info : cur) {
     // o << " -> " << info.fileName() << endl;
+    if(info.fileName() == "." || info.fileName() == "..")
+      continue;
     if(sub) {
       if(info.fileName() == "." || info.fileName() == "..")
         continue;

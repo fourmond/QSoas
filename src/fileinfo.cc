@@ -135,8 +135,8 @@ bool FileInfo::isDirLike() const
 
 QString FileInfo::canonicalFilePath() const
 {
-  QTextStream o(stdout);
-  o << "Canonical path for: '" << originalPath << "'" << endl;
+  // QTextStream o(stdout);
+  // o << "Canonical path for: '" << originalPath << "'" << endl;
 #ifdef HAS_LIBZIP
   doSplit();
   if(! zipArchive.isEmpty()) {

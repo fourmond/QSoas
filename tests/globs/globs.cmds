@@ -2,9 +2,20 @@
 generate-dataset /samples=5 -1 1 number+3 /number=6 /flags=base
 save-datasets flagged:base /expression='"dat/tst1-#{$meta["generated-number"]}.dat"' /mkpath=true /overwrite=true
 
+generate-dataset /samples=5 -1 1 number-10 /number=7 /flags=base
+save-datasets flagged:base /expression='"tst1-#{$meta["generated-number"]}.dat"' /mkpath=true /overwrite=true
+
 clear-stack
 
 l */t*-[34].dat
 assert $stats.y_max-7 0
 drop
 assert $stats.y_max-6 0
+
+# Here, we check that we can't load the tst..5 in the current directory.
+l */t*-[6].dat
+assert $stats.y_max-6 0
+
+l t*-[6].dat
+assert $stats.y_max+4 0
+

@@ -1415,6 +1415,7 @@ static void handleMissingDS(QList<const DataSet *> * lst)
 static void subCommand(const QString &, QList<const DataSet *> a,
                        const CommandOptions & opts)
 {
+  DataStackHelper pusher(opts);
   DataSet::BinaryOperationMode mode = DataSet::ClosestX;
   updateFromOptions(opts, "mode", mode);
   bool useSteps = false;
@@ -1428,7 +1429,7 @@ static void subCommand(const QString &, QList<const DataSet *> a,
     Terminal::out << QObject::tr("Subtracting dataset '%1' from dataset '%2'").
       arg(b->name).arg(ds->name) 
                   << endl;
-    soas().pushDataSet(ds->subtract(b, mode, useSteps));
+    pusher << ds->subtract(b, mode, useSteps);
   }
 }
 
@@ -1457,10 +1458,27 @@ operationOpts(QList<Argument *>()
                                              "Operation mode",
                                              "Whether operations try to match x "
                                              "values or indices")
+              
               << new BoolArgument("use-segments", 
                                   "Use segments ?",
                                   "If on, operations are performed "
                                   "segment-by-segment"));
+
+
+static ArgumentList
+subDivOpts(QList<Argument *>()
+              << new TemplateChoiceArgument
+              <DataSet::BinaryOperationMode>(modes,
+                                             "mode", 
+                                             "Operation mode",
+                                             "Whether operations try to match x "
+                                             "values or indices")
+              
+              << new BoolArgument("use-segments", 
+                                  "Use segments ?",
+                                  "If on, operations are performed "
+                                  "segment-by-segment")
+           << DataStackHelper::helperOptions());
 
 
 static Command 
@@ -1468,7 +1486,7 @@ sub("subtract", // command name
     effector(subCommand), // action
     "mbuf",  // group name
     &operationArgs, // arguments
-    &operationOpts, // options
+    &subDivOpts, // options
     "Subtract",
     "Subtract one dataset from others",
     "S");
@@ -1480,6 +1498,7 @@ sub("subtract", // command name
 static void divCommand(const QString &, QList<const DataSet *> a,
                        const CommandOptions & opts)
 {
+  DataStackHelper pusher(opts);
   DataSet::BinaryOperationMode mode = DataSet::ClosestX;
   updateFromOptions(opts, "mode", mode);
   bool useSteps = false;
@@ -1493,7 +1512,7 @@ static void divCommand(const QString &, QList<const DataSet *> a,
     Terminal::out << QString("Dividing dataset '%2' by dataset '%1'").
       arg(b->name).arg(ds->name) 
                   << endl;
-    soas().pushDataSet(ds->divide(b, mode, useSteps));
+    pusher << ds->divide(b, mode, useSteps);
   }
 }
 
@@ -1502,7 +1521,7 @@ divc("div", // command name
      effector(divCommand), // action
      "mbuf",  // group name
      &operationArgs, // arguments
-     &operationOpts, // options
+     &subDivOpts, // options
      "Divide");
 
 //////////////////////////////////////////////////////////////////////

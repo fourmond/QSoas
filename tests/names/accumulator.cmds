@@ -1,0 +1,44 @@
+# Not all strictly name-related, but...
+
+clear-stack
+generate-dataset 0 10
+eval a:2 b:3 /accumulate=*
+eval a:3 b:1 /accumulate=*
+pop
+
+assert $stats.x_max-3 0
+assert $stats.x_min-2 0
+assert $stats.y_max-3 0
+assert $stats.y_min-1 0
+
+assert '$col_names[0]=="a"'
+assert '$col_names[1]=="b"'
+
+stats /accumulate=y_min,x_max
+generate-dataset 0 2
+stats /accumulate=y_min,x_max
+
+pop
+
+assert '$col_names[0]=="y_min"'
+assert '$col_names[1]=="x_max"'
+
+
+clear-stack
+generate-dataset 0 10
+set-meta c 3
+stats /accumulate=y_min,x_max /meta=c
+
+generate-dataset 0 1
+set-meta c 4
+stats /accumulate=y_min,x_max /meta=c
+
+pop
+
+assert '$col_names[0]=="y_min"'
+assert '$col_names[1]=="x_max"'
+assert '$col_names[2]=="c"'
+assert $stats.columns-3 0
+
+assert $stats.y2_max-4 0
+

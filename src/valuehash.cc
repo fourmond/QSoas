@@ -587,13 +587,17 @@ void ValueHash::handleOutput(const DataSet * ds, const CommandOptions & opts,
   ValueHash meta;
   if(metaNames.size() > 0) {
     const ValueHash & origMeta = ds->getMetaData();
-    for(int i = 0; i < metaNames.size(); i++) {
-      const QString & n = metaNames[i];
-      if(origMeta.contains(n))
-        meta << n << origMeta[n];
-      else 
-        Terminal::out << "Requested meta '" << n 
-                      << "' but it is missing from buffer" << endl;
+    for(const QString & n : metaNames) {
+      if(n == "*")
+        meta.merge(origMeta);
+      else {
+        if(origMeta.contains(n))
+          meta << n << origMeta[n];
+        else 
+          Terminal::out << "Requested meta '" << n 
+                        << "' but it is missing from buffer '"
+                        << ds->name << "'" << endl;
+      }
     }
   }
   
@@ -621,7 +625,7 @@ void ValueHash::handleOutput(const DataSet * ds, const CommandOptions & opts,
   if(accumulate.size() > 0) {
     QStringList missing;
     ValueHash cnv = ov.copyFromSpec(accumulate, &missing);
-    cnv.merge(meta, true, true);
+    cnv.merge(meta, true);
 
     if(missing.size() > 0)
       Terminal::out << "Missing the values for keys '" << missing.join("', '")

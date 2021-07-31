@@ -399,11 +399,7 @@ void DataStack::accumulateValues(const ValueHash & data)
 {
   if(! accumulator)
     accumulator = new DataSet;
-  accumulator->setMetaData("keys", data.keyOrder);
-  if(accumulator->columnNames.size() == 0)
-    accumulator->columnNames << data.keyOrder;
-  else
-    accumulator->columnNames[0] = data.keyOrder;
+  // accumulator->setMetaData("keys", data.keyOrder);
   int nbr = accumulator->nbRows();
   for(int i = 0; i < data.keyOrder.size(); i++) {
     const QString & k = data.keyOrder[i];
@@ -415,8 +411,19 @@ void DataStack::accumulateValues(const ValueHash & data)
     }
     accumulator->column(i) << data[k].toDouble();
   }
-  Terminal::out << "Accumulator now has " << accumulator->nbRows()
-                << " rows" << endl;
+  if(accumulator->columnNames.size() == 0)
+    accumulator->columnNames << data.keyOrder;
+  else {
+    if(accumulator->columnNames[0] != data.keyOrder) {
+      Terminal::out << "Mismatch in the accumulator column names: "
+                    << accumulator->columnNames[0].join(", ") << " vs "
+                    << data.keyOrder.join(", ") << endl;
+      accumulator->columnNames[0] = data.keyOrder;
+    }
+  }
+  Terminal::out << "Accumulator has " << accumulator->nbRows()
+                << " rows and " << accumulator->nbColumns()
+                << " columns" << endl;
 }
 
 DataSet * DataStack::popAccumulator()

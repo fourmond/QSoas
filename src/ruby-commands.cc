@@ -766,6 +766,9 @@ static void eval(const QString &, QStringList codes,
   
   
   if(! buffers.dataSetsSpecified()) {
+    if(ValueHash::hasOutputOptions(opts))
+      Terminal::out << "Warning: cannot use output options without a dataset"
+                    << endl;
     for(const QString & code : codes) {
       value = mr->eval(code);
       Terminal::out << " => " << strValue(value) << endl;

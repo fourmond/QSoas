@@ -717,7 +717,7 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
       data.engineFactory = FitEngine::namedFactoryItem("odrpack");
     ws.prepareFit();
     ws.recomputeJacobian();
-    pusher.pushDataSet(ws.exportAsDataSet(true));
+    pusher.pushDataSet(ws.exportAsDataSet(true, true));
   }
   else if(what == "jacobian") {
     Terminal::out << "Computing and exporting the jacobian " << endl;

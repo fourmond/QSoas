@@ -581,8 +581,6 @@ DataSet * FitWorkspace::exportAsDataSet(bool errors, bool meta)
     vects << v;
   }
 
-  if(meta)
-    throw NOT_IMPLEMENTED;
 
   const gsl_matrix * cov = (errors ? fitData->covarianceMatrix() : NULL);
 
@@ -657,9 +655,30 @@ DataSet * FitWorkspace::exportAsDataSet(bool errors, bool meta)
 
   vects += extra_vals;
 
-  // QTextStream o(stdout);
-  // o << "Columns: " << colNames.join(", ")
-  //   << ": " << colNames.size() << "/" << vects.size() << endl;
+  if(meta) {
+    QStringList metaNames;
+    QSet<QString> names = fitData->datasets[0]->getMetaData().
+      extractDoubles().keys().toSet();
+    for(int i = 1; i < datasets; i++)
+      names.intersect(fitData->datasets[i]->getMetaData().extractDoubles().keys().toSet());
+    metaNames = names.toList();
+    qSort(metaNames);
+    extra_vals.clear();
+    for(const QString & n : metaNames) {
+      colNames << n;
+      extra_vals << Vector();
+    }
+
+    for(int i = 0; i < datasets; i++) {
+      QHash<QString, double> vls =
+        fitData->datasets[i]->getMetaData().extractDoubles();
+      for(int j = 0; j < metaNames.size(); j++)
+        extra_vals[j] << vls[metaNames[j]];
+    }
+
+    vects += extra_vals;
+  }
+
 
   DataSet * ds = new DataSet(vects);
   ds->name = "Parameters";

@@ -979,7 +979,7 @@ void FitDialog::pushParametersWithErrors()
   if(! checkEngineForExport())
     return;
   Terminal::out << "Pushing fit parameters to the stack"  << endl;
-  DataSet * ds = parameters.exportAsDataSet(true);
+  DataSet * ds = parameters.exportAsDataSet(true, true);
   soas().pushDataSet(ds);
 }
 

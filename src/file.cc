@@ -344,6 +344,21 @@ QStringList File::globHelper(const QStringList & patterns,
   /// @todo Optimize when the first in the patterns is not a glob
   if(patterns.size() == 0)
     return QStringList();       // Nothing to do here
+
+  const QString & p1 = patterns.first();
+
+  if(! (p1.contains('[') || p1.contains('?') || p1.contains('*'))) {
+    // Not a glob
+    QString tgt = base + "/" +  p1;
+    if(patterns.size() == 1)
+      return QStringList() << tgt;
+    FileInfo info(base + "/" +  p1);
+    if(info.isDirLike())
+      return globHelper(patterns.mid(1), tgt, isDir);
+    else
+      return QStringList();
+  }
+  
   Qt::CaseSensitivity cs = Qt::CaseInsensitive;
 #ifdef Q_OS_LINUX
   cs = Qt::CaseSensitive;
@@ -373,6 +388,7 @@ QStringList File::globHelper(const QStringList & patterns,
         continue;
       if(info.isDir()) {
         // Here, we do NOT descend into ZIP files
+        /// @todo use QDir::join or somethinf ?
         QString nb = base + "/" + info.fileName();
         lst += globHelper(patterns, nb, isDir);
         lst += globHelper(patterns.mid(1), nb, isDir);

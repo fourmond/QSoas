@@ -361,7 +361,7 @@ QString Expression::rubyIzeExpression(const QString & expr,
   QString ret = expr;
   for(int i = 0; i < oldVars.size(); i++) {
     variables[i] = rubyIzeName(oldVars[i]);
-    ret.replace(QRegExp("(^|\\W)" + QRegExp::escape(oldVars[i]) + "($|\\W)"), 
+    ret.replace(QRegExp("(^|[^\\w.\"'])" + QRegExp::escape(oldVars[i]) + "($|\\W)"), 
                 QString("\\1") + variables[i] + QString("\\2"));
   }
   return ret;

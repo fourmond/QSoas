@@ -1840,11 +1840,12 @@ mrb_value FitWorkspace::parametersToRuby(const Vector & values) const
   MRuby * mr = MRuby::ruby();
   mrb_value rv = mr->newArray();
   for(int i = 0; i < datasets; i++) {
-    mrb_value hsh = mr->newHash();
+    mrb_value hsh = mr->newFancyHash();
+
     for(int j = 0; j < names.size(); j++) {
       mrb_value k = mr->fromQString(names[j]);
       mrb_value v = mr->newFloat(values[i*names.size() + j]);
-      mr->hashSet(hsh, k, v);
+      mr->fancyHashSet(hsh, k, v);
     }
     mr->arrayPush(rv, hsh);
   }

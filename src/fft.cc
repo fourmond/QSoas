@@ -165,6 +165,16 @@ QList<Vector> FFT::transform() const
   return cols;
 }
 
+DataSet * FFT::transform(const DataSet * model) const
+{
+  DataSet * nds = model->derivedDataSet(transform(), "_fft.dat");
+  nds->columnNames.clear();
+  nds->rowNames.clear();
+  nds->columnNames <<
+    (QStringList() << "freq" << "abs" << "real" << "imag");
+  return nds;
+}
+
 void FFT::baseline(Vector * y) const
 {
   /// @todo will crash if used with a vector smaller ?

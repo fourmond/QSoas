@@ -27,6 +27,8 @@
 #include <gsl/gsl_fft_real.h>
 #include <gsl/gsl_fft_halfcomplex.h>
 
+class DataSet;
+
 /// This class provides fourier transforms facilities (including
 /// filtering)
 ///
@@ -124,6 +126,12 @@ public:
   /// Returns the transform, i.e. the frequency, the magnitude, the
   /// real, and the imaginary parts.
   QList<Vector> transform() const;
+
+  /// Returns the transform, copying the relevant information from
+  /// the @p model dataset.
+  ///
+  /// Returns a newly-allocated dataset.
+  DataSet * transform(const DataSet * model) const;
 
 
   /// @}

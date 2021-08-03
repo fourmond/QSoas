@@ -1542,7 +1542,7 @@ namespace __fft {
     case Abort:
       return;
     case QuitPushingTransform: {
-      soas().pushDataSet(ds->derivedDataSet(orig.transform(), "_fft.dat"));
+      soas().pushDataSet(orig.transform(ds));
       return;
     }
     case ToggleBaseline:
@@ -1754,9 +1754,7 @@ static void autoFilterFFTCommand(const QString &, const CommandOptions & opts)
   FFT orig(ds->x(), ds->y());
   orig.forward();
   if(transform) {
-    soas().
-      pushDataSet(ds->derivedDataSet(orig.transform(),
-                                     "_fft.dat"));
+    soas().pushDataSet(orig.transform(ds));
     return;
   }
   orig.applyGaussianFilter(cutoff);

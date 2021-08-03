@@ -607,9 +607,20 @@ static void pushParametersCommand(const QString & /*name*/,
                                   const CommandOptions & opts)
 {
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
-  DataSet * ds = ws->exportAsDataSet(true);
-  soas().pushDataSet(ds);
+  bool errors = true, meta = true;
+  updateFromOptions(opts, "errors", errors);
+  updateFromOptions(opts, "meta", meta);
+  soas().pushDataSet(ws->exportAsDataSet(errors, meta));
 }
+
+ArgumentList ppOpts(QList<Argument*>()
+                    << new BoolArgument("errors", 
+                                        "Export errors",
+                                        "whether to add columns with errors or not (default true)")
+                    << new BoolArgument("meta", 
+                                        "Export meta",
+                                        "whether to add columns with meta or nor(default: true)")
+                    );
 
 static Command 
 pp("push-parameters", // command name

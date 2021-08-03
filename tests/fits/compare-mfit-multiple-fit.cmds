@@ -1,6 +1,7 @@
 # In this test, we generate bufers that we fit separately or together
 # and check they are fitted exactly the same way.
 
+drop flagged:exps
 generate-buffer 0 10 a=(number+3)*0.2;a**(-2)*exp(-a*x)+a**(-3)+0.1*(1+0.05*number)*sin(i**3) /number=5 /flags=exps
 save-buffers /mode=rename /format=buffer-%d.dat flagged:exps
 

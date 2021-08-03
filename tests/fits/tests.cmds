@@ -33,3 +33,5 @@
 
 # Make sure problems with incorrect errors are detected
 @ check-wrong-errors.cmds
+
+@ push-parameters.cmds

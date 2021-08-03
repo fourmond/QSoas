@@ -1,0 +1,14 @@
+# In this test, we check that push-parameters functions correctly
+
+drop flagged:exps
+generate-dataset 0 10 a=(number+3)*0.2;a**(-2)*exp(-a*x)+a**(-3)+1e-8*(1+0.05*number)*sin(i**3) /number=9 /flags=exps
+save-datasets /mode=rename flagged:exps /expression='"buffer-#{$meta.generated_number}.dat"'
+
+mfit-exponential-decay flagged:exps /expert=true /script=push-parameters.fcmds
+
+# Now test the parameters
+tweak-columns /select=$c.generated_number,$c.A_1,$c.tau_1,$c.A_inf
+apply-formula a=(x+3)*0.2;y-=a**(-2);y2-=1/a;y3-=a**(-3)
+assert $stats.y_norm 1e-8
+assert $stats.y2_norm 5e-8
+assert $stats.y3_norm 5e-9

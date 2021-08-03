@@ -1,9 +1,9 @@
 # Create a series of datasets and save them
 generate-dataset /samples=5 -1 1 number+3 /number=6 /flags=base
-save-datasets flagged:base /expression='"dat/tst1-#{$meta["generated-number"]}.dat"' /mkpath=true /overwrite=true
+save-datasets flagged:base /expression='"dat/tst1-#{$meta["generated_number"]}.dat"' /mkpath=true /overwrite=true
 
 generate-dataset /samples=5 -1 1 number-10 /number=7 /flags=b2
-save-datasets flagged:b2 /expression='"tst1-#{$meta["generated-number"]}.dat"' /mkpath=true /overwrite=true
+save-datasets flagged:b2 /expression='"tst1-#{$meta["generated_number"]}.dat"' /mkpath=true /overwrite=true
 
 clear-stack
 

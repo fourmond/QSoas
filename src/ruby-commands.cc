@@ -937,6 +937,7 @@ static void linearLeastSquaresCommand(const QString &, QString formula,
     double chisq = 0;
     // Zero before ? Might have an influence...
     gsl_vector_set_zero(res);
+    gsl_matrix_set_zero(cov);
     int status = gsl_multifit_linear(m, ds->y(),
                                      res, cov, &chisq,
                                      ws);

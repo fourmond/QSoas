@@ -1,0 +1,12 @@
+clear-stack
+load test.zip/zip-1.dat
+apply-formula y-=x
+assert $stats.y_norm 0
+
+load test.zip/*3.dat
+apply-formula y-=x**3
+assert $stats.y_norm 0
+
+load test.zip/**/*2.dat
+apply-formula y-=x**2
+assert $stats.y_norm 0

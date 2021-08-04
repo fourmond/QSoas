@@ -1,0 +1,18 @@
+#! /bin/sh
+
+# This small script automates the creation of test data
+
+
+if [ -r tests/text-backends/generate-data.rb ]; then
+    cd tests/text-backends
+    echo "Generating the data for the reading tests"
+    ruby generate-data.rb
+    cd ../..
+fi
+
+if [ -r tests/globs/generate-zip.rb ]; then
+    cd tests/globs
+    echo "Generating the data for the ZIP reading tests"
+    ruby generate-zip.rb
+    cd ../..
+fi

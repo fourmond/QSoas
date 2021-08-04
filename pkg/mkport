@@ -24,17 +24,13 @@ echo " -> saving in $outdir"
 rm -rf $outdir/qsoas-$version
 
 # copying directory
-rsync -a --exclude build --exclude dox --exclude xml --exclude '*~' --exclude .git ./ $outdir/qsoas-$version
+rsync -a --exclude build --exclude dox --exclude xml --exclude '*~' --exclude '.git*' ./ $outdir/qsoas-$version
 
 rm -f $outdir/qsoas-$version/QSoas
 (
     cd $outdir/qsoas-$version/
-    if [ -r tests/text-backends/generate-data.rb ]; then
-        cd tests/text-backends
-        echo "Generating the data for the tests"
-        ruby generate-data.rb
-        cd ../..
-    fi
+
+    scripts/generate-test-data
 
     # Regenerate the icons if needed
     if [ -x generate-icons ]; then

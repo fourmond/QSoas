@@ -152,9 +152,14 @@ void DataSet::regenerateCache() const
   cache.minima.resize(size);
   cache.maxima.resize(size);
 
+  cache.finiteMinima.resize(size);
+  cache.finiteMaxima.resize(size);
+
   for(int i = 0; i < size; i++) {
     cache.minima[i] = columns[i].min();
     cache.maxima[i] = columns[i].max();
+    cache.finiteMinima[i] = columns[i].finiteMin();
+    cache.finiteMaxima[i] = columns[i].finiteMax();
   }
   
   cache.valid = true;
@@ -165,8 +170,8 @@ QRectF DataSet::boundingBox() const
   updateCache();
   QRectF r;
   if(columns.size() >= 2)
-    r.setCoords(cache.minima[0], cache.minima[1], 
-                cache.maxima[0], cache.maxima[1]);
+    r.setCoords(cache.finiteMinima[0], cache.finiteMinima[1], 
+                cache.finiteMaxima[0], cache.finiteMaxima[1]);
   return r;
 }
 

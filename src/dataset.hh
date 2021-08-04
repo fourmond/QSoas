@@ -90,7 +90,9 @@ class DataSet : public Guardable {
     Cache() : valid(false) {;};
 
     QVector<double> minima;
+    QVector<double> finiteMinima;
     QVector<double> maxima;
+    QVector<double> finiteMaxima;
   };
 
   /// An internal cache to speed up various computations.
@@ -453,6 +455,8 @@ public:
   /// @{
 
   /// Returns the XY bounding box of the DataSet.
+  ///
+  /// This command ignores any point that isn't finite.
   QRectF boundingBox() const;
 
 

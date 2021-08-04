@@ -116,9 +116,9 @@ public:
   /// weights a decreasing exponential of the residuals with unit the
   /// best residuals.
   ///
-  /// Returns a parameters,errors pair, and optionally the total
-  /// weight in @p weight.
-  QPair<Vector, Vector> summarizeTrajectories(double * weight = NULL) const;
+  /// Returns a list: parameters, stddev, average error, and
+  /// optionally the total weight in @p weight.
+  QList<Vector> summarizeTrajectories(double * weight = NULL) const;
   
 
 

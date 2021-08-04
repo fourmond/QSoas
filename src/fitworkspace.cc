@@ -569,21 +569,9 @@ DataSet * FitWorkspace::exportAsDataSet(bool errors, bool meta,
   retrieveParameters();
   double conf = fitData->confidenceLimitFactor(0.975);
   QStringList colNames;
-
   QList<Vector> vects;
-  if(hasPerpendicularCoordinates()) {
-    colNames << "Z";
-    vects << perpendicularCoordinates;
-  }
-  else {
-    colNames << "index";
-    Vector v;
-    for(int i = 0; i < datasets; i++)
-      v << i;
-    vects << v;
-  }
-
-
+  
+ 
   const gsl_matrix * cov = ((errors && ! eV) ? fitData->covarianceMatrix() : NULL);
 
   if(! pV)
@@ -652,9 +640,7 @@ DataSet * FitWorkspace::exportAsDataSet(bool errors, bool meta,
     extra_vals << Vector();
   }
 
-  QStringList rowNames;
   for(int i = 0; i < datasets; i++) {
-    rowNames << fitData->datasets[i]->name;
     int j = 0;
     for(const ExtraColumn & c : extras) {
       extra_vals[j] << c.func(i);
@@ -664,27 +650,19 @@ DataSet * FitWorkspace::exportAsDataSet(bool errors, bool meta,
 
   vects += extra_vals;
 
+  QStringList rowNames;
+  QStringList metaNames;
+
+  Vector xV;
+  QString xN;
+
+  prepareInfo(&rowNames, &xV, &xN, (meta ? &metaNames : NULL), &extra_vals);
+  vects.insert(0, xV);
+  colNames.insert(0, xN);
+
+
   if(meta) {
-    QStringList metaNames;
-    QSet<QString> names = fitData->datasets[0]->getMetaData().
-      extractDoubles().keys().toSet();
-    for(int i = 1; i < datasets; i++)
-      names.intersect(fitData->datasets[i]->getMetaData().extractDoubles().keys().toSet());
-    metaNames = names.toList();
-    qSort(metaNames);
-    extra_vals.clear();
-    for(const QString & n : metaNames) {
-      colNames << n;
-      extra_vals << Vector();
-    }
-
-    for(int i = 0; i < datasets; i++) {
-      QHash<QString, double> vls =
-        fitData->datasets[i]->getMetaData().extractDoubles();
-      for(int j = 0; j < metaNames.size(); j++)
-        extra_vals[j] << vls[metaNames[j]];
-    }
-
+    colNames += metaNames;
     vects += extra_vals;
   }
 
@@ -696,6 +674,50 @@ DataSet * FitWorkspace::exportAsDataSet(bool errors, bool meta,
 
   return ds;
   
+}
+
+void FitWorkspace::prepareInfo(QStringList * rowNames,
+                               Vector * xCoords,
+                               QString * xName,
+                               QStringList * metaNames,
+                               QList<Vector> * metaValues) const
+{
+  rowNames->clear();
+  for(int i = 0; i < datasets; i++)
+    *rowNames << fitData->datasets[i]->name;
+
+
+  if(hasPerpendicularCoordinates()) {
+    *xName = "Z";
+    *xCoords = perpendicularCoordinates;
+  }
+  else {
+    *xName = "index";
+    Vector v;
+    for(int i = 0; i < datasets; i++)
+      v << i;
+    * xCoords = v;
+  }
+
+
+  if(metaNames && metaValues) {
+    QSet<QString> names = fitData->datasets[0]->getMetaData().
+      extractDoubles().keys().toSet();
+    for(int i = 1; i < datasets; i++)
+      names.intersect(fitData->datasets[i]->getMetaData().extractDoubles().keys().toSet());
+    *metaNames = names.toList();
+    qSort(*metaNames);
+    metaValues->clear();
+    for(const QString & n : *metaNames)
+      *metaValues << Vector();
+
+    for(int i = 0; i < datasets; i++) {
+      QHash<QString, double> vls =
+        fitData->datasets[i]->getMetaData().extractDoubles();
+      for(int j = 0; j < metaNames->size(); j++)
+        (*metaValues)[j] << vls[(*metaNames)[j]];
+    }
+  }
 }
 
 

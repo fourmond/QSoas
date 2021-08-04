@@ -246,7 +246,7 @@ QSet<QString> FitTrajectories::allFlags() const
   return rv;
 }
 
-QPair<Vector, Vector> FitTrajectories::summarizeTrajectories(double * weight) const
+QList<Vector> FitTrajectories::summarizeTrajectories(double * weight) const
 {
   if(trajectories.size() == 0)
     throw RuntimeError("No trajectory yet");
@@ -254,6 +254,7 @@ QPair<Vector, Vector> FitTrajectories::summarizeTrajectories(double * weight) co
   const FitTrajectory & bst = best();
   double scale = bst.residuals;
   Vector params(bst.finalParameters.size(), 0);
+  Vector stddev = params;
   Vector errors = params;
 
   double wt = 0;
@@ -265,20 +266,29 @@ QPair<Vector, Vector> FitTrajectories::summarizeTrajectories(double * weight) co
     params += a;
     b *= b;
     b *= w;
-    errors += b;
+    stddev += b;
+
+    a = traj.parameterErrors;
+    a *= w;
+    errors += a;
+
     wt += w;
+
   }
 
   params /= wt;
   errors /= wt;
+  stddev /= wt;
   Vector tmp = params;
   tmp *= params;
-  errors -= tmp;
-  for(int i = 0; i < errors.size(); i++)
-    errors[i] = sqrt(errors[i]);
+  stddev -= tmp;
+  for(int i = 0; i < stddev.size(); i++)
+    stddev[i] = sqrt(stddev[i]);
   if(weight)
     *weight = wt;
-  return QPair<Vector, Vector>(params, errors);
+  QList<Vector> lst;
+  lst << params << errors << stddev;
+  return lst;
 }
 
 

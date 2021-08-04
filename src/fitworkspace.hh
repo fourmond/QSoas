@@ -400,11 +400,12 @@ public:
 
   QString fitName(bool includeOptions = true) const;
 
-  /// The name of the numbered parameter
+  /// The name of the numbered parameter. This does not consider the
+  /// dataset, the index must be lower than parametersPerDataset().
   QString parameterName(int idx) const;
 
-  /// The name of the parameter, when given an index in
-  /// saveParameterValues().
+  /// The full name of the parameter including the dataset
+  /// specification, when given an index in saveParameterValues().
   QString fullParameterName(int idx) const;
 
   /// The names of all parameters (for a single buffer)
@@ -494,9 +495,23 @@ public:
   ///
   /// The pointer parameters are used to plug different values of the
   /// parameters/errors.
+  ///
+  /// @todo In fact these parameters are not used -- remove ?
   DataSet * exportAsDataSet(bool errors = false, bool meta = false,
                             const double * paramValues = NULL,
                             const double * errorValues = NULL);
+
+  /// Prepares the additional info for export, which is:
+  /// @li the row names (in @p rowNames)
+  /// @li the X coordinates (in @p xCoords)
+  /// @li their names (in @p xName)
+  /// @li the names of meta (in @p metaNames)
+  /// @li the values of the meta (in @p metaValues)
+  ///
+  /// If any of the last two is NULL, then the meta are not prepared.
+  void prepareInfo(QStringList * rowNames, Vector * xCoords,
+                   QString * xName, QStringList * metaNames = NULL,
+                   QList<Vector> * metaValues = NULL) const;
 
 
   /// @name IO functions

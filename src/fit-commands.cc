@@ -1072,15 +1072,72 @@ static void summarizeTrajectoriesCommand(const QString & /*name*/,
 {
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
   double w = 0;
-  QPair<Vector, Vector> sum = ws->trajectories.summarizeTrajectories(&w);
+  QList<Vector> sum = ws->trajectories.summarizeTrajectories(&w);
 
-  Terminal::out << "Summarized " << ws->trajectories.size()
-                << " trajectories, total weight of "  << w
-                << "\nParameters summary:\n";
-  for(int i = 0; i < sum.first.size(); i++)
-    Terminal::out << " * " << ws->fullParameterName(i) << " = "
-                  << sum.first[i] << " +- " << sum.second[i] << endl;
+  QString operation = "show";
+  updateFromOptions(opts, "operation", operation);
+
+  if(operation == "show") {
+
+    Terminal::out << "Summarized " << ws->trajectories.size()
+                  << " trajectories, total weight of "  << w
+                  << "\nParameters summary:\n";
+    for(int i = 0; i < sum.first().size(); i++)
+      Terminal::out << " * " << ws->fullParameterName(i)
+                    << " =\t" << sum[0][i] << "\t+- " << sum[1][i]
+                    << "\tstddev = " << sum[2][i] << endl;
+  }
+  else if(operation == "push") {
+    QString xN;
+    Vector xC;
+    QStringList metaNames;
+    QList<Vector> metaValues;
+    QStringList rowNames;
+    
+    ws->prepareInfo(&rowNames, &xC, &xN, &metaNames, &metaValues);
+
+    QList<Vector> cols;
+    QStringList colNames;
+    cols << xC;
+    colNames << xN;
+
+    int nbParameters = ws->parametersPerDataset();
+    for(int j = 0; j < nbParameters; j++) {
+      QString name = ws->parameterName(j);
+      Vector v, err, stddev;
+      for(int i = 0; i < ws->datasetNumber(); i++) {
+        v << sum[0][i * nbParameters + j];
+        err << sum[1][i * nbParameters + j];
+        stddev << sum[2][i * nbParameters + j];
+      }
+      cols << v << err << stddev;
+      colNames << name << (name + "_err") << (name + "_stddev");
+    }
+
+    colNames += metaNames;
+    cols += metaValues;
+
+    DataSet * ds = new DataSet(cols);
+    ds->name = "Summary";
+    ds->columnNames << colNames;
+    ds->rowNames << rowNames;
+    soas().pushDataSet(ds);
+  }
+  else if(operation == "reuse") {
+    ws->restoreParameterValues(sum[0]);
+  }
+  
 }
+
+ArgumentList stO(QList<Argument*>() 
+                 << new ChoiceArgument(QStringList() 
+                                       << "show"
+                                       << "push"
+                                       << "reuse",
+                                       "operation", 
+                                       "What to do",
+                                       "...")
+                 );
 
 
 static Command 
@@ -1088,7 +1145,7 @@ smtj("summarize-trajectories", // command name
      effector(summarizeTrajectoriesCommand), // action
      "fits",  // group name
      NULL, // arguments
-     NULL, // options
+     &stO, // options
      "Summarize trajectories",
      "Summarize the trajectories",
      "", CommandContext::fitContext());

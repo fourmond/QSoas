@@ -20,7 +20,10 @@ write_file("zip-1.dat", 1)
 write_file("zip-3.dat", 3)
 write_file("tz/zip-2.dat", 2)
 
-File::unlink("test.zip")
+begin
+  File::unlink("test.zip")
+rescue
+end
 
 system("zip", "test.zip", *$lst)
 

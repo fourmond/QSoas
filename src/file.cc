@@ -350,9 +350,13 @@ QStringList File::globHelper(const QStringList & patterns,
   if(! (p1.contains('[') || p1.contains('?') || p1.contains('*'))) {
     // Not a glob
     QString tgt = base + "/" +  p1;
-    if(patterns.size() == 1)
-      return QStringList() << tgt;
-    FileInfo info(base + "/" +  p1);
+    FileInfo info(tgt);
+    if(patterns.size() == 1) {
+      if(info.exists())
+        return QStringList() << tgt;
+      else
+        return QStringList();
+    }
     if(info.isDirLike())
       return globHelper(patterns.mid(1), tgt, isDir);
     else

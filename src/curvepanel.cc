@@ -123,31 +123,18 @@ QRectF CurvePanel::overallBB() const
   return boundingBox;
 }
 
-static void dumpBB(QTextStream & o, const BoundingBox & bb)
-{
-  o << "xm:\t" << bb.xMin() << "\txM:\t" << bb.xMax()
-    << "\tym:\t" << bb.yMin() << "\tyM\t:" << bb.yMax() << endl;
-}
-
 void CurvePanel::updateBB()
 {
   BoundingBox bb;
-  // QTextStream o(stdout);
-  // o << "Updating BB: " << endl;
   for(int i = 0; i < displayedItems.size(); i++) {
     CurveItem * item = displayedItems[i];
     if(item && item->countBB && ! item->hidden) {
       BoundingBox itemBB = BoundingBox(item->boundingRect());
-      // o << "Item -- ";
-      // dumpBB(o, itemBB);
-      
       if(! itemBB.isNull())     // This is what should count ?
         bb.uniteWith(itemBB);
     }
   }
   boundingBox = bb;
-  // o << " -> ";
-  // dumpBB(o, bb);
 }
 
 static double naturalDistances[] = { 1.0, 2.0, /*2.5,*/ 5.0, 10.0 };

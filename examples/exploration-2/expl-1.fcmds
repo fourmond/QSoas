@@ -2,3 +2,4 @@ fit
 fix sigma_1
 linear-explorer /iterations=40 sigma_1:40%..250%
 iterate-explorer
+summarize-trajectories

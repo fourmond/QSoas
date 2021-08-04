@@ -21,6 +21,8 @@
 #ifndef __FITTRAJECTORIES_HH
 #define __FITTRAJECTORIES_HH
 
+#include <vector.hh>
+
 class FitTrajectory;
 class FitWorkspace;
 
@@ -108,6 +110,16 @@ public:
 
   /// Returns the list of flags
   QSet<QString> allFlags() const;
+
+  /// Summarizes all the trajectories, i.e. computes a weighted
+  /// average/standard deviation of all the parameters, using a
+  /// weights a decreasing exponential of the residuals with unit the
+  /// best residuals.
+  ///
+  /// Returns a parameters,errors pair, and optionally the total
+  /// weight in @p weight.
+  QPair<Vector, Vector> summarizeTrajectories(double * weight = NULL) const;
+  
 
 
   /// Iteration

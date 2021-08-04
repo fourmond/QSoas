@@ -562,7 +562,9 @@ int FitWorkspace::totalParameterNumber() const
   return datasets * nbParameters;
 }
 
-DataSet * FitWorkspace::exportAsDataSet(bool errors, bool meta)
+DataSet * FitWorkspace::exportAsDataSet(bool errors, bool meta,
+                                        const double * pV,
+                                        const double * eV)
 {
   retrieveParameters();
   double conf = fitData->confidenceLimitFactor(0.975);
@@ -582,17 +584,24 @@ DataSet * FitWorkspace::exportAsDataSet(bool errors, bool meta)
   }
 
 
-  const gsl_matrix * cov = (errors ? fitData->covarianceMatrix() : NULL);
+  const gsl_matrix * cov = ((errors && ! eV) ? fitData->covarianceMatrix() : NULL);
+
+  if(! pV)
+    pV = values;
 
 
   for(int j = 0; j < nbParameters; j++) {
     QString name = fitData->parameterDefinitions[j].name;
     Vector v, err;
     for(int i = 0; i < datasets; i++) {
-      v << values[i * nbParameters + j];
+      v << pV[i * nbParameters + j];
       if(errors) {
-        int idx = (isGlobal(j) ? j : j + i * nbParameters);
-        err << conf*sqrt(gsl_matrix_get(cov, idx, idx));
+        if(eV)
+          err << eV[i * nbParameters + j];
+        else {
+          int idx = (isGlobal(j) ? j : j + i * nbParameters);
+          err << conf*sqrt(gsl_matrix_get(cov, idx, idx));
+        }
       }
     }
     colNames << name;

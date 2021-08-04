@@ -489,8 +489,14 @@ public:
   /// Exports the parameters as a dataset, with a row for each buffer,
   /// and a column for each parameter.
   ///
-  /// The X value is either the perpendicular coordinates or 
-  DataSet * exportAsDataSet(bool errors = false, bool meta = false);
+  /// The X value is either the perpendicular coordinates or simply an
+  /// index when there is no perpendicular coordinate.
+  ///
+  /// The pointer parameters are used to plug different values of the
+  /// parameters/errors.
+  DataSet * exportAsDataSet(bool errors = false, bool meta = false,
+                            const double * paramValues = NULL,
+                            const double * errorValues = NULL);
 
 
   /// @name IO functions

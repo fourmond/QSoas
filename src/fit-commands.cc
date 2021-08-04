@@ -1066,6 +1066,34 @@ soT("sort-trajectories", // command name
     "Sort the trajectories",
     "", CommandContext::fitContext());
 
+
+static void summarizeTrajectoriesCommand(const QString & /*name*/,
+                                         const CommandOptions & opts)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  double w = 0;
+  QPair<Vector, Vector> sum = ws->trajectories.summarizeTrajectories(&w);
+
+  Terminal::out << "Summarized " << ws->trajectories.size()
+                << " trajectories, total weight of "  << w
+                << "\nParameters summary:\n";
+  for(int i = 0; i < sum.first.size(); i++)
+    Terminal::out << " * " << ws->fullParameterName(i) << " = "
+                  << sum.first[i] << " +- " << sum.second[i] << endl;
+}
+
+
+static Command 
+smtj("summarize-trajectories", // command name
+     effector(summarizeTrajectoriesCommand), // action
+     "fits",  // group name
+     NULL, // arguments
+     NULL, // options
+     "Summarize trajectories",
+     "Summarize the trajectories",
+     "", CommandContext::fitContext());
+
+
 //////////////////////////////////////////////////////////////////////
 
 #include <fittrajectorydisplay.hh>

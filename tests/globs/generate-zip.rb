@@ -12,6 +12,16 @@ def write_file(name, arg)
     end
   end
   $lst << name
+
+  File::open(name + ".qsm", 'w') do |f|
+    f.puts <<"EOF"
+// QSoas JSON meta-data -- version 1
+{
+    "argument": #{arg}
+}
+EOF
+  end
+  $lst << name + ".qsm"
 end
 
 FileUtils::mkdir_p("tz")

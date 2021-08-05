@@ -57,6 +57,10 @@
 
 #include <msolver.hh>
 
+#include <datastackhelper.hh>
+#include <datasetlist.hh>
+
+
 //////////////////////////////////////////////////////////////////////
 
 namespace __reg {
@@ -1659,7 +1663,6 @@ fft("filter-fft", // command name
 
 static void autoFilterBSCommand(const QString &, const CommandOptions & opts)
 {
-  const DataSet * ds = soas().currentDataSet();
   int nb = 12;
   int order = 4;
   int derivatives = 0;
@@ -1667,15 +1670,25 @@ static void autoFilterBSCommand(const QString &, const CommandOptions & opts)
   int optimize = 15;
 
 
+
   updateFromOptions(opts, "number", nb);
   updateFromOptions(opts, "order", order);
   updateFromOptions(opts, "optimize", optimize);
   updateFromOptions(opts, "derivatives", derivatives);
 
+
   ColumnSpecification cl;
   updateFromOptions(opts, "weight-column", cl);
-  if(cl.isValid())
-    weights = cl.getValue(ds);
+
+  DataSetList buffers(opts);
+  DataStackHelper pusher(opts);
+
+  for(const DataSet * ds : buffers) {
+
+    if(cl.isValid())
+      weights = cl.getValue(ds);
+    else
+      weights = -1;
 
   BSplines splines(ds, order, derivatives);
   splines.autoBreakPoints(nb);
@@ -1687,30 +1700,32 @@ static void autoFilterBSCommand(const QString &, const CommandOptions & opts)
   double value = splines.computeCoefficients();
   Terminal::out << "Residuals: " << sqrt(value) << endl;
   for(int i = 0; i <= derivatives; i++)
-    soas().
-      pushDataSet(ds->derivedDataSet(splines.computeValues(i),
-                                     (i ? QString("_afbs_diff_%1.dat").arg(i) :
-                                      "_afbs.dat")));
+    pusher << ds->derivedDataSet(splines.computeValues(i),
+                                 (i ? QString("_afbs_diff_%1.dat").arg(i) :
+                                  "_afbs.dat"));
+  }
 }
 
 static ArgumentList 
 afbsOps(QList<Argument *>() 
-      << new IntegerArgument("number", 
-                             "Number",
-                             "number of segments")
-      << new IntegerArgument("order", 
-                             "Order",
-                             "order of the splines")
-      << new IntegerArgument("optimize", 
-                             "Optimize",
-                             "number of iterations to optimize the position of the nodes (defaults to 15, set to 0 or less to disable)")
-      << new ColumnArgument("weight-column", 
-                            "Weights",
-                            "uses the weights in the given column")
-      << new IntegerArgument("derivatives", 
-                             "Derivative order",
-                             "computes derivatives up to this number")
-      );
+        << DataStackHelper::helperOptions()
+        << DataSetList::listOptions("Datasets to filter")
+        << new IntegerArgument("number", 
+                               "Number",
+                               "number of segments")
+        << new IntegerArgument("order", 
+                               "Order",
+                               "order of the splines")
+        << new IntegerArgument("optimize", 
+                               "Optimize",
+                               "number of iterations to optimize the position of the nodes (defaults to 15, set to 0 or less to disable)")
+        << new ColumnArgument("weight-column", 
+                              "Weights",
+                              "uses the weights in the given column")
+        << new IntegerArgument("derivatives", 
+                               "Derivative order",
+                               "computes derivatives up to this number")
+        );
 
 
 static Command 
@@ -1730,7 +1745,6 @@ afbs("auto-filter-bs", // command name
 /// (?) or at least provide a consistent interface.
 static void autoFilterFFTCommand(const QString &, const CommandOptions & opts)
 {
-  const DataSet * ds = soas().currentDataSet();
   int cutoff = 20;
   int derivatives = 0;
   bool transform = false;
@@ -1739,40 +1753,48 @@ static void autoFilterFFTCommand(const QString &, const CommandOptions & opts)
   updateFromOptions(opts, "derive", derivatives);
   updateFromOptions(opts, "transform", transform);
 
-  double dmin, dmax;
-  ds->x().deltaStats(&dmin, &dmax);
 
-  bool unevenDX = (fabs(dmin) * 1.05 > fabs(dmax) ? false : true);
-  if(unevenDX) {
-    if(derivatives > 0)
-      Terminal::out << "WARNING: dx are not even, the derivatives WILL BE WRONG !" << endl;
-    else
-      Terminal::out << "Warning: dx are not even, but that should be OK for filtering" << endl;
-  }
+  DataSetList buffers(opts);
+  DataStackHelper pusher(opts);
+
+  for(const DataSet * ds : buffers) {
+
+    double dmin, dmax;
+    ds->x().deltaStats(&dmin, &dmax);
+
+    bool unevenDX = (fabs(dmin) * 1.05 > fabs(dmax) ? false : true);
+    if(unevenDX) {
+      if(derivatives > 0)
+        Terminal::out << "WARNING: dx are not even, the derivatives WILL BE WRONG !" << endl;
+      else
+        Terminal::out << "Warning: dx are not even, but that should be OK for filtering" << endl;
+    }
 
 
-  FFT orig(ds->x(), ds->y());
-  orig.forward();
-  if(transform) {
-    soas().pushDataSet(orig.transform(ds));
-    return;
-  }
-  orig.applyGaussianFilter(cutoff);
+    FFT orig(ds->x(), ds->y());
+    orig.forward();
+    if(transform) {
+      soas().pushDataSet(orig.transform(ds));
+      return;
+    }
+    orig.applyGaussianFilter(cutoff);
   
-  for(int i = 0; i < derivatives; i++)
-    orig.differentiate();
-  orig.reverse();  // Don't use baseline on derivatives (for now)
+    for(int i = 0; i < derivatives; i++)
+      orig.differentiate();
+    orig.reverse();  // Don't use baseline on derivatives (for now)
 
 
-  soas().
-    pushDataSet(ds->derivedDataSet(orig.data,
-                                   (derivatives ? 
-                                    QString("_afft_diff_%1.dat").arg(derivatives) :
-                                    "_afft.dat")));
+    pusher << ds->derivedDataSet(orig.data,
+                                 (derivatives ? 
+                                  QString("_afft_diff_%1.dat").arg(derivatives) :
+                                  "_afft.dat"));
+  }
 }
 
 static ArgumentList 
-afftOps(QList<Argument *>() 
+afftOps(QList<Argument *>()
+        << DataStackHelper::helperOptions()
+        << DataSetList::listOptions("Datasets to filter")
         << new IntegerArgument("cutoff", 
                                "Cutoff",
                                "value of the cutoff")

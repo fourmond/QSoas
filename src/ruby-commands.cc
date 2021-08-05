@@ -891,7 +891,7 @@ static void linearLeastSquaresCommand(const QString &, QString formula,
 
   DataSetList buffers(opts);
 
-  DataStackHelper pusher(opts);
+  // DataStackHelper pusher(opts);
   for(const DataSet * ds : buffers) {
     DataSetExpression ex(ds);
 

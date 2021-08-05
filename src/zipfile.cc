@@ -301,33 +301,33 @@ static CommandLineOption zc("--zip-check", &::isZip, 1, "test: is zip file");
 // static CommandLineOption zs("--zip-sep", &::separateZip, 1, "test: is zip file");
 
 
-// static void readZip(const QStringList & args)
-// {
-//   QString file = args[0];
-//   ZipFile zip(file);
-//   QTextStream o(stdout);
-//   o << "Reading file: " << file << endl;
-//   for(const QString & s : zip.fileNames())
-//     o << " * " << s << "\n";
-//   o << endl;
-//   ::exit(0);
-// }
+void listZip(const QStringList & args)
+{
+  QString file = args[0];
+  ZipFile zip(file);
+  QTextStream o(stdout);
+  o << "Reading file: " << file << endl;
+  for(const QString & s : zip.fileNames())
+    o << " * " << s << "\n";
+  o << endl;
+  ::exit(0);
+}
 
-// static CommandLineOption zl("--zip-lst", &::readZip, 1, "test: read zip");
+static CommandLineOption zl("--zip-lst", &::listZip, 1, "test: read zip");
 
-// static void readZipFile(const QStringList & args)
-// {
-//   QString file = args[0];
-//   ZipFile zip(file);
-//   QString fn = args[1];
-//   {
-//     std::unique_ptr<QIODevice> dev(zip.openFile(fn));
-//     dev->open(QIODevice::ReadOnly);
-//     QFile out(fn);
-//     out.open(QIODevice::WriteOnly);
-//     out.write(dev->readAll());
-//   }
-//   ::exit(0);
-// }
+void readZipFile(const QStringList & args)
+{
+  QString file = args[0];
+  ZipFile zip(file);
+  QString fn = args[1];
+  {
+    std::unique_ptr<QIODevice> dev(zip.openFile(fn));
+    dev->open(QIODevice::ReadOnly);
+    QFile out(fn);
+    out.open(QIODevice::WriteOnly);
+    out.write(dev->readAll());
+  }
+  ::exit(0);
+}
 
-// static CommandLineOption zr("--zip-extract", &::readZipFile, 2, "test: read zip");
+static CommandLineOption zr("--zip-extract", &::readZipFile, 2, "test: read zip");

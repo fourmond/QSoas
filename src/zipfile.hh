@@ -73,6 +73,10 @@ class ZipFile : public QSharedData {
   friend class FileInfo;
   friend class File;
 
+  // For command-line stuff.
+  friend void listZip(const QStringList & args);
+  friend void readZipFile(const QStringList & args);
+
 private:
 
   /// Returns the ZipFile corresponding to the given path.

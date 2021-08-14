@@ -2696,16 +2696,19 @@ static void kernelFilterCommand(const QString &,
                         y, ny, gauss_p);
 
     gsl_filter_gaussian_free(gauss_p);
+    break;
   }
   case Median: {
     gsl_filter_median_workspace * w = gsl_filter_median_alloc(halfWidth);
     gsl_filter_median(endType, y, ny, w);
     gsl_filter_median_free(w);
+    break;
   }
   case RecursiveMedian: {
     gsl_filter_rmedian_workspace * w = gsl_filter_rmedian_alloc(halfWidth);
     gsl_filter_rmedian(endType, y, ny, w);
     gsl_filter_rmedian_free(w);
+    break;
   }
   case ImpulseMAD:
   case ImpulseIQR: 
@@ -2734,6 +2737,7 @@ static void kernelFilterCommand(const QString &,
                        ym, ys, &nb, NULL, w);
     // gsl_vector *xmedian, gsl_vector *xsigma, size_t *noutlier, gsl_vector_int *ioutlier, gsl_filter_impulse_workspace *w)
     gsl_filter_impulse_free(w);
+    break;
   }
   default:
     break;

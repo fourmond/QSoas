@@ -626,7 +626,7 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
           if(mode == ClosestX && ((xa[i] < xb_min - maxDx) ||
                                   (xa[i] > xb_max + maxDx)))
             throw RuntimeError("Trying to extend dataset %1 too far: "
-                               "%2 for ([%3,%4])").
+                               "%2 for ([%3,%4]), use /mode=extend").
               arg(b->name).arg(xa[i]).arg(xb_min).arg(xb_max);
 
           /* We first look for the closest point */

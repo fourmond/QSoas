@@ -1922,6 +1922,10 @@ QList<DataSet *> DataSet::autoSplit(const QHash<int, QString> & cols,
         // We use the original data as base
         ds->setMetaData(k.value(), columns[k.key()][i]);
       rvs[idx] = ds;
+      ds->rowNames = rowNames;
+
+      for(QStringList & rn : ds->rowNames)
+        rn.clear();
     }
     int tgi = 0;
     for(int j = 0; j < columns.size(); j++) {
@@ -1929,6 +1933,10 @@ QList<DataSet *> DataSet::autoSplit(const QHash<int, QString> & cols,
         continue;
       ds->columns[tgi] << columns[j][i];
       tgi += 1;
+    }
+    for(int rni = 0; rni < rowNames.size(); rni++) {
+      if(rowNames[rni].size() > i)
+        ds->rowNames[rni] << rowNames[rni][i];
     }
   }
 

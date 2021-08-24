@@ -1,0 +1,33 @@
+# Make sure split-on-values respects the names
+generate-dataset /columns=4 /samples=6 0 1
+set-column-names c1 c2 c3 c4
+set-row-names r1 r2 r3 r4 r5 r6
+apply-formula y2=i%2
+assert '$col_names[0]=="c1"'
+assert '$col_names[1]=="c2"'
+assert '$col_names[2]=="c3"'
+assert '$col_names[3]=="c4"'
+
+
+split-on-values nv $c.c3
+# We got the even values
+assert '$col_names[0]=="c1"'
+assert '$col_names[1]=="c2"'
+assert '$col_names[2]=="c4"'
+
+assert '$row_names[0]=="r2"'
+assert '$row_names[1]=="r4"'
+assert '$row_names[2]=="r6"'
+
+# Switch to the odd ones
+drop
+
+assert '$col_names[0]=="c1"'
+assert '$col_names[1]=="c2"'
+assert '$col_names[2]=="c4"'
+
+# We got the even values
+assert '$row_names[0]=="r1"'
+assert '$row_names[1]=="r3"'
+assert '$row_names[2]=="r5"'
+

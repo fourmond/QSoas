@@ -7,3 +7,4 @@
 @ persistence.cmds
 @ stats.cmds
 @ accumulator.cmds
+@ split-on-values.cmds

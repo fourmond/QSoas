@@ -477,7 +477,7 @@ void Fit::runFit(std::function<void (FitData *)> hook,
   if(datasets.size() == 0)
     throw RuntimeError("No datasets to fit");
 
-  if(false) {
+  {
     QStringList pbs;
     QList<int> idx;
     for(int i = 0; i < datasets.size(); i++) {
@@ -491,7 +491,8 @@ void Fit::runFit(std::function<void (FitData *)> hook,
     if(pbs.size() > 0) {
       QString s = "The datasets " + pbs.join(", ") + " contains NaNs or infinite numbers. <br>\n"
         "NaNs either result from incorrect parsing of text lines or from operations giving undefined results (such as 0.0/0.0).<p>\n" +
-        "You cannot fit these datasets.<p>Do you want to remove the problematic points and proceed ?";
+        "You cannot fit these datasets.<p>Do you want to remove the problematic points and proceed ?" +
+        "<p> Alternatively, you may use strip-if !y.finite?";
       if(Utils::askConfirmation(s, "Strip NaNs and infinite numbers")) {
         for(int i = 0; i < idx.size(); i++) {
           DataSet * nds = datasets[idx[i]]->derivedDataSet("_stripped.dat");
@@ -501,7 +502,7 @@ void Fit::runFit(std::function<void (FitData *)> hook,
         }
       }
       else
-        throw RuntimeError("Stopping because of the presence of NaNs and/or infinite numbers in the datasets");
+        throw RuntimeError("Stopping because of the presence of NaNs and/or infinite numbers in the datasets -- you can use strip-if !y.finite? to remove them");
       
     }
       

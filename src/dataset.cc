@@ -1646,7 +1646,7 @@ void DataSet::addMetaData(const ValueHash & val, bool override)
       segments.insert(i.toInt());
     tmp.remove("__segments__");
   }
-  metaData.merge(val, override);
+  metaData.merge(tmp, override);
 }
 
 const Vector & DataSet::perpendicularCoordinates() const

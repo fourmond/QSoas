@@ -224,7 +224,7 @@ static void splitOnValues(const QString &,
   QList<DataSet*> nds = ds->autoSplit(cls);
 
   for(int i = 0; i < nds.size(); i++) {
-    nds[i]->setMetaData("subset-index", i);
+    nds[i]->setMetaData("subset_index", i);
     pusher << nds[i];
   }
 }

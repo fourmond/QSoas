@@ -79,7 +79,7 @@ protected:
     }
     DataSet * nds = new DataSet(cols);
     nds->name = QDir::cleanPath(fileName);
-    nds->setMetaData("fit-name", pms.fitName);
+    nds->setMetaData("fit_name", pms.fitName);
     nds->columnNames << cns;
     for(int k : pms.bufferNames.keys())
       nds->setRowName(k, pms.bufferNames[k]);

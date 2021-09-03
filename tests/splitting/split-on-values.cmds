@@ -4,7 +4,7 @@ split-on-values a,b y2,y3 /flags=splt1
 
 # crude way to check that the number of buffers split is correct
 assert '$stats["buffer"] =~ /_(\d+).dat/; $1.to_i == 90'
-assert '$meta["subset-index"] == 90'
+assert $meta.subset_index==90
 
 # remove the ones created, and check we're back to the orignal one
 drop flagged:splt1
@@ -16,12 +16,12 @@ assert '$stats["rows"] == 10000'
 generate-buffer /samples=10000 -1 1 sin(x**3)
 apply-formula /extra-columns=5 'y2=i%7; y3=i%13; y4=y2*y3; y5=y2+y3; y6=y3**y2'
 split-on-values a,b,c,d,e y2,y3,y4,y5,y6 /flags=splt2
-assert '$meta["subset-index"] == 90'
+assert $meta.subset_index==90
 
 generate-buffer /samples=10000 -1 1 sin(x**3)
 apply-formula /extra-columns=5 'y2=i%7; y3=i%13; y4=y2*y3; y5=y2+y3; y6=y3**y2'
 split-on-values a b c d e y2,y3,y4,y5,y6 /flags=splt2
-assert '$meta["subset-index"] == 90'
+assert $meta.subset_index==90
 
 drop flagged:splt2
 

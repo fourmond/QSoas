@@ -261,15 +261,20 @@ public:
 
   /// Reads textual data from a file.
   /// \li the splitting of each line into fields is done by the
-  /// splitter function
+  /// splitter function. The splitter function stores
+  /// the index of the beginning and of the end of each 
   /// \li comment lines are those that match \p commentRE. They are stored
   /// in \p comments when not NULL.
   /// \li if splitOnBlank is true, then a new list of vectors is built for
   /// every time a blank line is found.
   ///
   /// @todo Quite a lot of things to improve here.
+  ///
+  /// A note about the splitter function: it should take the string,
+  /// and store the indices and length of each element. The size
+  /// should reflect the exact number of elements found.
   static QList<QList<Vector> > readFromStream(QTextStream * source,
-                                              std::function<QStringList (const QString &)> splitter,
+                                              std::function<void (const QString &, QVector<int> * indices)> splitter,
                                               const QRegExp & commentRE,
                                               bool splitOnBlank = false,
                                               const QString & decimalSep = QString(),

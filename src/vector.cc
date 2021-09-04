@@ -28,7 +28,7 @@
 #include <linereader.hh>
 
 QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
-                                             std::function<QStringList (const QString &)> splitter,
+                                             std::function<void (const QString &, QVector<int> *)> splitter,
                                              const QRegExp & commentREt,
                                              bool splitOnBlank,
                                              const QString & decimalSep,
@@ -60,6 +60,7 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
 
   LineReader s(source);
   int numberRead = 0;
+  QVector<int> indices;
   while(! s.atEnd()) {
     lineNumber++;
     QString line = s.readLine();
@@ -83,35 +84,52 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
       }
       continue;
     }
-    /// @todo A manual split would be much much faster (no memory
-    /// allocation). I think DVector::fast_fancy_read greatly
-    /// outperforms this, but well...
-    QStringList elements = splitter(line);
+    
+    splitter(line, &indices);
     int idx = textColumns.size();
     QStringList taken;
+
+    // the number of numbers
+    int numbers = indices.size() / 2;
+    // QTextStream o(stdout);
+    // o << "line: " << line << endl;
     for(int txt : textColumns) {
-      if(txt > elements.size() || txt < 0)
+      // o << "txt: " << txt << ", indices:" << indices.size() << endl;
+      if(txt > (indices.size()/2) || txt < 0)
         continue;
-      taken.insert(0, elements.takeAt(txt));
+      // o << " -> " << indices[2*txt] << ": " << indices[2*txt+1] << endl;
+      taken.insert(0, line.mid(indices[2*txt], indices[2*txt+1]));
+      // o << "..." << endl;
+      indices[2*txt] = -1;
+      --numbers;
     }
 
     /// @todo customize trimming.
-    while(curCols->size() < elements.size()) {
+    while(curCols->size() < numbers) {
       *curCols << Vector(numberRead, std::nan(""));
       curCols->last().reserve(10000); // Most files won't be as large
     }
     int nbNans = 0;
+    int col = 0;
     for(int i = 0; i < curCols->size(); i++) {
       bool ok = false;
-      QString s = elements.value(i, "");
-      if(! decimalSep.isEmpty())
-        s.replace(decimalSep, ".");
-      double value = locale.toDouble(s, &ok);
+      if(indices[col] < 0)
+        col += 2;
+      QStringRef s(&line, indices[col], indices[col+1]);
+      double value;
+      if(! decimalSep.isEmpty()) {
+        QString s2 = s.toString();
+        s2.replace(decimalSep, ".");
+        value = locale.toDouble(s, &ok);
+      }
+      else
+        value = locale.toDouble(s, &ok);
       if(! ok)
         value = std::nan(""); /// @todo customize
       if(value != value)
         nbNans++;
       (*curCols)[i] << value;
+      col += 2;
     }
     // We remove lines fully made of NaNs
     if(nbNans == curCols->size()) {
@@ -162,9 +180,46 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
 {
   QRegExp separatorRE(separatorREt);
   return Vector::readFromStream(source,
-                                [&separatorRE,trim](const QString & str) -> QStringList {
-                                  return (trim ? str.trimmed() : str).
-                                    split(separatorRE);
+                                [&separatorRE,trim](const QString & str, QVector<int> * indices)  {
+                                  int tgt = 2;
+                                  int idx = 0;
+                                  int eof = str.size();
+                                  if(trim) {
+                                    while(str[idx].isSpace() && idx < eof)
+                                      ++idx;
+                                    while(str[eof-1].isSpace() && idx < eof)
+                                      --eof;
+                                  }
+                                  if(idx == eof) {
+                                    indices->resize(0);
+                                    return;
+                                  }
+                                  /// @todo Watch out for trimmed stuff...
+                                  // QTextStream o(stdout);
+                                  // o << "String: " << str << endl;
+                                  /// @todo what out when no data is found ?
+                                  while(indices->size() <= tgt+1)
+                                    *indices << 0;
+                                  (*indices)[0] = idx;
+                                  while((idx = separatorRE.indexIn(str, idx)) >= 0) {
+                                    if(idx >= eof)
+                                      break;
+                                    // o << " -> idx: " << idx
+                                    //   << ", tgt: " << tgt << endl;
+                                    while(indices->size() <= tgt+1)
+                                      *indices << 0;
+                                    (*indices)[tgt-1] = idx -
+                                      (*indices)[tgt-2];
+                                    idx += separatorRE.matchedLength();
+                                    (*indices)[tgt] = idx;
+                                    tgt += 2;
+                                  }
+                                  (*indices)[tgt-1] = eof -
+                                    (*indices)[tgt-2];
+                                  indices->resize(tgt);
+                                  // for(int i = 0; i < indices->size()/2; i++)
+                                  //   o << " -> " << (*indices)[2*i] << ", "
+                                  //     << (*indices)[2*i+1] << endl;
                                 }, commentREt, splitOnBlank,
                                 decimalSep, blankREt, comments, skip,
                                 textColumns, savedTexts);

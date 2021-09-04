@@ -1155,11 +1155,11 @@ smtj("summarize-trajectories", // command name
 
 #include <fittrajectorydisplay.hh>
 
-static void browseTrajectoriesCommand(const QString & /*name*/,
-                                      const CommandOptions & opts)
+void browseTrajectoriesCommand(const QString & /*name*/,
+                               const CommandOptions & opts)
 {
-  FitTrajectoryDisplay d(FitWorkspace::currentWorkspace());
-  d.exec();
+  
+  FitTrajectoryDisplay::browseTrajectories();
 }
 
 

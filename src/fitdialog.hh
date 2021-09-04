@@ -397,6 +397,9 @@ protected slots:
   /// Shows the help of the fit
   void showHelp();
 
+  /// Browse the trajectories
+  void browseTrajectories();
+
 
 };
 

@@ -67,6 +67,8 @@
 #include <file.hh>
 #include <datasetwriter.hh>
 
+#include <fittrajectorydisplay.hh>
+
 static SettingsValue<QSize> fitDialogSize("fitdialog/size", QSize(700,500));
 
 static SettingsValue<int> fitIterationLimit("fitdialog/iteration-limit", 100);
@@ -488,6 +490,10 @@ void FitDialog::setupFrame(bool expert)
   addMenuAction(menu, "Reset to backup", &parameters, 
                 SLOT(resetToBackup()),
                 QKeySequence(tr("Ctrl+Shift+R")));
+  menu->addSeparator();
+  addMenuAction(menu, "Browse fit trajectories", this, 
+                SLOT(browseTrajectories()),
+                QKeySequence(tr("Ctrl+Shift+T")));
   menuBar->addMenu(menu);
 
 
@@ -1490,3 +1496,8 @@ void FitDialog::showHelp()
   HelpBrowser::browseLocation(tgt);
 }
 
+
+void FitDialog::browseTrajectories()
+{
+  FitTrajectoryDisplay::browseTrajectories();
+}

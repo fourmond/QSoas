@@ -1013,3 +1013,13 @@ void FitTrajectoryDisplay::clearReference()
   model->referenceTrajectory = NULL;
   model->update();
 }
+
+void FitTrajectoryDisplay::browseTrajectories(FitWorkspace * ws)
+{
+  if(! ws)
+    ws = FitWorkspace::currentWorkspace();
+  if(! ws)
+    throw InternalError("Somehow called when no workspace is available");
+  FitTrajectoryDisplay d(ws);
+  d.exec();
+}

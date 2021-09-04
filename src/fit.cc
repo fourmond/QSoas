@@ -525,7 +525,7 @@ void Fit::runFit(std::function<void (FitData *)> hook,
   checkDatasets(&data);
 
   QString loadParameters;
-  bool showWeights = false;
+  bool showWeights = true;
   updateFromOptions(opts, "parameters", loadParameters);
   updateFromOptions(opts, "weight-buffers", showWeights);
 
@@ -550,7 +550,7 @@ void Fit::runFit(std::function<void (FitData *)> hook,
     }
   }
 
-  bool expert = false;
+  bool expert = true;
   updateFromOptions(opts, "expert", expert);
 
   if(expert)

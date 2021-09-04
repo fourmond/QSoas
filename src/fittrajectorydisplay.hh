@@ -138,6 +138,10 @@ public:
   FitTrajectoryDisplay(FitWorkspace * workspace);
   ~FitTrajectoryDisplay();
 
+  /// Brings a dialog box to browse the trajectories of the given
+  /// workspace. Defaults to the default fit workspace.
+  static void browseTrajectories(FitWorkspace * ws = NULL);
+
 
 public slots:
 

@@ -19,7 +19,8 @@
 #include <headers.hh>
 #include <linereader.hh>
 
-LineReader::LineReader(QIODevice * dev) : hasPending(false)
+LineReader::LineReader(QIODevice * dev) : hasPending(false),
+                                          index(0)
 {
   source = new QTextStream(dev);
   ownSource = true;
@@ -27,7 +28,8 @@ LineReader::LineReader(QIODevice * dev) : hasPending(false)
 
 LineReader::LineReader(QTextStream * s) : source(s),
                                           ownSource(false),
-                                          hasPending(false)
+                                          hasPending(false),
+                                          index(0)
 {
 }
 
@@ -44,15 +46,25 @@ public:
 
 QChar LineReader::getc()
 {
+  // QTextStream o(stdout);
+  // o << "Reading, index is : " << index << endl
+  //   << "Buffer: " << buffer << endl;
   if(hasPending) {
     hasPending = false;
     return pending;
   }
-  QChar ch;
-  if(source->atEnd())
-    throw LREOF();
-  *source >> ch;
-  return ch;
+  if(buffer.size() <= index) {
+    index = 0;
+    if(source->atEnd()) {
+      buffer.clear();
+      throw LREOF();
+    }
+    buffer = source->read(1024);
+    if(buffer.size() == 0)
+      throw LREOF();
+  }
+  index += 1;
+  return buffer[index-1];
 }
 
 QChar LineReader::peekc()
@@ -67,12 +79,15 @@ bool LineReader::atEnd() const
 {
   if(hasPending)
     return false;
+  if(buffer.size() > index)
+    return false;
   return source->atEnd();
 }
 
 QString LineReader::readLine(bool keepCR)
 {
   QString ret;
+  // ret.reserve(1024);            // much larger than necessary
   try {
     while(! atEnd()) {
       QChar c = getc();
@@ -93,6 +108,8 @@ QString LineReader::readLine(bool keepCR)
   }
   catch(const LREOF & s) {
   }
+  // QTextStream o(stdout);
+  // o << "Read line: " << ret << endl;
   if(keepCR)
     ret.append('\n');
   return ret;

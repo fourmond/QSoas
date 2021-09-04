@@ -40,6 +40,9 @@ protected:
   bool hasPending;
   QChar pending;
 
+  QString buffer;
+  int index;
+
 public:
   LineReader(QIODevice * dev);
   LineReader(QTextStream * src);

@@ -120,7 +120,7 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
       if(! decimalSep.isEmpty()) {
         QString s2 = s.toString();
         s2.replace(decimalSep, ".");
-        value = locale.toDouble(s, &ok);
+        value = locale.toDouble(s2, &ok);
       }
       else
         value = locale.toDouble(s, &ok);

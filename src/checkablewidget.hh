@@ -59,6 +59,10 @@ protected slots:
 
   /// Called when the check state has changed
   void cbStateChanged(int state);
+
+signals:
+
+  void stateChanged(int state);
   
 };
 

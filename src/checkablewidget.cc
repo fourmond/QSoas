@@ -61,4 +61,6 @@ void CheckableWidget::cbStateChanged(int state)
     if(present)
       present->remove(index);
   }
+
+  emit(stateChanged(state));
 }

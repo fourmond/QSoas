@@ -79,7 +79,8 @@ void DatasetBrowser::setupFrame()
   bottomLayout->addWidget(bt);
 
   // Stretch
-  bottomLayout->addStretch(1);
+  selectedDisplay = new QLabel("");
+  bottomLayout->addWidget(selectedDisplay, 1);
 
   bufferDisplay = new QLabel("");
   bottomLayout->addWidget(bufferDisplay);
@@ -152,10 +153,12 @@ void DatasetBrowser::displayDataSets(const QList<const DataSet *> &ds,
 
 CheckableWidget * DatasetBrowser::viewForDataset(int index, int inWindow)
 {
-  while(views.size() <= inWindow)
+  while(views.size() <= inWindow) {
     views << new CheckableWidget(new CurveView(this), this);
+  }
   views[inWindow]->subWidget<CurveView>()->showDataSet(datasets[index]);
   views[inWindow]->useSet(&selected, index);
+  connect(views[inWindow], SIGNAL(stateChanged(int)), SLOT(selectionChanged()));
   return views[inWindow];
 }
 
@@ -196,4 +199,11 @@ void DatasetBrowser::addButton(QString name, ActOnSelected hook)
   actionHooks << hook;
   // 4 = 2 buttons + 1 stretch + label
   bottomLayout->insertWidget(4, button);
+}
+
+
+void DatasetBrowser::selectionChanged()
+{
+  int nb = selectedDatasets().size();
+  selectedDisplay->setText(QString("%1 datasets selected").arg(nb));
 }

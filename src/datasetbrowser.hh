@@ -52,6 +52,9 @@ private:
   /// Display of the current buffers
   QLabel * bufferDisplay;
 
+  /// Selected display
+  QLabel * selectedDisplay;
+
   /// THe horizontal bottom layout
   QHBoxLayout * bottomLayout;
 
@@ -85,6 +88,10 @@ protected slots:
 
   /// Runs the numbered hook
   void runHook(int hook);
+
+
+  /// Called whenever an item is checked/unchecked.
+  void selectionChanged();
   
 public:
   /// @name Actions

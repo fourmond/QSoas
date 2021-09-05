@@ -770,3 +770,39 @@ many commands) to help you discriminate:
 ~~~
 QSoas> load spectrum*.dat /style=red-to-blue
 ~~~
+
+
+{::comment} tip: advanced;math;dataset operations {:/}
+## Obtaining the derivative of datasets {#datasets-derivative}
+
+There are several ways of obtaining the derivative of a signal,
+depending on whether the data was generated (i.e. there is no
+experimental noise) or not. For noiseless data, the derivative can be
+obtained using analytical derivation with the command [cmd: diff]
+
+~~~
+QSoas> diff
+~~~
+
+For noisy signals, the derivation is obtained as a side effect of
+filtering using [cmd: filter-fft] or [cmd: filter-bsplines]:
+
+~~~
+QSoas> filter-fft
+~~~
+
+Press `d` to toggle the display of the derivative, and `q` to accept
+the filtering and obtain the derivative.
+
+{::comment} tip: expert;math {:/}
+## Inline formula expansion {#inline-ruby}
+
+It is possible to use the result of a [Ruby](qsoas.html#ruby)
+expression directly as an argument for a command. Text inside `%{  }`
+is evaluated as a Ruby expression and the result is used, like for
+instance: 
+
+~~~
+QSoas> chop %{2+2}
+~~~
+

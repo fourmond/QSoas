@@ -1,0 +1,24 @@
+generate-dataset 0 10 /samples=1001
+save /overwrite=true test.dat
+
+load test.dat /text-columns=1
+assert '$row_names[0]=="0"'
+
+# Not needed, but fun
+apply-formula /mode=add-column x**2
+
+apply-formula x-=$row_name.to_f
+assert $stats.x_norm 0
+
+drop
+
+chop 2 
+apply-formula x-=$row_name.to_f
+assert $stats.x_min 0
+assert $stats.x_norm 0
+drop 0,1
+
+assert $stats.x_min-2 2e-3
+
+apply-formula x-=$row_name.to_f
+assert $stats.x_norm 0

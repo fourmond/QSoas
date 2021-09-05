@@ -882,9 +882,13 @@ DataSet * DataSet::subset(int beg, int end, bool within) const
     
   QList<int> newSegs;
 
+  QList<QStringList> rn;
   if(within) {
     for(int i = 0; i < columns.size(); i++)
       cols << columns[i].mid(beg, 1+end-beg);
+
+    for(const QStringList &  r: rowNames)
+      rn << r.mid(beg, 1+end-beg);
 
     // Now adjust segments:
     for(int i = 0; i < segments.size(); i++) {
@@ -900,6 +904,12 @@ DataSet * DataSet::subset(int beg, int end, bool within) const
       cols << v;
     }
 
+    for(const QStringList &  r: rowNames) {
+      QStringList nc = r.mid(0, beg);
+      nc << r.mid(end);
+      rn << nc;
+    }
+
     for(int i = 0; i < segments.size(); i++) {
       int idx = segments[i];
       if(idx <= beg)
@@ -913,6 +923,7 @@ DataSet * DataSet::subset(int beg, int end, bool within) const
   DataSet * ds = derivedDataSet(cols, QString("_%1from_%2_to_%3.dat").
                                 arg(within ? "" : "excl_").
                                 arg(columns[0][beg]).arg(columns[0][end]));
+  ds->rowNames = rn;
 
   ds->segments = newSegs;
   return ds;

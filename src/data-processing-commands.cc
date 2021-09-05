@@ -1879,6 +1879,28 @@ fsc("find-steps", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+static void clearSegmentsCommand(const QString &, const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+  DataSet * nds = new DataSet(*ds); // This is probably the
+                                      // only legitimate use of the
+                                      // copy constructor.
+  nds->segments.clear();
+  soas().pushDataSet(nds);
+}
+
+      
+static Command 
+csc("clear-segments", // command name
+     effector(clearSegmentsCommand), // action
+     "segments",  // group name
+     NULL, // arguments
+     NULL, // options
+     "Clear segments",
+     "Clears all the segments");
+
+//////////////////////////////////////////////////////////////////////
+
 
 // Although this is not per se a data processing command, I guess it
 // makes sense to leave it around here.

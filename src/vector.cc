@@ -92,7 +92,7 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
     // the number of numbers
     int numbers = indices.size() / 2;
     // QTextStream o(stdout);
-    // o << "line: " << line << endl;
+    // o << "line: " << line << " -> " << indices.size() << endl;
     for(int txt : textColumns) {
       // o << "txt: " << txt << ", indices:" << indices.size() << endl;
       if(txt > (indices.size()/2) || txt < 0)
@@ -103,6 +103,7 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
       indices[2*txt] = -1;
       --numbers;
     }
+    // o << " -> done reading text"  << endl;
 
     /// @todo customize trimming.
     while(curCols->size() < numbers) {
@@ -112,22 +113,31 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
     int nbNans = 0;
     int col = 0;
     for(int i = 0; i < curCols->size(); i++) {
+      // o << "Column: " << i << endl;
       bool ok = false;
-      if(indices[col] < 0)
+      while(col < indices.size() && indices[col] < 0)
         col += 2;
-      QStringRef s(&line, indices[col], indices[col+1]);
+      // o << "col: " << col << ", " << line.size() << endl;
       double value;
-      if(! decimalSep.isEmpty()) {
-        QString s2 = s.toString();
-        s2.replace(decimalSep, ".");
-        value = locale.toDouble(s2, &ok);
+      if(col < indices.size()) {
+        // o << "idx: " << indices[col] << "," << indices[col+1] << endl;
+        QStringRef s(&line, indices[col], indices[col+1]);
+        if(! decimalSep.isEmpty()) {
+          QString s2 = s.toString();
+          s2.replace(decimalSep, ".");
+          value = locale.toDouble(s2, &ok);
+        }
+        else
+          value = locale.toDouble(s, &ok);
+        if(! ok) {
+          value = std::nan(""); /// @todo customize
+          nbNans++;
+        }
       }
-      else
-        value = locale.toDouble(s, &ok);
-      if(! ok)
-        value = std::nan(""); /// @todo customize
-      if(value != value)
+      else {
+        value = std::nan("");
         nbNans++;
+      }
       (*curCols)[i] << value;
       col += 2;
     }

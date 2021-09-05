@@ -350,6 +350,8 @@ protected:
     int size = s.size();
 
     int tgt = 0;
+    // QTextStream o(stdout);
+    // o << "Split CSV line -- size: " << size << endl;
 
     while(cur < size) {
       if(s[cur] == quote) {     // a quoted field
@@ -385,6 +387,7 @@ protected:
         tgt += 2;
         while(indices->size() <= tgt)
           *indices << 0;
+        // o << "Indb: " << tgt -2 << " -> " << beg << endl;
         (*indices)[tgt-2] = beg;
         (*indices)[tgt-1] = end - beg;
         cur = ci;
@@ -396,11 +399,13 @@ protected:
         tgt += 2;
         while(indices->size() <= tgt)
           *indices << 0;
+        // o << "Indc: " << tgt -2 << " -> " << cur << endl;
         (*indices)[tgt-2] = cur;
         (*indices)[tgt-1] = idx - cur;
         cur = idx + std::max(re.matchedLength(), 0);
       }
     }
+    indices->resize(tgt);
     // QTextStream o(stdout);
     // o << "'" << fields.join("', '") << "'" << endl;
     // return fields;

@@ -353,6 +353,10 @@ public:
     insertColumn(columns.size(), col);
   }
 
+  /// Inserts a row at the given position. It initializes the values
+  /// to the given value.
+  void insertRow(int idx, double val);
+
   /// Selects the given columns. The input is a list of indices of the
   /// columns. The dataset is modified in place, and the new columns
   /// are those whose index were given.

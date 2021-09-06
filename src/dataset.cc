@@ -193,6 +193,24 @@ void DataSet::insertColumn(int idx, const Vector & col)
   columns.insert(idx, col);
 };
 
+void DataSet::insertRow(int index, double val)
+{
+  if(index > nbRows())
+    throw InternalError("Out of bounds: %1 for %2").
+      arg(index).arg(nbRows());
+  
+  for(int i = 0; i < columns.size(); i++)
+    columns[i].insert(index, val);
+  segments.shiftAbove(index, 1);
+
+  for(QStringList & lst : rowNames) {
+    if(lst.size() > index)
+      lst.insert(index, "");
+  }
+  
+  invalidateCache();            // important.
+}
+
 
 Vector DataSet::takeColumn(int idx)
 {

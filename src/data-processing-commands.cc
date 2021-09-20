@@ -380,11 +380,14 @@ static void autoRegCommand(const QString &, const CommandOptions & opts)
   updateFromOptions(opts, "window", window);
   window = abs(window);
 
+  bool filter = false;
+  updateFromOptions(opts, "filter", filter);
+
   const Vector & x = ds->x();
-  Vector sl = ds->y();
   Vector ny = ds->y();
 
-  int sz = sl.size();
+  int sz = ny.size();
+
 
   /// @todo This could be greatly optimized
   for(int i = 0; i < sz; i++) {
@@ -395,12 +398,12 @@ static void autoRegCommand(const QString &, const CommandOptions & opts)
     if(rx >= sz)
       rx = sz-1;
     QPair<double, double> ab = ds->reglin(lx, rx);
-    sl[i] = ab.first;
-    ny[i] = ab.first * x[i] + ab.second;
+    if(filter)
+      ny[i] = ab.first * x[i] + ab.second;
+    else
+      ny[i] = ab.first;
   }
-  QList<Vector> cols;
-  cols << x << sl << ny;
-  soas().pushDataSet(ds->derivedDataSet(cols,"_reg.dat"));
+  soas().pushDataSet(ds->derivedDataSet(ny,"_reg.dat"));
 }
 
 static ArgumentList 
@@ -408,6 +411,9 @@ arOps(QList<Argument *>()
       << new IntegerArgument("window", 
                              "Number of points",
                              "Number of points (after and before) over which to perform regression")
+      << new BoolArgument("filter",
+                          "Filter",
+                          "If true (not the default), filter the data instead of computing the slope")
       );
 
 

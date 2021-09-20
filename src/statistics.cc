@@ -363,15 +363,18 @@ static MultiLambdaStat delta(QStringList()
 
 
 static MultiLambdaStat reglin(QStringList()
-                             << "a"
-                             << "b", false, true,
+                              << "a"
+                              << "b"
+                              << "keff", false, true,
                              [](const DataSet * ds, int c) -> QList<QVariant>
                              {
                                QList<QVariant> rv;
                                QPair<double, double> a;
                                a = ds->reglin(0, -1, c);
+                               double y0 = a.first * ds->x()[0] + a.second;
                                rv << a.first
-                                  << a.second;
+                                  << a.second
+                                  << -a.first/y0;
                                return rv;
                              },
                               "the linear regression coefficients of the Y column over X: `a` is the slope and `b` the value at 0.");

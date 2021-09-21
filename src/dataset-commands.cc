@@ -1783,8 +1783,11 @@ static void avgCommand(const QString &, QList<const DataSet *> all,
       ret->column(j)[i] /= avg[i];
   }
 
-  if(count)
-    ret->insertColumn(ret->nbColumns(), avg);        // For memory
+  if(count) {
+    int nb = ret->nbColumns();
+    ret->insertColumn(nb, avg);        // For memory
+    ret->setColumnName(nb, "count");
+  }
 
   QStringList names;
   for(int i = 0; i < all.size(); i++)

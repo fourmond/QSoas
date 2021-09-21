@@ -1945,6 +1945,7 @@ QList<DataSet *> DataSet::autoSplit(const QHash<int, QString> & cols,
     DataSet * ds = rvs.value(idx, NULL);
     if(! ds) {
       ds = derivedDataSet(tmplt, ".tmp");
+      ds->segments.clear();
 
       // set the meta-data
       for(auto k = cols.begin(); k != cols.end(); k++)

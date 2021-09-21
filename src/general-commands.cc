@@ -533,7 +533,7 @@ static void runCommand(const QString &, QStringList args,
 
   QString nd;
   if(cd) {
-    FileInfo info(cmdfile);
+    FileInfo info(Utils::expandTilde(cmdfile));
     nd = info.path();
     cmdfile = info.fileName();
   }

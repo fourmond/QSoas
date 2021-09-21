@@ -54,6 +54,8 @@
 #include <file-arguments.hh>
 #include <metadatafile.hh>
 
+#include <datasetlist.hh>
+
 #include <unsplicer.hh>
 
 static Group grp("buffer", 2,
@@ -400,22 +402,31 @@ rv("reverse", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void sortCommand(const QString &)
+static void sortCommand(const QString &, const CommandOptions & opts)
 {
-  const DataSet * ds = soas().currentDataSet();
-  soas().pushDataSet(ds->sort());
+  DataStackHelper pusher(opts);
+  DataSetList buffers(opts);
+  for(const DataSet * ds : buffers)
+    pusher << ds->sort();
 }
 
 
+static ArgumentList 
+sortO(QList<Argument *>() 
+      << DataStackHelper::helperOptions()
+      << DataSetList::listOptions("Datasets to sort")
+      );
+
 static Command 
 sort("sort", // command name
-     optionLessEffector(sortCommand), // action
+     effector(sortCommand), // action
      "buffer",  // group name
      NULL, // arguments
-     NULL, // options
+     &sortO, // options
      "Sort",
      "Sort with ascending X values",
      "");
+
 
 //////////////////////////////////////////////////////////////////////
 

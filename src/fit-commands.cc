@@ -1472,3 +1472,57 @@ rtf("run-for-trajectories", // command name
      "Run commands",
      "Run commands from a file",
      NULL, CommandContext::fitContext());
+
+//////////////////////////////////////////////////////////////////////
+
+#include <commandwidget.hh>
+
+static void loadFromTrajectoryCommand(const QString &, int trajectory,
+                                      const CommandOptions &opts)
+{
+
+  bool final = true;
+  QString par;
+  updateFromOptions(opts, "parameters", par);
+  if(par == "initial")
+    final = false;
+
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  int trj = trajectory;
+  if(trj < 0)
+    trj = ws->trajectories.size() - trj;
+  if(trj >= ws->trajectories.size() || trj < 0)
+    throw RuntimeError("No such trajectory: %1").arg(trajectory);
+
+  const FitTrajectory & t = ws->trajectories[trj];
+  
+  ws->restoreParameterValues(final ? t.finalParameters :
+                               t.initialParameters);
+}
+
+static ArgumentList
+lftOpts(QList<Argument *>() 
+        << new ChoiceArgument(QStringList()
+                              << "final" << "initial",
+                              "parameters", 
+                              "Parameters",
+                              "which parameters to use")
+        );
+
+static ArgumentList 
+lftArgs(QList<Argument *>() 
+        << new IntegerArgument("trajectory", 
+                               "Trajectory", "the index of the trajectory to use")
+        );
+
+
+// The same, but for the fit context
+static Command 
+lft("load-from-trajectory", // command name
+    effector(loadFromTrajectoryCommand), // action
+    "fits",  // group name
+    &lftArgs, // arguments
+    &lftOpts, 
+    "Loads from trajectory",
+    "Load parameters from the given trajectory",
+    NULL, CommandContext::fitContext());

@@ -429,22 +429,25 @@ QStringList File::glob(const QString & pattern,
   bool rewriteHome = false;
   QString hp;
 
-  /// Expand home directory
-  if(pats[0] == "~") {
-    pats[0] = QDir::homePath();
-    rewriteHome = true;
-    hp = pats[0] + "/";
-  }
 
   QRegExp winDrive("^[a-z]:$");
   QString base = ".";
-  if(pats[0].isEmpty()) {
-    base = "/";
+  /// Expand home directory
+  if(pats[0] == "~") {
+    base = QDir::homePath() + "/";
+    rewriteHome = true;
+    hp = base;
     pats.takeFirst();
   }
-  else if(winDrive.indexIn(pats[0]) == 0) {
-    base = pats[0] + "/";
-    pats.takeFirst();
+  else {
+    if(pats[0].isEmpty()) {
+      base = "/";
+      pats.takeFirst();
+    }
+    else if(winDrive.indexIn(pats[0]) == 0) {
+      base = pats[0] + "/";
+      pats.takeFirst();
+    }
   }
 
   QStringList lst = globHelper(pats, base, isDir);

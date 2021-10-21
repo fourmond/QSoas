@@ -6,3 +6,4 @@ clear-stack
 timer /name=${1%%.cmds}
 @ ${1} /cd-to-script=true
 timer /name=${1%%.cmds}
+mem

@@ -139,7 +139,7 @@ void Expression::buildCode()
   code = mr->makeBlock(expression.toLocal8Bit(), minimalVariables);
   // printf("%p -> %p\n", this, code);
   // DUMP_MRUBY(code);
-  mr->gcRegister(code);
+  // mr->gcRegister(code);
   buildArgs();                  // Build the arguments cache
 }
 
@@ -152,9 +152,10 @@ void Expression::freeCode()
   }
   delete[] args;
   args = NULL;
-  mr->gcUnregister(code);
+  // mr->gcUnregister(code);
   delete[] indexInVariables;
   code = mrb_nil_value();
+  // mr->startGC();
 }
 
 void Expression::setParametersFromExpression(const QStringList & params,

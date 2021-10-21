@@ -108,6 +108,9 @@ public:
   void gcRegister(mrb_value obj);
   void gcUnregister(mrb_value obj);
 
+  /// Starts the garbage collection
+  void startGC();
+
   /// @name Number-related functions
   /// @{
 

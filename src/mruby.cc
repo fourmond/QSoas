@@ -543,6 +543,11 @@ void MRuby::defineGlobalConstant(const char *name, mrb_value val)
   mrb_define_global_const(mrb, name, val);
 }
 
+void MRuby::startGC()
+{
+  mrb_full_gc(mrb);
+}
+
 
 
 void MRuby::gcRegister(mrb_value obj)

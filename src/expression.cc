@@ -82,6 +82,9 @@ void Expression::buildCode()
   // QMutexLocker m(&Ruby::rubyGlobalLock);
   singleVariableIndex = -1;
 
+  if(! mrb_nil_p(code))
+    freeCode();
+
   if(variables.isEmpty() && minimalVariables.isEmpty()) {
     minimalVariables = variablesNeeded(expression);
     variables = minimalVariables;
@@ -137,9 +140,9 @@ void Expression::buildCode()
 
   MRuby * mr = MRuby::ruby();
   code = mr->makeBlock(expression.toLocal8Bit(), minimalVariables);
-  // printf("%p -> %p\n", this, code);
+  // printf("Build code: %p -> %p\n", this, code);
   // DUMP_MRUBY(code);
-  // mr->gcRegister(code);
+  mr->gcRegister(code);
   buildArgs();                  // Build the arguments cache
 }
 
@@ -152,8 +155,10 @@ void Expression::freeCode()
   }
   delete[] args;
   args = NULL;
-  // mr->gcUnregister(code);
+  // printf("Free code: %p -> %p\n", this, code);
+  mr->gcUnregister(code);
   delete[] indexInVariables;
+  indexInVariables = NULL;
   code = mrb_nil_value();
   // mr->startGC();
 }
@@ -186,14 +191,16 @@ void Expression::setParametersFromExpression(const QStringList & params,
 
 
 Expression::Expression(const QString & expr) :
-  expression(expr), args(NULL), argsSize(0), indexInVariables(NULL)
+  expression(expr), code(mrb_nil_value()),
+  args(NULL), argsSize(0), indexInVariables(NULL)
 {
   buildCode();
 }
 
 Expression::Expression(const QString & expr, const QStringList & vars, 
                        bool skip) :
-  expression(expr), args(NULL), indexInVariables(NULL)
+  expression(expr), code(mrb_nil_value()),
+  args(NULL), indexInVariables(NULL)
 {
   if(! skip)
     buildCode();

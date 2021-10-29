@@ -204,6 +204,8 @@ void FitDialog::setupFrame(bool expert)
   bufferSelection = new QComboBox;
 
   QMenuBar * menuBar = new QMenuBar();
+  // We make a non native menu bar as it is messed up in macos
+  menuBar->setNativeMenuBar(false);
   layout->addWidget(menuBar);
 
   const GraphicsSettings & gs = soas().graphicsSettings();

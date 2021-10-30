@@ -20,6 +20,7 @@
 #include <terminal.hh>
 #include <commandwidget.hh>
 
+#include <soas.hh>
 #include <settings-templates.hh>
 #include <commandlineparser.hh>
 
@@ -55,39 +56,41 @@ void Terminal::flushToTerminal()
     return;                     // nothing to do Note that it means
                                 // that you can chain format
                                 // specifiers.
-  
-  initializeCursors();
-  if(appendCursor) {
-    QTextEdit * edit = CommandWidget::theCommandWidget->
-      terminalDisplay;
-    appendCursor->insertText(buffer, currentFormat);
-    currentFormat = QTextCharFormat();
+
+  if(! soas().isHeadless()) {
+    initializeCursors();
+    if(appendCursor) {
+      QTextEdit * edit = CommandWidget::theCommandWidget->
+        terminalDisplay;
+      appendCursor->insertText(buffer, currentFormat);
+      currentFormat = QTextCharFormat();
     
-    totalLines += buffer.count('\n');
+      totalLines += buffer.count('\n');
 
-    // Remove lines at the beginning
-    if(totalLines > ::maxLines) {
-      int nbdel = totalLines - (::maxLines + deletedLines);
-      deleteCursor->movePosition(QTextCursor::Start);
-      deleteCursor->movePosition(QTextCursor::Down,
-                                 QTextCursor::KeepAnchor,
-                                 nbdel);
-      deleteCursor->removeSelectedText();
-      deletedLines += nbdel;
+      // Remove lines at the beginning
+      if(totalLines > ::maxLines) {
+        int nbdel = totalLines - (::maxLines + deletedLines);
+        deleteCursor->movePosition(QTextCursor::Start);
+        deleteCursor->movePosition(QTextCursor::Down,
+                                   QTextCursor::KeepAnchor,
+                                   nbdel);
+        deleteCursor->removeSelectedText();
+        deletedLines += nbdel;
+      }
+
+
+
+      // and scroll to the bottom
+      QScrollBar * sb = edit->verticalScrollBar();
+      sb->setSliderPosition(sb->maximum());
+
+      // Always clear undo stacks, we don't need those
+      edit->document()->clearUndoRedoStacks();
     }
-
-
-
-    // and scroll to the bottom
-    QScrollBar * sb = edit->verticalScrollBar();
-    sb->setSliderPosition(sb->maximum());
-
-    // Always clear undo stacks, we don't need those
-    edit->document()->clearUndoRedoStacks();
-  }
-  else {
-    QTextStream o(stdout);
-    o << buffer;
+    else {
+      QTextStream o(stdout);
+      o << buffer;
+    }
   }
 
   for(int i = 0; i < spies.size(); i++)

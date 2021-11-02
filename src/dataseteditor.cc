@@ -23,6 +23,7 @@
 #include <settings-templates.hh>
 
 #include <valuehasheditor.hh>
+#include <utils.hh>
 
 #include <soas.hh>
 
@@ -68,7 +69,7 @@ void DatasetEditor::setupTable(QTableWidget * table, const DataSet * ds)
       if(! i) {
         QString n = QString("#%1").arg(j);
         if(rn.size() > j)
-          n += ": " + rn[j];
+          n += ": " + Utils::shortenString(rn[j], 40);
         table->setVerticalHeaderItem(j, new QTableWidgetItem(n));
       }
       table->setItem(j, i, new QTableWidgetItem(QString::number(c[j])));

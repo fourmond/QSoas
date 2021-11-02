@@ -37,20 +37,13 @@ mrb_sym Expression::callSym()
 void Expression::buildArgs()
 {
   MRuby * mr = MRuby::ruby();
-  if(args) {
-    for(int i = 0; i < argsSize; i++)
-      mr->gcUnregister(args[i]);
-  }
   delete[] args;
   argsSize = minimalVariables.size();
   args = new mrb_value[argsSize];
 
   for(int i = 0; i < argsSize; i++) {
     args[i] = mr->newFloat(0.0);
-    // printf("Argument #%d -- %p: ", i, args[i]);
-    // mrb_p(mr->mrb, args[i]);
-    // DUMP_MRUBY(args[i]);
-    mr->gcRegister(args[i]);
+    guard.protect(args[i]);
   }
 
   // Update the cache
@@ -142,21 +135,15 @@ void Expression::buildCode()
   code = mr->makeBlock(expression.toLocal8Bit(), minimalVariables);
   // printf("Build code: %p -> %p\n", this, code);
   // DUMP_MRUBY(code);
-  mr->gcRegister(code);
+  guard.protect(code);
   buildArgs();                  // Build the arguments cache
 }
 
 void Expression::freeCode()
 {
   MRuby * mr = MRuby::ruby();
-  if(args) {
-    for(int i = 0; i < argsSize; i++)
-      mr->gcUnregister(args[i]);
-  }
   delete[] args;
   args = NULL;
-  // printf("Free code: %p -> %p\n", this, code);
-  mr->gcUnregister(code);
   delete[] indexInVariables;
   indexInVariables = NULL;
   code = mrb_nil_value();

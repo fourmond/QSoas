@@ -381,7 +381,8 @@ SOURCES += src/qmain.cc \
         src/implicit-fits.cc \
         src/datasetwriter.cc \
         src/externalfunction.cc \
-        src/externalfunctionfit.cc
+        src/externalfunctionfit.cc \
+        src/gcguard.cc
 
 # Fit engines, grouped in an easy way to disable them:
 # (its missing ODRPACK, though)
@@ -527,7 +528,8 @@ HEADERS += src/headers.hh \
         src/namedinstanceargument.hh \
         src/datasetlist.hh \
         src/datasetwriter.hh \
-        src/externalfunction.hh
+        src/externalfunction.hh \
+        src/gcguard.hh
 
 # mruby
 HEADERS += src/mruby.hh

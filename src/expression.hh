@@ -22,6 +22,7 @@
 #define __EXPRESSION_HH
 
 #include <vector.hh>
+#include <gcguard.hh>
 
 /// This class represents a mathematical expression, internally
 /// handled by Ruby.
@@ -40,6 +41,9 @@ class Expression {
 
   /// The current size of args
   int argsSize;
+
+  /// A guard against GC
+  GCGuard guard;
 
   /// The index of the variables used to build the code
   int * indexInVariables;

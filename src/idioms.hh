@@ -118,9 +118,8 @@ public:
   };
 
   ~SaveGlobal() {
-    mrb_value v = mr->getGlobal(name);
     mr->setGlobal(name, old);
-    mr->gcUnregister(v);
+    // mr->gcUnregister(v);
     mr->gcUnregister(old);
   };
 };

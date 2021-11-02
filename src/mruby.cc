@@ -91,8 +91,6 @@ MRuby::MRuby()
   sNew = mrb_intern_lit(mrb, "new");
   sToS = mrb_intern_lit(mrb, "to_s");
   sBrackets = mrb_intern_lit(mrb, "[]");
-  gcGuard = mrb_hash_new(mrb);
-  mrb_gv_set(mrb, mrb_intern_lit(mrb, "$__qsoas_safe"), gcGuard);
 }
 
 MRuby::~MRuby()
@@ -555,9 +553,8 @@ void MRuby::startGC()
 void MRuby::gcRegister(mrb_value obj)
 {
   STACK_DUMP;
-  mrb_hash_set(mrb, gcGuard, obj, gcGuard);
-  // // DUMP_MRUBY(obj);
-  // mrb_gc_register(mrb, obj);
+  // DUMP_MRUBY(obj);
+  mrb_gc_register(mrb, obj);
   // mrb_sym sym = mrb_intern_lit(mrb, "$__qsoas_safe");
   // mrb_value v = mrb_gv_get(mrb, sym);
   // if(mrb_nil_p(v)) {
@@ -574,8 +571,7 @@ void MRuby::gcRegister(mrb_value obj)
 void MRuby::gcUnregister(mrb_value obj)
 {
   // DUMP_MRUBY(obj);
-  mrb_hash_delete_key(mrb, gcGuard, obj);
-  // mrb_gc_unregister(mrb, obj);
+  mrb_gc_unregister(mrb, obj);
 }
 
 mrb_sym MRuby::intern(const char * symbol)

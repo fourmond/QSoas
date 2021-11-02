@@ -1,2 +1,0 @@
-generate-dataset /samples=11 1 11
-run-for-each /range-type=lin s/small-af.cmds 0..1:4000 

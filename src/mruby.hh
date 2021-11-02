@@ -40,6 +40,8 @@ class MRuby {
 
   mrb_value soasInstance;
 
+  mrb_value gcGuard;
+
 public:
   /// The "Cplx" class
   struct RClass * cCplx;

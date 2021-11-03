@@ -151,6 +151,7 @@
 // MVC classes
 #include <QAbstractTableModel>
 #include <QHeaderView>
+#include <QFileSystemModel>
 
 // Plugins
 #include <QLibrary>

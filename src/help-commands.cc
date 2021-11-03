@@ -228,19 +228,19 @@ void updateDocumentationFile(const QString &, QString file)
   
 }
 
-static ArgumentList 
-udfA(QList<Argument *>() 
-     << new FileArgument("file", "File",
-                         "The file to update"));
+// static ArgumentList 
+// udfA(QList<Argument *>() 
+//      << new FileArgument("file", "File",
+//                          "The file to update"));
 
-static Command 
-udCmd("update-documentation", // command name
-     optionLessEffector(updateDocumentationFile), // action
-     "help",  // group name
-     &udfA, // arguments
-     NULL, // options
-     "Update documentation",
-     "Update documentation file");
+// static Command 
+// udCmd("update-documentation", // command name
+//      optionLessEffector(updateDocumentationFile), // action
+//      "help",  // group name
+//      &udfA, // arguments
+//      NULL, // options
+//      "Update documentation",
+//      "Update documentation file");
 
 //////////////////////////////////////////////////////////////////////
 

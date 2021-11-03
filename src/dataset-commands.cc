@@ -2131,9 +2131,15 @@ gDS("generate-dataset", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+#include <fileinfo.hh>
+
 static void recordMeta(const QString & file, const QString & meta,
                        const QVariant & value)
 {
+  FileInfo info(file);
+  if(! info.exists())
+    throw RuntimeError("file does not exist");
+  
   MetaDataFile md(file);
   md.read(false);
   md.metaData[meta] = value;

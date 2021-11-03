@@ -100,6 +100,13 @@ static void helpCommand(const QString & /*name*/,
     return;
   }
 
+  QString location;
+  updateFromOptions(opts, "location", location);
+  if(! location.isEmpty()) {
+    HelpBrowser::browseLocation(location);
+    return;
+  }
+
   Command * cmd = NULL;
   updateFromOptions(opts, "command", cmd);
 
@@ -127,7 +134,10 @@ helpO(QList<Argument *>()
       << new BoolArgument("synopsis", "Synopsis",
                           "Does not show the help, but print a brief synopsis")
       << new BoolArgument("dump", "Dump",
-                          "Shows information about the contents of the help files"));
+                          "Shows information about the contents of the help files")
+      << new StringArgument("location", "Location",
+                            "Shows the given URL location in the documentation")
+      );
 
 
 static Command 

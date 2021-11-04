@@ -304,7 +304,7 @@ protected:
                    int els, 
                    const QStringList & literals,
                    const QString & arrow,
-                   const QString & opts = "");
+                   const QString & opts, int defaultEchemType);
 
 
 
@@ -416,12 +416,13 @@ public:
 
 protected:
   /// Reads reactions from a file, and add them to the current system.
-  void parseFile(QIODevice * stream, const QString & name);
+  void parseFile(QIODevice * stream, const QString & name,
+                 int echemType = 1);
 
 public:
 
   /// Reads directly the file
-  void parseFile(const QString & fileName);
+  void parseFile(const QString & fileName, int echemType = 1);
 
   /// Dump into a file
   void dump(QTextStream & out) const;

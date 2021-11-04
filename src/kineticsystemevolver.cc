@@ -278,6 +278,8 @@ kineticSystem("kinetic-system", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+#include <argument-templates.hh>
+
 /// Fits a full kinetic system.
 class KineticSystemFit : public ODEFit {
 protected:
@@ -408,8 +410,17 @@ protected:
 
 protected:
 
+  ArgumentList fitHardOptions() const override {
+    ArgumentList lst = ODEFit::fitHardOptions();
+    lst << new TemplateChoiceArgument<int>(redoxTypes, "redox-type",
+                                           "Redox type", 
+                                           "Type of redox reactions");
+    return lst;
+  };
 
-  void prepareFit(const QString & fileName, FitData * data)
+
+  void prepareFit(const QString & fileName, FitData * data,
+                  const CommandOptions & opts)
   {
     Storage * s = storage<Storage>(data);
     delete s->system;
@@ -417,8 +428,10 @@ protected:
     delete s->evolver;
     s->evolver = NULL;             // Prevent segfault upon destruction
                                 // if next step fails
+    int type = 1;
+    updateFromOptions(opts, "redox-type", type);
     s->system = new KineticSystem;
-    s->system->parseFile(fileName);
+    s->system->parseFile(fileName, type);
 
     /// @todo That should join KineticSystemEvolver ?
     s->system->prepareForTimeEvolution();
@@ -429,8 +442,8 @@ protected:
               QList<const DataSet *> datasets,
               const CommandOptions & opts)
   {
-    Fit::runFit([this, fileName](FitData * data) {
-        prepareFit(fileName, data);
+    Fit::runFit([this, fileName, opts](FitData * data) {
+                  prepareFit(fileName, data, opts);
       }, name, datasets, opts);
   }
 
@@ -447,8 +460,8 @@ protected:
                   QList<const DataSet *> datasets,
                   const CommandOptions & opts)
   {
-    Fit::computeFit([this, fileName](FitData * data) {
-        prepareFit(fileName, data);
+    Fit::computeFit([this, fileName, opts](FitData * data) {
+                      prepareFit(fileName, data, opts);
       }, name, params, datasets, opts);
   }
 
@@ -509,6 +522,8 @@ public:
     if(s->hasOrigTime)
       b[-1] = x[0] - 20;
 
+
+
     // All initial concentrations to 0 but the first
     for(int i = 0; i < nb; i++)
       b[i] = (i == 0 ? 1 : 0);
@@ -519,6 +534,10 @@ public:
     // fail miserably in combined fits
     for(int i = nb + s->parametersBase; i < s->parametersNumber; i++)
       a[i] = 1;                 // Simple, heh ?
+
+
+    if(s->temperatureIndex >= 0)
+      b[s->temperatureIndex] = soas().temperature();
 
     // And have the parameters handle themselves:
     s->timeDependentParameters.setInitialGuesses(a + s->tdBase, ds);
@@ -586,7 +605,16 @@ public:
     delete myEvolver;
     delete mySystem;
   };
+
+  static QHash<QString, int> redoxTypes;
 };
+
+QHash<QString, int> KineticSystemFit::redoxTypes =
+  {
+   {"bv", 1},
+   {"bva", 2},
+   {"mhc", 3}
+  };
 
 static KineticSystemFit fit_kinetic_system;
 

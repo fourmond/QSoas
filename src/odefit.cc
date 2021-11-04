@@ -116,6 +116,8 @@ void ODEFit::updateParameters(FitData * data) const
 
   QStringList parameters = systemParameters(data);
   s->timeIndex= -1;
+  s->temperatureIndex = -1;
+  s->potentialIndex = -1;
 
   if(! hasReporters(data)) {
     QStringList names = variableNames(data);
@@ -144,10 +146,13 @@ void ODEFit::updateParameters(FitData * data) const
       continue;
     }
 
-    if(s->voltammogram && name == "temperature") {
+    if(name == "temperature") {
       s->temperatureIndex = i;
-      s->skippedIndices.insert(i);
-      continue;
+      if(s->voltammogram) {       // if voltammogram is on, then the two
+                                // parameters end up at the beginning
+        s->skippedIndices.insert(i);
+        continue;
+      }
     }
     if(s->voltammogram && name == "e") {
       s->potentialIndex = i;

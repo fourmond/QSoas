@@ -971,10 +971,10 @@ double KineticSystem::computeDerivatives(gsl_vector * target,
 }
 
 
-void KineticSystem::parseFile(const QString & fileName)
+void KineticSystem::parseFile(const QString & fileName, int def)
 {
   File f(fileName, File::TextRead);
-  parseFile(f, fileName);
+  parseFile(f, fileName, def);
 }
 
 
@@ -1000,7 +1000,8 @@ static void parseReactants(const QString & reactants,
   }
 }
 
-void KineticSystem::parseFile(QIODevice * device, const QString & n)
+void KineticSystem::parseFile(QIODevice * device, const QString & n,
+                              int defaultEchemType)
 {
   QTextStream in(device);
 
@@ -1080,7 +1081,8 @@ void KineticSystem::parseFile(QIODevice * device, const QString & n)
         }
       }
 
-      addReaction(reactants, stoechiometry, els, literals, arrow, options);
+      addReaction(reactants, stoechiometry, els, literals, arrow, options,
+                  defaultEchemType);
     }
     else
       throw RuntimeError(QString("Kinetic file %1 -- line %2:\n '%3' not valid").
@@ -1098,7 +1100,8 @@ void KineticSystem::addReaction(QList<QString> species,
                                 int els, 
                                 const QStringList & lits,
                                 const QString & arrow,
-                                const QString & opts)
+                                const QString & opts,
+                                int defaultEchemType)
 {
   parameters.clear();
   QStringList literals = lits;
@@ -1112,7 +1115,7 @@ void KineticSystem::addReaction(QList<QString> species,
 
   int type = 0;
   if(els != 0) {
-    type = 1;
+    type = defaultEchemType;
     if(opts == "(BV)")
       type = 2;
     if(opts == "(M)")

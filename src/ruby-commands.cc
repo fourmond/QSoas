@@ -157,6 +157,12 @@ static void applyFormulaCommand(const QString &, QString formula,
             
           }
           catch (const RuntimeError & er) {
+            if(er.message().contains("LocalJumpError:") &&
+               er.message().contains("break")) {
+              Terminal::out << "Found break at X = " << ds->x()[idx]
+                            << " (#" << idx << "): " << endl;
+              break;
+            }
             Terminal::out << "Error at X = " << ds->x()[idx]
                           << " (#" << idx << "): " << er.message()
                           << " => "
@@ -218,6 +224,12 @@ static void applyFormulaCommand(const QString &, QString formula,
               evaluateNoLock(args.data());
           }
           catch (const RuntimeError & er) {
+            if(er.message().contains("LocalJumpError:") &&
+               er.message().contains("break")) {
+              Terminal::out << "Found break at X = " << ds->x()[idx]
+                            << " (#" << idx << "): " << endl;
+              break;
+            }
             Terminal::out << "Error at X = " << ds->x()[idx]
                           << " (#" << idx << "): " << er.message()
                           << endl;
@@ -226,6 +238,10 @@ static void applyFormulaCommand(const QString &, QString formula,
         }
       }
       QList<Vector> ncls = ds->allColumns();
+      for(Vector & col : ncls) {
+        if(col.size() > newCol.size())
+          col.resize(newCol.size());
+      }
       ncls << newCol;
       DataSet * newDs = ds->derivedDataSet(ncls, "_mod.dat");
       if(! newName.isEmpty())

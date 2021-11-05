@@ -1,0 +1,11 @@
+# A test to verify we can use break to stop adding data
+generate-dataset 0 10 /samples=101
+apply-formula 'if x>4; break; end'
+assert $stats.x_max-4 0
+
+generate-dataset 0 10 /samples=101
+apply-formula /mode=add-column 'if x>4; break; else x**2; end'
+assert $stats.x_max-4 0
+assert $stats.y2_max-16 0
+
+

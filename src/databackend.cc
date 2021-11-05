@@ -141,6 +141,20 @@ void DataBackend::cacheStats(int * nbFiles, int * nbDatasets,
 }
 
 
+QString DataBackend::publicName() const
+{
+  return pubName;
+}
+
+QString DataBackend::description() const
+{
+  return desc;
+}
+
+QString DataBackend::codeName() const
+{
+  return name;
+}
 
 
 

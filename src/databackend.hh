@@ -77,10 +77,10 @@ protected:
   QString name;
 
   /// A public name
-  const char * pubName;
+  QString pubName;
 
   /// A description
-  const char * desc;
+  QString desc;
 
   DataBackend(const char * n, const char * pn, const char * d = "", 
               bool autoRegister = true) :
@@ -91,14 +91,13 @@ protected:
 public:
 
   /// The public name of the backend
-  QString publicName() const {
-    return QObject::tr(pubName);
-  };
+  QString publicName() const; 
 
   /// A description of what the backend loads
-  QString description() const {
-    return QObject::tr(desc);
-  };
+  QString description() const;
+
+  /// The code name of the backend, the one we're using in the end
+  QString codeName() const;
 
 protected:
   /// Returns a value signalling whether the given file could be read

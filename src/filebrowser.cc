@@ -35,10 +35,24 @@
 class FileData {
 public:
 
+  /// The underlying backend
   DataBackend * backend;
+
+  /// If true, there is no backend to load this file (or the ignore
+  /// backend)
+  bool noBackend;
 
   /// To check
   QDateTime lastModified;
+
+  QString backendName() const {
+    if(backend) {
+      if(noBackend)
+        return "(ignored)";
+      return backend->codeName();
+    }
+    return "(no backend)";
+  };
 
   /// Returns a newly created FileData object.
   static FileData * dataForFile(const FileInfo & info) {
@@ -47,13 +61,16 @@ public:
     dt->lastModified = info.lastModified();
 
     dt->backend = NULL;
+    dt->noBackend = true;
     try {
       File fl(info.absoluteFilePath(), File::BinaryRead);
       dt->backend = DataBackend::backendForStream(fl, info.absoluteFilePath());
+      if(dt->backend && dt->backend->codeName() != "ignore")
+        dt->noBackend = false;
     }
     catch(RuntimeError & re) {
     }
-        
+
     return dt;
   }
   
@@ -111,6 +128,12 @@ QVariant FileListModel::data(const QModelIndex & index, int role) const
 
   int col = index.column();
 
+  FileData * fd = cachedInfo(fileList[idx]);
+  // All ignore files are ignored by default
+  if(fd->noBackend && role == Qt::ForegroundRole)
+    return QColor(130, 130, 130);
+
+
   /// The name column
   if(col == 0) {
     switch(role) {
@@ -143,17 +166,10 @@ QVariant FileListModel::data(const QModelIndex & index, int role) const
 
   /// The backend column:
   if(col == 3) {
-    FileData * fd = cachedInfo(fileList[idx]);
     switch(role) {
     case Qt::DisplayRole:
     case Qt::EditRole:
-      if(fd->backend) {
-        QString n = fd->backend->codeName();
-        if(n == "ignore")
-          return "(ignored)";
-        return n;
-      }
-      return "(no backend)";
+      return fd->backendName();
     };
   }
 

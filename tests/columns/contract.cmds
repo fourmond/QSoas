@@ -49,8 +49,10 @@ assert $stats.y4_min-6 0
 
 generate-buffer 0 10 /columns=4
 set-perp 0 1 2
+drop 1
 generate-buffer 0 10 /columns=4
 set-perp 3 4 5
+drop 1
 
 
 contract 1 0
@@ -74,12 +76,12 @@ assert $meta.Zs[1]-3 0
 generate-buffer 0 10 /columns=3
 set-perp 0 1
 apply-formula y=0;y2=1
-drop 1
+drop 1,2
 
 generate-buffer 0 10 /columns=4
 set-perp 3 4 5
 apply-formula y=3;y2=4;y3=5
-drop 1
+drop 1,2
 
 contract 1 0
 assert $stats.columns-6 0

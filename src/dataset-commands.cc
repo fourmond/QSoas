@@ -2369,19 +2369,29 @@ static void setPerpCommand(const QString &,
   int row = -1;
   updateFromOptions(opts, "coords", coords);
   updateFromOptions(opts, "from-row", row);
+
+  std::unique_ptr<DataSet> newds(ds->derivedDataSet(""));
   if(row >= 0) {
-    // Mmmm, I really don't like the idea of modifying in place...
+    if(coords.size() != 0)
+      throw RuntimeError("Perpendicular coordinates given even when /from-row is used");
     Vector perp;
     for(int i = 0; i < ds->nbColumns(); i++) {
       double v = ds->column(i)[row];
       if(i > 0)
         perp << v;
     }
-    ds->setPerpendicularCoordinates(perp);
-    ds->removeRow(row);
+    newds->setPerpendicularCoordinates(perp);
+    newds->removeRow(row);
   }
-  else
-    ds->setPerpendicularCoordinates(coords.toVector());
+  else {
+    if(coords.size() == 0) {
+      Terminal::out << "No coordinates given, not doing anything" << endl;
+      return;
+    }
+    else
+      newds->setPerpendicularCoordinates(coords.toVector());
+  }
+  soas().pushDataSet(newds.release());
 }
 
 static ArgumentList 

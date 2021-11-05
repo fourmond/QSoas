@@ -44,6 +44,9 @@ protected:
        return "QSoas meta data";
     if(peek.startsWith("%PDF-1."))
       return "PDF";
+    if(peek.startsWith("Opening log file:") &&
+       peek.contains("This is QSoas version "))
+      return "QSoas log file";
     return QString();
   };
 

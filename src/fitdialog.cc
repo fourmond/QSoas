@@ -499,18 +499,21 @@ void FitDialog::setupFrame(bool expert)
   menuBar->addMenu(menu);
 
 
-   if(bufferWeightEditor) {
-     menu = new QMenu("Weights");
-     addMenuAction(menu, "Reset all weights to 1", this, 
-                   SLOT(resetWeights()),
-                   QKeySequence(tr("Ctrl+Shift+W")));
-     addMenuAction(menu, "Give equal importance to all buffers", this, 
-                   SLOT(equalWeightsPerBuffer()),
-                   QKeySequence(tr("Ctrl+Shift+B")));
-     menuBar->addMenu(menu);
+  if(bufferWeightEditor) {
+    menu = new QMenu("Weights");
+    addMenuAction(menu, "Reset all weights to 1", this, 
+                  SLOT(resetWeights()),
+                  QKeySequence(tr("Ctrl+Shift+W")));
+    addMenuAction(menu, "Give equal importance to all buffers", this, 
+                  SLOT(equalWeightsPerBuffer()),
+                  QKeySequence(tr("Ctrl+Shift+B")));
+    menuBar->addMenu(menu);
   }
 
 
+  menuBar->setEnabled(true);
+  menuBar->setNativeMenuBar(false);
+  menuBar->setVisible(true);
 
   
   //////////////////////////////////////////////////

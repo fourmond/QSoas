@@ -29,6 +29,9 @@
 #include <commandeffector-templates.hh>
 
 #include <databackend.hh>
+#include <metadatafile.hh>
+
+#include <settings-templates.hh>
 
 
 /// A simple cache for the data
@@ -41,6 +44,8 @@ public:
   /// If true, there is no backend to load this file (or the ignore
   /// backend)
   bool noBackend;
+
+  ValueHash cachedMeta;
 
   /// To check
   QDateTime lastModified;
@@ -65,8 +70,13 @@ public:
     try {
       File fl(info.absoluteFilePath(), File::BinaryRead);
       dt->backend = DataBackend::backendForStream(fl, info.absoluteFilePath());
-      if(dt->backend && dt->backend->codeName() != "ignore")
+      if(dt->backend && dt->backend->codeName() != "ignore") {
         dt->noBackend = false;
+        // Here, we read the meta-data
+        MetaDataFile md(info.absoluteFilePath());
+        md.read();
+        dt->cachedMeta = md.metaData;
+      }
     }
     catch(RuntimeError & re) {
     }
@@ -98,25 +108,81 @@ FileData * FileListModel::cachedInfo(const FileInfo & info) const
 void FileListModel::setDirectory(const QString & dir)
 {
   beginResetModel();
+  QSet<QString> meta;
   directory = dir;
   fileList = File::listDirectory(dir);
+  QTextStream o(stdout);
   for(int i = fileList.size() - 1; i >=0; i--) {
     if(fileList[i].isDir())
       fileList.takeAt(i);
+    else {
+      QStringList lst = cachedInfo(fileList[i])->cachedMeta.keys();
+      for(const QString & s : lst) {
+        meta.insert(s);
+      }
+    }
   }
+  metaDataNames = meta.toList();
+  std::sort(metaDataNames.begin(), metaDataNames.end());
   endResetModel();
 }
 
+void FileListModel::addMetaData(const QString & name)
+{
+  int found = -1;
+  for(int i = 0; i < metaDataNames.size(); i++) {
+    if(name == metaDataNames[i])
+      return;                   // nothing to do
+    if(name < metaDataNames[i]) {
+      found = i;
+      break;
+    }
+  }
+  if(found == -1)
+    found = metaDataNames.size();
+  beginInsertColumns(index(0,0), metaBaseColumn() + found,
+                     metaBaseColumn() + found + 1);
+  metaDataNames.insert(found, name);
+  endInsertColumns();
+}
+
+int FileListModel::metaBaseColumn() const
+{
+  return 4;
+}
 
 int FileListModel::columnCount(const QModelIndex & /*parent*/) const
 {
-  return 4;
+  return metaBaseColumn() + metaDataNames.size();
 }
 
 int FileListModel::rowCount(const QModelIndex & /*parent*/) const
 {
   return fileList.size();
 }
+
+QVariant FileListModel::headerData(int section, Qt::Orientation orientation,
+                                   int role) const
+{
+  if(orientation == Qt::Vertical)
+    return QVariant();
+  if(role == Qt::DisplayRole || role == Qt::EditRole) {
+    if(section >= metaBaseColumn())
+      return metaDataNames[section - metaBaseColumn()];
+    switch(section) {
+    case 0:
+      return "File name";
+    case 1:
+      return "Size";
+    case 2:
+      return "Last modification";
+    case 3:
+      return "Backend";
+    }
+  }
+  return QVariant();
+}
+  
 
 QVariant FileListModel::data(const QModelIndex & index, int role) const
 {
@@ -132,7 +198,6 @@ QVariant FileListModel::data(const QModelIndex & index, int role) const
   // All ignore files are ignored by default
   if(fd->noBackend && role == Qt::ForegroundRole)
     return QColor(130, 130, 130);
-
 
   /// The name column
   if(col == 0) {
@@ -173,6 +238,17 @@ QVariant FileListModel::data(const QModelIndex & index, int role) const
     };
   }
 
+  if(col >= metaBaseColumn()) {
+    int mdi = col - metaBaseColumn();
+    if(fd->noBackend)
+      return QVariant();// ?
+    switch(role) {
+    case Qt::DisplayRole:
+    case Qt::EditRole:
+      return fd->cachedMeta.value(metaDataNames[mdi], QVariant());
+    };
+  }
+
   return QVariant();
 }
 
@@ -181,13 +257,22 @@ QVariant FileListModel::data(const QModelIndex & index, int role) const
 
 //////////////////////////////////////////////////////////////////////
 
+static SettingsValue<QSize> browserSize("filesbrowser/size", QSize(700,500));
+static SettingsValue<QByteArray> splitterState("filesbrowser/splitter", 
+                                               QByteArray());
+
+
 FileBrowser::FileBrowser()
 {
   setupFrame();
+  resize(browserSize);
 }
+
 
 FileBrowser::~FileBrowser()
 {
+  browserSize = size();
+  splitterState = splitter->saveState();
   delete directoryView;
   delete directoryModel;
 }
@@ -197,7 +282,7 @@ void FileBrowser::setupFrame()
 {
   QVBoxLayout * global = new QVBoxLayout(this);
 
-  QSplitter * models = new  QSplitter(Qt::Horizontal);
+  splitter = new QSplitter(Qt::Horizontal);
 
   ////////////////////
   // directory
@@ -211,7 +296,8 @@ void FileBrowser::setupFrame()
   directoryView->setModel(directoryModel);
 
   directoryView->setRootIndex(directoryModel->index(base));
-  directoryView->setCurrentIndex(directoryModel->index(QDir::currentPath()));
+  QModelIndex cd = directoryModel->index(QDir::currentPath());
+  directoryView->setCurrentIndex(cd);
 
   connect(directoryView->selectionModel(),
           SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
@@ -220,7 +306,7 @@ void FileBrowser::setupFrame()
   for(int col : {1, 2, 3})
     directoryView->hideColumn(col);
 
-  models->addWidget(directoryView);
+  splitter->addWidget(directoryView);
 
 
   ////////////////////
@@ -231,11 +317,18 @@ void FileBrowser::setupFrame()
 
   listView = new QTableView;
   listView->setModel(listModel);
+  listView->verticalHeader()->setVisible(false);
+  listView->setShowGrid(false);
 
-  // A splitted would be better ?
-  models->addWidget(listView);
+  splitter->addWidget(listView);
+  splitter->setStretchFactor(1, 2);
+  
 
-  global->addWidget(models);
+  global->addWidget(splitter);
+
+  if(! splitterState->isEmpty())
+    splitter->restoreState(splitterState);
+
 
   QDialogButtonBox * buttons =
     new QDialogButtonBox(QDialogButtonBox::Ok,
@@ -244,12 +337,19 @@ void FileBrowser::setupFrame()
 
   connect(buttons, SIGNAL(accepted()), SLOT(accept()));
   connect(buttons, SIGNAL(rejected()), SLOT(reject()));
+
+  // Delay the call to scroll to when we go back to the event loop.
+  QMetaObject::invokeMethod(this, [this, cd] {
+                                    directoryView->scrollTo(cd);
+                                  },
+    Qt::QueuedConnection);
 }
 
 void FileBrowser::directorySelected(const QModelIndex &index)
 {
   QString dir = directoryModel->filePath(index);
   listModel->setDirectory(dir);
+  listView->resizeColumnsToContents();
 }
  
 

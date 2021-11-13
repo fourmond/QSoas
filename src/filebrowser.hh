@@ -42,6 +42,13 @@ class FileListModel : public QAbstractTableModel {
 
   FileData * cachedInfo(const FileInfo & info) const;
 
+  /// The names of the meta data currently displayed.
+  QStringList metaDataNames;
+
+  /// The number of the first column of meta-data
+  int metaBaseColumn() const;
+
+
 public:
 
   FileListModel();
@@ -59,16 +66,22 @@ public:
   // virtual bool setData(const QModelIndex & index,
   //                      const QVariant & value, int role);
 
-  // virtual QVariant headerData(int section, Qt::Orientation orientation,
-  //                             int role) const;
+  virtual QVariant headerData(int section, Qt::Orientation orientation,
+                              int role) const override;
   
   // virtual Qt::ItemFlags flags(const QModelIndex & index) const;
   /// @}
+
 
 public slots:
 
   /// Sets the given directory
   void setDirectory(const QString & dir);
+
+  /// Adds a meta data name to the list, and ensure the column is
+  /// added properly.
+  void addMetaData(const QString & name);
+
 };
 
 /// A dialog box to display the FileBrowserModel
@@ -77,6 +90,9 @@ class FileBrowser : public QDialog {
   
   /// Setup the frame
   void setupFrame();
+
+  /// The horizontal splitter
+  QSplitter * splitter;
 
   /// The display of the directory hierarchy
   QTreeView * directoryView;

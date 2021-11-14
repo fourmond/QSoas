@@ -50,6 +50,8 @@ public:
   /// To check
   QDateTime lastModified;
 
+  QString fullPath;
+
   QString backendName() const {
     if(backend) {
       if(noBackend)
@@ -62,18 +64,20 @@ public:
   /// Returns a newly created FileData object.
   static FileData * dataForFile(const FileInfo & info) {
     FileData * dt = new FileData;
+    
 
     dt->lastModified = info.lastModified();
 
     dt->backend = NULL;
     dt->noBackend = true;
+    dt->fullPath = info.absoluteFilePath();
     try {
-      File fl(info.absoluteFilePath(), File::BinaryRead);
+      File fl(dt->fullPath, File::BinaryRead);
       dt->backend = DataBackend::backendForStream(fl, info.absoluteFilePath());
       if(dt->backend && dt->backend->codeName() != "ignore") {
         dt->noBackend = false;
         // Here, we read the meta-data
-        MetaDataFile md(info.absoluteFilePath());
+        MetaDataFile md(dt->fullPath);
         md.read();
         dt->cachedMeta = md.metaData;
       }
@@ -82,7 +86,18 @@ public:
     }
 
     return dt;
-  }
+  };
+
+  void setMeta(const QString & meta, const QVariant & data) {
+    if(noBackend)
+      return;
+    MetaDataFile md(fullPath);
+    md.read();
+    cachedMeta = md.metaData;
+    cachedMeta[meta] = data;
+    md.metaData = cachedMeta;
+    md.write();
+  };
   
 };
 
@@ -182,7 +197,48 @@ QVariant FileListModel::headerData(int section, Qt::Orientation orientation,
   }
   return QVariant();
 }
+
+Qt::ItemFlags FileListModel::flags(const QModelIndex & index) const
+{
+  if(! index.isValid())
+    return Qt::NoItemFlags;
+  int idx = index.row();
+  if(idx < 0 || idx >= fileList.size())
+    return Qt::NoItemFlags;
+
+  int col = index.column();
+  if(col < metaBaseColumn())
+    return Qt::ItemIsSelectable|Qt::ItemIsEnabled;
+  FileData * fd = cachedInfo(fileList[idx]);
+  if(fd->noBackend)
+    return Qt::ItemIsSelectable|Qt::ItemIsEnabled;
+
+  return Qt::ItemIsSelectable|Qt::ItemIsEnabled|Qt::ItemIsEditable;
+}
+
+bool FileListModel::setData(const QModelIndex & index,
+                            const QVariant & value, int role)
+{
+  if(role != Qt::EditRole)
+    return false;
+  if(! index.isValid())
+    return false;
+  int idx = index.row();
+  if(idx < 0 || idx >= fileList.size())
+    return false;
+
+  int col = index.column();
+  if(col < metaBaseColumn())
+    return false;
+  FileData * fd = cachedInfo(fileList[idx]);
+  if(fd->noBackend)
+    return false;
   
+  fd->setMeta(metaDataNames[col - metaBaseColumn()], value);
+  return true;
+}
+
+
 
 QVariant FileListModel::data(const QModelIndex & index, int role) const
 {

@@ -142,12 +142,12 @@ void FileListModel::setDirectory(const QString & dir)
   endResetModel();
 }
 
-void FileListModel::addMetaData(const QString & name)
+int FileListModel::addMetaData(const QString & name)
 {
   int found = -1;
   for(int i = 0; i < metaDataNames.size(); i++) {
     if(name == metaDataNames[i])
-      return;                   // nothing to do
+      return metaBaseColumn() + i;                   // nothing to do
     if(name < metaDataNames[i]) {
       found = i;
       break;
@@ -155,10 +155,14 @@ void FileListModel::addMetaData(const QString & name)
   }
   if(found == -1)
     found = metaDataNames.size();
-  beginInsertColumns(index(0,0), metaBaseColumn() + found,
-                     metaBaseColumn() + found + 1);
+  // For some reason, the following doesn't work...
+  beginResetModel();
+  // beginInsertColumns(QModelIndex(), metaBaseColumn() + found,
+  //                    metaBaseColumn() + found + 1);
   metaDataNames.insert(found, name);
-  endInsertColumns();
+  endResetModel();
+  // endInsertColumns();
+  return metaBaseColumn() + found;
 }
 
 int FileListModel::metaBaseColumn() const
@@ -385,6 +389,24 @@ void FileBrowser::setupFrame()
   if(! splitterState->isEmpty())
     splitter->restoreState(splitterState);
 
+  ////////////////////
+  // addition of new meta-data
+  QHBoxLayout * newMetaHB = new QHBoxLayout;
+  newMetaHB->addWidget(new QLabel("Add new meta"), 1);
+  QLineEdit * edit = new QLineEdit;
+  newMetaHB->addWidget(edit, 1);
+  QPushButton * addButton = new QPushButton("Add");
+  newMetaHB->addWidget(addButton);
+  QObject::connect(addButton, &QAbstractButton::clicked,
+                   this,
+                   [this, edit] {
+                     int nc = 
+                       listModel->addMetaData(edit->text());
+                     listView->setColumnHidden(nc, false);
+                     listView->resizeColumnToContents(nc);
+                   });
+
+  global->addLayout(newMetaHB);
 
   QDialogButtonBox * buttons =
     new QDialogButtonBox(QDialogButtonBox::Ok,

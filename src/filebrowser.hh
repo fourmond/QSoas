@@ -80,7 +80,9 @@ public slots:
 
   /// Adds a meta data name to the list, and ensure the column is
   /// added properly.
-  void addMetaData(const QString & name);
+  ///
+  /// Returns the index of the newly created column.
+  int addMetaData(const QString & name);
 
 };
 

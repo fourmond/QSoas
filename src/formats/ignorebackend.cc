@@ -29,6 +29,8 @@
 #include <utils.hh>
 #include <exceptions.hh>
 
+#include <fileinfo.hh>
+
 /// A class that attempts to detect files which are not data, such as:
 /// @li QSoas's .qsm files
 /// @li PDF files
@@ -39,7 +41,8 @@ protected:
 
   /// Returns a string containing the detected format, or just an
   /// empty string if the format was not detected.
-  static QString detectFormat(const QByteArray & peek) {
+  static QString detectFormat(const QByteArray & peek,  
+                              const QString & fileName) {
     if(peek.startsWith("// QSoas JSON meta-data"))
        return "QSoas meta data";
     if(peek.startsWith("%PDF-1."))
@@ -47,12 +50,23 @@ protected:
     if(peek.startsWith("Opening log file:") &&
        peek.contains("This is QSoas version "))
       return "QSoas log file";
+
+    if(peek.startsWith("200,40")) {
+      QString nf = fileName;
+      if(nf.size() > 4 && nf[nf.size() - 3] == 'i') {
+        nf[nf.size() - 3] = 'o';
+        FileInfo fle(nf);
+        if(fle.exists())
+          return "GPES information file";
+      }
+    }
+    
     return QString();
   };
 
   virtual int couldBeMine(const QByteArray & peek, 
                           const QString & fileName) const override {
-    QString f = detectFormat(peek);
+    QString f = detectFormat(peek, fileName);
     if(! f.isEmpty())
       return 900;
     return 0;
@@ -63,8 +77,8 @@ protected:
                                           const CommandOptions & opts) const override {
     QList<DataSet *> rv;
     QByteArray peek = stream->peek(4096);
-    throw RuntimeError("File '%1' is not data, but a %2 file, ignoring.\n  -> if you think the detection is wrong, use the appropriate load-as-xxx command").
-      arg(fileName).arg(detectFormat(peek));
+    throw RuntimeError("File '%1' appears to be a %2 file, ignoring.\n  -> if you think QSoas is wrong, use the appropriate load-as-xxx command").
+      arg(fileName).arg(detectFormat(peek, fileName));
     return rv;
   };
 

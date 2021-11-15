@@ -533,11 +533,7 @@ public:
     // We can't use params->parameterDefinitions.size(), as this will
     // fail miserably in combined fits
     for(int i = nb + s->parametersBase; i < s->parametersNumber; i++)
-      a[i] = 1;                 // Simple, heh ?
-
-
-    if(s->temperatureIndex >= 0)
-      b[s->temperatureIndex] = soas().temperature();
+      a[i] = 1;
 
     // And have the parameters handle themselves:
     s->timeDependentParameters.setInitialGuesses(a + s->tdBase, ds);

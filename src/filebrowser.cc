@@ -416,11 +416,14 @@ void FileBrowser::setupFrame()
   connect(buttons, SIGNAL(accepted()), SLOT(accept()));
   connect(buttons, SIGNAL(rejected()), SLOT(reject()));
 
-  // Delay the call to scroll to when we go back to the event loop.
-  QMetaObject::invokeMethod(this, [this, cd] {
-                                    directoryView->scrollTo(cd);
-                                  },
-    Qt::QueuedConnection);
+  // This doesn't work and is not supported in older Qt versions.
+  // // Delay the call to scroll to when we go back to the event loop.
+  // QMetaObject::invokeMethod(this, [this, cd] {
+  //                                   directoryView->scrollTo(cd);
+  //                                 },
+  //   Qt::QueuedConnection);
+
+  directoryView->scrollTo(cd);  // This still doesn't work, but well.
 }
 
 void FileBrowser::directorySelected(const QModelIndex &index)

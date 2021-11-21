@@ -383,7 +383,8 @@ SOURCES += src/qmain.cc \
         src/externalfunction.cc \
         src/externalfunctionfit.cc \
         src/gcguard.cc \
-        src/filebrowser.cc
+        src/filebrowser.cc \
+        src/dataset-contour.cc
 
 
 # Fit engines, grouped in an easy way to disable them:

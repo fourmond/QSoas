@@ -1,0 +1,25 @@
+define-kinetic-system-fit redox-couple.sys redox /redefine=true
+ 
+# Reparametrize as a function of distance
+reparametrize-fit distance redox d k0=exp(-d) /redefine=true
+
+# Distribute
+define-distribution-fit distrib distance d /distribution=gaussian /redefine=true
+
+generate-dataset -0.5 0.5
+
+reverse
+i 1 0
+a CV.dat
+
+sim-distance /voltammogram=true /stepper=bsimp /override=d=${1:-0};v=${3:-1} voltammogram.params 0
+a non-dist.dat
+
+sim-distrib /voltammogram=true /stepper=bsimp /override=d_avg=${1:-0};v=${3:-1};d_sigma=${2:-2} voltammogram.params 0
+a dist-gaussian.dat
+
+eval $min=${1:-0}-1*${2:-1};$max=${1:-0}+1*${2:-1}
+
+sim-distrib /voltammogram=true /stepper=bsimp /override=d_min=%{$min};v=${3:-1};d_max=%{$max} /distribution=uniform voltammogram.params 0
+a dist-uniform.dat
+

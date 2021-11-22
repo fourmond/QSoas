@@ -44,6 +44,8 @@ protected:
     /// The number of species
     QList<int> number;
 
+    QStringList speciesNames;
+
   };
 
 
@@ -57,6 +59,8 @@ protected:
     if(opts.contains("states"))
       updateFromOptions(opts, "states", s->number);
     updateFromOptions(opts, "species", species);
+    s->speciesNames.clear();
+    updateFromOptions(opts, "species-names", s->speciesNames);
     if(species > 1) {
       if(s->number.size() != 1)
         Terminal::out << "/species specified, but /states already gives several species, ignoring" << endl;
@@ -105,7 +109,11 @@ public:
 
     for(int i = 0; i < s->number.size(); i++) {
       int nb = s->number[i];
-      QChar id('a' + i);
+      QString id;
+      if(i < s->speciesNames.size())
+        id = s->speciesNames[i];
+      else
+        id = QChar('a' + i);
 
       // Absorbances
       for(int j = 0; j < nb; j++)
@@ -195,6 +203,10 @@ public:
                                           "Number of distinct species",
                                           "Number of distinct species (regardless of their redox state)")
                    
+                   << new SeveralStringsArgument(QRegExp(","),
+                                                 "species-names", 
+                                                 "Species names",
+                                                 "Names of the species")
                    );
   };
   

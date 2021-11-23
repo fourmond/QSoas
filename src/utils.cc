@@ -518,6 +518,7 @@ double Utils::roundValue(double value, int rank)
 }
 
 
+/// @todo See actual use and see the function epsilonCompare() ?
 bool Utils::fuzzyCompare(double a, double b, double tolerance)
 {
   if(std::isnan(a)) {

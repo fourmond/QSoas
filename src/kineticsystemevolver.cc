@@ -416,7 +416,7 @@ protected:
       new TemplateChoiceArgument<int>(KineticSystem::namedRedoxReactionTypes(),
                                       "redox-type",
                                       "Redox type", 
-                                      "Type of redox reactions");
+                                      "Default type for redox reactions");
     return lst;
   };
 
@@ -634,7 +634,11 @@ dkfsOpts(QList<Argument *>()
          << new BoolArgument("redefine", 
                              "Redefine",
                              "If the fit already exists, redefines it")
-       );
+         << new TemplateChoiceArgument<int>(KineticSystem::namedRedoxReactionTypes(),
+                                            "redox-type",
+                                            "Redox type", 
+                                            "Default type for redox reactions")
+         );
 
 static void defineKSFitCommand(const QString &, QString file, 
                                QString name, const CommandOptions & opts)
@@ -643,11 +647,13 @@ static void defineKSFitCommand(const QString &, QString file,
   updateFromOptions(opts, "redefine", overwrite);
   Fit::safelyRedefineFit(name, overwrite);
 
-  /// @todo exception safe (ie guarded pointer detached in the end)
-  KineticSystem * ks = new KineticSystem;
-  ks->parseFile(file);
+  int type = 1;
+  updateFromOptions(opts, "redox-type", type);
 
-  new KineticSystemFit(name, ks);
+  std::unique_ptr<KineticSystem> ks(new KineticSystem);
+  ks->parseFile(file, type);
+
+  new KineticSystemFit(name, ks.release());
 }
 
 

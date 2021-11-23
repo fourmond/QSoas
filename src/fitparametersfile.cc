@@ -168,3 +168,12 @@ void FitParametersFile::dump(QTextStream & o) const
   for(const Parameter & p : parameters)
     o << p.name << " -- " << p.datasetIndex << " -- " << p.value << endl;
 }
+
+/// @todo also do with pattern matching ?
+void FitParametersFile::keepOnly(const QSet<QString> & keep)
+{
+  for(int i = 0; i < parameters.size(); i++) {
+    if(! keep.contains(parameters[i].name))
+      parameters.takeAt(i--);
+  }
+}

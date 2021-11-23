@@ -113,6 +113,11 @@ static void loadCommand(const QString & /*name*/, QString file,
   QString mode = "normal";
   updateFromOptions(opts, "mode", mode);
 
+  QStringList keepOnly;
+  updateFromOptions(opts, "only", keepOnly);
+  if(keepOnly.size() > 0)
+    params.keepOnly(keepOnly.toSet());
+
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
 
   if(mode == "normal") {
@@ -194,6 +199,10 @@ ArgumentList lO(QList<Argument*>()
                                       << "closest-Z",
                                       "mode", "Loading mode"
                                       "mode to chose the correspondance between source and target datasets")
+                << new SeveralStringsArgument(QRegExp(","),
+                                              "only",
+                                              "Only parameters",
+                                              "loads only the given parameters")
                 );
 
 static Command 

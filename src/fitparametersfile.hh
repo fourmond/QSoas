@@ -99,6 +99,9 @@ public:
 
   /// Just dumps the contents of the file to the given output
   void dump(QTextStream & out) const;
+
+  /// Removes all the parameters whose names are not in the list
+  void keepOnly(const QSet<QString> & parameters);
 };
 
 #endif

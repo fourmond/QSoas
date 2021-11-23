@@ -39,15 +39,14 @@ static int compareNumbers(double a, double b)
 }
 
 /// Assumes that the levels are sorted
-QList<QPair<Vector, Vector> > conrecContour(const QList<Vector> & data,
-                                            const Vector & xValues,
-                                            const Vector & yValues,
-                                            const Vector & levels)
+void conrecContour(const QList<Vector> & data,
+                   const Vector & xValues,
+                   const Vector & yValues,
+                   const Vector & levels,
+                   std::function<void (double x1, double y1,
+                                       double x2, double y2,
+                                       int lvl)> addLine)
 {
-  QList<QPair<Vector, Vector> > rv;
-  for(int i = 0; i < levels.size(); i++)
-    rv << QPair<Vector, Vector>();
-  
   if(data.size() != yValues.size())
     throw InternalError("Mismatch between number of columns (%1) and number of Y values (%2)").arg(data.size()).arg(yValues.size());
   if(data.size() < 2)
@@ -97,9 +96,157 @@ QList<QPair<Vector, Vector> > conrecContour(const QList<Vector> & data,
         int cmp[5];
         for(int w = 0; w < 5; w++)
           cmp[w] = compareNumbers(values[w], lvl);
+
+        // Returns the x value of the secant of a,b
+        auto mixX = [xvs, yvs, values, lvl](int a, int b) -> double {
+          double al = (values[b] - lvl)/(values[b]-values[a]);
+          return xvs[a]*al + xvs[b]*(1-al);
+        };
+        auto mixY = [xvs, yvs, values, lvl](int a, int b) -> double {
+          double al = (values[b] - lvl)/(values[b]-values[a]);
+          return yvs[a]*al + yvs[b]*(1-al);
+        };
+
+        // Now loop over the 4 triangles:
+        for(int t = 0; t < 4; t++) {
+          int v1 = t, v2 = t+1, v3 = 4;
+          if(v2 == 4)
+            v2 = 0;
+          int disc = cmp[v1] + cmp[v2] * 4 + cmp[v3] * 16;
+          // Here are the various cases (27 in total). We represent
+          // them as: A, E, B (above, equal, below)
+          switch(disc) {
+            
+          case 16+4+1: // All above
+          case -16-4-1: // All below
+            // Above plus one edge equal
+          case 16+4: 
+          case 16+1: 
+          case 4+1: 
+            // Below plus one edge equal
+          case -16-4: 
+          case -16-1: 
+          case -4-1:
+            // Nothing to do
+            break;
+            
+            // Edge v1--v2:
+            // We also use this when the value is uniform
+          case 16:
+          case -16:
+          case 0:
+            addLine(xvs[v1], yvs[v1], xvs[v2], yvs[v2], k);
+            break;
+            
+            // Edge v1--v3:
+          case 4:
+          case -4:
+            addLine(xvs[v1], yvs[v1], xvs[v3], yvs[v3], k);
+            break;
+            
+            // Edge v2--v3:
+          case 1:
+          case -1:
+            addLine(xvs[v2], yvs[v2], xvs[v3], yvs[v3], k);
+            break;
+            
+            // v1 to point of v2--v3:
+          case 16-4:
+          case -16+4:
+            addLine(xvs[v1], yvs[v1], mixX(v2, v3), mixY(v2, v3), k);
+            break;
+
+            // v2 to point of v1--v3:
+          case 16-1:
+          case -16+1:
+            addLine(xvs[v2], yvs[v2], mixX(v1, v3), mixY(v1, v3), k);
+            break;
+
+            // v3 to point of v1--v2:
+          case 4-1:
+          case -4+1:
+            addLine(xvs[v3], yvs[v3], mixX(v1, v2), mixY(v1, v2), k);
+            break;
+
+            // v1--v2 to v1--v3
+          case -16-4+1:
+          case 16+4-1:
+            addLine(mixX(v1, v2), mixY(v1, v2),
+                    mixX(v1, v3), mixY(v1, v3),
+                    k);
+            break;
+
+            // v2--v1 to v2--v3
+          case -16-1+4:
+          case 16+1-4:
+            addLine(mixX(v2, v1), mixY(v2, v1),
+                    mixX(v2, v3), mixY(v2, v3),
+                    k);
+            break;
+            
+            // v3--v1 to v3--v2
+          case 16-1-4:
+          case -16+1+4:
+            addLine(mixX(v3, v1), mixY(v3, v1),
+                    mixX(v3, v2), mixY(v3, v2),
+                    k);
+            break;
+
+          default:
+            throw InternalError("Unhandled case: %1").arg(disc);
+          }
+        }
       }
     }
   }
 
-  return rv;
 }
+
+// Temporary code for testing
+#include <command.hh>
+#include <general-arguments.hh>
+#include <commandeffector-templates.hh>
+#include <soas.hh>
+
+
+static void contourCommand(const QString & /*name*/,
+                           double value,
+                           const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+  Vector lvl;
+  lvl << value;
+  QList<Vector> data = ds->allColumns();
+  if(data.size() < 3)
+    throw RuntimeError("Need at least two Y columns");
+  Vector x = data.takeFirst();
+  Vector y = ds->perpendicularCoordinates();
+
+  Vector nx, ny;
+  auto addLine = [&nx, &ny](double x1, double y1, double x2, double y2, int) {
+    nx << x1 << x2 << std::nan("");
+    ny << y1 << y2 << std::nan("");
+  };
+
+  conrecContour(data, x, y, lvl, addLine);
+  QList<Vector> ncls;
+  ncls << nx << ny;
+  DataSet * nds = ds->derivedDataSet(ncls, "_cont.dat");
+  soas().pushDataSet(nds);
+}
+
+
+static ArgumentList 
+cntA(QList<Argument *>()
+      << new NumberArgument("level",
+                            "Levels")
+      );
+
+
+static Command 
+cntC("contour", // command name
+     effector(contourCommand), // action
+     "buffer",  // group name
+     &cntA, // arguments
+     NULL, // options
+     "Contours");

@@ -412,9 +412,11 @@ protected:
 
   ArgumentList fitHardOptions() const override {
     ArgumentList lst = ODEFit::fitHardOptions();
-    lst << new TemplateChoiceArgument<int>(redoxTypes, "redox-type",
-                                           "Redox type", 
-                                           "Type of redox reactions");
+    lst <<
+      new TemplateChoiceArgument<int>(KineticSystem::namedRedoxReactionTypes(),
+                                      "redox-type",
+                                      "Redox type", 
+                                      "Type of redox reactions");
     return lst;
   };
 

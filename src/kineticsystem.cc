@@ -971,6 +971,19 @@ double KineticSystem::computeDerivatives(gsl_vector * target,
 }
 
 
+/// @todo Created systematically... But does it matter ?
+QHash<QString, int> KineticSystem::namedRedoxReactionTypes()
+{
+  QHash<QString, int> redoxTypes =
+    {
+      {"bv", 1},
+      {"bva", 2},
+      {"mhc", 3}
+    };
+  return redoxTypes;
+}
+
+
 void KineticSystem::parseFile(const QString & fileName, int def)
 {
   File f(fileName, File::TextRead);

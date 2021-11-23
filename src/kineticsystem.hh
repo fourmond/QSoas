@@ -424,6 +424,10 @@ public:
   /// Reads directly the file
   void parseFile(const QString & fileName, int echemType = 1);
 
+  /// Returns a hash mapping from names to redox reaction types, to be
+  /// used in arguments
+  static QHash<QString, int> namedRedoxReactionTypes();
+
   /// Dump into a file
   void dump(QTextStream & out) const;
 

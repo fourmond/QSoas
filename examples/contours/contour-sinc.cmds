@@ -1,0 +1,5 @@
+generate-dataset -3 3 /samples=100 /columns=100
+transpose
+apply-formula x=-3+6*i/($stats.rows-1)
+apply-formula /mode=xyz r=(x**2+z**2)**0.5;sin(PI*r)/r
+contour -0.1 0 0.2 0.4 3

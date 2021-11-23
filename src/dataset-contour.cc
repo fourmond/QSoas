@@ -202,16 +202,16 @@ void conrecContour(const QList<Vector> & data,
 
 }
 
-// Temporary code for testing
 #include <command.hh>
 #include <general-arguments.hh>
 #include <commandeffector-templates.hh>
 #include <soas.hh>
 #include <datastackhelper.hh>
+#include <terminal.hh>
 
 #include <limits>
 
-/// @todo merge with fuzzyCompare ?
+/// @todo merge with Utils::fuzzyCompare ?
 bool epsilonCompare(double a, double b, int fact = 10)
 {
   if(a == b)
@@ -368,41 +368,54 @@ public:
 
 
 static void contourCommand(const QString & /*name*/,
-                           double value,
+                           QList<double> values,
                            const CommandOptions & opts)
 {
   const DataSet * ds = soas().currentDataSet();
-  Vector lvl;
-  lvl << value;
   QList<Vector> data = ds->allColumns();
   if(data.size() < 3)
     throw RuntimeError("Need at least two Y columns");
   Vector x = data.takeFirst();
   Vector y = ds->perpendicularCoordinates();
 
-  ContinuousPaths paths;
+  Vector lvls;
+  QList<ContinuousPaths> allPaths;
+  for(double & v : values) {
+    lvls << v;
+    allPaths << ContinuousPaths();
+  }
+  std::sort(lvls.begin(), lvls.end());
 
-  auto addLine = [&paths](double x1, double y1, double x2, double y2, int) {
-    paths.addSegment(x1, y1, x2, y2);
+  auto addLine = [&allPaths](double x1, double y1,
+                             double x2, double y2, int k) {
+    allPaths[k].addSegment(x1, y1, x2, y2);
   };
 
-  conrecContour(data, x, y, lvl, addLine);
+  conrecContour(data, x, y, lvls, addLine);
 
   DataStackHelper pusher(opts);
 
-  for(const ContinuousPaths::Path & p : paths.paths) {
-    QList<Vector> ncls;
-    ncls << p.xvalues << p.yvalues;
-    DataSet * nds = ds->derivedDataSet(ncls, "_cont.dat");
-    pusher << nds;
+  for(int k = 0; k < allPaths.size(); k++) {
+    double lvl = lvls[k];
+    int idx = 0;
+    for(const ContinuousPaths::Path & p : allPaths[k].paths) {
+      QList<Vector> ncls;
+      ncls << p.xvalues << p.yvalues;
+      DataSet * nds = ds->derivedDataSet(ncls, "_cont.dat");
+      nds->setMetaData("contour_level", lvl);
+      nds->setMetaData("contour_idx", idx++);
+      pusher << nds;
+    }
+    Terminal::out << "Found " << idx << " contours for level " << lvl << endl;
   }
 }
 
 
 static ArgumentList 
 cntA(QList<Argument *>()
-      << new NumberArgument("level",
-                            "Levels")
+      << new SeveralNumbersArgument("levels",
+                                    "Levels", "levels at which to contour",
+                                    true)
       );
 
 static ArgumentList 

@@ -46,6 +46,8 @@
 #include <mruby.hh>
 
 #include <gsl/gsl_sf.h>
+#include <gsl/gsl_multifit.h>
+
 
 #include <onetimewarnings.hh>
 
@@ -1553,7 +1555,84 @@ int FitWorkspace::currentDataset() const
 {
   return currentDS;
 }
-   
+
+QList<QPair<int, int> > FitWorkspace::findLinearParameters(bool findOptimal)
+{
+  QList<QPair<int, int> > rv;
+  QVarLengthArray<double, 1000> params(fitData->freeParameters());
+  int sz = fitData->freeParameters();
+  if(sz == 0)
+    return rv;
+
+  gsl_vector_view v = gsl_vector_view_array(params.data(), sz);
+  fitData->packParameters(values, &v.vector);
+  GSLVector cl(fitData->dataPoints());
+
+  SparseJacobian j1(fitData);
+  SparseJacobian j2(fitData);
+  
+  fitData->f(&v.vector, cl, true);
+  gsl_vector_scale(cl, -1);
+  fitData->df(&v.vector, &j1);
+  fitData->df(&v.vector, &j2, 1e5);
+  j2.addJacobian(j1, -1);
+
+  QList<QList<int> > linearParams;
+  int maxParams = 0;
+  int maxDs = 0;
+  for(int j = 0; j < datasets; j++) {
+    linearParams << QList<int>();
+    for(int i = 0; i < nbParameters; i++) {
+      gsl_vector * v1 = j1.parameterVector(i, j);
+      if(! v1)
+        continue;
+      if(v1->size > maxDs)
+        maxDs = v1->size;
+      gsl_vector * v2 = j2.parameterVector(i, j);
+      double nrm1 = gsl_blas_dnrm2(v1),
+        nrm2 = gsl_blas_dnrm2(v2);
+      if(nrm2*1e5 < nrm1) {
+        rv << QPair<int, int>(i, j);
+        linearParams[j] << i;
+      }
+    }
+    if(maxParams < linearParams[j].size())
+      maxParams = linearParams[j].size();
+  }
+  
+  if(findOptimal && maxParams > 0) {
+    // Allocate just for the biggest
+    gsl_multifit_linear_workspace * ws =
+      gsl_multifit_linear_alloc(maxDs, maxParams);
+    for(int j = 0; j < datasets; j++) {
+      if(linearParams[j].size() == 0)
+        continue;
+      int sz = j1.parameterVector(linearParams[j].first(), j)->size;
+      int nbp = linearParams[j].size();
+
+      GSLVector params(nbp);
+      GSLMatrix cov(nbp, nbp);
+      GSLMatrix jc(sz, nbp);
+      for(int i = 0; i < nbp; i++) {
+        gsl_vector * src = j1.parameterVector(linearParams[j][i], j);
+        gsl_vector_view v = gsl_matrix_column(jc, i);
+        gsl_vector_memcpy(&v.vector, src);
+      }
+      gsl_vector_view yv = fitData->viewForDataset(j, cl);
+      double chi;
+      int status = gsl_multifit_linear(jc, &yv.vector, params, cov, &chi, ws);
+      // Feeding them back
+      for(int i = 0; i < nbp; i++) {
+        int idx = linearParams[j][i];
+        values[j*nbParameters + idx] += gsl_vector_get(params, i);
+        emit(parameterChanged(idx, j));
+      }
+    }
+    gsl_multifit_linear_free(ws);
+  }
+
+  return rv;
+}
 
 void FitWorkspace::computeAndPushJacobian()
 {

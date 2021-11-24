@@ -719,6 +719,13 @@ public:
   /// Wether the covariance matrix is up-to-date or not
   bool covarianceMatrixOK;
 
+  /// Attempts to find which parameters are linear, and optionally
+  /// solve the linear least squares problem.  It doesn't handle the
+  /// linear global parameters properly for now.
+  ///
+  /// Returns a list of parameter, dataset
+  QList<QPair<int, int> > findLinearParameters(bool findOptimal = false);
+
   /// @name Tracing
   ///
   /// Tracing is a (simple) way to follow what the fit algorithm is

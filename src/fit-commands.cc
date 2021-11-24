@@ -261,6 +261,40 @@ fit("fit", // command name
     "Run the fit",
     "", CommandContext::fitContext());
 
+//////////////////////////////////////////////////////////////////////
+
+static void linearPrefitCommand(const QString & /*name*/, const CommandOptions & opts)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+
+  bool justLook = false;
+  updateFromOptions(opts, "just-look", justLook);
+  QList<QPair<int, int> > params = ws->findLinearParameters(! justLook);
+
+  Terminal::out << "Found " << params.size() << " linear parameters:" << endl;
+  for(const QPair<int, int> & p : params) {
+    Terminal::out << " * " << ws->parameterName(p.first)
+                  << "[#" << p.second << "]" << endl;
+  }
+}
+
+ArgumentList lpfOpts(QList<Argument*>() 
+                     << new BoolArgument("just-look", 
+                                         "Just look",
+                                         "if true, just find the linear parameters, do not adjust")
+                     );
+
+
+static Command 
+lpfit("linear-prefit", // command name
+      effector(linearPrefitCommand), // action
+      "fits",  // group name
+      NULL, // arguments
+      &lpfOpts, // options
+      "Linear prefit",
+      "Determine initial parameters which could be linear",
+      "", CommandContext::fitContext());
+
 
 //////////////////////////////////////////////////////////////////////
 

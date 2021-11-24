@@ -124,6 +124,12 @@ public:
   /// @todo This should be const.
   void apply(const gsl_vector * delta_p, gsl_vector * delta_f);
 
+  /// Adds the given other sparse jacobian to this one. @a factor is a
+  /// factor by which this matrix is multiplied before the addition. Thus:
+  ///
+  /// j2.addJacobian(j1, -1) results in j1 - j2
+  void addJacobian(const SparseJacobian & other, double factor);
+
 };
 
 

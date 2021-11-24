@@ -248,3 +248,12 @@ void SparseJacobian::apply(const gsl_vector * delta_p, gsl_vector * delta_f)
     gsl_blas_daxpy(gsl_vector_get(delta_p, prm), v, tg);
   }
 }
+
+void SparseJacobian::addJacobian(const SparseJacobian & other, double fact)
+{
+  if(other.matrix->size1 != matrix->size1 ||
+     other.matrix->size2 != matrix->size2)
+    throw InternalError("Size mismatch");
+  gsl_matrix_scale(matrix, fact);
+  gsl_matrix_add(matrix, other.matrix);
+}

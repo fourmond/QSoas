@@ -185,7 +185,8 @@ public:
             << " -- current options: " << data->fit->optionsString(data)
             << endl;
         }
-        data->deriveParameter(job.idx, job.params, job.target, job.current);
+        // Here, scale 1
+        data->deriveParameter(job.idx, job.params, job.target, job.current, 1);
         if(data->debug > 0) {
           QMutexLocker l(Debug::debug().mutex());
           Debug::debug() << QString("Thread #%1 done deriving parameter %2").
@@ -482,7 +483,7 @@ int FitData::f(const gsl_vector * x, gsl_vector * f,
 
 void FitData::deriveParameter(int i, const gsl_vector * params,
                               SparseJacobian * target,
-                              const gsl_vector * current)
+                              const gsl_vector * current, double scale)
 {
   QVarLengthArray<double, 1024> gslParams(gslParameters);
   QVarLengthArray<double, 1024> unpackedParams(fullParameterNumber());
@@ -502,6 +503,7 @@ void FitData::deriveParameter(int i, const gsl_vector * params,
     FreeParameter * param = lst[j];
     double value = gslParams[param->fitIndex];
     double step = (value == 0 ? 1e-6 : param->derivationStep(value));
+    step *= scale;
     if(debug > 0)
       dumpString(QString("Step %1 for param %2 (value: %3)").
                  arg(step).arg(param->fitIndex).arg(value));
@@ -555,7 +557,7 @@ void FitData::deriveParameter(int i, const gsl_vector * params,
 }
 
 
-int FitData::df(const gsl_vector * x, SparseJacobian * df)
+int FitData::df(const gsl_vector * x, SparseJacobian * df, double scale)
 {
   if(x->size != gslParameters)
     throw InternalError("Size mismatch between GSL parameters "
@@ -586,7 +588,7 @@ int FitData::df(const gsl_vector * x, SparseJacobian * df)
         exc = false;
         throw RuntimeError("Exception raised manually");
       }
-      deriveParameter(i, x, df, storage);
+      deriveParameter(i, x, df, storage, scale);
     }
   }
 

@@ -137,14 +137,15 @@ protected:
   /// @a target is the target vector
   /// @a current is an already-computed evaluation at @a parameters.
   void deriveParameter(int i, const gsl_vector * parameters,
-                       SparseJacobian * target, const gsl_vector * current);
+                       SparseJacobian * target, const gsl_vector * current,
+                       double scale);
 
 public:
 
   /// These functions compute the fit values using internal parameters
   int f(const gsl_vector * x, gsl_vector * f,
         bool doSubtract = true, bool doWeights = true);
-  int df(const gsl_vector * x, SparseJacobian * df);
+  int df(const gsl_vector * x, SparseJacobian * df, double scale = 1);
   int fdf(const gsl_vector * x, gsl_vector * f, SparseJacobian * df);
 
 

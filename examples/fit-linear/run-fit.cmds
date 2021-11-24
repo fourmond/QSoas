@@ -1,0 +1,4 @@
+generate-dataset 0 10 2+3*x+0.1*x**2
+generate-dataset 0 10 3+2*x+0.4*x**2
+mfit-arb a+b*x+c*x**2 0 1
+# and try linear-prefit

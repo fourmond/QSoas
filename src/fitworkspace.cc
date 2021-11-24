@@ -110,7 +110,8 @@ FitWorkspace::FitWorkspace(FitData * d) :
   trajectories(this),
   fitEnding(NotStarted),
   parametersStatus(FitWorkspace::ParametersUnknown),
-  covarianceMatrixOK(false)
+  covarianceMatrixOK(false),
+  tracingStream(NULL)
 {
   if(currentWS)
     throw InternalError("Trying to recurse into a fit workspace, this should not happen");
@@ -1741,13 +1742,55 @@ QColor FitWorkspace::endingColor(FitWorkspace::Ending end)
   return QColor();
 }
 
+void FitWorkspace::setTracing(QTextStream * target)
+{
+  tracingStream = target;
+}
+
+void FitWorkspace::traceFit()
+{
+  if(! tracingStream)
+    return;
+  ValueHash trace;
+
+  trace << "iteration" << fitData->nbIterations;
+  trace << "residuals" << fitData->residuals();
+
+  // OK, I thought this would look better, but, weel.
+  QList<const FitParameter *> ps;
+  for(int i = 0; i < fitData->freeParameters(); i++)
+    ps << NULL;
+  
+  for(int i = 0; i < fitData->currentParameters().size(); i++) {
+    const FitParameter * fp = fitData->currentParameters()[i];
+    if(fp->fitIndex >= 0)
+      ps[fp->fitIndex] = fp;
+  }
+  
+  for(const FitParameter * fp : ps) {
+    QString n = fitData->parameterDefinitions[fp->paramIndex].name;
+    if(fp->dsIndex >= 0)
+      n += QString("[#%1]").arg(fp->dsIndex);
+    int idx = (fp->dsIndex >= 0 ? fp->dsIndex : 0) * nbParameters +
+      fp->paramIndex;
+    trace << n << values[idx];
+  }
+  if(fitData->nbIterations == 0) {
+    QString hd = QString("## %1").arg(trace.keyOrder.join("\t"));
+    (*tracingStream) << hd << "\n";
+  }
+  (*tracingStream) << trace.toString("\t", "x", true) << endl;
+}
+
 FitWorkspace::Ending FitWorkspace::runFit(int iterationLimit)
 {
   try {
     startFit();
+    traceFit();
     int status;
     do {
       status = nextIteration();
+      traceFit();
       if(shouldCancelFit || soas().shouldStopFit) {
         fitEnding = Cancelled;
         break;

@@ -719,6 +719,26 @@ public:
   /// Wether the covariance matrix is up-to-date or not
   bool covarianceMatrixOK;
 
+  /// @name Tracing
+  ///
+  /// Tracing is a (simple) way to follow what the fit algorithm is
+  /// doing.
+  /// 
+  /// @{
+private:
+  /// If this isn't NULL, then tracing will occur
+  QTextStream * tracingStream;
+
+  /// If tracing is on, write the tracing information to the tracing file.
+  void traceFit();
+
+public:
+
+  /// Sets up the given tracing stream. NULL cancels tracing. The
+  /// workspace does not take ownership of the stream.
+  void setTracing(QTextStream * target);
+
+
 public slots:
   /// Cancels the fit
   void cancelFit();

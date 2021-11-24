@@ -222,6 +222,17 @@ static void fitCommand(const QString & /*name*/, const CommandOptions & opts)
 {
   int iterations = 50;
   updateFromOptions(opts, "iterations", iterations);
+
+  QString traceFile;
+  updateFromOptions(opts, "trace-file", traceFile);
+  std::unique_ptr<File> trace;
+  std::unique_ptr<QTextStream> stream;
+  if(! traceFile.isEmpty()) {
+    trace.reset(new File(traceFile, File::TextOverwrite));
+    stream.reset(new QTextStream(*trace));
+    FitWorkspace::currentWorkspace()->setTracing(stream.get());
+  }
+  
   FitWorkspace::Ending st = FitWorkspace::currentWorkspace()->runFit(iterations);
 
   Terminal::out << "Fit ended, status: "
@@ -235,7 +246,10 @@ static void fitCommand(const QString & /*name*/, const CommandOptions & opts)
 ArgumentList fOpts(QList<Argument*>() 
                    << new IntegerArgument("iterations", 
                                           "Number of iterations",
-                                          "the maximum number of iterations of the fitting process"));
+                                          "the maximum number of iterations of the fitting process")
+                   << new FileArgument("trace-file", 
+                                       "Trace file",
+                                       "a file to save the details of the fitting process"));
 
 static Command 
 fit("fit", // command name

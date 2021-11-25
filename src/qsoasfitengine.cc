@@ -243,7 +243,7 @@ void QSoasFitEngine::resetEngineParameters()
   relativeMin = 1e-3;
   residualsThreshold = 1e-5;
   maxTries = 30;
-  useScaling = false;
+  useScaling = true;
 }
 
 ArgumentList QSoasFitEngine::
@@ -304,9 +304,29 @@ void QSoasFitEngine::scaleJacobian()
         arg(fp->fitIndex).arg(i);
     int ds = fp->dsIndex, prm = fp->paramIndex;
     gsl_vector * v = jacobian->parameterVector(prm, ds);
-    double nrm = gsl_blas_dnrm2(v);
+    // We scale using the standard deviation of the jacobian, like
+    // what is described in Marquardt 63.
+
+    double s = 0, s2 = 0;
+    for(int k = 0; k < v->size; k++) {
+      double val = gsl_vector_get(v, k);
+      s += val;
+      s2 += val*val;
+    }
+    s /= v->size;
+    s2 /= v->size;
+    s2 -= s*s;
+    s2 = sqrt(s2);
+    double nrm = s2;
+    /// @todo guard against very small standard deviations ?
+    if(nrm == 0)
+      nrm = fabs(s);
     if(nrm == 0)
       nrm = 1;
+    
+    // double nrm = gsl_blas_dnrm2(v);
+    // if(nrm == 0)
+    //   nrm = 1;
     nrm = 1/nrm;
     gsl_vector_scale(v, nrm);
     gsl_vector_set(scalingFactors, i, nrm);

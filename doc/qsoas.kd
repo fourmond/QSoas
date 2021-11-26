@@ -2094,17 +2094,17 @@ Removes all points for which the [ruby expression](#ruby) returns `true`. This
 can be used for quite advanced data selection:
 
 ~~~~
-QSoas> strip-if x>2
+QSoas> strip-if x>4
 ~~~~ 
 
-This removes all points whose X value is greater than 2.
+This removes all points whose X value is greater than 4.
 
 ~~~~
-QSoas> strip-if x>2||x<4
+QSoas> strip-if x>4||x<2
 ~~~~ 
 
-This removes all points whose X value is greater than 2 or whose X
-value is lower than 4. The `||` bit means OR. In other terms, it
+This removes all points whose X value is greater than 4 or whose X
+value is lower than 2. The `||` bit means OR. In other terms, it
 *keeps* only the X values between 2 and 4.
 
 ~~~~

@@ -14,7 +14,7 @@ assert '$stats["y_var"]' 1e-4 /platform-precision-power=4
 # No more than 2 % difference in the errors
 assert '$stats["y_max"]' 2e-2 /platform-precision-power=4
 
-# Now same thing, but comparing qsoas and multi, which should be THE SAME
+# Now same thing, but comparing qsoas and multi
 
 generate-buffer 0 20 /samples=10000
 sim-exponential-decay /exponentials=9 parameters/exponentials-9.params 0
@@ -27,5 +27,5 @@ load-as-text /comments=# mexp.dat
 tweak-columns /remove=#0
 transpose
 apply-formula 'if y != 0; y=(y-y2)/y; end'
-assert '$stats["y_var"]' 2e-11
-assert '$stats["y_max"]' 2e-5
+assert '$stats["y_var"]' 1e-10
+assert '$stats["y_max"]' 3e-5

@@ -316,12 +316,11 @@ void QSoasFitEngine::scaleJacobian()
     s /= v->size;
     s2 /= v->size;
     s2 -= s*s;
-    s2 = sqrt(s2);
+    s2 = sqrt(s2);              // This can give nan for non-dispersed stuff
     double nrm = s2;
-    /// @todo guard against very small standard deviations ?
-    if(nrm == 0)
+    if(nrm == 0 || (!std::isfinite(nrm)))
       nrm = fabs(s);
-    if(nrm == 0)
+    if(nrm == 0 || (!std::isfinite(nrm)))
       nrm = 1;
     
     // double nrm = gsl_blas_dnrm2(v);

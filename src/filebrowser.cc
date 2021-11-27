@@ -105,17 +105,22 @@ public:
 //////////////////////////////////////////////////////////////////////
 
 FileListModel::FileListModel() :
-  cachedData(1000)
+  cachedData(new QCache<QString, FileData>(1000))
 {
+}
+
+FileListModel::~FileListModel()
+{
+  delete cachedData;
 }
 
 
 FileData * FileListModel::cachedInfo(const FileInfo & info) const
 {
-  FileData * rv = cachedData.object(info.absoluteFilePath());
+  FileData * rv = cachedData->object(info.absoluteFilePath());
   if(! rv) {
     rv = FileData::dataForFile(info);
-    cachedData.insert(info.absoluteFilePath(), rv);
+    cachedData->insert(info.absoluteFilePath(), rv);
   }
   return rv;
 }

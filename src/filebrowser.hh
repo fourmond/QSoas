@@ -38,7 +38,7 @@ class FileListModel : public QAbstractTableModel {
 
   
   /// A cache for storing the file information
-  mutable QCache<QString, FileData> cachedData;
+  mutable QCache<QString, FileData> * cachedData;
 
   FileData * cachedInfo(const FileInfo & info) const;
 
@@ -52,6 +52,7 @@ class FileListModel : public QAbstractTableModel {
 public:
 
   FileListModel();
+  ~FileListModel();
 
   /// @name Reimplemented interface
   ///

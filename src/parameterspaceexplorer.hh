@@ -67,6 +67,13 @@ protected:
   /// fit is aborted.
   QList<std::function<bool ()> > preFitHooks;
 
+public:
+
+  /// If this is true, a linear pre-fit is run
+  bool linearPreFit;
+
+protected:
+
   /// Run all the hooks, and returns true only if one should proceed.
   bool runHooks() const;
 

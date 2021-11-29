@@ -53,7 +53,7 @@ ParameterSpaceExplorerFactoryItem(const QString & n,
 //////////////////////////////////////////////////////////////////////
 
 ParameterSpaceExplorer::ParameterSpaceExplorer(FitWorkspace * ws) :
-  workSpace(ws), createdFrom(NULL)
+  workSpace(ws), linearPreFit(false), createdFrom(NULL)
 {
 
   int nbds = workSpace->datasetNumber();
@@ -121,6 +121,11 @@ bool ParameterSpaceExplorer::runHooks() const
   for(const std::function< bool()> h : preFitHooks) {
     if(! h())
       return false;
+  }
+  if(linearPreFit) {
+    Terminal::out << "Running a linear pre fit" << endl;
+    int nb = workSpace->findLinearParameters(true).size();;
+    Terminal::out << " -> " << nb << " parameters adjusted" << endl;
   }
   return true;
 }
@@ -191,6 +196,9 @@ static void iterateExplorerCommand(const QString & /*name*/,
   updateFromOptions(opts, "just-pick", justPick);
   QString impScript;
   updateFromOptions(opts, "improved-script", impScript);
+
+  explorer->linearPreFit = false;
+  updateFromOptions(opts, "linear-prefit", explorer->linearPreFit);
 
   QStringList lst;
   for(int i = 1; i <= 2; i++) {
@@ -286,6 +294,9 @@ ArgumentList ieOpts(QList<Argument*>()
                     << new BoolArgument("just-pick", 
                                         "Just pick",
                                         "If true, then just picks the next initial parameters, don't fit, don't iterate")
+                    << new BoolArgument("linear-prefit", 
+                                        "Linear prefit",
+                                        "If true, runs a linear pre-fit on before running the real fit")
                     << new FileArgument("arg1", 
                                         "First argument",
                                         "First argument to the scripts")

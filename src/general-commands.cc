@@ -689,6 +689,7 @@ static void runForDatasetsCommand(const QString &, QString script,
 
   
     soas().pushDataSet(new DataSet(*ds));
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
     soas().prompt().runCommandFile(script, a, addToHistory, mode);
   }
 }

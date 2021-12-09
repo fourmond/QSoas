@@ -47,7 +47,8 @@ protected:
 
 public:
   
-  SettingsValue(const QString & n, const T & v) : Settings(n), value(v) {
+  SettingsValue(const QString & n, const T & v,
+                const QString & dsc = QString()) : Settings(n, dsc), value(v) {
   };
 
   operator T () const {
@@ -55,8 +56,9 @@ public:
   };
 
   const T & operator=(const T & val) {
-    value = val;
-    return value;
+    if(!fixed)
+      value = val;
+    return val;
   };
 
   T * operator->() {
@@ -66,7 +68,19 @@ public:
   T & ref() {
     return value;
   };
-  
+
+  virtual QString typeName() const override {
+    return Settings::typeName();
+  };
+
+  virtual QString stringValue() const override {
+    return Settings::stringValue();
+  };
+
+  virtual void setFromString(const QString & s) override {
+    Settings::setFromString(s);
+  };
+
 
 };
 

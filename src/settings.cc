@@ -19,6 +19,8 @@
 #include <headers.hh>
 #include <settings.hh>
 
+#include <exceptions.hh>
+
 QList<Settings*> * Settings::settings = NULL;
 
 void Settings::registerSettings(Settings * s)
@@ -28,8 +30,8 @@ void Settings::registerSettings(Settings * s)
   *settings << s;
 }
 
-Settings::Settings(const QString & kn) :
-  name(kn)
+Settings::Settings(const QString & kn, const QString & dsc) :
+  name(kn), description(dsc), fixed(false)
 {
   registerSettings(this);
 }
@@ -50,4 +52,55 @@ void Settings::saveSettings(const QString & org, const QString & app)
     return;
   for(int i = 0; i < settings->size(); i++)
     (*settings)[i]->save(&se);
+}
+
+QString Settings::typeName() const
+{
+  return "internal";
+}
+
+QString Settings::stringValue() const
+{
+  return "(not modifiable)";
+}
+
+void Settings::setFromString(const QString & str)
+{
+  throw RuntimeError("Cannot set setting '%1': not modifiable type");
+}
+
+#include <terminal.hh>
+
+void Settings::dumpSettings()
+{
+  if(! settings)
+    return;
+  QList<Settings *> sts(*settings);
+  std::sort(sts.begin(), sts.end(),
+            [](const Settings * a, const Settings * b) -> bool {
+              return a->name < b->name;
+            });
+
+  for(const Settings * s : sts) {
+    Terminal::out << " * " << s->name << " ("
+                  << s->typeName() << ") :\t" << s->stringValue() << endl;
+  }
+}
+
+void Settings::setSettingsValue(const QString & name, const QString & value)
+{
+  Settings * tgt = NULL;
+  if(settings) {
+    for(Settings * s : *settings) {
+      if(s->name == name) {
+        tgt = s;
+        break;
+      }
+    }
+  }
+  if(!tgt)
+    throw RuntimeError("Could not find settings named '%1'").arg(name);
+
+  tgt->setFromString(value);
+  tgt->fixed = true;
 }

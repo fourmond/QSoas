@@ -1473,3 +1473,38 @@ pause("pause", // command name
      "Pause");
 
 
+//////////////////////////////////////////////////////////////////////
+
+#include <settings.hh>
+
+void settingsCommand(const QString &,
+                     const CommandOptions & opts)
+{
+  QStringList vls;
+  updateFromOptions(opts, "name-value", vls);
+  if(vls.size() == 0) {
+    Settings::dumpSettings();
+  }
+  else {
+    if(vls.size() != 2)
+      throw RuntimeError("settings takes either 0 or 2 arguments (the name and the value)");
+    Settings::setSettingsValue(vls[0], vls[1]);
+  }
+}
+
+static ArgumentList 
+settingsO(QList<Argument *>() 
+       << new SeveralStringsArgument("name-value", 
+                                     "Settings name and value",
+                                     "settings name and value", true, true)
+       );
+
+static Command 
+settings("settings", // command name
+         effector(settingsCommand), // action
+         "file",  // group name
+         ArgumentList(), // arguments
+         settingsO, // options
+         "Display/set setting values");
+
+

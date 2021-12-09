@@ -41,7 +41,7 @@ class Terminal {
   QList<QTextStream *>  spies;
 
   /// A list of IO devices owned by the object. They are taken
-  /// ownership of when using addSpy with a QIODevice argume,t
+  /// ownership of when using addSpy with a QIODevice argument
   QList<QIODevice *> ownedDevices;
 
   /// We maintain two cursors: an "append" cursor that will always be

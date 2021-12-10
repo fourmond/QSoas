@@ -230,7 +230,8 @@ public:
 
 //////////////////////////////////////////////////////////////////////
 
-static SettingsValue<QSize> helpWinSize("help/size", QSize(700,500));
+static SettingsValue<QSize> helpWinSize("help/size", QSize(700,500),
+                                        "size of the help window");
 
 
 HelpBrowser * HelpBrowser::theBrowser = NULL;
@@ -508,8 +509,10 @@ void HelpBrowser::searchBackwardShortcut()
 
 //////////////////////////////////////////////////////////////////////
 
-static SettingsValue<bool> showTips("tips/show-at-startup", true);
-static SettingsValue<QSize> tipsWinSize("tips/size", QSize(700,500));
+static SettingsValue<bool> showTips("tips/show-at-startup", true,
+                                    "whether to show the tips at startup or not");
+static SettingsValue<QSize> tipsWinSize("tips/size", QSize(700,500),
+                                        "size of the tips window");
 
 class Tip {
 public:

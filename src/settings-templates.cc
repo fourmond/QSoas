@@ -21,6 +21,7 @@
 #include <headers.hh>
 #include <settings-templates.hh>
 #include <utils.hh>
+#include <exceptions.hh>
 
 template<> QString SettingsValue<int>::stringValue() const
 {
@@ -94,4 +95,12 @@ template<> void SettingsValue<int>::setFromString(const QString & s)
 template<> void SettingsValue<double>::setFromString(const QString & s)
 {
   value = Utils::stringToDouble(s);
+}
+
+template<> void SettingsValue<QSize>::setFromString(const QString & s)
+{
+  QRegExp mtch("^\\s*(\\d+)x(\\d+)\\s*$");
+  if(mtch.indexIn(s) < 0)
+    throw RuntimeError("Invalid size: '%1'").arg(s);
+  value = QSize(mtch.cap(1).toInt(), mtch.cap(2).toInt());
 }

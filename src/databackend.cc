@@ -92,7 +92,8 @@ public:
 };
 
 
-static SettingsValue<int> cacheSize("backends/cache-size", 1000);
+static SettingsValue<int> cacheSize("backends/cache-size", 1000,
+                                    "number of files cached");
 
 // A cache for 1000 datasets
 /// @todo Use real size ?

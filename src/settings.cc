@@ -83,7 +83,8 @@ void Settings::dumpSettings()
 
   for(const Settings * s : sts) {
     Terminal::out << " * " << s->name << " ("
-                  << s->typeName() << ") :\t" << s->stringValue() << endl;
+                  << s->typeName() << ") :\t" << s->stringValue()
+                  << "\t\t" << s->description << endl;
   }
 }
 

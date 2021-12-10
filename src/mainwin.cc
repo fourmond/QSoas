@@ -208,10 +208,12 @@
 
 
 
-static SettingsValue<QSize> mainWinSize("mainwin/size", QSize(700,500));
+static SettingsValue<QSize> mainWinSize("mainwin/size", QSize(700,500),
+                                        "size of the main window");
 
 static SettingsValue<QByteArray> splitterState("mainwin/splitter", 
-                                               QByteArray());
+                                               QByteArray(),
+                                               "position of the main vertical splitter");
 
 /// an array of commands provided on the command line
 /// @todo not very object-oriented, but, well, for now it works

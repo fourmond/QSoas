@@ -105,7 +105,8 @@ QPointer<CommandWidget> CommandWidget::theCommandWidget(NULL);
 QString CommandWidget::logFileName;
 
 static SettingsValue<QString> defaultLogFileName("command/logfile", 
-                                                 QString("soas.log"));
+                                                 QString("soas.log"),
+                                                 "name of the log file");
 
 
 static CommandLineOption cmd("--log", [](const QStringList & args) {
@@ -115,15 +116,18 @@ static CommandLineOption cmd("--log", [](const QStringList & args) {
 
 // If 0, do not rotate. If positive, rotate only that many files, if
 // negative, rotate forever.
-static SettingsValue<int> logRotateNumber("command/logrotate", 5);
+static SettingsValue<int> logRotateNumber("command/logrotate", 5,
+                                          "number of rotations of the log file");
 
 
 static SettingsValue<QStringList> startupFiles("command/startup-files",
-                                               QStringList());
+                                               QStringList(),
+                                               "startup scripts, see startup-files");
 
 
 static SettingsValue<QString> terminalFont("command/terminal-font",
-                                           "Courier");
+                                           "Courier",
+                                           "the font for the terminal");
 
 QStringList & CommandWidget::startupFiles()
 {

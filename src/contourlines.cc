@@ -20,6 +20,7 @@
 */
 
 #include <headers.hh>
+#include <contourlines.hh>
 #include <dataset.hh>
 
 #include <exceptions.hh>
@@ -39,13 +40,13 @@ static int compareNumbers(double a, double b)
 }
 
 /// Assumes that the levels are sorted
-void conrecContour(const QList<Vector> & data,
-                   const Vector & xValues,
-                   const Vector & yValues,
-                   const Vector & levels,
-                   std::function<void (double x1, double y1,
-                                       double x2, double y2,
-                                       int lvl)> addLine)
+static void conrecContour(const QList<Vector> & data,
+                          const Vector & xValues,
+                          const Vector & yValues,
+                          const Vector & levels,
+                          std::function<void (double x1, double y1,
+                                              double x2, double y2,
+                                              int lvl)> addLine)
 {
   if(data.size() != yValues.size())
     throw InternalError("Mismatch between number of columns (%1) and number of Y values (%2)").arg(data.size()).arg(yValues.size());
@@ -202,14 +203,7 @@ void conrecContour(const QList<Vector> & data,
 
 }
 
-#include <command.hh>
-#include <general-arguments.hh>
-#include <commandeffector-templates.hh>
-#include <soas.hh>
-#include <datastackhelper.hh>
-#include <terminal.hh>
-
-#include <limits>
+//////////////////////////////////////////////////////////////////////
 
 /// @todo merge with Utils::fuzzyCompare ?
 bool epsilonCompare(double a, double b, int fact = 10)
@@ -223,148 +217,172 @@ bool epsilonCompare(double a, double b, int fact = 10)
 }
 
 
-/// A helper class to organise the points given by conrec into a
-/// sequence of continuous paths.  This works because the points that
-/// should match have been computed exactly in the same way.
-class ContinuousPaths {
-public:
-  struct Path {
-    Vector xvalues;
-    Vector yvalues;
 
-    Path() {
-    };
+ContourLines::Path::Path()
+{
+}
 
-    Path(double x1, double y1, double x2, double y2) {
-      xvalues << x1 << x2;
-      yvalues << y1 << y2;
-    };
+ContourLines::Path::Path(double x1, double y1, double x2, double y2)
+{
+  xvalues << x1 << x2;
+  yvalues << y1 << y2;
+}
 
-    /// Return 0 if x,y is neither the end nor the beginning of the
-    /// path, -1 if the beginning, 1 if the end.
-    int isEnd(double x, double y) const {
-      if(::epsilonCompare(x,xvalues.first()) &&
-         ::epsilonCompare(y,yvalues.first()))
-        return -1;
-      if(::epsilonCompare(x,xvalues.last()) &&
-         ::epsilonCompare(y,yvalues.last()))
-        return 1;
-      return 0;
-    };
+int ContourLines::Path::isEnd(double x, double y) const
+{
+  if(::epsilonCompare(x,xvalues.first()) &&
+     ::epsilonCompare(y,yvalues.first()))
+    return -1;
+  if(::epsilonCompare(x,xvalues.last()) &&
+     ::epsilonCompare(y,yvalues.last()))
+    return 1;
+  return 0;
+}
 
-    bool isConnected(const Path & other) const {
-      if(isEnd(other.xvalues.first(), other.yvalues.first()) != 0)
-        return true;
-      if(isEnd(other.xvalues.last(), other.yvalues.last()) != 0)
-        return true;
-      return false;
-    };
+bool ContourLines::Path::isConnected(const Path & other) const
+{
+  if(isEnd(other.xvalues.first(), other.yvalues.first()) != 0)
+    return true;
+  if(isEnd(other.xvalues.last(), other.yvalues.last()) != 0)
+    return true;
+  return false;
+}
 
     
-    void merge(const Path & other) {
-      /// Appends the given vector to the beginning
-      auto insertBeg = [](Vector &a, const Vector & b, bool swapB) {
-        Vector t = b;
-        if(swapB) {
-          t.reverse();
-        }
-        t.takeLast();
-        t.append(a);
-        a = t;
-      };
+void ContourLines::Path::merge(const Path & other)
+{
+  /// Appends the given vector to the beginning
+  auto insertBeg = [](Vector &a, const Vector & b, bool swapB) {
+                     Vector t = b;
+                     if(swapB) {
+                       t.reverse();
+                     }
+                     t.takeLast();
+                     t.append(a);
+                     a = t;
+                   };
       
-      auto insertEnd = [](Vector &a, const Vector & b, bool swapB) {
-        Vector t = b;
-        if(swapB) {
-          t.reverse();
-        }
-        t.takeFirst();
-        a.append(t);
-      };
+  auto insertEnd = [](Vector &a, const Vector & b, bool swapB) {
+                     Vector t = b;
+                     if(swapB) {
+                       t.reverse();
+                     }
+                     t.takeFirst();
+                     a.append(t);
+                   };
 
-      int v = isEnd(other.xvalues.first(), other.yvalues.first());
-      // QTextStream o(stdout);
-      // o << " * v(first) = " << v << endl;
-      // o << " bsz = " << yvalues.size() << endl;
-
-
-      if(v < 0) {
-        insertBeg(xvalues, other.xvalues, true);
-        insertBeg(yvalues, other.yvalues, true);
-        // o << " sz = " << yvalues.size() << endl;
-        return;
-      }
-      if(v > 0) {
-        insertEnd(xvalues, other.xvalues, false);
-        insertEnd(yvalues, other.yvalues, false);
-        // o << " sz = " << yvalues.size() << endl;
-        return;
-      }
-      v = isEnd(other.xvalues.last(), other.yvalues.last());
-      // o << " * v(last) = " << v << endl;
-      if(v < 0) {
-        insertBeg(xvalues, other.xvalues, false);
-        insertBeg(yvalues, other.yvalues, false);
-        // o << " sz = " << yvalues.size() << endl;
-        return;
-      }
-      if(v > 0) {
-        insertEnd(xvalues, other.xvalues, true);
-        insertEnd(yvalues, other.yvalues, true);
-        // o << " sz = " << yvalues.size() << endl;
-        return;
-      }
-    };
-  };
+  int v = isEnd(other.xvalues.first(), other.yvalues.first());
+  // QTextStream o(stdout);
+  // o << " * v(first) = " << v << endl;
+  // o << " bsz = " << yvalues.size() << endl;
 
 
-  QList<Path> paths;
+  if(v < 0) {
+    insertBeg(xvalues, other.xvalues, true);
+    insertBeg(yvalues, other.yvalues, true);
+    // o << " sz = " << yvalues.size() << endl;
+    return;
+  }
+  if(v > 0) {
+    insertEnd(xvalues, other.xvalues, false);
+    insertEnd(yvalues, other.yvalues, false);
+    // o << " sz = " << yvalues.size() << endl;
+    return;
+  }
+  v = isEnd(other.xvalues.last(), other.yvalues.last());
+  // o << " * v(last) = " << v << endl;
+  if(v < 0) {
+    insertBeg(xvalues, other.xvalues, false);
+    insertBeg(yvalues, other.yvalues, false);
+    // o << " sz = " << yvalues.size() << endl;
+    return;
+  }
+  if(v > 0) {
+    insertEnd(xvalues, other.xvalues, true);
+    insertEnd(yvalues, other.yvalues, true);
+    // o << " sz = " << yvalues.size() << endl;
+    return;
+  }
+}
 
-  void addSegment(double x1, double y1, double x2, double y2) {
-    Path np(x1, y1, x2, y2);
-    // QTextStream o(stdout);
-    // o.setRealNumberPrecision(16);
-    // o << "Adding " << ": " << np.xvalues.first()
-    //   << "," << np.yvalues.first()
-    //   << " to " << np.xvalues.last()
-    //   << "," << np.yvalues.last() << endl;
 
-    int fnd = -1;
-    for(int i = 0; i < paths.size(); i++) {
-      const Path & p = paths[i];
-      if(p.isConnected(np)) {
-        fnd = i;
+//////////////////////////////////////////////////////////////////////
+
+void ContourLines::addSegment(double x1, double y1, double x2, double y2)
+{
+  Path np(x1, y1, x2, y2);
+  // QTextStream o(stdout);
+  // o.setRealNumberPrecision(16);
+  // o << "Adding " << ": " << np.xvalues.first()
+  //   << "," << np.yvalues.first()
+  //   << " to " << np.xvalues.last()
+  //   << "," << np.yvalues.last() << endl;
+
+  int fnd = -1;
+  for(int i = 0; i < paths.size(); i++) {
+    const Path & p = paths[i];
+    if(p.isConnected(np)) {
+      fnd = i;
+      break;
+    }
+  }
+  // o << "Fnd: " <<  fnd << endl;
+  if(fnd >= 0) {
+    // Now merge into fnd
+    // o << " - " << paths[fnd].xvalues.size();
+    paths[fnd].merge(np);
+    // o << " -> " << paths[fnd].xvalues.size() << endl;
+    // Add the possibility that the newly added path makes two
+    // pre-existing paths merge.
+    for(int i = fnd+1; i < paths.size(); i++) {
+      if(paths[fnd].isConnected(paths[i])) {
+        // o << " -> merging " << fnd << " and " << i << endl;
+        paths[fnd].merge(paths.takeAt(i));
         break;
       }
     }
-    // o << "Fnd: " <<  fnd << endl;
-    if(fnd >= 0) {
-      // Now merge into fnd
-      // o << " - " << paths[fnd].xvalues.size();
-      paths[fnd].merge(np);
-      // o << " -> " << paths[fnd].xvalues.size() << endl;
-      // Add the possibility that the newly added path makes two
-      // pre-existing paths merge.
-      for(int i = fnd+1; i < paths.size(); i++) {
-        if(paths[fnd].isConnected(paths[i])) {
-          // o << " -> merging " << fnd << " and " << i << endl;
-          paths[fnd].merge(paths.takeAt(i));
-          break;
-        }
-      }
-    }
-    else
-      paths << np;
+  }
+  else
+    paths << np;
 
     
-    // for(int i = 0; i < paths.size(); i++) {
-    //   o << "Path " << i << ": " << paths[i].xvalues.first()
-    //     << "," << paths[i].yvalues.first()
-    //     << " to " << paths[i].xvalues.last()
-    //     << "," << paths[i].yvalues.last() << endl;
-    // }
+  // for(int i = 0; i < paths.size(); i++) {
+  //   o << "Path " << i << ": " << paths[i].xvalues.first()
+  //     << "," << paths[i].yvalues.first()
+  //     << " to " << paths[i].xvalues.last()
+  //     << "," << paths[i].yvalues.last() << endl;
+  // }
+}
+
+
+QList<ContourLines> ContourLines::conrecContour(const QList<Vector> & data,
+                                                const Vector & xValues,
+                                                const Vector & yValues,
+                                                const Vector & levels)
+{
+  QList<ContourLines> allPaths;
+  for(int i = 0; i < levels.size(); i++)
+    allPaths << ContourLines();
+
+  auto addLine = [&allPaths](double x1, double y1,
+                             double x2, double y2, int k) {
+    allPaths[k].addSegment(x1, y1, x2, y2);
   };
-};
+
+  ::conrecContour(data, xValues, yValues, levels, addLine);
+  return allPaths;
+}
+
+
+
+#include <command.hh>
+#include <general-arguments.hh>
+#include <commandeffector-templates.hh>
+#include <soas.hh>
+#include <datastackhelper.hh>
+#include <terminal.hh>
+
+#include <limits>
 
 
 static void contourCommand(const QString & /*name*/,
@@ -379,26 +397,20 @@ static void contourCommand(const QString & /*name*/,
   Vector y = ds->perpendicularCoordinates();
 
   Vector lvls;
-  QList<ContinuousPaths> allPaths;
-  for(double & v : values) {
+  for(double & v : values)
     lvls << v;
-    allPaths << ContinuousPaths();
-  }
   std::sort(lvls.begin(), lvls.end());
 
-  auto addLine = [&allPaths](double x1, double y1,
-                             double x2, double y2, int k) {
-    allPaths[k].addSegment(x1, y1, x2, y2);
-  };
 
-  conrecContour(data, x, y, lvls, addLine);
+  QList<ContourLines> allPaths =
+    ContourLines::conrecContour(data, x, y, lvls);
 
   DataStackHelper pusher(opts);
 
   for(int k = 0; k < allPaths.size(); k++) {
     double lvl = lvls[k];
     int idx = 0;
-    for(const ContinuousPaths::Path & p : allPaths[k].paths) {
+    for(const ContourLines::Path & p : allPaths[k].paths) {
       QList<Vector> ncls;
       ncls << p.xvalues << p.yvalues;
       DataSet * nds = ds->derivedDataSet(ncls, "_cont.dat");

@@ -384,7 +384,7 @@ SOURCES += src/qmain.cc \
         src/externalfunctionfit.cc \
         src/gcguard.cc \
         src/filebrowser.cc \
-        src/dataset-contour.cc \
+        src/contourlines.cc \
         src/settings-templates.cc
 
 
@@ -534,6 +534,7 @@ HEADERS += src/headers.hh \
         src/datasetwriter.hh \
         src/externalfunction.hh \
         src/gcguard.hh \
+        src/contourlines.hh \
         src/filebrowser.hh
 
 # mruby

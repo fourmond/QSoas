@@ -23,6 +23,18 @@
 #include <utils.hh>
 #include <exceptions.hh>
 
+
+
+  // virtual QString stringValue() const override {
+  //   return Settings::stringValue();
+  // };
+
+  // virtual void setFromString(const QString & s) override {
+  //   Settings::setFromString(s);
+  // };
+
+
+
 template<> QString SettingsValue<int>::stringValue() const
 {
   return QString::number(value);
@@ -50,6 +62,11 @@ template<> QString SettingsValue<QSize>::stringValue() const
 {
   return QString("%1x%2").
     arg(value.width()).arg(value.height());
+}
+
+template<class T> QString SettingsValue<T>::stringValue() const
+{
+  return Settings::stringValue();
 }
 
 
@@ -80,6 +97,14 @@ template<> QString SettingsValue<QSize>::typeName() const
   return "size";
 }
 
+// default stuff
+template<class T> QString SettingsValue<T>::typeName() const
+{
+  return Settings::typeName();
+}
+
+
+
 //////////////////////////////////////////////////////////////////////
 
 template<> void SettingsValue<QString>::setFromString(const QString & s)
@@ -104,3 +129,22 @@ template<> void SettingsValue<QSize>::setFromString(const QString & s)
     throw RuntimeError("Invalid size: '%1'").arg(s);
   value = QSize(mtch.cap(1).toInt(), mtch.cap(2).toInt());
 }
+
+
+// default stuff
+template<class T> void SettingsValue<T>::setFromString(const QString & s)
+{
+  Settings::setFromString(s);
+}
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////
+// this bit is for the mingw compiler who doesn't like duplicated
+// symbols...
+
+template class SettingsValue<QByteArray>;
+template class SettingsValue<bool>;
+template class SettingsValue<QStringList>;

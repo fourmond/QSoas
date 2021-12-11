@@ -69,17 +69,11 @@ public:
     return value;
   };
 
-  virtual QString typeName() const override {
-    return Settings::typeName();
-  };
+  virtual QString typeName() const override;
 
-  virtual QString stringValue() const override {
-    return Settings::stringValue();
-  };
+  virtual QString stringValue() const override;
 
-  virtual void setFromString(const QString & s) override {
-    Settings::setFromString(s);
-  };
+  virtual void setFromString(const QString & s) override;
 
 
 };

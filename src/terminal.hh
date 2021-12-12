@@ -26,6 +26,7 @@
 /// This class embeds all the interaction with the Terminal.
 class Terminal {
 
+
   /// The internal stream used to build up the string to be forwarded
   /// to Log.
   QTextStream * internalStream;
@@ -97,15 +98,39 @@ public:
   /// Specifiers cancel each other, unless they follow immediately
   /// each other.
   ///
-  /// They last until the next use of the flush stream function.
+  /// They last until the next use of the flush stream function,
+  /// either via directly flush or via endl.
   ///
   /// @{
+
+  /// Sets bold until flush.
+  void setBold();
+
+  /// Sets to italic until flush
+  void setItalic();
+
+  /// Sets the color of the font
+  void setColor(const QColor & col);
+
+  /// Sets the background color of the font
+  void setBackgroundColor(const QColor & col);
+
+  /// Sets the background to white or gray depending on the parity of
+  /// the total number of lines.
+  void setAlternateBackground();
 
   /// Sets to bold until flush or until another specifier
   static Terminal & bold(Terminal & term);
 
   /// Sets the text to red until flush
   static Terminal & red(Terminal & term);
+
+  /// Sets to italics until flush or until another specifier
+  static Terminal & italic(Terminal & term);
+
+
+  /// Manipulator corresponding to  setAlternateBackground();
+  static Terminal & alternate(Terminal & term);
 
   /// @}
 

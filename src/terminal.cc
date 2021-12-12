@@ -99,15 +99,53 @@ void Terminal::flushToTerminal()
   buffer.clear();
 }
 
+void Terminal::setBold()
+{
+  currentFormat.setFontWeight(QFont::ExtraBold);
+}
+
+void Terminal::setItalic()
+{
+  currentFormat.setFontItalic(true);
+}
+
+void Terminal::setColor(const QColor & color)
+{
+  currentFormat.setForeground(color);
+}
+
+void Terminal::setBackgroundColor(const QColor & color)
+{
+  currentFormat.setBackground(color);
+}
+
+void Terminal::setAlternateBackground()
+{
+  if(totalLines % 2)
+    setBackgroundColor(QColor(210, 210, 210));
+}
+
 Terminal & Terminal::bold(Terminal & term)
 {
-  term.currentFormat.setFontWeight(QFont::ExtraBold);
+  term.setBold();
+  return term;
+}
+
+Terminal & Terminal::italic(Terminal & term)
+{
+  term.setItalic();
   return term;
 }
 
 Terminal & Terminal::red(Terminal & term)
 {
-  term.currentFormat.setForeground(Qt::red);
+  term.setColor(Qt::red);
+  return term;
+}
+
+Terminal & Terminal::alternate(Terminal & term)
+{
+  term.setAlternateBackground();
   return term;
 }
 

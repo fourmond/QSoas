@@ -202,7 +202,7 @@ void DataStack::showStackContents(int nb,
     if(! i)
       Terminal::out << "Normal stack:\n" << head << endl;
     DataSet * ds = numberedDataSet(i);
-    Terminal::out << "#" << i << "\t"
+    Terminal::out << Terminal::alternate << "#" << i << "\t"
                   << ds->stringDescription();
     for(const QString & m : meta)
       Terminal::out << "\t" << ds->getMetaData(m).toString();

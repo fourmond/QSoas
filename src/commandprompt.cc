@@ -129,6 +129,15 @@ void CommandPrompt::keyPressEvent(QKeyEvent * event)
     event->accept();
     emit(scrollRequested(event->modifiers() & Qt::ControlModifier ? 8 : 1));
     break;
+  case Qt::Key_C: {
+    // redirect Ctrl+C
+    if(! hasSelectedText() && event->modifiers() == Qt::ControlModifier) {
+      event->accept();
+      emit(shouldCopyTerminal());
+    }
+    else
+      LineEdit::keyPressEvent(event);
+  }
   default:
     LineEdit::keyPressEvent(event);
   }

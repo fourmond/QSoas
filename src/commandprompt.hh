@@ -98,6 +98,9 @@ signals:
   /// number of half screens.
   void scrollRequested(int nb);
 
+  /// Signals that the terminal's content should be copied
+  void shouldCopyTerminal();
+
 public slots:
   /// Sets the prompt to busy mode and sets the given message if the
   /// string isn't empty, or switch back from busy mode if not

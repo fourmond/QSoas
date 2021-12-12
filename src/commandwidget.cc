@@ -209,6 +209,9 @@ CommandWidget::CommandWidget(CommandContext * c) :
           SLOT(commandEntered()));
   connect(commandLine, SIGNAL(scrollRequested(int)), 
           SLOT(scrollTerminal(int)));
+  terminalDisplay->connect(commandLine, SIGNAL(shouldCopyTerminal()), 
+                           SLOT(copy()));
+  
   h1->addWidget(commandLine);
 
   restrictedPrompt = new LineEdit;

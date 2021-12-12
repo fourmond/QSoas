@@ -137,6 +137,7 @@ void CommandPrompt::keyPressEvent(QKeyEvent * event)
     }
     else
       LineEdit::keyPressEvent(event);
+    break;
   }
   default:
     LineEdit::keyPressEvent(event);

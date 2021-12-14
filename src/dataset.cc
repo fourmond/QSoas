@@ -175,6 +175,25 @@ QRectF DataSet::boundingBox() const
   return r;
 }
 
+QPair<double, double> DataSet::allYBoundaries() const
+{
+  updateCache();
+  double min = 0, max = 0;
+  int size = columns.size();
+  for(int i = 1; i < size; i++) {
+    if(i == 1) {
+      min = cache.finiteMinima[i];
+      max = cache.finiteMaxima[i];
+    }
+    else {
+      min = std::min(min, cache.finiteMinima[i]);
+      max = std::max(max, cache.finiteMaxima[i]);
+    }
+  }
+
+  return QPair<double, double>(min, max);
+}
+
 void DataSet::insertColumn(int idx, const Vector & col)
 {
   invalidateCache();

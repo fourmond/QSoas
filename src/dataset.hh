@@ -463,6 +463,11 @@ public:
   /// This command ignores any point that isn't finite.
   QRectF boundingBox() const;
 
+  /// Returns the "all Y" boundaries of the DataSet, which means it
+  /// considers the values of all the Y columns. It disregards
+  /// non-finite points.
+  QPair<double, double> allYBoundaries() const;
+
 
   /// Returns the distance of the \a x, \a y point to the curve, along
   /// with the index of the closest point

@@ -1056,6 +1056,50 @@ void Vector::randomize(double low, double high)
   }
 }
 
+
+void Vector::rotate(int delta)
+{
+  if(delta == 0)
+    return;
+
+  int sz = size();
+  double * vals = data();
+
+  int d = abs(delta);
+
+  QVarLengthArray<double, 100> buffer(d);
+  double * bu = buffer.data();
+  // QTextStream o(stdout);
+  auto ref = [&vals, &bu, d, sz](int i) -> double & {
+               // o << "ref: " << i  << endl;
+            if(i >= sz)
+              return bu[i-sz];
+            if(i < 0)
+              return bu[d+i];
+            return vals[i];
+          };
+  if(delta > 0) {
+    for(int i = sz - 1; i >= -delta; i--) {
+      // i is the source
+      double & tgt = ref(i+delta);
+      const double & src = ref(i);
+      // o << "Copy at : " << i << ", " << tgt
+      //   << " becomes " << src << endl;
+      tgt = src;
+    }
+  }
+  else {
+    for(int i = delta; i < sz; i++) {
+      // i is the source
+      const double & src = ref(i-delta);
+      double & tgt = ref(i);
+      // o << "Copy at : " << i << ", " << tgt
+      //   << " becomes " << src << endl;
+      tgt = src;
+    }
+  }
+}
+
 /// Very dumb class to classify data by order of magnitude
 class Order {
   double logSum;

@@ -220,6 +220,10 @@ public:
   /// @todo Do that with a custom random number generator.
   void randomize(double low, double high);
 
+  /// Rotates the contents of the vector, i.e. shifts the position of
+  /// the elements from @a i to @a i + @a delta, wrapping around.
+  void rotate(int delta);
+
 
   /// @}
 

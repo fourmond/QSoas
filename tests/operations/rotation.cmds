@@ -1,0 +1,9 @@
+generate-dataset 0 10 /samples=21
+assert $stats.x_first-0 0
+assert $stats.x_last-10 0
+rotate 3
+assert $stats.x_first-9 0
+assert $stats.x_last-8.5 0
+rotate -3
+apply-formula y-=i*0.5
+assert $stats.y_norm 0

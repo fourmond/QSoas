@@ -204,6 +204,39 @@ sm("split-monotonic", // command name
    &smOpts, // options
    "Split into monotonic parts");
 
+//////////////////////////////////////////////////////////////////////
+
+static void rotateCommand(const QString &,
+                          int delta,
+                          const CommandOptions & opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+  QList<Vector> columns = ds->allColumns();
+  for(Vector & v : columns)
+    v.rotate(delta);
+
+  DataSet * nds = ds->derivedDataSet(columns, "_rotated.dat");
+  soas().pushDataSet(nds);
+}
+        
+
+
+static ArgumentList 
+rotArgs(QList<Argument *>()
+           << new IntegerArgument("delta", 
+                                  "Delta",
+                                  "offset of the rotation")
+       );
+
+
+static Command 
+rot("rotate", // command name
+   effector(rotateCommand), // action
+   "split",  // group name
+   &rotArgs, // arguments
+   NULL, // options
+   "rotates the lines of the dataset");
+
 
 //////////////////////////////////////////////////////////////////////
 

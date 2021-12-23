@@ -34,7 +34,8 @@ MetaDataFile::MetaDataFile(const QString & file) :
 
 QString MetaDataFile::metaDataForFile(const QString & fileName)
 {
-  return fileName + ".qsm";
+  /// @todo This does not seem satisfactory
+  return Utils::expandTilde(fileName + ".qsm");
 }
 
 

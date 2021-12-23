@@ -364,8 +364,11 @@ void DataBackend::setMetaDataForFile(DataSet * dataset,
 {
   /// @todo Should the new meta-data stuff go here or somewhere else ?
   /// Here is fine.
+  /// @todo This feels like it should be handled differently...
+  /// This should be done using a FileInfo static function.
+  QString fp =  Utils::expandTilde(filename);
   QDir dir = QDir::current();
-  QString fp = QDir::cleanPath(dir.absoluteFilePath(filename));
+  fp = QDir::cleanPath(dir.absoluteFilePath(fp));
   dataset->setMetaData("original_file", fp);
   FileInfo info(fp);
   dataset->setMetaData("file_date", info.lastModified());

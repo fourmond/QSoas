@@ -2167,15 +2167,20 @@ gDS("generate-dataset", // command name
 #include <fileinfo.hh>
 
 static void recordMeta(const QString & file, const QString & meta,
-                       const QVariant & value)
+                       const QVariant & value, bool remove = false)
 {
   FileInfo info(file);
   if(! info.exists())
     throw RuntimeError("file does not exist");
-  
+
   MetaDataFile md(file);
   md.read(false);
-  md.metaData[meta] = value;
+  if(! remove) {
+    md.metaData[meta] = value;
+  }
+  else {
+    md.metaData.remove(meta);
+  }
   md.write();
 }
 
@@ -2189,6 +2194,9 @@ static void recordMetaCommand(const QString &, QString meta, QString value,
   QStringList exclude;
   updateFromOptions(opts, "exclude", exclude);
 
+  bool remove = false;
+  updateFromOptions(opts, "remove", remove);
+
   for(const QString f : files) {
     if(MetaDataFile::isMetaDataFile(f)) {
       Terminal::out << "Skipping '" << f
@@ -2201,9 +2209,10 @@ static void recordMetaCommand(const QString &, QString meta, QString value,
       continue;
     }
     try {
-      Terminal::out << "Setting meta-data for file '" << f
+      Terminal::out << (remove ? "Removing" : "Setting" )
+                    << " meta-data for file '" << f
                     << "'" << endl;
-      ::recordMeta(f, meta, val);
+      ::recordMeta(f, meta, val, remove);
     }
     catch(const RuntimeError & re) {
       Terminal::out << "Error with file '" << f << "': "
@@ -2232,8 +2241,11 @@ rMO(QList<Argument *>()
     << new SeveralFilesArgument("exclude", 
                                 "Exclude",
                                 "exclude files")
-            
-     );
+    << new BoolArgument("remove", 
+                        "Remove",
+                        "remove the meta rather than renaming it")
+    
+    );
 
 
 static Command 
@@ -2311,7 +2323,7 @@ static void exportMetaCommand(const QString &,
     for(int j = 0; j < ds->nbColumns(); j++) {
       double v = ds->column(j)[i];
       Terminal::out << cns[j] << " = " << v << ", ";
-      recordMeta(rn, cns[j], v);
+      ::recordMeta(rn, cns[j], v);
     }
     Terminal::out << endl;
   }

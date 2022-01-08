@@ -132,9 +132,7 @@ static void saveBuffersCommand(const QString &,
   for(int i = 0; i < datasets.size(); i++) {
     QString nm = datasets[i]->name;
     if(! fmt.isEmpty()) {
-      char buffer[fmt.size()*2 + 100];
-      snprintf(buffer, sizeof(buffer), fmt.toUtf8(), i);
-      nm = QString::fromUtf8(buffer);
+      nm = Utils::safeAsprintf(fmt, i);
     }
     else if(! expr.isEmpty()) {
       MRuby * mr = MRuby::ruby();

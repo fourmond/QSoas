@@ -710,6 +710,39 @@ mrb_value MRuby::fromQString(const QString & str)
   return mrb_str_new_cstr(mrb, bt.constData());
 }
 
+
+static mrb_value ruby_sprintf(mrb_state * mrb, mrb_value fmt, mrb_value arg)
+{
+  mrb_sym sym = mrb_intern_cstr(mrb, "sprintf");
+  mrb_value val = mrb_nil_value();
+  mrb_value args[2];
+  args[0] = fmt;
+  args[1] = arg;
+  val = mrb_funcall_argv(mrb, val, sym, 2, args);
+  return val;
+}
+
+QString MRuby::safeAsprintf(const QString & format, int value)
+{
+  mrb_value fmt = fromQString(format);
+  mrb_value val = newInt(value);
+  mrb_value v = protect([fmt, val, this]() -> mrb_value {
+                          return ruby_sprintf(mrb, fmt, val);
+                        });
+  return toQString(v);
+}
+
+QString MRuby::safeAsprintf(const QString & format, double value)
+{
+  mrb_value fmt = fromQString(format);
+  mrb_value val = newFloat(value);
+  mrb_value v = protect([fmt, val, this]() -> mrb_value {
+                          return ruby_sprintf(mrb, fmt, val);
+                        });
+  return toQString(v);
+}
+
+
 mrb_value MRuby::symbolFromQString(const QString & str)
 {
   QByteArray bt = str.toLocal8Bit();

@@ -142,6 +142,12 @@ namespace Utils {
   /// Makes a string suitable to represent a pointer
   QString pointerString(const void * pointer);
 
+
+  /// Safe asprintf using Ruby
+  QString safeAsprintf(const QString & format, int value);
+  QString safeAsprintf(const QString & format, double value);
+
+
   /// @}
 
 

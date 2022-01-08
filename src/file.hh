@@ -204,6 +204,9 @@ public:
   /// in @a base, which will be given an @b int. By default,
   /// findFreeFile tries each number until a non-existing one is
   /// found. Optionnally, the int given can be random.
+  ///
+  /// @warning This is not sanitized, so care should be taken that
+  /// base isn't user-settable.
   static QString findFreeFile(const QString & base, bool random = false);
 
 

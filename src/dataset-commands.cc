@@ -2109,7 +2109,7 @@ static void generateDSCommand(const QString &, double beg, double end,
     if(nb > 1) {
       if(name.isEmpty())
         name = "generated_%d.dat";
-      newDs->name = QString::asprintf(name.toUtf8(), k);
+      newDs->name = Utils::safeAsprintf(name.toUtf8(), k);
       newDs->setMetaData("generated_number", k);
     }
     else

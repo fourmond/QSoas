@@ -378,6 +378,11 @@ bool Utils::isPointFinite(const QPointF & p)
   return std::isfinite(p.x()) && std::isfinite(p.y());
 }
 
+
+
+
+
+
 // void Utils::open(QFile * file, QIODevice::OpenMode mode, bool expand)
 // {
 //   if(expand) {
@@ -987,3 +992,19 @@ QIcon Utils::standardIcon(QStyle::StandardPixmap icon)
     return qApp->style()->standardIcon(icon);
   }
 }
+
+
+#include <mruby.hh>
+
+QString Utils::safeAsprintf(const QString & format, int value)
+{
+  MRuby * mr = MRuby::ruby();
+  return mr->safeAsprintf(format, value);
+}
+
+QString Utils::safeAsprintf(const QString & format, double value)
+{
+  MRuby * mr = MRuby::ruby();
+  return mr->safeAsprintf(format, value);
+}
+

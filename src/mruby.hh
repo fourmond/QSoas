@@ -213,6 +213,14 @@ public:
   /// Creates a mruby symbol corresponding to the string
   mrb_value symbolFromQString(const QString & str);
 
+  /// This series of functions calls the printf of ruby to format a
+  /// string. This formatting prevents security issues, unlike
+  /// asprintf.
+  QString safeAsprintf(const QString & format, int value);
+
+  /// @overload
+  QString safeAsprintf(const QString & format, double value);
+
   /// @}
 
   /// @name Hash functions

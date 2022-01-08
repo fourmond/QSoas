@@ -900,6 +900,15 @@ static void cdCommand(const QString &, QString dir,
 
   Terminal::out << "Current directory now is: " << QDir::currentPath() 
                 << endl;
+
+  if(OutFile::out.isOpened()) {
+    // Heya Anna, this is for you ;-)
+    Terminal::out << Terminal::bold << "Warning: " << flush
+                  << "current output file is: "
+                  << OutFile::out.filePath()
+                  << ", new data will still go there"
+                  << endl;
+  }
 }
 
 static Command 

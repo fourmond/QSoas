@@ -53,7 +53,8 @@ public:
   /// The prefix for column names
   QString columnNamesPrefix;
 
-  /// A asprintf-like format for outputting the 
+  /// A sprintf format for outputting the numbers
+  QString format;
 
   /// Writes the dataset to the given File.
   void writeDataSet(File * file, const DataSet * dataset) const;

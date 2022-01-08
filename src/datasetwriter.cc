@@ -22,6 +22,8 @@
 #include <metadatafile.hh>
 #include <file.hh>
 
+#include <utils.hh>
+
 #include <general-arguments.hh>
 
 
@@ -62,7 +64,10 @@ void DataSetWriter::writeData(QIODevice * target,
     for(int j = 0; j < ds->columns.size(); j++) {
       if(j)
         o << separator;
-      o << ds->columns[j][i];
+      if(format.isEmpty())
+        o << ds->columns[j][i];
+      else
+        o << Utils::safeAsprintf(format, ds->columns[j][i]);
     }
     o << "\n";
   }
@@ -109,6 +114,9 @@ QList<Argument *> DataSetWriter::writeOptions()
      << new StringArgument("separator",
                            "Separator",
                            "column separator (default: tab)")
+     << new StringArgument("format",
+                           "Number format",
+                           "printf-like format string for numbers")
     ;
   return rv;
 }
@@ -118,4 +126,5 @@ void DataSetWriter::setFromOptions(const CommandOptions & opts)
 {
   updateFromOptions(opts, "row-names", writeRowNames);
   updateFromOptions(opts, "separator", separator);
+  updateFromOptions(opts, "format", format);
 }

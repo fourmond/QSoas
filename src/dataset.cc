@@ -408,7 +408,9 @@ QPair<double, int> DataSet::distanceTo(double x, double y,
 QString DataSet::cleanedName() const
 {
   int idx = name.lastIndexOf('.');
-  if(idx > 0)
+  int sz = name.size();
+  // Maximum size of an extension to remove this way: 6
+  if(idx > 0 && (sz - idx < 6))
     return name.left(idx);
   return name;
 }

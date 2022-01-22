@@ -87,6 +87,35 @@ public:
   ///
   /// @todo Add fine grain to fade out ?
   void timeOut(int milliseconds);
+
+
+  /// @name Cache handling
+  ///
+  /// CurvePanel handles caching using a bitmap cache the drawing for
+  /// the "hard parts"
+  ///
+  /// @{
+protected:
+
+  /// When true, the cache isn't up-to-date. Defaults to true.
+  bool dirty;
+
+public:
+
+  /// Returns true if the item should be drawn in a bitmap cache.
+  /// (defaults to false)
+  virtual bool shouldBeCached() const;
+
+  /// Returns true if the cache should be redrawn. This value has no
+  /// meaning if shouldBeCached() is false
+  virtual bool shouldRedraw() const;
+
+
+  /// Clears the dirty flag
+  virtual void clearDirty();
+
+
+  /// @}
 };
 
 

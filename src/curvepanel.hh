@@ -114,6 +114,19 @@ class CurvePanel : public QObject {
   /// Sets the zoom in such a way that the information is
   /// forwarded to panels we track.
   void setZoom(const QRectF & newBB, bool force = false);
+
+  /// @name The pixmap cache
+  ///
+  /// @{
+
+  /// The pixmap cache
+  QPixmap cache;
+
+  /// The zoom at which the last pixmap was drawn
+  QRectF zoomedCache;
+
+  /// @}
+  
   
 public:
 

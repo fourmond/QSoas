@@ -20,7 +20,9 @@
 #include <curveitem.hh>
 #include <dataset.hh>
 
-CurveItem::CurveItem(bool c) : countBB(c), hidden(false), shouldDelete(false)
+CurveItem::CurveItem(bool c) : countBB(c),
+                               hidden(false), shouldDelete(false),
+                               dirty(true)
 {
 }
 
@@ -52,4 +54,19 @@ void CurveItem::timeOut(int milliseconds)
 {
   QTimer::singleShot(milliseconds, this, 
                      SLOT(deleteLater()));
+}
+
+bool CurveItem::shouldBeCached() const
+{
+  return false;
+}
+
+bool CurveItem::shouldRedraw() const
+{
+  return dirty;
+}
+
+void CurveItem::clearDirty()
+{
+  dirty = false;
 }

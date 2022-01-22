@@ -67,6 +67,10 @@ public:
 
   /// The dataset this item displays
   const DataSet * displayedDataSet() const;
+
+
+  virtual bool shouldBeCached() const override;
+
 };
 
 

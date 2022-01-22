@@ -244,15 +244,62 @@ void CurvePanel::paintCurves(QPainter * p)
     p->drawLine(transform.map(QLineF(r.left(), y, r.right(), y)));
   }
 
+
+
+  
+
+  // first remove the items that have been deleted since the last 
   for(int i = 0; i < displayedItems.size(); i++) {
     CurveItem * it = displayedItems[i];
-    if(it) {
-      if(! it->hidden)
+    if(! it)
+      displayedItems.removeAt(i--);
+  }
+
+  int cacheBeg = -1;            // the number of the first item of the
+                                // cache
+  bool cacheDirty = false;      // Whether the cache is dirty or not
+
+  if(cache.size() != internalRectangle.size())
+    cacheDirty = true;
+  if(zoomedCache != r)
+    cacheDirty = true;
+
+  
+  for(int i = 0; i < displayedItems.size(); i++) {
+    CurveItem * it = displayedItems[i];
+    if(! it->hidden) {
+      if(it->shouldBeCached()) {
+        if(cacheBeg < 0)
+          cacheBeg = i;
+        if(it->shouldRedraw())
+          cacheDirty = true;
+
+
+        if((i + 1 == displayedItems.size()) ||
+           !(displayedItems[i+1]->shouldBeCached())) {
+          // Here is where the cache finishes
+          if(cacheDirty) {
+            /// try to conserve size ?
+            cache = QPixmap(internalRectangle.size());
+            // transparent background
+            cache.fill(QColor(255, 255, 255, 0));
+
+            QPainter pnt(&cache);
+            pnt.translate(-internalRectangle.topLeft());
+            for(int j = cacheBeg; j <= i; j++) {
+              it->paint(&pnt, r, transform);
+              it->clearDirty();
+            }
+            zoomedCache = r;
+          }
+          // just paint.
+          QRect ir(QPoint(0, 0), internalRectangle.size());
+          p->drawPixmap(internalRectangle, cache, ir);
+        }
+      }
+      else
         it->paint(p, r, transform);
     }
-    else
-      displayedItems.removeAt(i--); // autocleanup elements gone
-                                    // astray.
   }
 }
 

@@ -188,3 +188,8 @@ const DataSet * CurveDataSet::displayedDataSet() const
 {
   return dataSet;
 }
+
+bool CurveDataSet::shouldBeCached() const
+{
+  return true;
+}

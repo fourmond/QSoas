@@ -287,8 +287,9 @@ void CurvePanel::paintCurves(QPainter * p)
             QPainter pnt(&cache);
             pnt.translate(-internalRectangle.topLeft());
             for(int j = cacheBeg; j <= i; j++) {
-              it->paint(&pnt, r, transform);
-              it->clearDirty();
+              CurveItem * nit = displayedItems[j];
+              nit->paint(&pnt, r, transform);
+              nit->clearDirty();
             }
             zoomedCache = r;
           }

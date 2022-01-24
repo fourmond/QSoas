@@ -85,7 +85,15 @@ void PointPicker::updateMarkerStyle()
       col = cds->pen.color();
     }
   }
-  col.setAlpha(100);
+  // This isn't so nice when there are many many points, since the
+  // symbol is just drawn as transparent over surfaces of the same
+  // color.
+  
+  // col.setAlpha(100);
+  double h, s, v;
+  col.getHsvF(&h, &s, &v);
+  s *= 0.5;
+  col.setHsvF(h, s, v);
   marker->brush = QBrush(col);
 }
 

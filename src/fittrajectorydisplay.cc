@@ -573,6 +573,7 @@ void FitTrajectoryDisplay::onSelectionChanged()
 FitTrajectoryDisplay::FitTrajectoryDisplay(FitWorkspace * ws) :
   workspace(ws), fitData(ws->data())
 {
+  setWindowModality(Qt::WindowModal);
   setupFrame();
   // Save from initial
 }

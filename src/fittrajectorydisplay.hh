@@ -212,6 +212,9 @@ protected slots:
 
   /// Called when the selection has changed
   void onSelectionChanged();
+
+  /// Called whenever the user double clicks on an item
+  void onDoubleClick(const QModelIndex & index);
 };
 
 

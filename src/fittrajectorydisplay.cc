@@ -604,6 +604,8 @@ void FitTrajectoryDisplay::setupFrame()
   splt->addWidget(parametersDisplay);
 
   parametersDisplay->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(parametersDisplay, SIGNAL(doubleClicked(const QModelIndex &)),
+          SLOT(onDoubleClick(const QModelIndex &)));
 
   graphicalDisplay = new TrajectoryParametersDisplay(workspace);
 
@@ -1022,4 +1024,15 @@ void FitTrajectoryDisplay::browseTrajectories(FitWorkspace * ws)
     throw InternalError("Somehow called when no workspace is available");
   FitTrajectoryDisplay d(ws);
   d.exec();
+}
+
+
+#include <fitdialog.hh>
+
+void FitTrajectoryDisplay::onDoubleClick(const QModelIndex & /*index*/)
+{
+  reuseCurrentParameters();
+  FitDialog * dlg = FitDialog::currentDialog();
+  if(dlg)
+    dlg->compute();
 }

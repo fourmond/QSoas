@@ -95,6 +95,9 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm, bool 
   setWindowModality(Qt::WindowModal);
   resize(fitDialogSize);
 
+  if(! theDialog)
+    theDialog = new QPointer<FitDialog>;
+  *theDialog = this;
 
 
   if(displayWeights && d->datasets.size() > 1)
@@ -1505,4 +1508,14 @@ void FitDialog::showHelp()
 void FitDialog::browseTrajectories()
 {
   FitTrajectoryDisplay::browseTrajectories();
+}
+
+QPointer<FitDialog> * FitDialog::theDialog = NULL;
+
+
+FitDialog * FitDialog::currentDialog()
+{
+  if(theDialog)
+    return (*theDialog);
+  return NULL;
 }

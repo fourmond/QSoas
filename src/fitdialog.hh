@@ -45,6 +45,9 @@ class FitDialog : public QDialog {
 
   Q_OBJECT;
 
+  /// A static pointer to the currently opened fit dialog
+  static QPointer<FitDialog> * theDialog;
+
   /// To display the error inconsistency or other warnings
   OneTimeWarnings warnings;
 
@@ -210,6 +213,8 @@ public:
   QString extraTitleInfo;
   
 
+  /// Returns the currently opened dialog, or NULL if there isn't one.
+  static FitDialog * currentDialog();
 
 signals:
   void currentDataSetChanged(int ds);

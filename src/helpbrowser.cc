@@ -289,11 +289,22 @@ void HelpBrowser::dumpHelp()
 {
   QHelpEngine * engine = getEngine();
   Terminal::out << "Collection file: " << engine->collectionFile() << endl;
+  QFileInfo info(engine->collectionFile());
+  Terminal::out << " -> " << info.absoluteFilePath() << " ("
+                << info.size() << " -- "
+                << info.lastModified().toString() << ")" << endl;
+
   Terminal::out << "Filters: '" << engine->customFilters().join("', '")
                 << "'\nCurrent filter:" << engine->currentFilter() << endl;
+
+  
   for(const QString & s : engine->registeredDocumentations()) {
     Terminal::out << " * " << s
                   << "\n    -> " << engine->documentationFileName(s) << endl;
+    QFileInfo info(engine->documentationFileName(s));
+    Terminal::out << "    -> " << info.absoluteFilePath() << " ("
+                  << info.size() << " -- "
+                  << info.lastModified().toString() << ")" << endl;
     for(const QUrl & f : engine->files(s, QStringList()))
       Terminal::out << " |- " << f.toString() << endl;
   }

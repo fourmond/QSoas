@@ -633,24 +633,8 @@ void FitTrajectoryDisplay::setupFrame()
 
   QHBoxLayout * hb = new QHBoxLayout();
 
-  QPushButton * bt = new QPushButton(tr("Export"));
-  connect(bt, SIGNAL(clicked()), SLOT(exportToFile()));
-  hb->addWidget(bt);
-
-  bt = new QPushButton(tr("Import"));
-  connect(bt, SIGNAL(clicked()), SLOT(importFromFile()));
-  hb->addWidget(bt);
-
-  bt = new QPushButton(tr("Sort"));
-  connect(bt, SIGNAL(clicked()), SLOT(sortByResiduals()));
-  hb->addWidget(bt);
-  
-  bt = new QPushButton(tr("Trim"));
+  QPushButton * bt = new QPushButton(tr("Trim"));
   connect(bt, SIGNAL(clicked()), SLOT(trim()));
-  hb->addWidget(bt);
-
-  bt = new QPushButton(tr("Cluster"));
-  connect(bt, SIGNAL(clicked()), SLOT(clusterTrajectories()));
   hb->addWidget(bt);
 
   bt = new QPushButton(tr("Previous buffer"));
@@ -661,9 +645,8 @@ void FitTrajectoryDisplay::setupFrame()
   connect(bt, SIGNAL(clicked()), SLOT(nextBuffer()));
   hb->addWidget(bt);
 
-  bt = new QPushButton(tr("Close"));
-  connect(bt, SIGNAL(clicked()), SLOT(close()));
-  hb->addWidget(bt);
+  hb->addStretch();
+
 
   l->addLayout(hb);
 
@@ -704,6 +687,18 @@ void FitTrajectoryDisplay::setupFrame()
   }
 
   tabs->addTab(viewtab, "Display");
+
+  /// Here the close button at the bottom:
+  hb = new QHBoxLayout;
+
+  hb->addStretch();
+  
+  QDialogButtonBox * box = new QDialogButtonBox(QDialogButtonBox::Close);
+  connect(box, SIGNAL(rejected()), SLOT(close()));
+  hb->addWidget(box);
+
+  t->addLayout(hb);
+
 
 
   //////////////////////////////
@@ -852,62 +847,6 @@ void FitTrajectoryDisplay::deleteSelectedTrajectories()
     workspace->trajectories.remove(l.takeLast());
   model->update();
 }
-
-void FitTrajectoryDisplay::sortByResiduals()
-{
-  throw NOT_IMPLEMENTED;
-  // qSort(*trajectories);
-  // update();
-}
-
-
-
-void FitTrajectoryDisplay::clusterTrajectories()
-{
-  throw NOT_IMPLEMENTED;
-  // QList<FitTrajectoryCluster> clusters = 
-  //   FitTrajectoryCluster::clusterTrajectories(trajectories);
-
-  // Terminal::out << "Found " << clusters.size() << " clusters" << endl;
-  // for(int i = 0; i < clusters.size(); i++)
-  //   Terminal::out  << "Cluster #" << i << ":\n" 
-  //                  << clusters[i].dump() << endl;
-}
-
-void FitTrajectoryDisplay::exportToFile()
-{
-  QString save = QFileDialog::getSaveFileName(this, tr("Export data"));
-  if(save.isEmpty())
-    return;
-  
-  QFile f(save);
-  if(! f.open(QIODevice::WriteOnly))
-    return;
-
-  Terminal::out << "Saving fit trajectories data to " << save << endl;
-
-  QTextStream o(&f);
-  throw NOT_IMPLEMENTED;
-  // FitTrajectory::exportToFile(*trajectories, fitData, o);
-}
-
-void FitTrajectoryDisplay::importFromFile()
-{
-  QString ld = QFileDialog::getOpenFileName(this, tr("Import data"));
-  importFromFile(ld);
-}
-
-void FitTrajectoryDisplay::importFromFile(const QString & file)
-{
-  throw NOT_IMPLEMENTED;
-  int nb;
-  // nb = FitTrajectory::importFromFile(trajectories, fitData, &fl);
-  
-  Terminal::out << "Imported " << nb << " trajectories from "
-                << file << endl;
-  update();
-}
-
 
 void FitTrajectoryDisplay::nextBuffer()
 {

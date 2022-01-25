@@ -148,9 +148,6 @@ public slots:
   /// Update the display.
   void update();
 
-  /// Export to TAB-separated data file
-  void exportToFile();
-
   /// Removes all trajectories above a given threshold.
   void trim();
 
@@ -159,18 +156,6 @@ public slots:
   /// is less than 1)
   void trim(double threshold);
 
-
-  /// Import from TAB-separated data file
-  void importFromFile(const QString & file);
-
-  /// Imports from a file; prompts for the name !
-  void importFromFile();
-
-  /// Sort with the smallest residuals first
-  void sortByResiduals();
-
-  /// Attempts to cluster the trajectories
-  void clusterTrajectories();
 
   void nextBuffer();
 

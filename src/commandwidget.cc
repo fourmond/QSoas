@@ -134,7 +134,34 @@ QStringList & CommandWidget::startupFiles()
   return ::startupFiles.ref();
 }
 
-CommandWidget::CommandWidget(CommandContext * c) : 
+QTextEdit * CommandWidget::createTerminalDisplay()
+{
+  QTextEdit * term = new QTextEdit();
+  term->setReadOnly(true);
+  if(! terminalDisplay)
+    term->setContextMenuPolicy(Qt::NoContextMenu);
+
+  // We use a monospace font !
+  QFont mono(terminalFont);
+  QFontInfo m(mono);
+  if(! terminalDisplay)
+    Debug::debug()
+      << "Font used for terminal display: " << m.family() << endl;
+  term->setFont(mono);
+  QFontMetrics mt(term->font());
+  QSize sz = mt.size(0, "-0001.771771771e+22");
+  term->setTabStopWidth(sz.width());
+
+  // Get the same document as the main one.
+  if(terminalDisplay)
+    term->setDocument(terminalDisplay->document());
+  
+  return term;
+}
+
+
+CommandWidget::CommandWidget(CommandContext * c) :
+  terminalDisplay(NULL),
   addToHistory(true),
   commandContext(c)
 {
@@ -146,26 +173,12 @@ CommandWidget::CommandWidget(CommandContext * c) :
       theCommandWidget = this;    // Or always ?
 
     h1 = new QHBoxLayout();
-    terminalDisplay = new QTextEdit();
-    terminalDisplay->setReadOnly(true);
-    terminalDisplay->setContextMenuPolicy(Qt::NoContextMenu);
+    terminalDisplay = createTerminalDisplay();
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), 
             SLOT(onMenuRequested(const QPoint &)));
 
-    // We use a monospace font !
-    QFont mono(terminalFont);
-    QFontInfo m(mono);
-    Debug::debug()
-      << "Font used for terminal display: " << m.family() << endl;
-    terminalDisplay->setFont(mono);
-    QFontMetrics mt(terminalDisplay->font());
-    QSize sz = mt.size(0, "-0001.771771771e+22");
-    terminalDisplay->setTabStopWidth(sz.width());
-  
-    // terminalDisplay->document()-> 
-    //   setDefaultStyleSheet("p { white-space: pre; }");
     // Doesn't seem to have any effect...
     h1->addWidget(terminalDisplay);
 

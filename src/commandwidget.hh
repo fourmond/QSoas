@@ -168,6 +168,11 @@ public:
   
 
   /// @}
+
+  /// Creates a QTextEdit suitable to display the terminal.
+  ///
+  /// Uses the document of the own terminal if there is already one.
+  QTextEdit * createTerminalDisplay();
   
 
   /// The name of the log file.

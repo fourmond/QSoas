@@ -203,6 +203,9 @@ static QAction * addMenuAction(QMenu * menu, const QString & name,
 void FitDialog::setupFrame(bool expert)
 {
   QVBoxLayout * layout = new QVBoxLayout(this);
+
+  QTabWidget * tabs = new QTabWidget;
+  
   nup = new NupWidget;
   bufferSelection = new QComboBox;
 
@@ -248,7 +251,15 @@ void FitDialog::setupFrame(bool expert)
   connect(&parameters, SIGNAL(datasetChanged(int)), SLOT(dataSetChanged(int)));
   connect(nup, SIGNAL(nupChanged(int,int)), SLOT(nupChanged()));
 
-  layout->addWidget(nup, 1);
+
+  tabs->addTab(nup, "Fits");
+
+  // Add a terminal
+  tabs->addTab(soas().prompt().createTerminalDisplay(), "Terminal");
+  tabs->setTabPosition(QTabWidget::West);
+  
+  
+  layout->addWidget(tabs, 1);
 
   //////////////////////////////////////////////////////////////////////
   // First line

@@ -61,6 +61,10 @@ void FitTrajectories::updateCache() const
     residualsOrder << i;
   std::sort(residualsOrder.begin(), residualsOrder.end(),
             [this](int a, int b) -> bool {
+              if(! std::isfinite(trajectories[a].residuals))
+                return false;
+              if(! std::isfinite(trajectories[b].residuals))
+                return true;
               return trajectories[a] < trajectories[b];
             });
   

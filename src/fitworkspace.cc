@@ -1746,6 +1746,8 @@ void FitWorkspace::startFit()
   shouldCancelFit = false;
 
   recompute(true);
+  if(!std::isfinite(overallChiSquared))
+    throw RuntimeError("Starting residuals are not finite, not point going on");
   
   QString params;
   if(fitData->independentDataSets())

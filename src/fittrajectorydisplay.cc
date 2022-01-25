@@ -887,7 +887,7 @@ void FitTrajectoryDisplay::trim(double threshold)
   int nb = workspace->trajectories.trim(threshold);
   Terminal::out << "Trimming at threshold " << threshold
                 << ", removed " << nb
-                << "trajectories" << endl;
+                << " trajectories" << endl;
   model->update();
 }
 

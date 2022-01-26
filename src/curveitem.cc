@@ -70,3 +70,8 @@ void CurveItem::clearDirty()
 {
   dirty = false;
 }
+
+void CurveItem::setDirty()
+{
+  dirty = true;
+}

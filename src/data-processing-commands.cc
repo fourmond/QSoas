@@ -2307,6 +2307,7 @@ namespace __deldp {
             ++i;
           }
           selectedPoints = 0;
+          d.setDirty();
         }
         break;
       case DeletePoint:
@@ -2322,8 +2323,11 @@ namespace __deldp {
         }
         else {
           r.hidden = true;
-          if(t.lastIndex >= 0 && t.lastIndex < newds->nbRows())
+          if(t.lastIndex >= 0 && t.lastIndex < newds->nbRows()) {
             newds->removeRow(t.lastIndex);
+            d.setDirty();
+          }
+
         }
         break;
       default:

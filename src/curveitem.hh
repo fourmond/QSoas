@@ -114,6 +114,9 @@ public:
   /// Clears the dirty flag
   virtual void clearDirty();
 
+  /// Sets the dirty flag
+  virtual void setDirty();
+
 
   /// @}
 };

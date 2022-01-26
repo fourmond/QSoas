@@ -1,0 +1,3 @@
+# A small command file to test commands
+generate-dataset 0 10 if(i%97==67);3*sin(x**3);else;sin(x);end
+deldp

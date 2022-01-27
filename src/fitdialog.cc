@@ -204,7 +204,6 @@ void FitDialog::setupFrame(bool expert)
 {
   QVBoxLayout * layout = new QVBoxLayout(this);
 
-  QTabWidget * tabs = new QTabWidget;
   
   nup = new NupWidget;
   bufferSelection = new QComboBox;
@@ -252,14 +251,21 @@ void FitDialog::setupFrame(bool expert)
   connect(nup, SIGNAL(nupChanged(int,int)), SLOT(nupChanged()));
 
 
-  tabs->addTab(nup, "Fits");
+    // Add a terminal
+  // THis seems to make macos crash, for reasons that escape me
+  if(! soas().isHeadless()) {
+    QTabWidget * tabs = new QTabWidget;
+    tabs->addTab(nup, "Fits");
 
-  // Add a terminal
-  tabs->addTab(soas().prompt().createTerminalDisplay(), "Terminal");
-  tabs->setTabPosition(QTabWidget::West);
+    tabs->addTab(soas().prompt().createTerminalDisplay(), "Terminal");
+    tabs->setTabPosition(QTabWidget::West);
+    layout->addWidget(tabs, 1);
+  }
+  else
+    layout->addWidget(nup, 1);
+
   
   
-  layout->addWidget(tabs, 1);
 
   //////////////////////////////////////////////////////////////////////
   // First line

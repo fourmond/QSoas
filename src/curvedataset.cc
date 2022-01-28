@@ -84,7 +84,7 @@ void CurveDataSet::paint(QPainter * painter, const QRectF &bbox,
     PointIterator it(dataSet);
     while(it.hasNext())
       CurveMarker::paintMarker(painter, it.next(ctw),
-                               CurveMarker::Circle, 3);
+                               CurveMarker::Circle, 2.5);
   }
 
   painter->setPen(gs.getPen(GraphicsSettings::SegmentsPen));

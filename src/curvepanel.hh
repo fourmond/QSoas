@@ -89,6 +89,10 @@ class CurvePanel : public QObject {
   /// Invalidate ticks
   void invalidateTicks();
 
+  /// Remove all items that are NULL
+  void cleanItems();
+  
+
   /// The pen used to draw backgroundLines
   QPen bgLinesPen;
 
@@ -249,6 +253,10 @@ public:
 
   /// Returns the list of the currently displayed items.
   QList<CurveItem *> items();
+
+  /// regroup cacheable items at the bottom. Preserve the order among
+  /// cacheable and non-cacheable items.
+  void regroupCacheable();
 };
 
 #endif

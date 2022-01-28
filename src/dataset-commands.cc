@@ -792,14 +792,16 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
   QList<CurveCross*> crosses;
   pick.trackedButtons = Qt::LeftButton|Qt::RightButton|Qt::MiddleButton;
 
+  QPen thin(QColor(0,0,0));
+  thin.setWidth(0.7);
   view.addItem(&m);
   m.size = 4;
-  m.pen = QPen(Qt::NoPen);
+  m.pen = thin;
   m.brush = QBrush(QColor(0,0,255,100)); // A kind of transparent blue
 
   view.addItem(&r);
   r.size = 4;
-  r.pen = QPen(Qt::NoPen);
+  r.pen = thin;
   r.brush = QBrush(QColor(0,128,0,100)); // A kind of transparent green
   loop.setHelpString("Cursor:\n" +
                      cursorHandler.buildHelpString());
@@ -826,6 +828,14 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
       view.removeDataSet(cds);
       newDatasets << nds;
       pick.pickDataSet(nds);    // so we keep on working with this one.
+      view.mainPanel()->regroupCacheable();
+    }
+    // OK not nice but should work
+    for(CurveItem * it : view.mainPanel()->items()) {
+      if(it && it->shouldBeCached()) {
+        it->setDirty();
+        break;
+      }
     }
     return true;
   };

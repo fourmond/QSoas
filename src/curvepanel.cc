@@ -216,6 +216,27 @@ void CurvePanel::pickTicks()
   }
 }
 
+void CurvePanel::cleanItems()
+{
+  for(int i = 0; i < displayedItems.size(); i++) {
+    CurveItem * it = displayedItems[i];
+    if(! it)
+      displayedItems.removeAt(i--);
+  }
+}
+
+void CurvePanel::regroupCacheable()
+{
+  cleanItems();
+  std::stable_sort(displayedItems.begin(), displayedItems.end(),
+                   [](CurveItem * a, CurveItem * b) {
+                     if(a->shouldBeCached()) {
+                       return ! b->shouldBeCached();
+                     }
+                     else 
+                       return false;
+                   });
+}
 
 void CurvePanel::paintCurves(QPainter * p)
 {
@@ -249,26 +270,27 @@ void CurvePanel::paintCurves(QPainter * p)
   
 
   // first remove the items that have been deleted since the last 
-  for(int i = 0; i < displayedItems.size(); i++) {
-    CurveItem * it = displayedItems[i];
-    if(! it)
-      displayedItems.removeAt(i--);
-  }
+  cleanItems();
 
   int cacheBeg = -1;            // the number of the first item of the
                                 // cache
   bool cacheDirty = false;      // Whether the cache is dirty or not
+  bool doneCache = false;
 
   if(cache.size() != internalRectangle.size())
     cacheDirty = true;
   if(zoomedCache != r)
     cacheDirty = true;
 
+  // QTextStream o(stdout);
+  // o << "Drawing panel: " << this << endl;
   
   for(int i = 0; i < displayedItems.size(); i++) {
     CurveItem * it = displayedItems[i];
+    // o << " * item: " << it << " (" << typeid(*it).name() << ")" << endl;
     if(! it->hidden) {
-      if(it->shouldBeCached()) {
+      if(it->shouldBeCached() && !doneCache) {
+        // o << "  -> cache" << cacheBeg << endl;
         if(cacheBeg < 0)
           cacheBeg = i;
         if(it->shouldRedraw())
@@ -279,6 +301,7 @@ void CurvePanel::paintCurves(QPainter * p)
            !(displayedItems[i+1]->shouldBeCached())) {
           // Here is where the cache finishes
           if(cacheDirty) {
+            // o << "  -> update cache" << cacheBeg << endl;
             /// try to conserve size ?
             cache = QPixmap(internalRectangle.size());
             // transparent background
@@ -294,8 +317,10 @@ void CurvePanel::paintCurves(QPainter * p)
             zoomedCache = r;
           }
           // just paint.
+          // o << "  -> draw cache" << cacheBeg << endl;
           QRect ir(QPoint(0, 0), internalRectangle.size());
           p->drawPixmap(internalRectangle, cache, ir);
+          doneCache = true;
         }
       }
       else
@@ -412,7 +437,6 @@ void CurvePanel::paint(QPainter * painter)
     }
   }
 }
-
 
 
 void CurvePanel::clear()

@@ -55,7 +55,11 @@ PointPicker::PointPicker(CurveEventLoop * l, const DataSet * ds,
 
   marker = new CurveMarker;
   marker->size = 4;
-  marker->pen = QPen(Qt::NoPen);
+
+  QPen thin(QColor(0,0,0));
+  thin.setWidth(0.7);
+
+  marker->pen = thin;
 
   updateMarkerStyle();
   
@@ -92,8 +96,10 @@ void PointPicker::updateMarkerStyle()
   // col.setAlpha(100);
   double h, s, v;
   col.getHsvF(&h, &s, &v);
-  s *= 0.5;
+  s *= 0.4;
   col.setHsvF(h, s, v);
+
+
   marker->brush = QBrush(col);
 }
 

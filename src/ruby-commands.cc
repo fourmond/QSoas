@@ -1362,3 +1362,103 @@ asf("assert", // command name
     "Runs an assertion in a test suite", "", CommandContext::fitContext());
 
 
+
+//////////////////////////////////////////////////////////////////////
+
+static ArgumentList 
+lsA(QList<Argument *>() 
+    << new SeveralCodesArgument("equations", 
+                                "Equations",
+                                "linear equations of the variables, all equal to 0"));
+
+static void linearSolveCommand(const QString &, QStringList formulas,
+                               const CommandOptions & opts)
+{
+
+  const DataSet * ds = soas().currentDataSet();
+
+  // We only need one expression
+  DataSetExpression dse(ds);
+  dse.prepareExpression("0");
+
+  
+  PossessiveList<Expression> expressions;
+
+
+  int sz = formulas.size();
+  QStringList variables;
+  for(int i = 0; i < sz; i++)
+    variables << QString("a_%1").arg(i+1);
+
+  QStringList allVariables = dse.dataSetParameters();
+  int baseIdx = allVariables.size();
+  allVariables += variables;
+
+  double tmp[allVariables.size()];
+
+  /// The additional columns created
+  QList<Vector> addCols;
+
+  for(const QString & expr : formulas) {
+    expressions << new Expression(expr, allVariables);
+    addCols << Vector();
+  }
+
+  GSLVector vect(sz);
+  double solutions[sz];
+  gsl_vector_view v = gsl_vector_view_array(solutions, sz);
+    
+  GSLMatrix m(sz, sz);
+  /// @todo Should join
+  gsl_permutation * perm = gsl_permutation_alloc(sz);
+  int idx = 0;
+  while(dse.nextValues(tmp, &idx)) {
+    // First RHS
+    for(int i = 0; i < sz; i++)
+      tmp[baseIdx + i] = 0;
+    for(int i = 0; i < sz; i++)
+      vect[i] = expressions[i]->evaluate(tmp);
+
+    // Now, the matrix
+    for(int i = 0; i < sz; i++) {
+      // Set only the coefficient of the ith variable
+      for(int j = 0; j < sz ; j++)
+        tmp[baseIdx + j] = (i == j ? 1.0 : 0);
+      /// Loop over the rows
+      for(int j = 0; j < sz; j++) {
+        double v = expressions[j]->evaluate(tmp);
+        v -= vect[j];
+        gsl_matrix_set(m, j, i, v);
+      }
+      int sgn;
+      try {
+        gsl_linalg_LU_decomp(m, perm, &sgn);
+        gsl_linalg_LU_solve(m, perm, vect, &v.vector);
+
+        for(int i = 0; i < sz; i++)
+          addCols[i] << solutions[i];
+      }
+      catch(const RuntimeError & re) {
+        Terminal::out << "Error at row #" << idx
+                      << ": " << re.message() << endl;
+        for(int i = 0; i < sz; i++)
+          addCols[i] << std::nan("0");
+      }
+      
+    }
+  }
+  gsl_permutation_free(perm);
+
+  QList<Vector> cols = ds->allColumns();
+  cols += addCols;
+  DataSet * nds = ds->derivedDataSet(cols, "_ls.dat");
+  soas().pushDataSet(nds);
+}
+
+static Command 
+lsv("linear-solve", // command name
+    effector(linearSolveCommand), // action
+    "math",  // group name
+    &lsA, // arguments
+    NULL,
+    "Linear solve");

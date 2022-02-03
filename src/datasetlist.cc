@@ -22,6 +22,8 @@
 #include <soas.hh>
 #include <general-arguments.hh>
 
+#include <terminal.hh>
+
 void DataSetList::parseOptions(const CommandOptions & opts, bool all) 
 {
   DataStack & s = soas().stack();
@@ -47,8 +49,18 @@ void DataSetList::parseOptions(const CommandOptions & opts, bool all)
     QList<const DataSet *> nl = datasets;
     datasets.clear();
     for(const DataSet * s : nl) {
-      if(s->matches(frm))
-        datasets << s;
+      try {
+        if(s->matches(frm))
+          datasets << s;
+      }
+      catch(const RuntimeError & re) {
+        Terminal::out << Terminal::bold
+                      << "Warning: " << flush
+                      << "Error evaluating expression on dataset: '"
+                      << s->name
+                      << "': " << re.message()
+                      << endl;
+      }
     }
   }
 }

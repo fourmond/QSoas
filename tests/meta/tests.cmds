@@ -1,2 +1,5 @@
 # Test suite for meta-data and their persistence
 @ persistence.cmds
+
+# Error=ignore to make sure that precisely we don't have issues
+@ for-which.cmds /error=ignore

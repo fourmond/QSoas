@@ -1,0 +1,17 @@
+# A series of tests on for-which
+
+clear-stack
+
+generate-dataset 0 10
+set-meta a 10
+
+generate-dataset 0 20
+set-meta a 20
+
+
+generate-dataset 0 5
+
+flag all /for-which $meta.a>10 /flags=stuff
+
+fetch flagged:stuff
+assert $stats.x_max-20 0

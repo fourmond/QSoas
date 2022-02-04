@@ -1,4 +1,7 @@
 <?xml version='1.0' encoding='windows-1252'?>
+<!-- Documentation is there:
+     https://wixtoolset.org/documentation/manual/v3/xsd/wix/product.html
+-->
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
   <Product Name='QSoas #VERSION#' 
            Id='*' 
@@ -10,17 +13,17 @@
     <Package Id='*' Keywords='Installer' 
              Description="QSoas #VERSION#'s Installer"
              Manufacturer='qsoas.org'
-             InstallerVersion='100' Languages='1033' 
-             Compressed='yes' SummaryCodepage='1252' />
+             InstallerVersion='200' Languages='1033' 
+             Compressed='yes' SummaryCodepage='1252' #ARCH# />
 
     <Media Id='1' Cabinet='QSoas.cab' EmbedCab='yes' DiskPrompt="CD-ROM #1" />
     <Property Id='DiskPrompt' Value="QSoas's Installation Media" />
 
     <Directory Id='TARGETDIR' Name='SourceDir'>
-      <Directory Id='ProgramFilesFolder' Name='PFiles'>
+      <Directory Id='#PFF#' Name='PFiles'>
         <Directory Id='INSTALLDIR' Name='QSoas'>
           <Component Id='MainExecutable' 
-                     Guid='#QSoasID#'>
+                     Guid='#QSoasID#' #W64#>
             <File Id='QSoasEXE' 
                   Name='QSoas.exe' 
                   DiskId='1' Source='release\QSoas.exe' 

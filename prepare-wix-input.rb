@@ -11,6 +11,18 @@ require 'securerandom'
 require 'yaml'
 
 
+# Here is a rather cumbersome way to detect WIN64:
+puts "Building using the given PATH: #{ENV['PATH']}"
+if ENV['PATH'] =~ /mingw64/
+  $win64 = true
+  puts " -> building a win64 installer"
+else
+  $win64 = false
+  puts " -> building a win32 installer"
+end
+
+
+  
 # Takes two arguments: full version, and win-nice version
 full_version = ARGV[0] || "full"
 win_version = ARGV[1] || "0.0"
@@ -149,6 +161,10 @@ what = {
 dlls = {} 
 pltf = {} 
 dll_refs = {}
+w64p = ""
+if $win64
+  w64p = " Win64='yes'"
+end
 for k,v in what
   idx = 0
   dlls[k] = ""
@@ -158,7 +174,7 @@ for k,v in what
     next unless File::exists?(f)   # Only for testing !
     guid = uuids[file_ids[f]]
     bf = File::basename(f)
-    dlls[k] << "<Component Id='Dll#{idx}' Guid='#{guid}'>\n"
+    dlls[k] << "<Component Id='Dll#{idx}' Guid='#{guid}'#{w64p}>\n"
     dlls[k] << "  <File Id='Dll_file#{idx}' Name='#{bf}' DiskId='1' Source='#{f}' KeyPath='yes' />\n"
     dlls[k] << "</Component>\n"
     dll_refs[k] << "<ComponentRef Id='Dll#{idx}' />\n"
@@ -189,6 +205,20 @@ substs['DEBUG_DLL_REFS'] = dll_refs['debug']
 
 substs['VERSION'] = full_version
 substs['WIN_VERSION'] = win_version
+
+# Here preparing the win64 substitutions
+if $win64
+  substs['PFF'] = "ProgramFiles64Folder"
+  substs['ARCH'] = "Platform='x64'"
+  substs['W64'] = "Win64='yes'"
+else
+  substs['PFF'] = "ProgramFilesFolder"
+  substs['ARCH'] = ""
+  substs['W64'] = ""
+end
+  
+
+
 
 # Dumping some informations...
 puts "Preparing the wix input files. Using the following substititions:"

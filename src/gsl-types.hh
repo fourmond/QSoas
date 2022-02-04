@@ -56,6 +56,32 @@ public:
   };
 };
 
+/// Thin wrapper around gsl_permutation
+class GSLPermutation {
+  /// Managed vector
+  gsl_permutation * data;
+public:
+  explicit GSLPermutation(size_t size) {
+    data = gsl_permutation_alloc(size);
+  };
+
+  ~GSLPermutation() {
+    gsl_permutation_free(data);
+  };
+
+  gsl_permutation* operator->() {
+    return data;
+  };
+
+  operator gsl_permutation*() {
+    return data;
+  };
+
+  operator const gsl_permutation*() const {
+    return data;
+  };
+};
+
 /// Thin wrapper around gsl_matrix
 class GSLMatrix {
   /// Managed matrix

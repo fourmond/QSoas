@@ -1,0 +1,26 @@
+# We use a small number of samples
+generate-dataset 0 10 /columns=3 /samples=51
+apply-formula y2=5
+
+
+# Check names
+set-column-names my_x my_y du[#3]
+assert '$col_names[0]=="my_x"'
+assert '$col_names[1]=="my_y"'
+assert '$col_names[2]=="du[#3]"'
+
+assert $stats.y2_max-5 0
+assert $stats.y2_min-5 0
+
+tweak-columns /select=$c.my_x,$c.du[#3]
+assert $stats.y_max-5 0
+assert $stats.y_min-5 0
+assert '$col_names[1]=="du[#3]"'
+
+drop
+
+tweak-columns /select=$c.my_x,named:du[#3]
+assert $stats.y_max-5 0
+assert $stats.y_min-5 0
+assert '$col_names[1]=="du[#3]"'
+

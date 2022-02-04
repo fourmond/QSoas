@@ -1023,7 +1023,7 @@ int ColumnSpecification::getValue(const DataSet * ds, int def) const
   QRegExp num2("^\\s*#(\\d+)\\s*$");
 
   QRegExp name("^\\s*((x)|(y)|(z)|(y(\\d+))|(non?e?))\\s*$", Qt::CaseInsensitive);
-  QRegExp named("^\\s*(?:named:|\\$c.)(\\w+)\\s*$", Qt::CaseInsensitive);
+  QRegExp named("^\\s*(?:named:|\\$c.)(\\S+)\\s*$", Qt::CaseInsensitive);
 
   if(spec == "last")            // Identical to -1
     return ds->nbColumns()-1;
@@ -1054,8 +1054,12 @@ int ColumnSpecification::getValue(const DataSet * ds, int def) const
       return 2;                 // Z
     else if(! name.cap(5).isEmpty())
       return name.cap(6).toInt();                 // Yn
-    else if(! name.cap(7).isEmpty())
-      return -1;                // None
+    else if(! name.cap(7).isEmpty()) { // none again
+      if(acceptNone)
+        return -1;
+      else
+        throw RuntimeError("Invalid column specification: %1").arg(spec);
+    }
   }
   if(ds) {
     if(named.indexIn(spec, 0) >= 0) {

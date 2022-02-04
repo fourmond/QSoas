@@ -1,0 +1,24 @@
+# One column
+generate-dataset 1 2 x**2
+linear-solve 2*x*a_1+y
+apply-formula y2+=0.5*x;y2=abs(y2)
+assert $stats.y2_max 1e-15
+
+
+# Using column names
+generate-dataset 1 2 x**2
+set-column-names my_x my_y
+linear-solve 2*$c.my_x*a_1+$c.my_y
+apply-formula y2+=0.5*x;y2=abs(y2)
+assert $stats.y2_max 1e-15
+
+
+# Now a little more complex with two variables
+generate-dataset 1 2 /columns=3
+apply-formula y=x**2;y2=x**3
+linear-solve a_1*x+a_2*y-y2 a_1-a_2-x
+apply-formula /extra-columns=2 y5=abs(y3*x+y4*y-y2);y6=abs(y3-y4-x)
+assert $stats.y5_max 3e-15
+assert $stats.y6_max 2e-15
+
+

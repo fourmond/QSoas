@@ -1365,20 +1365,19 @@ asf("assert", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static ArgumentList 
-lsA(QList<Argument *>() 
-    << new SeveralCodesArgument("equations", 
-                                "Equations",
-                                "linear equations of the variables, all equal to 0"));
-
 static void linearSolveCommand(const QString &, QStringList formulas,
                                const CommandOptions & opts)
 {
 
   const DataSet * ds = soas().currentDataSet();
 
+  bool useStats = false;
+  updateFromOptions(opts, "use-stats", useStats);
+  bool useMeta = false;
+  updateFromOptions(opts, "use-meta", useMeta);
+
   // We only need one expression
-  DataSetExpression dse(ds);
+  DataSetExpression dse(ds, useStats, useMeta, true);
   dse.prepareExpression("0");
 
   
@@ -1410,14 +1409,14 @@ static void linearSolveCommand(const QString &, QStringList formulas,
     
   GSLMatrix m(sz, sz);
   /// @todo Should join
-  gsl_permutation * perm = gsl_permutation_alloc(sz);
+  GSLPermutation perm(sz);
   int idx = 0;
   while(dse.nextValues(tmp, &idx)) {
     // First RHS
     for(int i = 0; i < sz; i++)
       tmp[baseIdx + i] = 0;
     for(int i = 0; i < sz; i++)
-      vect[i] = expressions[i]->evaluate(tmp);
+      vect[i] = -expressions[i]->evaluate(tmp);
 
     // Now, the matrix
     for(int i = 0; i < sz; i++) {
@@ -1427,38 +1426,59 @@ static void linearSolveCommand(const QString &, QStringList formulas,
       /// Loop over the rows
       for(int j = 0; j < sz; j++) {
         double v = expressions[j]->evaluate(tmp);
-        v -= vect[j];
+        v += vect[j];
         gsl_matrix_set(m, j, i, v);
       }
-      int sgn;
-      try {
-        gsl_linalg_LU_decomp(m, perm, &sgn);
-        gsl_linalg_LU_solve(m, perm, vect, &v.vector);
-
-        for(int i = 0; i < sz; i++)
-          addCols[i] << solutions[i];
-      }
-      catch(const RuntimeError & re) {
-        Terminal::out << "Error at row #" << idx
-                      << ": " << re.message() << endl;
-        for(int i = 0; i < sz; i++)
-          addCols[i] << std::nan("0");
-      }
+    }
+    int sgn;
+    try {
+      gsl_linalg_LU_decomp(m, perm, &sgn);
+      gsl_linalg_LU_solve(m, perm, vect, &v.vector);
       
+      for(int i = 0; i < sz; i++)
+        addCols[i] << solutions[i];
+    }
+    catch(const RuntimeError & re) {
+      Terminal::out << "Error at row #" << idx
+                    << ": " << re.message() << endl;
+      for(int i = 0; i < sz; i++)
+        addCols[i] << std::nan("0");
     }
   }
-  gsl_permutation_free(perm);
 
   QList<Vector> cols = ds->allColumns();
+  int b = cols.size();
   cols += addCols;
   DataSet * nds = ds->derivedDataSet(cols, "_ls.dat");
+  for(int i = 0; i < sz; i++)
+    nds->setColumnName(b+i, QString("a_%1").arg(i+1));
+  
   soas().pushDataSet(nds);
 }
+
+
+static ArgumentList 
+lsA(QList<Argument *>() 
+    << new SeveralCodesArgument("equations", 
+                                "Equations",
+                                "linear equations of the variables, all equal to 0"));
+
+
+static ArgumentList 
+lsO(QList<Argument *>() 
+    << new BoolArgument("use-stats", 
+                        "Use statistics",
+                        "if on (by default), you can use `$stats` to refer to statistics (off by default)")
+    << new BoolArgument("use-meta", 
+                        "Use meta-data",
+                        "if on (by default), you can use `$meta` to refer to "
+                        "the dataset meta-data")
+    );
 
 static Command 
 lsv("linear-solve", // command name
     effector(linearSolveCommand), // action
     "math",  // group name
     &lsA, // arguments
-    NULL,
+    &lsO,
     "Linear solve");

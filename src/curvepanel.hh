@@ -101,6 +101,10 @@ class CurvePanel : public QObject {
 
   /// Paint all the curves.
   void paintCurves(QPainter * p);
+
+  /// Paints the "classical" view
+  void normalPaint(QPainter * painter);
+
   
   /// The bounding box of all items displayed. 
   QRectF boundingBox;

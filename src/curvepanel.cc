@@ -329,7 +329,7 @@ void CurvePanel::paintCurves(QPainter * p)
   }
 }
 
-void CurvePanel::paint(QPainter * painter)
+void CurvePanel::normalPaint(QPainter * painter)
 {
   // First, update the BB
   updateBB();
@@ -436,6 +436,12 @@ void CurvePanel::paint(QPainter * painter)
       }
     }
   }
+}
+
+
+void CurvePanel::paint(QPainter * painter)
+{
+  normalPaint(painter);
 }
 
 

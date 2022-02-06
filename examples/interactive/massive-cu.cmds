@@ -1,0 +1,5 @@
+generate-dataset -10 10 sin(x)+0.4*x+sin(i**8)*0.3 /samples=10000
+generate-dataset -10 10 sin(x)-0.3*x+sin(i**8)*0.4 /samples=10000
+
+V 1
+cu

@@ -48,6 +48,9 @@ class FileListModel : public QAbstractTableModel {
   /// The number of the first column of meta-data
   int metaBaseColumn() const;
 
+  /// If true, shows ignored files
+  bool showIgnored;
+
 
 public:
 
@@ -84,6 +87,9 @@ public slots:
   ///
   /// Returns the index of the newly created column.
   int addMetaData(const QString & name);
+
+  /// Sets the "show ignored property"
+  void setShowIgnored(bool show);
 
 };
 

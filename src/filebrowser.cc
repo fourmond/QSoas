@@ -105,7 +105,8 @@ public:
 //////////////////////////////////////////////////////////////////////
 
 FileListModel::FileListModel() :
-  cachedData(new QCache<QString, FileData>(1000))
+  cachedData(new QCache<QString, FileData>(1000)),
+  showIgnored(false)
 {
 }
 
@@ -136,7 +137,14 @@ void FileListModel::setDirectory(const QString & dir)
     if(fileList[i].isDir())
       fileList.takeAt(i);
     else {
-      QStringList lst = cachedInfo(fileList[i])->cachedMeta.keys();
+      FileData * info = cachedInfo(fileList[i]);
+      if(! showIgnored) {
+        if(info->noBackend)  {
+          fileList.takeAt(i);
+          continue;
+        }
+      }
+      QStringList lst = info->cachedMeta.keys();
       for(const QString & s : lst) {
         meta.insert(s);
       }
@@ -145,6 +153,14 @@ void FileListModel::setDirectory(const QString & dir)
   metaDataNames = meta.toList();
   std::sort(metaDataNames.begin(), metaDataNames.end());
   endResetModel();
+}
+
+void FileListModel::setShowIgnored(bool show)
+{
+  if(showIgnored != show) {
+    showIgnored = show;
+    setDirectory(directory);
+  }
 }
 
 int FileListModel::addMetaData(const QString & name)
@@ -412,6 +428,23 @@ void FileBrowser::setupFrame()
                    });
 
   global->addLayout(newMetaHB);
+
+  QHBoxLayout * otherHB = new QHBoxLayout;
+
+  QCheckBox * cb = new QCheckBox("Show ignored");
+  cb->setCheckState(Qt::Unchecked);
+
+  QObject::connect(cb, &QCheckBox::stateChanged,
+                   this,
+                   [this](int state) {
+                     listModel->setShowIgnored(state == Qt::Checked);
+                   });
+
+  otherHB->addWidget(cb);
+  
+
+  global->addLayout(otherHB);
+  
 
   QDialogButtonBox * buttons =
     new QDialogButtonBox(QDialogButtonBox::Ok,

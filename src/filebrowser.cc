@@ -359,6 +359,35 @@ FileBrowser::~FileBrowser()
 }
 
 
+void FileBrowser::addCMAction(const QString & name,
+                              std::function<void ()> func,
+                              const QKeySequence & shortCut)
+{
+  QString str = name;
+  if(! shortCut.isEmpty())
+    str += "   (" + shortCut.toString() + ")";
+  QAction * ac = new QAction(name, this);
+  if(! shortCut.isEmpty()) {
+    ac->setShortcut(shortCut);
+    ac->setShortcutContext(Qt::WindowShortcut);
+  }
+  QObject::connect(ac, &QAction::triggered,
+                   this, func);
+  contextActions << ac;
+  QWidget::addAction(ac);
+}
+
+void FileBrowser::spawnContextMenu(const QPoint & pos)
+{
+  QMenu menu;
+  for(int i = 0; i < contextActions.size(); i++)
+    menu.addAction(contextActions[i]);
+
+  // Triggered automatically, apparently...
+  menu.exec(listView->viewport()->mapToGlobal(pos));
+}
+
+
 void FileBrowser::setupFrame()
 {
   QVBoxLayout * global = new QVBoxLayout(this);
@@ -400,6 +429,11 @@ void FileBrowser::setupFrame()
   listView->setModel(listModel);
   listView->verticalHeader()->setVisible(false);
   listView->setShowGrid(false);
+
+
+  listView->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(listView, SIGNAL(customContextMenuRequested(const QPoint &)),
+          SLOT(spawnContextMenu(const QPoint &)));
 
   splitter->addWidget(listView);
   splitter->setStretchFactor(1, 2);
@@ -462,6 +496,25 @@ void FileBrowser::setupFrame()
   //   Qt::QueuedConnection);
 
   directoryView->scrollTo(cd);  // This still doesn't work, but well.
+
+
+
+  addCMAction("Set values",
+              [this] {
+                /// @todo This probably should join a widget utils somewhere ?
+                QModelIndexList indexes = listView->selectionModel()->selectedIndexes();
+                if(indexes.size() > 0) {
+                  bool ok = false;
+                  QVariant s = listModel->data(indexes[0], Qt::DisplayRole);
+                  QString txt = QInputDialog::getText(this, "edit", "change item",
+                                                      QLineEdit::Normal, s.toString(), &ok);
+                  if(ok) {
+                    for(int i = 0; i < indexes.size(); i++) {
+                      listModel->setData(indexes[i], txt,  Qt::EditRole);
+                    }
+                  }
+                }
+              });
 }
 
 void FileBrowser::directorySelected(const QModelIndex &index)

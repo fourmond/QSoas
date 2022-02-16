@@ -115,7 +115,12 @@ class FileBrowser : public QDialog {
   /// The model for displaying the propertoes
   FileListModel * listModel;
 
-  
+  QList<QAction *> contextActions;
+
+  /// Adds an action to the context menu
+  void addCMAction(const QString & name,
+                   std::function<void ()> func,
+                   const QKeySequence & shortCut = QKeySequence());
 
 public:
   FileBrowser();
@@ -124,6 +129,9 @@ public:
 protected slots:
   /// Called whenever a new directory is selected.
   void directorySelected(const QModelIndex &index);
+
+  /// Shows a context menu to modify a few things...
+  void spawnContextMenu(const QPoint & pos);
 
 };
 

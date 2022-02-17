@@ -369,23 +369,31 @@ static void setCommand(const QString & /*name*/, QList<QPair<int, int> > params,
     MRuby * mr = MRuby::ruby();
     FWExpression exp(value, ws);
     for(QPair<int, int> ps : params) {
-      if(! sel.isSelected(ps.second))
-        continue;   // Skip this
-      // We use the first dataset as source for the meta
-      mrb_value v = exp.evaluate(ps.second >= 0 ? ps.second : 0);
-      /// @todo Here: check for a string return value
-      if(fix || unfix)
-        ws->setFixed(ps.first, ps.second, fix);
-      ws->setValue(ps.first, ps.second, mr->floatValue(v));
+      int beg = ps.second < 0 ? 0 : ps.second;
+      int end = ps.second < 0 ? ws->data()->datasets.size()-1 : ps.second;
+      for(int ds = beg; ds <= end; ds++) {
+        if(! sel.isSelected(ds))
+          continue;   // Skip this
+        mrb_value v = exp.evaluate(ds >= 0 ? ds : 0);
+        /// @todo Here: check for a string return value
+        if(fix || unfix)
+          ws->setFixed(ps.first, ds, fix);
+        ws->setValue(ps.first, ds, mr->floatValue(v));
+      }
     }
   }
   else {
     for(QPair<int, int> ps : params) {
-      if(! sel.isSelected(ps.second))
-        continue;   // Skip this
-      if(fix || unfix)
-        ws->setFixed(ps.first, ps.second, fix);
-      ws->setValue(ps.first, ps.second, value);
+      int beg = ps.second < 0 ? 0 : ps.second;
+      int end = ps.second < 0 ? ws->data()->datasets.size()-1 : ps.second;
+      for(int ds = beg; ds <= end; ds++) {
+        if(! sel.isSelected(ds))
+          if(! sel.isSelected(ds))
+            continue;   // Skip this
+        if(fix || unfix)
+          ws->setFixed(ps.first, ds, fix);
+        ws->setValue(ps.first, ds, value);
+      }
     }
   }
 

@@ -686,9 +686,9 @@ void FitDialog::setupFrame(bool expert)
 
   // Ctr + PgUp/PgDown to navigate the buffers
   Utils::registerShortCut(QKeySequence(tr("Ctrl+PgUp")), 
-                          nup, SLOT(previousPage()));
+                          nup, SLOT(previousPage()), this);
   Utils::registerShortCut(QKeySequence(tr("Ctrl+PgDown")), 
-                          nup, SLOT(nextPage()));
+                          nup, SLOT(nextPage()), this);
 
   
 

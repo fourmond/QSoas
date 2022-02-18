@@ -569,6 +569,8 @@ void CommandWidget::leavePromptMode()
 
 void CommandWidget::scrollTerminal(int nb)
 {
+  if(!terminalDisplay)
+    return;
   QScrollBar * sb = terminalDisplay->verticalScrollBar();
   int curValue = sb->value();
   int pageValue = sb->pageStep();

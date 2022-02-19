@@ -98,6 +98,15 @@ public:
     md.metaData = cachedMeta;
     md.write();
   };
+
+  void removeMeta(const QString & meta) {
+    MetaDataFile md(fullPath);
+    md.read();
+    cachedMeta = md.metaData;
+    cachedMeta.remove(meta);
+    md.metaData = cachedMeta;
+    md.write();
+  };
   
 };
 
@@ -260,6 +269,26 @@ bool FileListModel::setData(const QModelIndex & index,
     return false;
   
   fd->setMeta(metaDataNames[col - metaBaseColumn()], value);
+  return true;
+}
+
+bool FileListModel::removeMeta(const QModelIndex & index)
+{
+  if(! index.isValid())
+    return false;
+  int idx = index.row();
+  if(idx < 0 || idx >= fileList.size())
+    return false;
+
+  int col = index.column();
+  if(col < metaBaseColumn())
+    return false;
+  FileData * fd = cachedInfo(fileList[idx]);
+  if(fd->noBackend)
+    return false;
+  
+  fd->removeMeta(metaDataNames[col - metaBaseColumn()]);
+  emit(dataChanged(index, index));
   return true;
 }
 
@@ -499,7 +528,7 @@ void FileBrowser::setupFrame()
 
 
 
-  addCMAction("Set values",
+  addCMAction("Set meta",
               [this] {
                 /// @todo This probably should join a widget utils somewhere ?
                 QModelIndexList indexes = listView->selectionModel()->selectedIndexes();
@@ -514,6 +543,13 @@ void FileBrowser::setupFrame()
                     }
                   }
                 }
+              });
+  addCMAction("Remove meta",
+              [this] {
+                /// @todo This probably should join a widget utils somewhere ?
+                QModelIndexList indexes = listView->selectionModel()->selectedIndexes();
+                for(const QModelIndex & idx : indexes)
+                  listModel->removeMeta(idx);
               });
 }
 

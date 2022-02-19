@@ -91,6 +91,9 @@ public slots:
   /// Sets the "show ignored property"
   void setShowIgnored(bool show);
 
+  /// Removes the meta corresponding to the given meta-data (or does nothing if the 
+  bool removeMeta(const QModelIndex & index);
+
 };
 
 /// A dialog box to display the FileBrowserModel

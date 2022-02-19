@@ -394,8 +394,8 @@ void FileBrowser::addCMAction(const QString & name,
 {
   QString str = name;
   if(! shortCut.isEmpty())
-    str += "   (" + shortCut.toString() + ")";
-  QAction * ac = new QAction(name, this);
+    str += "\t" + shortCut.toString();
+  QAction * ac = new QAction(str, this);
   if(! shortCut.isEmpty()) {
     ac->setShortcut(shortCut);
     ac->setShortcutContext(Qt::WindowShortcut);
@@ -458,6 +458,7 @@ void FileBrowser::setupFrame()
   listView->setModel(listModel);
   listView->verticalHeader()->setVisible(false);
   listView->setShowGrid(false);
+  listView->setAlternatingRowColors(true);
 
 
   listView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -543,14 +544,14 @@ void FileBrowser::setupFrame()
                     }
                   }
                 }
-              });
+              }, QKeySequence("Ctrl+M"));
   addCMAction("Remove meta",
               [this] {
                 /// @todo This probably should join a widget utils somewhere ?
                 QModelIndexList indexes = listView->selectionModel()->selectedIndexes();
                 for(const QModelIndex & idx : indexes)
                   listModel->removeMeta(idx);
-              });
+              }, QKeySequence("Ctrl+D"));
 }
 
 void FileBrowser::directorySelected(const QModelIndex &index)

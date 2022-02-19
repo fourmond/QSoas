@@ -53,8 +53,8 @@ void ParametersSpreadsheet::addCMAction(const QString & name,
 {
   QString str = name;
   if(! shortCut.isEmpty())
-    str += "   (" + shortCut.toString() + ")";
-  QAction * ac = ActionCombo::createAction(name, receiver,
+    str += "\t" + shortCut.toString();
+  QAction * ac = ActionCombo::createAction(str, receiver,
                                            slot, shortCut, this);
   contextActions << ac;
   QWidget::addAction(ac);
@@ -70,6 +70,7 @@ void ParametersSpreadsheet::setupFrame()
 
 
   view->setContextMenuPolicy(Qt::CustomContextMenu);
+  view->setAlternatingRowColors(true);
   connect(view, SIGNAL(customContextMenuRequested(const QPoint &)),
           SLOT(spawnContextMenu(const QPoint &)));
 

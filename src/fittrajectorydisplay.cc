@@ -88,6 +88,11 @@ public:
         if(va.type() == QMetaType::Double) {
           double da = va.toDouble();
           double db = vb.toDouble();
+          // We put the nans always at the end regardless of the order.
+          if(std::isnan(da))
+            return false;
+          if(std::isnan(db))
+            return true;
           return (order == Qt::AscendingOrder ?
                   da < db : db < da);
         }

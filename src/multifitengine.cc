@@ -255,7 +255,7 @@ void MultiFitEngine::resetEngineParameters()
   maxTries = 30;
   useScaling = false;           // though not useful.
   globalScalingOrder = 0;
-  scaleByMagnitude = false;
+  scaleByMagnitude = true;
 }
 
 ArgumentList MultiFitEngine::
@@ -321,6 +321,8 @@ void MultiFitEngine::scaleJacobian()
     
   if(scaleByMagnitude) {
     useScaling = true;
+
+    // OK, not really by magnitude anymore
     for(int i = 0; i < n; i++) {
       const FreeParameter * fp = fitData->allParameters[i];
       if(fp->fitIndex != i)
@@ -328,9 +330,23 @@ void MultiFitEngine::scaleJacobian()
           arg(fp->fitIndex).arg(i);
       int ds = fp->dsIndex, prm = fp->paramIndex;
       gsl_vector * v = jacobian->parameterVector(prm, ds);
-      double nrm = gsl_blas_dnrm2(v);
-      if(nrm == 0)
+
+      double s = 0, s2 = 0;
+      for(int k = 0; k < v->size; k++) {
+        double val = gsl_vector_get(v, k);
+        s += val;
+        s2 += val*val;
+      }
+      s /= v->size;
+      s2 /= v->size;
+      s2 -= s*s;
+      s2 = sqrt(s2);              // This can give nan for non-dispersed stuff
+      double nrm = s2;
+      if(nrm == 0 || (!std::isfinite(nrm)))
+        nrm = fabs(s);
+      if(nrm == 0 || (!std::isfinite(nrm)))
         nrm = 1;
+
       nrm = 1/nrm;
       gsl_vector_set(scalingFactors, i, nrm);
     }

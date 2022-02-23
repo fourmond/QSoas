@@ -612,9 +612,14 @@ static GSLTripleFunction<Functions::pseudoVoigt>
 pseudo_voigt("pseudo_voigt(x, w, mu)", "Pseudo-Voigt function, defined by: "
              "$$\\frac{1-\\mu}{\\sqrt{2 \\pi w^2}} \\exp (-x^2 / 2w^2) + \\frac{\\mu}{ w \\pi (1 + (x/w)^2) }$$");
 
+
 static GSLTripleFunction<Functions::trumpetBV> 
 trumpet_bv("trumpet_bv(m, alpha, prec)", "Position of an oxidative adsorbed 1-electron peak. $$m$$ is the coefficient defined by Laviron, the value is returned in units of $$RT/F$$");
 
+static GSLTripleFunction<gsl_ran_weibull_pdf> 
+weibull("weibull(x,a,b)",
+        "Probability of the Weibull distribution $$P_W(x,a,b)$$",
+        "https://www.gnu.org/software/gsl/doc/html/randist.html#the-weibull-distribution");
 
 //////////////////////////////////////////////////////////////////////
 

@@ -546,7 +546,8 @@ protected:
 public:
 
   /// Save to the named file.
-  void saveParameters(const QString & fileName, 
+  void saveParameters(const QString & fileName,
+                      bool overwrite = false,
                       const CommandOptions & opts = CommandOptions()) const;
 
   /// Load from the given stream

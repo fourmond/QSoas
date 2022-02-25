@@ -74,13 +74,13 @@ static void saveCommand(const QString & /*name*/, QString file, const CommandOpt
   // updateFromOptions(opts, "rotate", rotation);
   // if(rotation != 0)
   //   Utils::rotateFile(file, rotation);
-  FitWorkspace::currentWorkspace()->saveParameters(file, opts);
+  FitWorkspace::currentWorkspace()->saveParameters(file, false, opts);
 }
 
 ArgumentList sA(QList<Argument*>() 
-                << new FileArgument("file", 
-                                    "Parameter file",
-                                    "name of the file for saving the parameters")
+                << new FileSaveArgument("file", 
+                                        "Parameter file",
+                                        "name of the file for saving the parameters")
                 );
 
 ArgumentList sO(QList<Argument*>() 
@@ -934,9 +934,9 @@ static void saveTrajectoriesCommand(const QString & /*name*/,
 
 
 ArgumentList sTA(QList<Argument*>() 
-                 << new FileArgument("file", 
-                                     "Trajectory file",
-                                     "name of the file for saving the trajectories")
+                 << new FileSaveArgument("file", 
+                                         "Trajectory file",
+                                         "name of the file for saving the trajectories")
                 );
 
 

@@ -1004,7 +1004,9 @@ void FitDialog::saveParameters()
   if(save.isEmpty())
     return;
   try {
-    parameters.saveParameters(save);
+    // We disable confirmation because we already asked for
+    // confirmation before.
+    parameters.saveParameters(save, true);
   }
   catch(RuntimeError & e) {
     message(e.message());

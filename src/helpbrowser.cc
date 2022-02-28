@@ -32,6 +32,7 @@
 #include <soas.hh>
 #include <commandwidget.hh>
 
+#include <QTemporaryDir>
 
 // A QTextBrowser subclass for handling the documents.
 class HelpTextBrowser : public QTextBrowser {
@@ -238,6 +239,8 @@ HelpBrowser * HelpBrowser::theBrowser = NULL;
 
 QHelpEngine * HelpBrowser::theEngine = NULL;
 
+static std::unique_ptr<QTemporaryDir> docTmpDir;
+
 QHelpEngine * HelpBrowser::getEngine()
 {
   if(! theEngine) {
@@ -260,17 +263,36 @@ QHelpEngine * HelpBrowser::getEngine()
       absoluteFilePath("../Resources");
 #endif
   
-    QString collection;
+
+    QString bd;
     for(const QString & d : docPaths) {
       QDir dir(d);
       if(dir.exists("qsoas-help.qhc")) {
-        collection = dir.absoluteFilePath("qsoas-help.qhc");
+        bd = d;
+        // collection = dir.absoluteFilePath("qsoas-help.qhc");
         break;
       }
-    }     
+    }
   
     QTextStream o(stdout);
-    o << "Collection: '" << collection << "'" << endl;
+    o << "Collection found in directory: '" << bd << "'" << endl;
+    // Now copying it to a temporary directory
+    QString collection;
+    if(! bd.isEmpty()) {
+      QDir srcDir(bd);
+    
+      ::docTmpDir.reset(new QTemporaryDir);
+      if(::docTmpDir->isValid()) {
+        QString fp = ::docTmpDir->path();
+        // Copying both files
+        QFile::copy(srcDir.absoluteFilePath("qsoas-help.qhc"),
+                    fp + "/qsoas-help.qhc");
+        QFile::copy(srcDir.absoluteFilePath("qsoas-help.qch"),
+                    fp + "/qsoas-help.qch");
+        collection = fp + "/qsoas-help.qhc";
+        o << " -> help now at " << collection << endl;
+      }
+    }
     theEngine = new QHelpEngine(collection);
     if(collection.isEmpty())
       o << "Could not find collection file, search paths used: '"

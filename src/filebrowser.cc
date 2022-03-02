@@ -94,7 +94,12 @@ public:
     MetaDataFile md(fullPath);
     md.read();
     cachedMeta = md.metaData;
-    cachedMeta[meta] = data;
+    bool ok;
+    double dt = data.toDouble(&ok);
+    if(ok)
+      cachedMeta[meta] = dt;
+    else
+      cachedMeta[meta] = data;
     md.metaData = cachedMeta;
     md.write();
   };

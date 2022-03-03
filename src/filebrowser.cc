@@ -33,6 +33,8 @@
 
 #include <settings-templates.hh>
 
+#include <QMimeData>
+
 
 /// A simple cache for the data
 class FileData {
@@ -557,6 +559,25 @@ void FileBrowser::setupFrame()
                 for(const QModelIndex & idx : indexes)
                   listModel->removeMeta(idx);
               }, QKeySequence("Ctrl+D"));
+  addCMAction("Paste",
+              [this] {
+                QClipboard *clipboard = QGuiApplication::clipboard();
+                QStringList avail = clipboard->mimeData()->formats();
+                QTextStream o(stdout);
+                o << "Formats: \n * " << avail.join("\n * ") << endl;
+                int idx = 0;
+                for(const QString & fmt : avail) {
+                  o << "Writing: " << fmt << endl;
+                  QString f = QString("cp-t-%1").arg(idx, 2, 10, QChar('0'));
+                  File t(f + ".fmt", File::TextOverwrite);
+                  QTextStream t1(t);
+                  t1 << "Format: " << fmt << endl;
+                  
+                  File t2(f + ".dat", File::BinaryOverwrite);
+                  t2.ioDevice()->write(clipboard->mimeData()->data(fmt));
+                  idx += 1;
+                }
+              }, QKeySequence("Ctrl+V"));
 }
 
 void FileBrowser::directorySelected(const QModelIndex &index)

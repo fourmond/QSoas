@@ -166,5 +166,7 @@ void PointIterator::advanceIndex(int di)
     if(std::isfinite(x[index]) && std::isfinite(y(index))) {
       break;
     }
+    else
+      nonFinitePoints << index;
   }
 }

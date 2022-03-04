@@ -96,6 +96,10 @@ public:
   /// Next (transformed) point !
   QPointF next(const QTransform & trans);
 
+  /// Contains the list of non finite points. Updated during the
+  /// iteration, so only valid after the iterator has been used.
+  QList<int> nonFinitePoints;
+
   /// Adds all the points to a given path.
   void addToPath(QPainterPath & path, const QTransform & trans);
 

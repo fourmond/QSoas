@@ -57,6 +57,7 @@ void CurveDataSet::paint(QPainter * painter, const QRectF &bbox,
 
   painter->save();
   const GraphicsSettings & gs = soas().graphicsSettings();
+  QList<int> nans;
   if(dataSet->options.hasYErrors(dataSet)) {
     // paint it first so that lines/markers show up on top.
     QPen p(pen);
@@ -78,6 +79,7 @@ void CurveDataSet::paint(QPainter * painter, const QRectF &bbox,
                      PointIterator::Steps : PointIterator::Normal);
     it.addToPath(pp, ctw);
     painter->drawPath(pp);
+    nans = it.nonFinitePoints;
   }
 
   if(paintMarkers || dataSet->options.shouldDrawMarkers(dataSet) || dataSet->nbRows() <= 1) {
@@ -85,6 +87,48 @@ void CurveDataSet::paint(QPainter * painter, const QRectF &bbox,
     while(it.hasNext())
       CurveMarker::paintMarker(painter, it.next(ctw),
                                CurveMarker::Circle, 2.5);
+    nans = it.nonFinitePoints;
+  }
+
+  // Now, draw the NaNs
+  if(nans.size() > 0) {
+    QList<QPair<int, int> > pos;
+    QPair<int, int> cur(-1, -1);
+    for(int i : nans) {
+      if(cur.first < 0) {
+        cur.first = i;
+        cur.second = i;
+      }
+      else {
+        if(i > cur.second+1) {
+          pos << cur;
+          cur.first = i;
+          cur.second = i;
+        }
+        else {
+          cur.second = i;
+        }
+      }
+    }
+    pos << cur;
+
+    for(const QPair<int, int> & nan : pos) {
+      QPointF left, right;
+      if(nan.first > 0)
+        left = QPointF(dataSet->x()[nan.first-1],
+                       dataSet->y()[nan.first-1]);
+      if(nan.second < dataSet->nbRows() - 1)
+        right = QPointF(dataSet->x()[nan.second+1],
+                        dataSet->y()[nan.second+1]);
+      if(nan.first == 0)
+        left = right;
+      if(nan.second == dataSet->nbRows() - 1)
+        right = left;
+      left += right;
+      left *= 0.5;
+      CurveMarker::paintMarker(painter, ctw.map(left),
+                               CurveMarker::Circle, 2.5);
+    }
   }
 
   painter->setPen(gs.getPen(GraphicsSettings::SegmentsPen));

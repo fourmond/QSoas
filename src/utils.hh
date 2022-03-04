@@ -128,7 +128,7 @@ namespace Utils {
   /// Converts back from writeBoolean(). All the characters that do
   /// not correspond to true correspond to false.
   QList<bool> readBooleans(const QString& str,
-                       const QChar & tru = 'X');
+                           const QChar & tru = 'X');
 
   /// Sort a list and join it
   QString joinSortedList(QStringList list, const QString & glue);
@@ -149,6 +149,21 @@ namespace Utils {
 
 
   /// @}
+
+  /// @name CSV-related functions
+
+  /// Extracts any tabular data from QMimeData
+  QList<QStringList> extractTable(const QMimeData * data);
+
+  /// Splits a CSV line with the given separator and given quote
+  /// character.
+  ///
+  /// Stores the position of the fields into the indices vector.
+  void splitCSVLine(const QString &s, QRegExp & re, QChar quote,
+                    QVector<int> * indices);
+
+  /// @}
+
 
 
   /// @name Number-related functions

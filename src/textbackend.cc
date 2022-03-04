@@ -342,75 +342,6 @@ TextBackend text("/\\s+/",
 class CSVBackend : public TextBackend {
 protected:
 
-  static void splitCSVLine(const QString &s,
-                           QRegExp & re, QChar quote,
-                           QVector<int> * indices) {
-    // QStringList fields;
-    int cur = 0;
-    int size = s.size();
-
-    int tgt = 0;
-    // QTextStream o(stdout);
-    // o << "Split CSV line -- size: " << size << endl;
-
-    while(cur < size) {
-      if(s[cur] == quote) {     // a quoted field
-        int ci = cur+1;         // just after the quote
-        int beg = ci;
-        
-        // OK, this isn't so good, because now we can't modify the
-        // string, so we can't remove double quotes in succession. I
-        // guess this isn't much of an issue.
-        //
-        // We can't also handle the case when the quotes are inside a
-        // field
-        int end = -1;
-        while(true) {
-          int nxt = s.indexOf(quote, ci);
-          if(nxt < 0) 
-            nxt = size;
-          ci = nxt+1;
-          if(ci >= size)
-            break;
-          if(s[ci] == quote) {
-            ++ci;
-          }
-          else
-            break;
-        }
-        if(ci < size) {
-          end = re.indexIn(s, ci);
-          if(end < 0)
-            end = size;
-          ci = end + std::max(re.matchedLength(), 0);
-        }
-        tgt += 2;
-        while(indices->size() <= tgt)
-          *indices << 0;
-        // o << "Indb: " << tgt -2 << " -> " << beg << endl;
-        (*indices)[tgt-2] = beg;
-        (*indices)[tgt-1] = end - beg;
-        cur = ci;
-      }
-      else {
-        int idx = re.indexIn(s, cur);
-        if(idx < 0)
-          idx = size;
-        tgt += 2;
-        while(indices->size() <= tgt)
-          *indices << 0;
-        // o << "Indc: " << tgt -2 << " -> " << cur << endl;
-        (*indices)[tgt-2] = cur;
-        (*indices)[tgt-1] = idx - cur;
-        cur = idx + std::max(re.matchedLength(), 0);
-      }
-    }
-    indices->resize(tgt);
-    // QTextStream o(stdout);
-    // o << "'" << fields.join("', '") << "'" << endl;
-    // return fields;
-  };
-  
   virtual QList<QList<Vector> > readColumns(QTextStream & s,
                                             const CommandOptions & opts,
                                             QStringList * cmts,
@@ -438,7 +369,7 @@ protected:
     return
       Vector::readFromStream(&s,
                              [&quote, &sp, this](const QString & str, QVector<int> * indices) {
-                               CSVBackend::splitCSVLine(str, sp, quote, indices);
+                               Utils::splitCSVLine(str, sp, quote, indices);
                              }, 
                              cmt.toQRegExp(), autoSplit, dSep,
                              QRegExp("^\\s*$"), cmts, skip,

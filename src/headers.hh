@@ -24,7 +24,7 @@
 
 #if defined __cplusplus 
 #include <QApplication>
-#include <QClipboard>
+
 #include <QSettings>
 
 // Thread-related headers
@@ -100,6 +100,10 @@
 #include <QFont>
 #include <QFontDatabase>
 #include <QStaticText>
+
+// Interaction with the clipboard
+#include <QClipboard>
+#include <QMimeData>
 
 
 // Signals with sender !

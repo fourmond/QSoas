@@ -33,7 +33,6 @@
 
 #include <settings-templates.hh>
 
-#include <QMimeData>
 
 
 /// A simple cache for the data

@@ -152,7 +152,8 @@ namespace Utils {
 
   /// @name CSV-related functions
 
-  /// Extracts any tabular data from QMimeData
+  /// Extracts any tabular data from QMimeData. Returns the data line
+  /// by line (i.e. the QList is as big as there are lines)
   QList<QStringList> extractTable(const QMimeData * data);
 
   /// Splits a CSV line with the given separator and given quote

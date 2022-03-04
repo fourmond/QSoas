@@ -1014,8 +1014,44 @@ QList<QStringList> Utils::extractTable(const QMimeData * data)
   QList<QStringList> rv;
   QString csv;
   QString sep;
+  
   if(data->hasFormat("text/csv")) {
-    
+    csv = data->data("text/csv");
+    sep = ";";
+  }
+  // windows excel
+  else if(data->hasFormat("application/x-qt-windows-mime;value=\"Csv\"")) {
+    csv = data->data("application/x-qt-windows-mime;value=\"Csv\"");
+    sep = ";";
+  }
+  // libreoffice tab-separated
+  else if(data->hasFormat("application/x-libreoffice-tsvc")) {
+    csv = data->data("application/x-libreoffice-tsvc");
+    sep = "\t";
+  }
+  if(! csv.isEmpty()) {
+    QTextStream src(&csv);
+    LineReader r(&src);
+    QVector<int> indices;
+    QRegExp re(sep);
+    while(! r.atEnd()) {
+      QString l = r.readLine();
+      QStringList lst;
+      splitCSVLine(l, re, '"', &indices);
+      int i = 0;
+      while(i + 2 <= indices.size()) {
+        lst << l.mid(indices[i], indices[i+1]);
+        i += 2;
+      }
+      rv << lst;
+    }
+  }
+  else {
+    if(data->hasText()) {
+      QStringList s;
+      s << data->text();
+      rv << s;
+    }
   }
   return rv;
 }

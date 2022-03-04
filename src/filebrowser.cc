@@ -165,6 +165,8 @@ void FileListModel::setDirectory(const QString & dir)
       }
     }
   }
+  // remove special meta
+  meta.remove("__segments__");
   metaDataNames = meta.toList();
   std::sort(metaDataNames.begin(), metaDataNames.end());
   endResetModel();
@@ -275,6 +277,7 @@ bool FileListModel::setData(const QModelIndex & index,
     return false;
   
   fd->setMeta(metaDataNames[col - metaBaseColumn()], value);
+  emit(dataChanged(index, index));
   return true;
 }
 
@@ -561,20 +564,23 @@ void FileBrowser::setupFrame()
   addCMAction("Paste",
               [this] {
                 QClipboard *clipboard = QGuiApplication::clipboard();
-                QStringList avail = clipboard->mimeData()->formats();
-                QTextStream o(stdout);
-                o << "Formats: \n * " << avail.join("\n * ") << endl;
-                int idx = 0;
-                for(const QString & fmt : avail) {
-                  o << "Writing: " << fmt << endl;
-                  QString f = QString("cp-t-%1").arg(idx, 2, 10, QChar('0'));
-                  File t(f + ".fmt", File::TextOverwrite);
-                  QTextStream t1(t);
-                  t1 << "Format: " << fmt << endl;
-                  
-                  File t2(f + ".dat", File::BinaryOverwrite);
-                  t2.ioDevice()->write(clipboard->mimeData()->data(fmt));
-                  idx += 1;
+                QList<QStringList> data =
+                  Utils::extractTable(clipboard->mimeData());
+                QModelIndex idx = listView->currentIndex();
+                // QTextStream o(stdout);
+                // o << "Pasting: " << endl;
+                for(const QStringList & lst : data) {
+                  // o << "Line: '" << lst.join("', '") << "'" << endl;
+                  QModelIndex i = idx;
+                  for(const QString s : lst) {
+                    // o << "Setting at index: " << i.row()
+                    //   << "," << i.column() <<  " -> '"
+                    //   << s << "'" << endl;
+                    listModel->setData(i, s,  Qt::EditRole);
+                    i = i.siblingAtColumn(i.column() + 1);
+                  }
+                  // o << endl;
+                  idx = idx.siblingAtRow(i.row() + 1);
                 }
               }, QKeySequence("Ctrl+V"));
 }

@@ -204,6 +204,17 @@ public:
                         return QVariant();
                       }, i);
       
+      na = QString("weights[%1]").arg(i);
+      columns << Item(na, [i](const FitTrajectory* trj,
+                              int role, bool final) -> QVariant {
+                            if((role == Qt::DisplayRole || role == Qt::EditRole) && final) {
+                              return QVariant(trj->weights[i]);
+                            }
+                            if(role == Qt::BackgroundRole)
+                              return QBrush(QColor(220,220,255));
+                            return QVariant();
+                          }, i);
+      
     }
 
 

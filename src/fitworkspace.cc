@@ -1935,6 +1935,7 @@ void FitWorkspace::endFit(FitWorkspace::Ending ending)
   FitTrajectory & trj = trajectories.last();
   trj.ending = ending;
   trj.flags = currentFlags;
+  trj.weights = fitData->weightsPerBuffer;
   
   fitData->doneFitting();
   emit(finishedFitting(ending));

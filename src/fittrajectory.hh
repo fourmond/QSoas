@@ -47,6 +47,10 @@ public:
   /// The average point residuals for each buffer
   Vector pointResiduals;
 
+  /// The buffer weights
+  Vector weights;
+
+  /// Whether the parameters are fixed or not
   QVector<bool> fixed;
 
   /// How the fit ended.

@@ -35,27 +35,28 @@ FitTrajectory::FitTrajectory(const Vector & init, const Vector & final,
                              const QDateTime & start,
                              const FitData * data,
                              const QDateTime & end) :
-    initialParameters(init), finalParameters(final), 
-    parameterErrors(errors), pointResiduals(pointRes),
-    ending(FitWorkspace::Converged), residuals(res), relativeResiduals(rr),
-    internalResiduals(intr), residualsDelta(d),
-    engine(eng), startTime(start) {
-    if(end.isValid())
-      endTime = end;
-    else
-      endTime = QDateTime::currentDateTime();
-    if(! final.allFinite())
-      ending = FitWorkspace::NonFinite;
-    iterations = data->nbIterations;
-    evaluations = data->evaluationNumber;
+  initialParameters(init), finalParameters(final), 
+  parameterErrors(errors), pointResiduals(pointRes),
+  ending(FitWorkspace::Converged), residuals(res), relativeResiduals(rr),
+  internalResiduals(intr), residualsDelta(d),
+  engine(eng), startTime(start)
+{
+  if(end.isValid())
+    endTime = end;
+  else
+    endTime = QDateTime::currentDateTime();
+  if(! final.allFinite())
+    ending = FitWorkspace::NonFinite;
+  iterations = data->nbIterations;
+  evaluations = data->evaluationNumber;
 
-    int total = data->fullParameterNumber();
-    int nbp = data->parametersPerDataset();
-    for(int i = 0; i < total; i++)
-      fixed << data->isFixed(i % nbp, i/nbp);
+  int total = data->fullParameterNumber();
+  int nbp = data->parametersPerDataset();
+  for(int i = 0; i < total; i++)
+    fixed << data->isFixed(i % nbp, i/nbp);
 
-    pid = QCoreApplication::applicationPid();
-  };
+  pid = QCoreApplication::applicationPid();
+}
 
 
 bool FitTrajectory::isWithinErrorRange(const FitTrajectory & o) const
@@ -119,6 +120,11 @@ ColumnBasedFormat * FitTrajectory::formatForTrajectory(const QStringList & s,
     rv->addVectorItemColumn(QString("point_residuals[%1]").arg(i),
                               &pointResiduals, i);
 
+  // weights
+  for(int i = 0; i < ds; i++)
+    rv->addVectorItemColumn(QString("buffer_weight[%1]").arg(i),
+                            &weights, i, true);
+
   rv->addNumberColumn("residuals", &residuals);
   rv->addNumberColumn("relative_res", &relativeResiduals);
   rv->addNumberColumn("internal_res", &internalResiduals);
@@ -161,6 +167,11 @@ void FitTrajectory::loadFromColumns(const QHash<QString, QString> & cols,
 {
   std::unique_ptr<ColumnBasedFormat> c(formatForTrajectory(parameters, datasets));
   QStringList missing;
+  // initialize the weights
+  weights.resize(datasets);
+  for(int i = 0; i < datasets; i++)
+    weights[i] = 1;
+  
   c->readValues(cols, &missing);
 
   // Here, sanitize the fixed vector

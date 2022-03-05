@@ -929,6 +929,7 @@ static void saveTrajectoriesCommand(const QString & /*name*/,
                 << file << "'" << endl;
   
   QTextStream o(f);
+  o << "# Fit command-line: " << soas().currentCommandLine() << endl;
   trjs.exportToFile(o);
 }
 

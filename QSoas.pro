@@ -563,6 +563,11 @@ SOURCES += src/helpbrowser.cc
 HEADERS += src/file.hh src/fileinfo.hh
 SOURCES += src/file.cc src/fileinfo.cc
 
+
+# These are for all the serialization of column
+HEADERS += src/columnbasedformat.hh
+SOURCES += src/columnbasedformat.cc
+
 ######################################################################
 # Sources for the parameter space explorers
 SOURCES += src/parameterspaceexplorers.cc

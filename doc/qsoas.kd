@@ -6830,6 +6830,21 @@ residuals are more than _threshold_ greater than the best final residuals.
 {::comment} synopsis-end: fit-save-trajectories {:/}
 {::comment} description-start: fit-save-trajectories {:/}
 Saves the trajectories into a file.
+
+The file is a TAB-separated file, which contains each trajectory on a
+single line. It contains, among other things:
+  * the starting parameteres (whose name finishes with
+  `_i`);
+  * the final parameters (`_f`) and the corresponding errors
+  (`_err`);
+  * the "point residuals" buffer by buffer (`point_residuals[...]`),
+  or the overall "point residuals" (`residuals`). They are square root
+  of the the weighted average of the square of the difference between
+  the fit and the data, so they represent an "average distance"
+  between the fit and the data;
+  * the weights of the buffers (`buffer_weight[...]`);
+  * the `engine` used...
+  
 {::comment} description-end: fit-save-trajectories {:/}
 {::comment} synopsis-start: fit-load-trajectories {:/}
 

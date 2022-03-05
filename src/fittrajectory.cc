@@ -163,7 +163,18 @@ void FitTrajectory::loadFromColumns(const QHash<QString, QString> & cols,
   QStringList missing;
   c->readValues(cols, &missing);
 
-  // Here, sanitize the 
+  // Here, sanitize the fixed vector
+  int nbtot = datasets*parameters.size();
+  if(fixed.size() < nbtot) {
+    // make them up all
+    for(int i = 0; i < nbtot; i++) {
+      bool fx = finalParameters[i] == initialParameters[i];
+      if(fixed.size() <= i)
+        fixed << fx;
+      else
+        fixed[i] = fx;
+    }
+  }
 }
 
 QStringList FitTrajectory::exportHeaders(const QStringList & s, int ds)

@@ -71,6 +71,9 @@ protected:
 
 public:
 
+  /// Default precision for writing doubles
+  int precision;
+
   ColumnBasedFormat();
 
   /// Adds a column
@@ -78,6 +81,37 @@ public:
                                 const ReadFunction & read,
                                 const WriteFunction & write,
                                 bool optional = false);
+
+  /// Adds a double-value column based on a simple pointer. 
+  ColumnBasedFormat & addNumberColumn(const QString & name,
+                                      double * value,
+                                      bool optional = false);
+
+  /// Adds a string column based on a simple pointer. 
+  ColumnBasedFormat & addStringColumn(const QString & name,
+                                      QString * value,
+                                      bool optional = false);
+
+  /// Adds a date time column, serialized as ms since epoch
+  ColumnBasedFormat & addTimeColumn(const QString & name,
+                                    QDateTime * value,
+                                    bool optional = false);
+
+  /// Adds an integer column, 
+  ColumnBasedFormat & addIntColumn(const QString & name,
+                                   int * value,
+                                   bool optional = false);
+
+  /// Adds an integer column, 
+  ColumnBasedFormat & addIntColumn(const QString & name,
+                                   qint64 * value,
+                                   bool optional = false);
+
+  /// An element targetting a specific item in a Vector
+  ColumnBasedFormat & addVectorItemColumn(const QString & name,
+                                          Vector * value,
+                                          int index,
+                                          bool optional = false);
 
 
   /// Returns the headers of the columns
@@ -104,8 +138,13 @@ public:
 
   /// Helper function to read a given number into a Vector, creating
   /// the missing elements if necessary.
-  static void readIntoVector(Vector & target, int index,
+  static void readIntoVector(Vector * target, int index,
                              const QString & value, double missing = 0);
+
+
+  /// Parses a double from the string, returns a NaN value if invalid.
+  static double parseDouble(const QString & value,
+                            double defaultValue = std::numeric_limits<double>::quiet_NaN());
 
 };
 

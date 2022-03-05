@@ -33,7 +33,8 @@ ColumnBasedFormat::Value::Value(const QString & n, bool o,
 }
 
 
-ColumnBasedFormat::ColumnBasedFormat()
+ColumnBasedFormat::ColumnBasedFormat() :
+  precision(8)
 {
 }
 
@@ -51,6 +52,96 @@ ColumnBasedFormat & ColumnBasedFormat::addColumn(const QString & name,
   return *this;
 }
 
+
+ColumnBasedFormat & ColumnBasedFormat::addNumberColumn(const QString & name,
+                                                       double * value,
+                                                       bool optional)
+{
+  return addColumn(name,
+                   [value] (const QString & n) {
+                     *value = parseDouble(n);
+                   },
+                   [this, value] () -> QString {
+                     return QString::number(*value, 'g', precision);
+                   },
+                   optional);
+}
+
+ColumnBasedFormat & ColumnBasedFormat::addStringColumn(const QString & name,
+                                                       QString * value,
+                                                       bool optional)
+{
+  return addColumn(name,
+                   [value] (const QString & n) {
+                     *value = n;
+                   },
+                   [value] () -> QString {
+                     return *value;
+                   },
+                   optional);
+}
+
+ColumnBasedFormat & ColumnBasedFormat::addIntColumn(const QString & name,
+                                                    int * value,
+                                                    bool optional)
+{
+  return addColumn(name,
+                   [value] (const QString & n) {
+                     *value = n.toInt();
+                   },
+                   [value] () -> QString {
+                     return QString::number(*value);
+                   },
+                   optional);
+}
+
+ColumnBasedFormat & ColumnBasedFormat::addIntColumn(const QString & name,
+                                                    qint64 * value,
+                                                    bool optional)
+{
+  return addColumn(name,
+                   [value] (const QString & n) {
+                     *value = n.toLongLong();
+                   },
+                   [value] () -> QString {
+                     return QString::number(*value);
+                   },
+                   optional);
+}
+
+ColumnBasedFormat & ColumnBasedFormat::addTimeColumn(const QString & name,
+                                                     QDateTime * value,
+                                                    bool optional)
+{
+  return addColumn(name,
+                   [value] (const QString & n) {
+                     *value = QDateTime::fromMSecsSinceEpoch(n.toLongLong());
+                   },
+                   [value] () -> QString {
+                     return QString::number(value->toMSecsSinceEpoch());
+                   },
+                   optional);
+}
+
+ColumnBasedFormat & ColumnBasedFormat::addVectorItemColumn(const QString & name,
+                                                           Vector * value,
+                                                           int index,
+                                                           bool optional)
+{
+  return addColumn(name,
+                   [value,index] (const QString & n) {
+                     readIntoVector(value, index, n);
+                   },
+                   [value, this, index] () -> QString {
+                     if(value->size() <= index)
+                       throw InternalError("Not enough elements");
+                     double v = (*value)[index];
+                     return QString::number(v, 'g', precision);
+                   },
+                   optional);
+}
+
+
 QStringList ColumnBasedFormat::headers() const
 {
   QStringList rv;
@@ -67,15 +158,25 @@ QStringList ColumnBasedFormat::writeValues() const
   return rv;
 }
 
+double ColumnBasedFormat::parseDouble(const QString & value,
+                                      double defaultValue)
+{
+  bool ok = false;
+  double v = value.toDouble(&ok);
+  if(! ok)
+    v = defaultValue;
+  return v;
+}
+   
 
-void ColumnBasedFormat::readIntoVector(Vector & target, int index,
+
+void ColumnBasedFormat::readIntoVector(Vector * target, int index,
                                        const QString & value,
                                        double missing)
 {
-  while(target.size() <= index)
-    target << missing;
-  /// @todo No validation ?
-  target[index] = value.toDouble();
+  while(target->size() <= index)
+    (*target) << missing;
+  (*target)[index] = parseDouble(value);
 }
 
 void ColumnBasedFormat::readValues(const QHash<QString, QString> & source,
@@ -93,6 +194,7 @@ void ColumnBasedFormat::readValues(const QHash<QString, QString> & source,
     int idx = indices[k];
     columns[idx].read(i.value());
     missing[idx] = false;
+    ++i;
   }
 
   for(int i = 0; i < columns.size(); i++) {

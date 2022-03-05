@@ -25,6 +25,7 @@
 #include <fitworkspace.hh>
 
 class FitData;
+class ColumnBasedFormat;
 
 /// This class represents a "fit operation", ie what happens every
 /// time the user clicks on the fit button.
@@ -120,13 +121,14 @@ public:
   /// Format is: initial parameters, status, final parameters together
   /// with errors, then... The full order is that given by
   /// exportHeaders.
-  QStringList exportColumns() const;
+  QStringList exportColumns(const QStringList & names) const;
 
   /// Does the reverse of exportColumns().
   /// 
   /// If the reading fails because of missing columns, the ok flag is
   /// set to false
-  void loadFromColumns(const QStringList & cols, int nb, int datasets,
+  void loadFromColumns(const QHash<QString, QString> & cols,
+                       const QStringList & parameters, int datasets,
                        bool *ok = NULL);
 
   static QStringList exportHeaders(const QStringList & paramNames, int nb);
@@ -134,6 +136,11 @@ public:
   static QString endingName(FitWorkspace::Ending end);
 
   static FitWorkspace::Ending endingFromName(const QString & n);
+
+protected:
+  /// Returns the format for reading/writing this trajectory.
+  ColumnBasedFormat * formatForTrajectory(const QStringList & paramNames,
+                                          int nb = -1); 
 };
 
 

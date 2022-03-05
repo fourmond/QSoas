@@ -24,6 +24,8 @@
 #include <fitdata.hh>
 #include <utils.hh>
 
+#include <columnbasedformat.hh>
+
 FitTrajectory::FitTrajectory(const Vector & init, const Vector & final,
                              const Vector & errors, 
                              double res, double rr,
@@ -79,131 +81,98 @@ bool FitTrajectory::flagged(const QString & flag) const
   return flags.contains(flag);
 }
 
-QStringList FitTrajectory::exportColumns() const
+ColumnBasedFormat * FitTrajectory::formatForTrajectory(const QStringList & s,
+                                                       int ds)
 {
-  QStringList ret;
+  if(ds < 0)
+    ds = pointResiduals.size();
   
-  for(int i = 0; i < initialParameters.size(); i++)
-    ret << QString::number(initialParameters[i], 'g', 8);
+  ColumnBasedFormat * rv = new ColumnBasedFormat;
+  // Initial parameters
+  for(int i = 0; i < ds; i++) {
+    for(int j = 0; j < s.size(); j++)
+      rv->addVectorItemColumn(QString("%1[%2]_i").arg(s[j]).arg(i),
+                              &initialParameters, i*s.size()+j);
+  }
 
-  ret << endingName(ending);
+  // Fit status
+  rv->addColumn("status",
+                [this] (const QString & n) {
+                  ending = endingFromName(n);
+                },
+                [this] () -> QString {
+                  return endingName(ending);
+                });
 
-  for(int i = 0; i < finalParameters.size(); i++)
-    ret << QString::number(finalParameters[i], 'g', 8)
-        << QString::number(parameterErrors[i], 'g', 8);
+  // Final parameters and errors
+  for(int i = 0; i < ds; i++) {
+    for(int j = 0; j < s.size(); j++) {
+      rv->addVectorItemColumn(QString("%1[%2]_f").arg(s[j]).arg(i),
+                              &finalParameters, i*s.size()+j);
+      rv->addVectorItemColumn(QString("%1[%2]_err").arg(s[j]).arg(i),
+                              &parameterErrors, i*s.size()+j);
+    }
+  }
 
   // Point residuals
-  for(int i = 0; i < pointResiduals.size(); i++)
-    ret << QString::number(pointResiduals[i], 'g', 8);
+  for(int i = 0; i < ds; i++)
+    rv->addVectorItemColumn(QString("point_residuals[%1]").arg(i),
+                              &pointResiduals, i);
 
-  ret << QString::number(residuals)
-      << QString::number(relativeResiduals)
-      << QString::number(internalResiduals)
-      << engine
-      << QString::number(startTime.toMSecsSinceEpoch())
-      << QString::number(endTime.toMSecsSinceEpoch())
-      << QString::number(iterations)
-      << QString::number(evaluations)
-      << QString::number(residualsDelta)
-      << QString::number(pid)
-      << Utils::writeBooleans(fixed.toList())
-      << QStringList(flags.toList()).join(",");
+  rv->addNumberColumn("residuals", &residuals);
+  rv->addNumberColumn("relative_res", &relativeResiduals);
+  rv->addNumberColumn("internal_res", &internalResiduals);
+  rv->addStringColumn("engine", &engine);
+  
+  rv->addTimeColumn("start_time", &startTime, true);
+  rv->addTimeColumn("end_time", &endTime, true);
+  rv->addIntColumn("iterations", &iterations, true);
+  rv->addIntColumn("evals", &evaluations, true);
+  rv->addNumberColumn("res_delta", &residualsDelta, true);
 
-  return ret;
+  rv->addIntColumn("pid", &pid, true);
+
+  rv->addColumn("fixed",
+                [this] (const QString & n) {
+                  fixed = Utils::readBooleans(n).toVector();
+                },
+                [this] () -> QString {
+                  return Utils::writeBooleans(fixed.toList());
+                }, true);
+  rv->addColumn("flags",
+                [this] (const QString & n) {
+                  flags = n.split(",").toSet();
+                },
+                [this] () -> QString {
+                  return QStringList(flags.toList()).join(",");
+                }, true);
+  return rv;
 }
 
-void FitTrajectory::loadFromColumns(const QStringList & cls, int nb, int datasets, bool * ok)
+QStringList FitTrajectory::exportColumns(const QStringList & names) const
 {
-  QStringList cols(cls);
+  std::unique_ptr<ColumnBasedFormat> c(const_cast<FitTrajectory*>(this)->formatForTrajectory(names));
+  return c->writeValues();
+}
 
-  class Spec {};
-  if(ok)
-    *ok = true;
+void FitTrajectory::loadFromColumns(const QHash<QString, QString> & cols,
+                                    const QStringList & parameters,
+                                    int datasets, bool * ok)
+{
+  std::unique_ptr<ColumnBasedFormat> c(formatForTrajectory(parameters, datasets));
+  QStringList missing;
+  c->readValues(cols, &missing);
 
-  auto next = [&cols]() -> QString {
-    if(cols.size() > 0)
-      return cols.takeFirst();
-    throw Spec();
-    return QString();
-  };
-
-  initialParameters.resize(nb);
-
-  try {
-  
-    for(int i = 0; i < initialParameters.size(); i++)
-      initialParameters[i] = next().toDouble(); // No validation ?
-
-    ending = endingFromName(next());
-
-
-    finalParameters.resize(nb);
-    parameterErrors.resize(nb);
-    for(int i = 0; i < finalParameters.size(); i++) {
-      finalParameters[i] = next().toDouble();
-      parameterErrors[i] = next().toDouble();
-    }
-
-    pointResiduals.resize(datasets);
-    for(int i = 0; i < datasets; i++)
-      pointResiduals[i] = next().toDouble();
-
-    residuals = next().toDouble();
-    relativeResiduals = next().toDouble();
-    internalResiduals = next().toDouble();
-    engine = next();
-    if(cols.size() == 0)
-      return;
-      
-    qint64 t = next().toLongLong();
-    startTime = QDateTime::fromMSecsSinceEpoch(t);
-    t = next().toLongLong();
-    endTime = QDateTime::fromMSecsSinceEpoch(t);
-    
-    if(cols.size() == 0)
-      return;
-
-    iterations = next().toInt();
-    evaluations = next().toInt();
-
-    if(cols.size() == 0)
-      return;
-    residualsDelta = next().toDouble();
-    pid = next().toLongLong();
-    fixed =  Utils::readBooleans(next()).toVector();
-
-    flags = next().split(",").toSet();
-  }
-  catch(Spec & s) {
-    if(ok)
-      *ok = false;
-  }
+  // Here, sanitize the 
 }
 
 QStringList FitTrajectory::exportHeaders(const QStringList & s, int ds)
 {
   QStringList ret;
-
-  for(int i = 0; i < ds; i++)
-    for(int j = 0; j < s.size(); j++)
-      ret << QString("%1[%2]_i").arg(s[j]).arg(i);
-
-  ret << "status";
-  for(int i = 0; i < ds; i++)
-    for(int j = 0; j < s.size(); j++)
-      ret << QString("%1[%2]_f").arg(s[j]).arg(i)
-          << QString("%1[%2]_err").arg(s[j]).arg(i);
+  FitTrajectory t;
+  std::unique_ptr<ColumnBasedFormat> c(t.formatForTrajectory(s, ds));
   
-  for(int i = 0; i < ds; i++)
-    ret << QString("point_residuals[%1]").arg(i);
-
-  ret << "residuals" << "relative_res"
-      << "internal_res"
-      << "engine"
-      << "start_time" << "end_time" << "iterations" << "evals"
-      << "res_delta" << "pid" << "fixed"
-      << "flags";
-  return ret;
+  return c->headers();
 }
 
 bool FitTrajectory::operator==(const FitTrajectory & o) const

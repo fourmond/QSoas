@@ -695,7 +695,7 @@ double Utils::stringToDouble(const QString & str)
   bool ok = false;
   double v = str.toDouble(&ok);
   if(! ok)
-    throw RuntimeError(QObject::tr("Not a valid number: '%1'").
+    throw RuntimeError(QString("Not a valid number: '%1'").
                        arg(str));
   return v;
 }
@@ -710,7 +710,7 @@ int Utils::stringToInt(const QString & str)
   else
     v = str.toInt(&ok);
   if(! ok)
-    throw RuntimeError(QObject::tr("Not an integer: '%1'").
+    throw RuntimeError(QString("Not an integer: '%1'").
                        arg(str));
   return v;
 }

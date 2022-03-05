@@ -36,14 +36,14 @@ FitTrajectories::FitTrajectories(const FitWorkspace * ws) :
 
 void FitTrajectories::exportToFile(QTextStream & out) const
 {
+  QStringList pns = workSpace->parameterNames();
   QStringList hds =
-    FitTrajectory::exportHeaders(workSpace->parameterNames(),
-                                 workSpace->datasetNumber());
+    FitTrajectory::exportHeaders(pns, workSpace->datasetNumber());
   
   out << "## " << hds.join("\t") << endl;
   int sz = trajectories.size();
   for(int i = 0; i < sz; i++) {
-    QStringList lst = trajectories[i].exportColumns();
+    QStringList lst = trajectories[i].exportColumns(pns);
     out << lst.join("\t") << endl;
   }
 }
@@ -75,25 +75,45 @@ int FitTrajectories::importFromFile(QTextStream & in)
   LineReader lr(&in);
   int nb = 0;
   int line = 0;
-  int sz = workSpace->parameterNames().size() * workSpace->datasetNumber();
+  QStringList names = workSpace->parameterNames();
+
+  QStringList headers;
   while(!lr.atEnd()) {
     line += 1;
     QString ln = lr.readLine();
+    if(ln.startsWith("## ")) {
+      QTextStream o(stdout);
+      
+      headers = ln.mid(3).split("\t");
+      o << "Found headers: \n * " << headers.join("\n * ") << endl;
+      continue;
+    }
     if(ln.startsWith("#"))
       continue;
+    
     QStringList ls = ln.split("\t");
-    if(ls.size() < sz) {
-      Terminal::out << "Line " << line << " has only " << ls.size()
-                    << " entries, need at least " << sz << endl;
+    QHash<QString, QString> vals;
+    bool missing = false;
+    QTextStream o(stdout);
+    for(int i = 0; i < headers.size(); i++) {
+      if(ls.size() <= i) { /// @todo Should signal missing stuff ?
+        missing = true;
+        break;
+      }
+      vals[headers[i]] = ls[i];
+      o << " * " << headers[i] << " -> " << ls[i] << endl;
+    }
+    if(missing)
       continue;
-    }
+
+
+    
+    /// @todo Should signal extra bits ?
+    
     FitTrajectory t;
-    bool ok = true;
-    t.loadFromColumns(ls, sz, workSpace->datasetNumber(), &ok);
-    if(ok) {
-      trajectories << t;
-      nb++;
-    }
+    t.loadFromColumns(vals, names, workSpace->datasetNumber());
+    trajectories << t;
+    nb++;
   }
   clearCache();
   return nb;

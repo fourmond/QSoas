@@ -56,6 +56,7 @@ public:
 
   typedef enum {
     Circle,
+    XShape,
   } MarkerType;
 
   MarkerType type;

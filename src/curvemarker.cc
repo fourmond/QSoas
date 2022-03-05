@@ -32,6 +32,27 @@ void CurveMarker::paintMarker(QPainter * painter, const QPointF & realPos,
   case Circle:
     painter->drawEllipse(realPos, size, size);
     break;
+  case XShape: {
+    QPainterPath p;
+    double s = 0.2 * size, b = 0.7*size;
+    p.moveTo(QPointF(realPos) + QPointF(b - s, b + s));
+    p.lineTo(QPointF(realPos) + QPointF(b + s, b - s));
+    p.lineTo(QPointF(realPos) + QPointF(-b + s, -b - s));
+    p.lineTo(QPointF(realPos) + QPointF(-b - s, -b + s));
+    p.closeSubpath();
+
+
+    p.moveTo(QPointF(realPos) + QPointF(-b + s, b + s));
+    p.lineTo(QPointF(realPos) + QPointF(b + s, -b + s));
+    p.lineTo(QPointF(realPos) + QPointF(b - s, -b - s));
+    p.lineTo(QPointF(realPos) + QPointF(-b - s, b - s));
+    p.closeSubpath();
+
+    p.setFillRule(Qt::WindingFill);
+    painter->drawPath(p);
+
+    break;
+  }
   default:
     ;
   }

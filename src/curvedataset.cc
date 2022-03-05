@@ -92,6 +92,7 @@ void CurveDataSet::paint(QPainter * painter, const QRectF &bbox,
 
   // Now, draw the NaNs
   if(nans.size() > 0) {
+    painter->save();
     QList<QPair<int, int> > pos;
     QPair<int, int> cur(-1, -1);
     for(int i : nans) {
@@ -112,6 +113,9 @@ void CurveDataSet::paint(QPainter * painter, const QRectF &bbox,
     }
     pos << cur;
 
+    // QBrush b(pen.color().lighter());
+    painter->setBrush(QBrush(pen.color().lighter()));
+
     for(const QPair<int, int> & nan : pos) {
       QPointF left, right;
       if(nan.first > 0)
@@ -127,8 +131,9 @@ void CurveDataSet::paint(QPainter * painter, const QRectF &bbox,
       left += right;
       left *= 0.5;
       CurveMarker::paintMarker(painter, ctw.map(left),
-                               CurveMarker::Circle, 2.5);
+                               CurveMarker::XShape, 12);
     }
+    painter->restore();
   }
 
   painter->setPen(gs.getPen(GraphicsSettings::SegmentsPen));

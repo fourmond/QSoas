@@ -182,6 +182,8 @@ void FitTrajectories::merge(const FitTrajectories & other)
 
 int FitTrajectories::trim(double factor)
 {
+  if(trajectories.size() == 0)
+    return 0;
   double res = best().relativeResiduals;
   int i = 0;
   int nb = 0;

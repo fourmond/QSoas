@@ -439,8 +439,13 @@ static void sortCommand(const QString &, const CommandOptions & opts)
 {
   DataStackHelper pusher(opts);
   DataSetList buffers(opts);
+  ColumnSpecification spec("x");
+  updateFromOptions(opts, "column", spec);
+  bool reverse = false;
+  updateFromOptions(opts, "reverse", reverse);
   for(const DataSet * ds : buffers)
-    pusher << ds->sort();
+    pusher << ds->sort(reverse, spec.getValue(ds));
+
 }
 
 
@@ -448,6 +453,8 @@ static ArgumentList
 sortO(QList<Argument *>() 
       << DataStackHelper::helperOptions()
       << DataSetList::listOptions("Datasets to sort")
+      << new ColumnArgument("column", "the column over which to sort")
+      << new BoolArgument("reverse", "if true, sorts in decreasing order")
       );
 
 static Command 

@@ -1172,7 +1172,7 @@ static bool greaterThan(const QPair<double, int> &a,
   return a.first > b.first;
 }
 
-DataSet * DataSet::sort(bool reverse) const
+DataSet * DataSet::sort(bool reverse, int col) const
 {
   /// @todo This algorithm isn't fast nor space-efficient, but it does
   /// work, and its simple. (well, it's still n ln(n) excepted in
@@ -1180,7 +1180,7 @@ DataSet * DataSet::sort(bool reverse) const
 
   QList< QPair<double, int> > vals;
 
-  const double *xv = x().data();
+  const double *xv = columns[col].data();
   int size = x().size();
   vals.reserve(size);
   for(int i = 0; i < size; i++)

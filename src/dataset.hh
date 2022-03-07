@@ -567,7 +567,7 @@ public:
   QList<DataSet *> chop(const QList<int> & indices) const;
 
   /// Returns a sorted copy of the dataset.
-  DataSet * sort(bool reverse = false) const;
+  DataSet * sort(bool reverse = false, int column = 0) const;
 
 
 

@@ -569,18 +569,27 @@ void FileBrowser::setupFrame()
                 QModelIndex idx = listView->currentIndex();
                 // QTextStream o(stdout);
                 // o << "Pasting: " << endl;
+                int row = idx.row(), col = idx.column();
                 for(const QStringList & lst : data) {
                   // o << "Line: '" << lst.join("', '") << "'" << endl;
-                  QModelIndex i = idx;
+                  // QModelIndex i = idx;
+                  idx = idx.sibling(row, col);
                   for(const QString s : lst) {
+                    QModelIndex i = idx.sibling(row, col);
                     // o << "Setting at index: " << i.row()
                     //   << "," << i.column() <<  " -> '"
                     //   << s << "'" << endl;
                     listModel->setData(i, s,  Qt::EditRole);
-                    i = i.siblingAtColumn(i.column() + 1);
+                    col += 1;
                   }
+                  row += 1; 
+                  col = idx.column();
                   // o << endl;
-                  idx = idx.siblingAtRow(i.row() + 1);
+                  // o << "idx: " << idx.row()
+                  //     << "," << idx.column() << endl;
+                  // idx = idx.siblingAtRow(i.row() + 1);
+                  // o << "idx2: " << idx.row()
+                  //     << "," << idx.column() << endl;
                 }
               }, QKeySequence("Ctrl+V"));
 }

@@ -58,6 +58,13 @@ static QString shortenFileName(const QString & f)
 
 ArgumentMarshaller * FileArgument::fromString(const QString & str) const
 {
+  QStringList glbs =  File::glob(str, false);
+  if(glbs.size() > 1)
+    throw RuntimeError("Globs returned too many files: %1 -> '%2'").
+      arg(str).arg(glbs.join("', '"));
+  if(glbs.size() == 1)
+    return new ArgumentMarshallerChild<QString>(glbs.first());
+
   return new ArgumentMarshallerChild<QString>(str);
 }
 

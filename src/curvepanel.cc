@@ -238,6 +238,11 @@ void CurvePanel::regroupCacheable()
                    });
 }
 
+void CurvePanel::invalidateCache()
+{
+  cache = QPixmap();
+}
+
 void CurvePanel::paintCurves(QPainter * p)
 {
   // First, setup the transformation

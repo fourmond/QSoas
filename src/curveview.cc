@@ -90,6 +90,12 @@ void CurveView::enableUpdates()
     doRepaint();
 }
 
+void CurveView::invalidateCaches()
+{
+  for(CurvePanel * p : allPanels())
+    p->invalidateCache();
+}
+
 void CurveView::setOpenGL(bool b)
 {
   QWidget * w;

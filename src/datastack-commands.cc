@@ -597,6 +597,7 @@ static void toggleMarkersCommand(const QString &)
 {
   CurveView & v = soas().view();
   v.setPaintMarkers(! v.paintingMarkers());
+  v.invalidateCaches();
   if(v.paintingMarkers())
     Terminal::out << "Now showing data points" << endl;
   else

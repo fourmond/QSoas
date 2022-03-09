@@ -258,9 +258,19 @@ public:
   /// Returns the list of the currently displayed items.
   QList<CurveItem *> items();
 
+  /// @name Cache-related functions
+  ///
+  /// @{
+
   /// regroup cacheable items at the bottom. Preserve the order among
   /// cacheable and non-cacheable items.
   void regroupCacheable();
+
+  /// Invalidates the cache. Useful when a global display option has
+  /// changed.
+  void invalidateCache();
+
+  /// @}
 };
 
 #endif

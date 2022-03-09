@@ -189,6 +189,8 @@ public slots:
   /// disableUpdates()
   void enableUpdates();
 
+  /// Invalidates the cache for all the 
+  void invalidateCaches();
 
 
 public:

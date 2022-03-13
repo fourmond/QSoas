@@ -721,11 +721,12 @@ public:
   bool covarianceMatrixOK;
 
   /// Attempts to find which parameters are linear, and optionally
-  /// solve the linear least squares problem.  It doesn't handle the
-  /// linear global parameters properly for now.
+  /// solve the linear least squares problem (if deltas is NULL).  It
+  /// doesn't handle the linear global parameters properly for now.
   ///
   /// Returns a list of parameter, dataset
-  QList<QPair<int, int> > findLinearParameters(bool findOptimal = false);
+  QList<QPair<int, int> > findLinearParameters(Vector * deltas = NULL,
+                                               double threshold = 1e-5);
 
   /// @name Tracing
   ///

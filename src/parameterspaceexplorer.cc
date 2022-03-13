@@ -124,7 +124,7 @@ bool ParameterSpaceExplorer::runHooks() const
   }
   if(linearPreFit) {
     Terminal::out << "Running a linear pre fit" << endl;
-    int nb = workSpace->findLinearParameters(true).size();;
+    int nb = workSpace->findLinearParameters(NULL).size();;
     Terminal::out << " -> " << nb << " parameters adjusted" << endl;
   }
   return true;

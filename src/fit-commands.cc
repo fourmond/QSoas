@@ -269,12 +269,37 @@ static void linearPrefitCommand(const QString & /*name*/, const CommandOptions &
 
   bool justLook = false;
   updateFromOptions(opts, "just-look", justLook);
-  QList<QPair<int, int> > params = ws->findLinearParameters(! justLook);
+  double threshold = 1e-5;
+  updateFromOptions(opts, "threshold", threshold);
+  Vector tgt;
+  
+  QList<QPair<int, int> > params =
+    ws->findLinearParameters(justLook ? (& tgt) : NULL,
+                             threshold);
 
   Terminal::out << "Found " << params.size() << " linear parameters:" << endl;
-  for(const QPair<int, int> & p : params) {
-    Terminal::out << " * " << ws->parameterName(p.first)
-                  << "[#" << p.second << "]" << endl;
+  if(justLook) {
+    for(int j = 0; j < ws->datasetNumber(); j++) {
+      for(int i = 0; i < ws->parametersPerDataset(); i++) {
+        if(ws->isFixed(i, j))
+          continue;
+        double v = tgt[j*ws->parametersPerDataset() + i];
+        bool isLin = v < threshold;
+        Terminal::out << " * " << ws->parameterName(i)
+                      << "[#" << j << "]: "
+                      << v << " -> " << (isLin ? "linear" : "non-linear")
+                      << endl;
+      }
+    }
+    for(const QPair<int, int> & p : params) {
+    }
+    
+  }
+  else {
+    for(const QPair<int, int> & p : params) {
+      Terminal::out << " * " << ws->parameterName(p.first)
+                    << "[#" << p.second << "]" << endl;
+    }
   }
 }
 
@@ -282,6 +307,9 @@ ArgumentList lpfOpts(QList<Argument*>()
                      << new BoolArgument("just-look", 
                                          "Just look",
                                          "if true, just find the linear parameters, do not adjust")
+                     << new NumberArgument("threshold", 
+                                           "Threshold",
+                                           "threshold under which to consider linearity")
                      );
 
 

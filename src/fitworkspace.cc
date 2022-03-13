@@ -1557,7 +1557,8 @@ int FitWorkspace::currentDataset() const
   return currentDS;
 }
 
-QList<QPair<int, int> > FitWorkspace::findLinearParameters(bool findOptimal)
+QList<QPair<int, int> > FitWorkspace::findLinearParameters(Vector * deltas,
+                                                           double threshold)
 {
   QList<QPair<int, int> > rv;
   QVarLengthArray<double, 1000> params(fitData->freeParameters());
@@ -1581,6 +1582,8 @@ QList<QPair<int, int> > FitWorkspace::findLinearParameters(bool findOptimal)
   QList<QList<int> > linearParams;
   int maxParams = 0;
   int maxDs = 0;
+  if(deltas)
+    *deltas = Vector(datasets * nbParameters, 0.0);
   for(int j = 0; j < datasets; j++) {
     linearParams << QList<int>();
     for(int i = 0; i < nbParameters; i++) {
@@ -1592,7 +1595,9 @@ QList<QPair<int, int> > FitWorkspace::findLinearParameters(bool findOptimal)
       gsl_vector * v2 = j2.parameterVector(i, j);
       double nrm1 = gsl_blas_dnrm2(v1),
         nrm2 = gsl_blas_dnrm2(v2);
-      if(nrm2*1e5 < nrm1) {
+      if(deltas)
+        (*deltas)[j * nbParameters + i] = nrm2/nrm1;
+      if(nrm2 < nrm1 * threshold) {
         rv << QPair<int, int>(i, j);
         linearParams[j] << i;
       }
@@ -1601,7 +1606,7 @@ QList<QPair<int, int> > FitWorkspace::findLinearParameters(bool findOptimal)
       maxParams = linearParams[j].size();
   }
   
-  if(findOptimal && maxParams > 0) {
+  if((!deltas) && maxParams > 0) {
     // Allocate just for the biggest
     gsl_multifit_linear_workspace * ws =
       gsl_multifit_linear_alloc(maxDs, maxParams);

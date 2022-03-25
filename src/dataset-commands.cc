@@ -1078,6 +1078,7 @@ namespace __cut {
     /// We remove the current display
     view.clear();
     CurveData d;
+    d.shouldCache = true;
     Vector indices;
     view.addItem(&r);
     view.addItem(&d);

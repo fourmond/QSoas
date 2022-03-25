@@ -236,3 +236,8 @@ QRect CurveData::paintLegend(QPainter * p, const QRect & rect)
               &t);
   return t.united(tmp);
 }
+
+bool CurveData::shouldBeCached() const
+{
+  return shouldCache;
+}

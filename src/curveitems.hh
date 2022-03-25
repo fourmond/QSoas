@@ -132,11 +132,16 @@ public:
 
   bool histogram;
 
+  /// Whether or not it should be cached by default... Defaults to false.
+  bool shouldCache;
+
+  bool shouldBeCached() const override;
+
   void setRect(const QRectF &r);
   
-  CurveData() : histogram(false) {;};
+  CurveData() : histogram(false), shouldCache(false) {;};
   CurveData(const Vector & x, const Vector & y) : 
-    xvalues(x), yvalues(y), histogram(false) {;};
+    xvalues(x), yvalues(y), histogram(false), shouldCache(false) {;};
 
   virtual QRectF boundingRect() const override;
   virtual void paint(QPainter * painter, const QRectF & bbox,
@@ -145,7 +150,8 @@ public:
   QString legend;
   virtual QRect paintLegend(QPainter * painter, 
                             const QRect & placement) override;
-  
+
+
 };
 
 #endif

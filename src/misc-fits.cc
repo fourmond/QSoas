@@ -915,16 +915,21 @@ public:
         sys.setInitialConcentrations(&vco.vector);
 
         xstart = base[cur];
-        if(cur < s->steps.size() - 1)
+        if(cur < s->steps.size() - 1) {
           xend = base[cur+1];
+          if(xend < xstart)
+            xend = xv.max();
+        }
         else
           xend = xv.max();
       }
       x -= xstart;
-      sys.getConcentrations(x, &vco.vector);
       double res = 0;
-      gsl_blas_ddot(&vco.vector, &vcu.vector, &res);
-      res += offset_value;
+      if(x >= 0) {
+        sys.getConcentrations(x, &vco.vector);
+        gsl_blas_ddot(&vco.vector, &vcu.vector, &res);
+        res += offset_value;
+      }
       gsl_vector_set(target, i, res);
     }
 

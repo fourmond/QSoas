@@ -1293,7 +1293,7 @@ QStringList CodeArgument::completeCode(const QString & starter)
   if(idx >= 0) {
     QString cur = starter.mid(idx);
     QStringList props;
-    props << "$stats" << "$meta" << "$nstats";
+    props << "$stats" << "$meta" << "$nstats" << "$c";
 
     // Prepare completions -- stats
     QStringList stats = StatisticsValue::statsAvailable(ds);
@@ -1316,6 +1316,15 @@ QStringList CodeArgument::completeCode(const QString & starter)
       if(re.indexIn(n, 0) == 0)
         props += "$meta." + n;
       props += "$meta[\"" + n + "\"]";
+    }
+    bool mu;
+    QStringList columns = ds->mainColumnNames(&mu);
+    if(! mu) {
+      for(const QString & n : columns) {
+        if(re.indexIn(n, 0) == 0)
+          props += "$c." + n;
+        props += "$c[\"" + n + "\"]";
+      }
     }
     props = Utils::stringsStartingWith(props, cur);
     QString b = starter.left(idx);

@@ -386,7 +386,8 @@ SOURCES += src/qmain.cc \
         src/gcguard.cc \
         src/filebrowser.cc \
         src/contourlines.cc \
-        src/settings-templates.cc
+        src/settings-templates.cc \
+        src/linearfunctions.cc
 
 
 # Fit engines, grouped in an easy way to disable them:
@@ -536,7 +537,8 @@ HEADERS += src/headers.hh \
         src/externalfunction.hh \
         src/gcguard.hh \
         src/contourlines.hh \
-        src/filebrowser.hh
+        src/filebrowser.hh \
+        src/linearfunctions.hh
 
 # mruby
 HEADERS += src/mruby.hh

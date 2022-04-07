@@ -125,6 +125,10 @@ public:
   ///
   /// Does not initialize the values of the extra columns.
   bool nextValues(double * storage, int * idx = NULL, int * colIdx = NULL);
+
+
+  /// Restart the iterations from 0.
+  void reset();
   
 };
 

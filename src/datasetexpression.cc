@@ -238,3 +238,9 @@ bool DataSetExpression::nextValues(double * args, int * idx, int * colIdx)
   }
   return true;
 }
+
+void DataSetExpression::reset()
+{
+  index = -1;
+  colIndex = -1;
+}

@@ -25,9 +25,14 @@
 #include <gsl/gsl_cdf.h>
 #include <gsl-types.hh>
 
+LinearFunction::~LinearFunction()
+{
+}
 
 
-void LinearFunction::computeJacobian(gsl_matrix * jacobian)
+
+
+void LinearFunction::computeJacobian(gsl_matrix * jacobian) const
 {
   int nbp = parameters();
   double params[nbp];
@@ -42,7 +47,7 @@ void LinearFunction::computeJacobian(gsl_matrix * jacobian)
 }
 
 double LinearFunction::solve(const gsl_vector * func, gsl_vector * params,
-                             gsl_vector * errors, gsl_matrix * covar)
+                             gsl_vector * errors, gsl_matrix * covar) const
 
 {
   gsl_multifit_linear_workspace * ws =
@@ -69,5 +74,54 @@ double LinearFunction::solve(const gsl_vector * func, gsl_vector * params,
     for(int i = 0; i < parameters(); i++)
       gsl_vector_set(errors, i, sqrt(gsl_matrix_get(cov, i, i)) * conf);
   }
+  if(covar)
+    gsl_matrix_memcpy(covar, cov);
   return chisq;
+}
+
+//////////////////////////////////////////////////////////////////////
+
+#include <dataset.hh>
+#include <datasetexpression.hh>
+
+DataSetExpressionFunction::DataSetExpressionFunction(DataSetExpression * expr,
+                                                     const QString & form,
+                                                     const DataSet * ds) :
+  expression(expr), dataset(ds), formula(form)
+{
+  size = DataSetExpression::dataSetParameters(dataset).size();
+  expression->prepareExpression(formula, 0, &params);
+}
+
+
+
+QStringList DataSetExpressionFunction::parameterNames() const
+{
+  return params;
+}
+
+int DataSetExpressionFunction::parameters() const
+{
+  return params.size();
+}
+
+int DataSetExpressionFunction::dataPoints() const
+{
+  return dataset->nbRows();
+}
+
+void DataSetExpressionFunction::computeFunction(const gsl_vector * pms,
+                                                gsl_vector * target) const
+{
+  QVarLengthArray<double, 1000> storage(size + parameters());
+  int idx = 0;
+  expression->reset();
+  for(int i = 0; i < parameters(); i++)
+    storage[size+i] = gsl_vector_get(pms, i);
+  while(expression->nextValues(storage.data(), &idx)) {
+      gsl_vector_set(target, idx, 
+                     expression->expression().
+                     evaluateNoLock(storage.data()));
+  }
+
 }

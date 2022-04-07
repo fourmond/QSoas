@@ -22,6 +22,9 @@
 #ifndef __LINEARFUNCTIONS_HH
 #define __LINEARFUNCTIONS_HH
 
+class DataSetExpression;
+class DataSet;
+
 
 /// A base class for defining linear least square problems and solving
 /// them.
@@ -38,10 +41,10 @@ public:
 
   /// Compute the function for the given set of parameters
   virtual void computeFunction(const gsl_vector * parameters,
-                               gsl_vector * target) = 0;
+                               gsl_vector * target) const = 0;
 
   /// Computes the jacobian of the system
-  virtual void computeJacobian(gsl_matrix * jacobian);
+  virtual void computeJacobian(gsl_matrix * jacobian) const;
 
 
   /// Computes the solution to the linear least squares problem,
@@ -49,13 +52,44 @@ public:
   /// computing the errors and the covariance matrix.
   /// Returns the chi square.
   double solve(const gsl_vector * func, gsl_vector * parameters,
-               gsl_vector * errors = NULL, gsl_matrix * covar = NULL);
+               gsl_vector * errors = NULL, gsl_matrix * covar = NULL) const;
 
   /// Variant of solve taking into account weights.
   double weightedSolve(const gsl_vector * func, const gsl_vector * weights,
                        gsl_vector * parameters,
-                       gsl_vector * errors = NULL, gsl_matrix * covar = NULL);
-    
+                       gsl_vector * errors = NULL, gsl_matrix * covar = NULL);    
+};
+
+
+class DataSetExpressionFunction : public LinearFunction {
+protected:
+  DataSetExpression * expression;
+
+  const DataSet * dataset;
+
+  QString formula;
+
+  QStringList params;
+
+  int size;
+
+public:
+
+  /// Constructs the linear function based on the given expression
+  /// (and the corresponding dataset)
+  ///
+  /// Doesn't take ownership of the expression
+  DataSetExpressionFunction(DataSetExpression * expr, const QString & formula,
+                            const DataSet * ds);
+
+  QStringList parameterNames() const;
+
+  virtual int parameters() const override;
+  virtual int dataPoints() const override;
+  virtual void computeFunction(const gsl_vector * parameters,
+                               gsl_vector * target) const override;
+
+
 };
 
 #endif

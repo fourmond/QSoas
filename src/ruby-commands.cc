@@ -892,13 +892,14 @@ ve("verify", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-#include <gsl/gsl_multifit.h>
-#include <gsl/gsl_cdf.h>
-#include <gsl-types.hh>
+
+#include <linearfunctions.hh>
 
 #include <curveview.hh>
 #include <curveitems.hh>
 #include <graphicssettings.hh>
+
+#include <gsl-types.hh>
 
 static void linearLeastSquaresCommand(const QString &, QString formula,
                                       const CommandOptions & opts)
@@ -916,81 +917,44 @@ static void linearLeastSquaresCommand(const QString &, QString formula,
     ex.useMeta = true;
     updateFromOptions(opts, "use-meta", ex.useMeta);
 
-    QStringList params;
-    int sz = DataSetExpression::dataSetParameters(ds).size();
-    ex.prepareExpression(formula, 0, &params);
-
+    DataSetExpressionFunction fcn(&ex, formula, ds);
     Terminal::out << "Fitting '" << formula << "' to dataset "
                   << ds->name << "\n"
-                  << " ->  found parameters: " << params.join(", ") << endl;
+                  << " ->  found parameters: "
+                  << fcn.parameterNames().join(", ") << endl;
+    if(fcn.parameters() == 0)
+      continue;                 // Nothing to do
 
-    int nbparams = params.size();
-    if(nbparams == 0)
-      continue;                 // nothing to do
-    gsl_multifit_linear_workspace * ws =
-      gsl_multifit_linear_alloc(ds->nbRows(), nbparams);
-    GSLMatrix m(ds->nbRows(), nbparams);
-    GSLVector res(nbparams);
-    GSLMatrix cov(nbparams, nbparams);
+    GSLVector res(fcn.parameters());
+    GSLVector errs(fcn.parameters());
+    double chisq = fcn.solve(ds->y(), res, errs);
+    ValueHash results;
+    for(int i = 0; i < fcn.parameters(); i++)
+        results << fcn.parameterNames()[i] << res[i]
+                << fcn.parameterNames()[i] + "_err"
+                << errs[i];
 
-    // Now, computing the coefficients:
-
-    QVarLengthArray<double, 1000> storage(sz + params.size());
-    int idx = 0;
-    for(int i = 0; i < nbparams; i++)
-      storage[sz+i] = 0;
-    while(ex.nextValues(storage.data(), &idx)) {
-      for(int i = 0; i < nbparams; i++) {
-        storage[sz+i] = 1;
-        gsl_matrix_set(m, idx, i,
-                       ex.expression().
-                       evaluateNoLock(storage.data()));
-        storage[sz+i] = 0;
-      }
-    }
-    // QTextStream o(stdout);
-    // o << "Matrix: " << Utils::matrixString(m) << endl;
-    double chisq = 0;
-    // Zero before ? Might have an influence...
-    gsl_vector_set_zero(res);
-    gsl_matrix_set_zero(cov);
-    int status = gsl_multifit_linear(m, ds->y(),
-                                     res, cov, &chisq,
-                                     ws);
-    if(status != GSL_SUCCESS)
-      Terminal::out << "Error: " << gsl_strerror(status) << endl;
-    else {
-      ValueHash results;
-
-      // 5% confidence interval for the error, see
-      // FitData::confidenceLimitFactor and FitWorkspace::exportAsDataSet
-      double conf = gsl_cdf_tdist_Pinv(0.975, ds->nbRows() - nbparams);
-      for(int i = 0; i < nbparams; i++)
-        results << params[i] << res[i]
-                << params[i] + "_err" << sqrt(gsl_matrix_get(cov, i, i)) * conf;
-
-      results << "residuals" << sqrt(chisq);
-      results << "point_residuals" << sqrt(chisq/ds->nbRows());
-      results << "chi_sqr" << chisq;
-      
-      Terminal::out << results.prettyPrint() << endl;
-      results.handleOutput(ds, opts);
-
-      // Display the results if the dataset is displayed.
-      QList<DataSet*> displayed = soas().view().displayedDataSets();
-      if(displayed.contains(const_cast<DataSet*>(ds))) {
-        CurveData * reg = new CurveData;
-        const GraphicsSettings & gs = soas().graphicsSettings();
-        reg->pen = gs.getPen(GraphicsSettings::ResultPen);
-        reg->xvalues = ds->x();
-        reg->yvalues = ds->x();
-        gsl_blas_dgemv(CblasNoTrans, 1, m, res, 0, reg->yvalues);
-        soas().view().addItem(reg, true);
-      }
-    }
+    results << "residuals" << sqrt(chisq);
+    results << "point_residuals" << sqrt(chisq/ds->nbRows());
+    results << "chi_sqr" << chisq;
     
-    gsl_multifit_linear_free(ws);
+    Terminal::out << results.prettyPrint() << endl;
+    results.handleOutput(ds, opts);
     
+    // Display the results if the dataset is displayed.
+    QList<DataSet*> displayed = soas().view().displayedDataSets();
+    if(displayed.contains(const_cast<DataSet*>(ds))) {
+      /// @todo double computation. But a simple cache will fix this
+      GSLMatrix m(fcn.dataPoints(), fcn.parameters());
+      fcn.computeJacobian(m);
+      CurveData * reg = new CurveData;
+      const GraphicsSettings & gs = soas().graphicsSettings();
+      reg->pen = gs.getPen(GraphicsSettings::ResultPen);
+      reg->xvalues = ds->x();
+      reg->yvalues = ds->x();
+      gsl_blas_dgemv(CblasNoTrans, 1, m, res, 0, reg->yvalues);
+      soas().view().addItem(reg, true);
+    }
   }
 }
 

@@ -22,6 +22,8 @@
 #ifndef __LINEARFUNCTIONS_HH
 #define __LINEARFUNCTIONS_HH
 
+#include <vector.hh>
+
 class DataSetExpression;
 class DataSet;
 
@@ -61,6 +63,8 @@ public:
 };
 
 
+/// A linear function based on a dataset expression. No guarantee is
+/// made on the actual linearity.
 class DataSetExpressionFunction : public LinearFunction {
 protected:
   DataSetExpression * expression;
@@ -89,7 +93,29 @@ public:
   virtual void computeFunction(const gsl_vector * parameters,
                                gsl_vector * target) const override;
 
-
 };
+
+/// A simple linear function based on simple polynomials of a given
+/// order on a set of X values
+class PolynomialFunction : public LinearFunction {
+  int order;
+
+  Vector xValues;
+
+public:
+
+  PolynomialFunction(int order, const Vector & x);
+
+
+  virtual int parameters() const override;
+  virtual int dataPoints() const override;
+  virtual void computeFunction(const gsl_vector * parameters,
+                               gsl_vector * target) const override;
+
+  
+  
+};
+
+
 
 #endif

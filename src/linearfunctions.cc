@@ -125,3 +125,32 @@ void DataSetExpressionFunction::computeFunction(const gsl_vector * pms,
   }
 
 }
+
+//////////////////////////////////////////////////////////////////////
+
+PolynomialFunction::PolynomialFunction(int ord, const Vector & x):
+  order(ord), xValues(x)
+{
+}
+
+int PolynomialFunction::parameters() const
+{
+  return order + 1;
+}
+
+int PolynomialFunction::dataPoints() const
+{
+  return xValues.size();
+}
+
+void PolynomialFunction::computeFunction(const gsl_vector * params,
+                                         gsl_vector * target) const
+{
+  for(int i = 0; i < xValues.size(); i++) {
+    double val = 0;
+    for(int j = 0; j <= order; j++)
+      val += gsl_pow_int(xValues[i], j) * gsl_vector_get(params, j);
+    gsl_vector_set(target, i, val);
+  }
+}
+

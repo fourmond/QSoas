@@ -1620,3 +1620,5 @@ lft("load-from-trajectory", // command name
     "Loads from trajectory",
     "Load parameters from the given trajectory",
     NULL, CommandContext::fitContext());
+
+

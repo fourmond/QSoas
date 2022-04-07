@@ -944,15 +944,12 @@ static void linearLeastSquaresCommand(const QString &, QString formula,
     // Display the results if the dataset is displayed.
     QList<DataSet*> displayed = soas().view().displayedDataSets();
     if(displayed.contains(const_cast<DataSet*>(ds))) {
-      /// @todo double computation. But a simple cache will fix this
-      GSLMatrix m(fcn.dataPoints(), fcn.parameters());
-      fcn.computeJacobian(m);
       CurveData * reg = new CurveData;
       const GraphicsSettings & gs = soas().graphicsSettings();
       reg->pen = gs.getPen(GraphicsSettings::ResultPen);
       reg->xvalues = ds->x();
       reg->yvalues = ds->x();
-      gsl_blas_dgemv(CblasNoTrans, 1, m, res, 0, reg->yvalues);
+      fcn.computeFunction(res, reg->yvalues);
       soas().view().addItem(reg, true);
     }
   }

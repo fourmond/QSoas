@@ -374,15 +374,25 @@ mrb_value ValueHash::variantToRuby(const QVariant & variant)
   MRuby * mr = MRuby::ruby();
 
   mrb_value val = mrb_nil_value();
+  // Hmmm, QVariant says type() is QVariant::Type, but the
+  // documentation says is really is QMetaType::Type.
   switch(variant.type()) {      // the documentation of QVariant::type()
                                 // is rather confusing...
   case QMetaType::Double:
     val = mr->newFloat(variant.toDouble());
     break;
-  case QMetaType::Int:          // No support of large numbers
+  case QMetaType::Int:          // (bad) support of large numbers
   case QMetaType::UInt:
+  case QMetaType::Long:
+  case QMetaType::ULong:
+  case QMetaType::LongLong:
+    // This will break in the case of very large numbers but will
+    // succeed most of the times.
     val = mr->newInt(variant.toInt());
     break;
+  // case QMetaType::LongLong:
+  //   qlonglong val = variant.toLongLong();
+  //   if(abs(val) < )
   case QMetaType::QString:
     val = mr->fromQString(variant.toString());
     break;
@@ -424,9 +434,10 @@ mrb_value ValueHash::toRuby() const
 
   // mr->gcRegister(ret);
   for(const_iterator it = begin(); it != end(); ++it) {
-    // Hmmm, QVariant says type() is QVariant::Type, but the
-    // documentation says is really is QMetaType::Type.
     try {
+      // QTextStream o(stdout);
+      // o << "Key: " << it.key() << " -> type: " << it.value().type() << endl;
+
       mrb_value key = mr->fromQString(it.key());
       // DUMP_MRUBY(key);
       mrb_value val = variantToRuby(it.value());

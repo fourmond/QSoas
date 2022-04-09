@@ -1622,3 +1622,66 @@ lft("load-from-trajectory", // command name
     NULL, CommandContext::fitContext());
 
 
+
+//////////////////////////////////////////////////////////////////////
+
+#include <linearfunctions.hh>
+#include <gsl-types.hh>
+
+static void regularizeParametersCommand(const QString & /*name*/,
+                                        QList<QPair<int, int> > params,
+                                        const CommandOptions & opts)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+
+  // First collect all the parameters
+  QHash<int, QList<int> > parameters;
+
+  for(QPair<int, int> p : params) {
+    if(! parameters.contains(p.first))
+      parameters[p.first] = QList<int>();
+    parameters[p.first] << p.second;
+  }
+
+  int order = 1;
+  updateFromOptions(opts, "order", order);
+
+  // Now loop over the parameters:
+  //
+  // WARNING: this sets *all* the parameters
+  Vector perp = ws->perpendicularCoordinates;
+  if(perp.size() == 0) {
+    for(int i = 0; i < ws->datasetNumber(); i++)
+      perp << i;
+  }
+  for(int pm : parameters.keys()) {
+    gsl_vector * values = ws->parameterVector(pm);
+    PolynomialFunction fcn(order, perp);
+    GSLVector pv(order+1);
+    fcn.solve(values, pv);
+    fcn.computeFunction(pv, values);
+  }
+  ws->sendDataParameters();
+}
+
+ArgumentList rpArgs(QList<Argument*>() 
+                   << new FitParameterArgument("parameters", 
+                                               "Parameters",
+                                               "the parameters of the fit")
+                   );
+
+ArgumentList rpOpts(QList<Argument*>()
+                    << new IntegerArgument("order", 
+                                           "Order",
+                                           "order of the interpolation")
+                    );
+
+static Command 
+rp("regularize-parameters", // command name
+   effector(regularizeParametersCommand), // action
+   "fits",  // group name
+   &rpArgs, // arguments
+   &rpOpts, // options
+   "Regularize parameters",
+   "Regularize  parameters",
+   "", CommandContext::fitContext());

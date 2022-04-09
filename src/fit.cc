@@ -392,7 +392,7 @@ void Fit::makeCommands(const ArgumentList &args,
                            "file to load parameters from")
        << new SeveralDataSetArgument("datasets", 
                                      "Dataset",
-                                     "the datasetss whose X values will be "
+                                     "the datasets whose X values will be "
                                      "used for simulations", 
                                      true);
 

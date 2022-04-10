@@ -188,6 +188,12 @@ QStringList MetaHashArgument::toString(const ArgumentMarshaller * arg) const
   return rv;
 }
 
+QVariant MetaHashArgument::toVariant(const ArgumentMarshaller * arg) const
+{
+  return arg->value<QHash<QString, QVariant> >();
+}
+
+
 void MetaHashArgument::concatenateArguments(ArgumentMarshaller * a, 
                                             const ArgumentMarshaller * b) const
 {
@@ -702,6 +708,11 @@ QStringList NumberArgument::toString(const ArgumentMarshaller * arg) const
   return lst;
 }
 
+QVariant NumberArgument::toVariant(const ArgumentMarshaller * arg) const
+{
+  return arg->value<double>();
+}
+
 ArgumentMarshaller * NumberArgument::promptForValue(QWidget * base) const
 {
   bool ok = false;
@@ -774,6 +785,14 @@ QStringList SeveralNumbersArgument::toString(const ArgumentMarshaller * arg) con
   return rv;
 }
 
+QVariant SeveralNumbersArgument::toVariant(const ArgumentMarshaller * arg) const
+{
+  QVariantList lst;
+  for(double d : arg->value<QList<double> >())
+    lst << d;
+  return lst;
+}
+
 QWidget * SeveralNumbersArgument::createEditor(QWidget * parent) const
 {
   return Argument::createTextEditor(parent);
@@ -799,6 +818,11 @@ QStringList IntegerArgument::toString(const ArgumentMarshaller * arg) const
   QStringList lst;
   lst << QString::number(arg->value<int>());
   return lst;
+}
+
+QVariant IntegerArgument::toVariant(const ArgumentMarshaller * arg) const
+{
+  return arg->value<int>();
 }
 
 ArgumentMarshaller * IntegerArgument::promptForValue(QWidget * base) const
@@ -870,6 +894,14 @@ QStringList SeveralIntegersArgument::toString(const ArgumentMarshaller * arg) co
     lst << QString::number(i);
   rv << lst.join(",");
   return rv;
+}
+
+QVariant SeveralIntegersArgument::toVariant(const ArgumentMarshaller * arg) const
+{
+  QVariantList lst;
+  for(int d : arg->value<QList<int> >())
+    lst << d;
+  return lst;
 }
 
 QWidget * SeveralIntegersArgument::createEditor(QWidget * parent) const

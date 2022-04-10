@@ -122,6 +122,14 @@ public:
   /// possible, in which case the function returns several strings.
   virtual QStringList toString(const ArgumentMarshaller * arg) const = 0;
 
+  /// Converts the given marshalled argument to a QVariant.
+  ///
+  /// Default is to convert to string, but some subclasses should
+  /// probably convert directly.
+  ///
+  /// @todo Do the reverse ?
+  virtual QVariant toVariant(const ArgumentMarshaller * arg) const;
+
   /// @}
 
   /// Prompts for a value for the argument, using something of a

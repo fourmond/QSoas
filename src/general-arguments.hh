@@ -117,7 +117,11 @@ public:
   virtual void concatenateArguments(ArgumentMarshaller * a, 
                                     const ArgumentMarshaller * b) const override;
 
-  QStringList toString(const ArgumentMarshaller * arg) const override;
+
+  virtual QVariant toVariant(const ArgumentMarshaller * arg) const override;
+
+
+  virtual QStringList toString(const ArgumentMarshaller * arg) const override;
 
   virtual QString typeName() const override;
 
@@ -396,7 +400,8 @@ public:
   /// Prompting uses QInputDialog.
   virtual ArgumentMarshaller * promptForValue(QWidget * base) const override;
 
-  QStringList toString(const ArgumentMarshaller * arg) const override;
+  virtual QStringList toString(const ArgumentMarshaller * arg) const override;
+  virtual QVariant toVariant(const ArgumentMarshaller * arg) const override;
 
 
   // Use of a line edit
@@ -435,7 +440,8 @@ public:
   virtual void concatenateArguments(ArgumentMarshaller * a, 
                                     const ArgumentMarshaller * b) const override;
 
-  QStringList toString(const ArgumentMarshaller * arg) const override;
+  virtual QStringList toString(const ArgumentMarshaller * arg) const override;
+  virtual QVariant toVariant(const ArgumentMarshaller * arg) const override;
 
   virtual QString typeName() const override {
     return "numbers";
@@ -462,7 +468,8 @@ public:
     Argument(cn, pn, d, false, def) {
   }; 
 
-  QStringList toString(const ArgumentMarshaller * arg) const override;
+  virtual QStringList toString(const ArgumentMarshaller * arg) const override;
+  virtual QVariant toVariant(const ArgumentMarshaller * arg) const override;
 
   /// Returns a wrapped double
   virtual ArgumentMarshaller * fromString(const QString & str) const override;
@@ -502,7 +509,8 @@ public:
   virtual void concatenateArguments(ArgumentMarshaller * a, 
                                     const ArgumentMarshaller * b) const override; 
 
-  QStringList toString(const ArgumentMarshaller * arg) const override;
+  virtual QStringList toString(const ArgumentMarshaller * arg) const override;
+  virtual QVariant toVariant(const ArgumentMarshaller * arg) const override;
   
   virtual QString typeName() const override {
     return "integers";

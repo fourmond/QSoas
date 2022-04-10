@@ -280,3 +280,15 @@ void ArgumentList::mergeOptions(const ArgumentList & other)
   regenerateCache();
 }
 
+QHash<QString, QVariant> ArgumentList::optionsHash(const CommandOptions & opts) const
+{
+  QHash<QString, QVariant> rv;
+  for(const QString & n : opts.keys()) {
+    const Argument * nd = namedArgument(n);
+    if(!nd)
+      continue;
+    rv[n] = nd->toVariant(opts[n]);
+  }
+  return rv;
+}
+

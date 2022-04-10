@@ -135,6 +135,10 @@ public:
   /// For now, duplicate names will get ignored. @todo Make this
   /// configurable
   void mergeOptions(const ArgumentList & other);
+
+
+  /// Converts the given options to a QVariant hash
+  QHash<QString, QVariant> optionsHash(const CommandOptions & opts) const;
 };
 
 #endif

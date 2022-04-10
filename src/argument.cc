@@ -66,6 +66,14 @@ QStringList Argument::toString(const ArgumentMarshaller * arg) const
   return lst;
 }
 
+QVariant Argument::toVariant(const ArgumentMarshaller * arg) const
+{
+  QStringList strs = toString(arg);
+  if(strs.size() == 0)
+    return strs.first();
+  return strs;
+}
+
 
 ArgumentMarshaller * Argument::promptForValue(QWidget * base) const
 {

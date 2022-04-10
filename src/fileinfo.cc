@@ -19,6 +19,7 @@
 
 #include <headers.hh>
 #include <fileinfo.hh>
+#include <file.hh>
 
 #include <exceptions.hh>
 
@@ -36,6 +37,7 @@ FileInfo::FileInfo(const QString & file) :
 #ifdef HAS_LIBZIP
   stat.valid = 0;
 #endif
+  inlineFile = File::inlineFileName(file);
 }
 
 FileInfo::FileInfo(const QString & archive, const QString & sub) :
@@ -68,6 +70,11 @@ void FileInfo::doSplit() const
   
 QDateTime FileInfo::lastModified() const
 {
+  if(!inlineFile.isEmpty()) {
+    File::InlineFile * inl = File::getInlineFile(inlineFile);
+    if(inl)
+      return inl->date;
+  }
 #ifdef HAS_LIBZIP
   doSplit();
   if(! zipArchive.isEmpty()) {
@@ -82,6 +89,11 @@ QDateTime FileInfo::lastModified() const
 
 qint64 FileInfo::size() const
 {
+  if(!inlineFile.isEmpty()) {
+    File::InlineFile * inl = File::getInlineFile(inlineFile);
+    if(inl)
+      return inl->contents.size();
+  }
 #ifdef HAS_LIBZIP
   doSplit();
   if(! zipArchive.isEmpty()) {
@@ -95,6 +107,11 @@ qint64 FileInfo::size() const
 
 bool FileInfo::exists() const
 {
+  if(!inlineFile.isEmpty()) {
+    File::InlineFile * inl = File::getInlineFile(inlineFile);
+    if(inl)
+      return true;
+  }
 #ifdef HAS_LIBZIP
   doSplit();
   if(! zipArchive.isEmpty())
@@ -105,6 +122,11 @@ bool FileInfo::exists() const
 
 bool FileInfo::isDir() const
 {
+  if(!inlineFile.isEmpty()) {
+    File::InlineFile * inl = File::getInlineFile(inlineFile);
+    if(inl)
+      return false;
+  }
 #ifdef HAS_LIBZIP
   doSplit();
   if(! zipArchive.isEmpty()) {
@@ -124,6 +146,11 @@ bool FileInfo::isDir() const
 
 bool FileInfo::isDirLike() const
 {
+  if(!inlineFile.isEmpty()) {
+    File::InlineFile * inl = File::getInlineFile(inlineFile);
+    if(inl)
+      return false;
+  }
   if(isDir())
     return true;
 #ifdef HAS_LIBZIP

@@ -39,6 +39,9 @@ class FileInfo {
   /// The underlying QFileInfo object.
   QFileInfo info;
 
+  /// If not empty, the file we're looking at is an inline file
+  QString inlineFile;
+
 #ifdef HAS_LIBZIP
 #include <zipfile.hh>
 

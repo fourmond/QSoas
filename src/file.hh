@@ -72,7 +72,55 @@ class File {
   /// The underlying device.
   QIODevice * device;
 
+
+
+  /// @name Inline files
+  ///
+  /// The File framework can read files that have been defined
+  /// "inline". They start all with "inline:"
+  ///
+  /// @{
+
+  friend class FileInfo;
+
+  class InlineFile {
+  public:
+    QString name;
+
+    QDateTime date;
+
+    QString contents;
+
+    InlineFile();
+    InlineFile(const QString & n, const QString & c, const QDateTime & d);
+  };
+
+
+  /// The definition of the current inline files
+  static QHash<QString, InlineFile> * inlineFiles;
+
+  /// Returns the information on the given inline file. Can return
+  /// NULL.
+  static InlineFile * getInlineFile(const QString & name);
+
 public:
+
+  /// Creates/replaces 
+  static void createInlineFile(const QString & name,
+                               const QString & contents);
+
+  /// Returns the list of currently defined inline files.
+  static QStringList currentInlineFiles();
+
+  /// Returns the "inline file name" part of the given file name, that
+  /// is the part after "inline:".
+  ///
+  /// Returns the empty string if the file name cannot refer to an
+  /// inline file.
+  static QString inlineFileName(const QString & file);
+
+  /// @}
+
 
   /// Opening options. Not all combinations make sense.
   enum OpenMode {

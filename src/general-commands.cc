@@ -1517,3 +1517,33 @@ settings("settings", // command name
          "Display/set setting values");
 
 
+
+
+// //////////////////////////////////////////////////////////////////////
+
+// void tinCommand(const QString &,
+//                 QString file, QString text,
+//                 const CommandOptions & opts)
+// {
+//   File::createInlineFile(file, text);
+// }
+
+// static ArgumentList 
+// tinA(QList<Argument *>() 
+//        << new StringArgument("file", 
+//                              "file name",
+//                              "file contents")
+//        << new StringArgument("content", 
+//                              "file name",
+//                              "file contents")
+//         );
+
+// static Command 
+// tin("tin", // command name
+//     effector(tinCommand), // action
+//     "file",  // group name
+//     &tinA,
+//     NULL, // options
+//     "...");
+
+

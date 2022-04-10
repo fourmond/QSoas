@@ -27,6 +27,7 @@
 #endif
 
 #include <QFile>
+#include <QBuffer>
 
 File::File(const QString & fn, OpenModes m,
            const CommandOptions & opts) : fileName(fn),
@@ -129,6 +130,12 @@ void File::writeDependencies(const QString & outputFile)
 
 void File::preOpen()
 {
+  QString ifn = inlineFileName(fileName);
+  if(! ifn.isEmpty()) {
+    if((mode & IOMask) != ReadOnlyMode)
+      throw RuntimeError("Trying to write to inline file: %1").arg(fileName);
+    return;
+  }
   // QTextStream o(stdout);
   // o << "Preopen: " << mode << endl;
   if(mode & MkPath) {
@@ -173,6 +180,8 @@ void File::open()
     throw InternalError("Trying to open an already opened File");
   preOpen();
 
+  
+
   QIODevice::OpenMode m;
   if((mode & IOMask) == ReadOnlyMode)
     m = QIODevice::ReadOnly;
@@ -189,6 +198,23 @@ void File::open()
   }
   if(mode & Text)
     m |= QIODevice::Text;
+
+  QString ifn = inlineFileName(fileName);
+  if(! ifn.isEmpty()) {
+    InlineFile * fl = getInlineFile(ifn);
+    if(! fl)
+      throw RuntimeError("Inline file not found: '%1'").arg(fileName);
+    QBuffer * buf = new QBuffer;
+    /// @todo: decice between QByteArray and QString
+    buf->setData(fl->contents.toUtf8());
+    buf->open(m);
+    device = buf;
+    
+    // We don't track internal files
+    return;
+  }
+
+  
   // QTextStream o(stdout);
   // o << "Opening file: " << fileName << " with mode: "
   //   << m <<  " (internal mode: " << mode << ")" << endl;
@@ -462,6 +488,50 @@ QStringList File::glob(const QString & pattern,
   }
 
   return lst;
+}
+
+File::InlineFile::InlineFile()
+{
+}
+
+File::InlineFile::InlineFile(const QString & n, const QString & c,
+                             const QDateTime & d) :
+  name(n), date(d), contents(c)
+{
+}
+
+QHash<QString, File::InlineFile> * File::inlineFiles = NULL;
+
+File::InlineFile * File::getInlineFile(const QString & name)
+{
+  if(! inlineFiles)
+    return NULL;
+  if(! inlineFiles->contains(name))
+    return NULL;
+  return &(*inlineFiles)[name];
+}
+
+void File::createInlineFile(const QString & name,
+                            const QString & contents)
+{
+  if(! inlineFiles)
+    inlineFiles = new QHash<QString, File::InlineFile>;
+  (*inlineFiles)[name] = InlineFile(name, contents,
+                                    QDateTime::currentDateTime());
+}
+
+QStringList File::currentInlineFiles()
+{
+  if(! inlineFiles)
+    return QStringList();
+  return inlineFiles->keys();
+}
+
+QString File::inlineFileName(const QString & file)
+{
+  if(file.startsWith("inline:"))
+    return file.mid(QString("inline:").size());
+  return QString();
 }
 
 

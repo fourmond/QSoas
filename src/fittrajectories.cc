@@ -82,10 +82,10 @@ int FitTrajectories::importFromFile(QTextStream & in)
     line += 1;
     QString ln = lr.readLine();
     if(ln.startsWith("## ")) {
-      QTextStream o(stdout);
+      // QTextStream o(stdout);
       
       headers = ln.mid(3).split("\t");
-      o << "Found headers: \n * " << headers.join("\n * ") << endl;
+      // o << "Found headers: \n * " << headers.join("\n * ") << endl;
       continue;
     }
     if(ln.startsWith("#"))
@@ -94,14 +94,14 @@ int FitTrajectories::importFromFile(QTextStream & in)
     QStringList ls = ln.split("\t");
     QHash<QString, QString> vals;
     bool missing = false;
-    QTextStream o(stdout);
+    // QTextStream o(stdout);
     for(int i = 0; i < headers.size(); i++) {
       if(ls.size() <= i) { /// @todo Should signal missing stuff ?
         missing = true;
         break;
       }
       vals[headers[i]] = ls[i];
-      o << " * " << headers[i] << " -> " << ls[i] << endl;
+      // o << " * " << headers[i] << " -> " << ls[i] << endl;
     }
     if(missing)
       continue;

@@ -3,3 +3,5 @@
 @ error-ignore.cmds
 @ error-delete.cmds
 @ verify.cmds
+
+@ inline.cmds

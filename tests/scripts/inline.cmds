@@ -1,0 +1,24 @@
+# Here, tests for inline files
+
+## INLINE: test.dat
+1 2
+2 3
+3.2 19
+## INLINE END
+
+load inline:test.dat
+assert $stats.x_min-1 0
+assert $stats.x_max-3.2 0
+assert $stats.y_max-19 0
+assert $stats.y_min-2 0
+
+
+## INLINE: test.cmds
+apply-formula x*=2
+## INLINE END
+run-for-datasets inline:test.cmds named:inline:test.dat
+assert $stats.x_min-2 0
+assert $stats.x_max-6.4 0
+
+
+

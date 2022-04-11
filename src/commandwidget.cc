@@ -618,6 +618,12 @@ CommandWidget::runCommandFile(QIODevice * source,
   QTextStream in(source);
   QRegExp commentRE("^\\s*#.*");
 
+  QRegExp inlineBegRE("^\\s*##\\s+INLINE:\\s+(\\S+)");
+  QRegExp inlineEndRE("^\\s*##\\s+INLINE END.*");
+
+  QString inlineName;
+  QString inlineContent;
+
   // Disable history when applicable
   TemporaryChange<bool> ch(addToHistory, addToHist);
   int level = soas().stack().pushSpy();
@@ -626,6 +632,25 @@ CommandWidget::runCommandFile(QIODevice * source,
       QString line = in.readLine();
       if(line.isNull())
         break;
+      if(! inlineName.isEmpty()) {
+        // Accumulating
+        if(inlineEndRE.indexIn(line) == 0) {
+          // Finished
+          File::createInlineFile(inlineName, inlineContent);
+          Terminal::out << "Read contents of the inline file: "
+                        << inlineName << endl;
+          inlineName = "";
+          inlineContent = "";
+        }
+        else 
+          inlineContent += line + "\n";
+        continue;
+      }
+      if(inlineBegRE.indexIn(line) == 0) {
+        inlineContent = "";
+        inlineName = inlineBegRE.cap(1);
+        continue;
+      }
       if(commentRE.indexIn(line) == 0) {
         advanceContext();
         continue;

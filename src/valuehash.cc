@@ -641,6 +641,6 @@ void ValueHash::handleOutput(const DataSet * ds, const CommandOptions & opts,
     if(missing.size() > 0)
       Terminal::out << "Missing the values for keys '" << missing.join("', '")
                     << "'" << endl;
-    soas().stack().accumulateValues(cnv);
+    soas().stack().accumulateValues(cnv, ds->name);
   }
 }

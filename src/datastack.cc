@@ -395,7 +395,7 @@ QString DataStack::textSummary() const
 }
 
 
-void DataStack::accumulateValues(const ValueHash & data)
+void DataStack::accumulateValues(const ValueHash & data, const QString & name)
 {
   if(! accumulator)
     accumulator = new DataSet;
@@ -421,6 +421,8 @@ void DataStack::accumulateValues(const ValueHash & data)
       accumulator->columnNames[0] = data.keyOrder;
     }
   }
+  if(! name.isEmpty())
+    accumulator->setRowName(nbr, name);
   Terminal::out << "Accumulator has " << accumulator->nbRows()
                 << " rows and " << accumulator->nbColumns()
                 << " columns" << endl;

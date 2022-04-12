@@ -242,8 +242,11 @@ public:
   /// size in kB, number of datasets
   QString textSummary() const;
 
-  /// Accumulate the given ValueHash to the accumulator
-  void accumulateValues(const ValueHash & data);
+  /// Accumulate the given ValueHash to the accumulator.
+  ///
+  /// The string corresponds to a new row name if it isn't empty.
+  void accumulateValues(const ValueHash & data,
+                        const QString & rowName = QString());
 
   /// Returns the current accumulator and release its ownership
   DataSet * popAccumulator();

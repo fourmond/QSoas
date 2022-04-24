@@ -177,3 +177,27 @@ void FitParametersFile::keepOnly(const QSet<QString> & keep)
       parameters.takeAt(i--);
   }
 }
+
+void FitParametersFile::renameParameter(const QString & oldName, const QString & newName)
+{
+  for(int i = 0; i < parameters.size(); i++) {
+    if(parameters[i].name == oldName) {
+      parameters[i].name = newName;
+      for(int j = 0; j < parameters.size(); j++) {
+        if(i == j)
+          continue;
+        if(parameters[j].name == newName &&
+           parameters[j].datasetIndex == parameters[i].datasetIndex) {
+          parameters.takeAt(j);
+          if(j < i)
+            i--;
+          j--;
+        }
+      }
+    }
+  }
+  if(definedParameters.contains(oldName)) {
+    definedParameters.remove(oldName);
+    definedParameters.insert(newName);
+  }
+}

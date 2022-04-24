@@ -118,6 +118,17 @@ static void loadCommand(const QString & /*name*/, QString file,
   if(keepOnly.size() > 0)
     params.keepOnly(keepOnly.toSet());
 
+  
+  QStringList renameParams;
+  updateFromOptions(opts, "rename", renameParams);
+  for(const QString & rn : renameParams) {
+    QStringList exc = rn.split("->");
+    if(exc.size() != 2)
+      throw RuntimeError("Invalid rename specification: '%1'").
+        arg(rn);
+    params.renameParameter(exc[0], exc[1]);
+  }
+
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
 
   if(mode == "normal") {
@@ -203,6 +214,9 @@ ArgumentList lO(QList<Argument*>()
                                               "only",
                                               "Only parameters",
                                               "loads only the given parameters")
+                << new SeveralStringsArgument("rename",
+                                              "Rename",
+                                              "rename parameters before setting")
                 );
 
 static Command 

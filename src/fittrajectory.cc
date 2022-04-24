@@ -148,6 +148,7 @@ ColumnBasedFormat * FitTrajectory::formatForTrajectory(const QStringList & s,
   rv->addColumn("flags",
                 [this] (const QString & n) {
                   flags = n.split(",").toSet();
+                  flags.remove("");
                 },
                 [this] () -> QString {
                   return QStringList(flags.toList()).join(",");

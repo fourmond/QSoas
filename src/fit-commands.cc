@@ -1360,6 +1360,9 @@ public:
   /// Returns a wrapped FitTrajectories
   virtual ArgumentMarshaller * fromString(const QString & str) const override {
     QStringList spl = str.split(":");
+    if(spl.size() == 0)
+      throw RuntimeError("Invalid trajectories specification: '%1'").
+        arg(str);
     QString what = spl.takeFirst();
     QString rest = spl.join(":");
     FitWorkspace * ws = FitWorkspace::currentWorkspace();
@@ -1367,6 +1370,10 @@ public:
     if(what == "flagged") {
       return new ArgumentMarshallerChild<FitTrajectories>
         (ws->trajectories.flaggedTrajectories(rest));
+    }
+    if(what == "flagged-") {
+      return new ArgumentMarshallerChild<FitTrajectories>
+        (ws->trajectories.flaggedTrajectories(rest, false));
     }
     if(what == "all")
       return new ArgumentMarshallerChild<FitTrajectories>
@@ -1387,8 +1394,8 @@ public:
     FitWorkspace * ws = FitWorkspace::currentWorkspace();
     QStringList names;
     for(const QString & s : ws->trajectories.allFlags())
-      names << "flagged:" + s;
-    names << "all";
+      names << "flagged:" + s << "flagged-:" + s;
+    names << "all" << "flagged" << "flagged-";
     return Utils::stringsStartingWith(names, starter);
   }
 

@@ -253,12 +253,23 @@ void FitTrajectories::remove(int idx)
   trajectories.takeAt(idx);
 }
 
-FitTrajectories FitTrajectories::flaggedTrajectories(const QString & flag)
+FitTrajectories FitTrajectories::flaggedTrajectories(const QString & flag,
+                                                     bool flagged)
   const
 {
   FitTrajectories rv(workSpace);
   for(const FitTrajectory & t : *this) {
-    if(t.flagged(flag))
+    bool tf;
+    // QTextStream o(stdout);
+    if(flag.isEmpty()) {
+      QStringList flgs = t.flags.toList();
+      // o << "Flags: " << flgs.size() << " '" << flgs.join("', '")
+      //   << "'" << endl; 
+      tf = (t.flags.size() > 0);
+    }
+    else
+      tf = t.flagged(flag);
+    if((flagged && tf) || (!flagged && !tf))
       rv << t;
   }
   return rv;

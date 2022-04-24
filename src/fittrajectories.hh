@@ -105,8 +105,16 @@ public:
   /// Clears the trajectories
   void clear();
 
-  /// Returns the trajectories that contain the given flag.
-  FitTrajectories flaggedTrajectories(const QString & flag) const;
+  /// Returns the trajectories that contain the given flag, or the
+  /// trajectories bearing any flag if flag is empty.
+  ///
+  /// If @a flagged is false, then it returns the trajectories that do
+  /// NOT have this flag.
+  ///
+  /// If both @a flag is empty and @a flagged is false, this returns
+  /// all the trajectories that have NO flags.
+  FitTrajectories flaggedTrajectories(const QString & flag,
+                                      bool flagged = true) const;
 
   /// Returns the list of flags
   QSet<QString> allFlags() const;

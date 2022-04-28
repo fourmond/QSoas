@@ -70,7 +70,10 @@ double LinearFunction::solve(const gsl_vector * func, gsl_vector * params,
       arg(gsl_strerror(status));
 
   if(errors) {
-    double conf = gsl_cdf_tdist_Pinv(0.975, dataPoints() - parameters());
+    double conf = std::nan("1");
+    if(dataPoints() - parameters() > 0)
+      conf = gsl_cdf_tdist_Pinv(0.975, dataPoints() - parameters());
+    
     for(int i = 0; i < parameters(); i++)
       gsl_vector_set(errors, i, sqrt(gsl_matrix_get(cov, i, i)) * conf);
   }

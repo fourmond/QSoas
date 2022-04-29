@@ -95,7 +95,7 @@ QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
     // o << "line: " << line << " -> " << indices.size() << endl;
     for(int txt : textColumns) {
       // o << "txt: " << txt << ", indices:" << indices.size() << endl;
-      if(txt > (indices.size()/2) || txt < 0)
+      if(txt >= (indices.size()/2) || txt < 0)
         continue;
       // o << " -> " << indices[2*txt] << ": " << indices[2*txt+1] << endl;
       taken.insert(0, line.mid(indices[2*txt], indices[2*txt+1]));

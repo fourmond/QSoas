@@ -31,6 +31,9 @@
 
 #include <idioms.hh>
 
+#include <soas.hh>
+#include <datasetexpression.hh>
+
 /// This fit permits the modification of a list of fits, a kind of
 /// permanent extension of the fixed formula parameter.
 /// It takes:
@@ -58,6 +61,9 @@ protected:
 
   /// A list of extra conditions
   QStringList conditions;
+
+  /// The conversion command
+  Command * conversionCommand;
 
   class Storage : public FitInternalStorage {
   public:
@@ -286,7 +292,7 @@ protected:
     Utils::skippingCopy(src, buffer, s->totalSize, s->skippedIndices);
 
     // o << "Before:";
-    // for(int i = 0; i < s->totalSize; i++)
+     // for(int i = 0; i < s->totalSize; i++)
     //   o << "\t" << buffer[i];
     // o << endl;
 
@@ -314,6 +320,27 @@ protected:
       }
 
   }
+
+  /// A function to be used to create a command that does the
+  /// conversion of the parameters of a given dataset
+  void convertDataSet(const QString & n, const CommandOptions & opts) {
+    const DataSet * ds = soas().currentDataSet();
+
+    DataSet * nds = ds->derivedDataSet("_conv.dat");
+    for(const QString & n : redefinitions.keys()) {
+      DataSetExpression ex(ds);
+      Vector nv;
+      ex.useRealColNames = true;
+      ex.prepareExpression(redefinitions[n]);
+      double p[ex.expression().currentVariables().size()];
+
+      while(ex.nextValues(p))
+        nv << ex.expression().evaluate(p);
+      nds->appendColumn(nv);
+      nds->setColumnName(nds->nbColumns()-1, n);
+    }
+    soas().pushDataSet(nds);
+  };
   
 public:
 
@@ -407,13 +434,23 @@ public:
   redefinitions(redefs),
   underlyingFit(under),
   conditions(conds)
-{
+  {
+    
+    ArgumentList opts = underlyingFit->fitHardOptions();
+    opts << underlyingFit->fitSoftOptions();
+    makeCommands(ArgumentList(), NULL, NULL, opts);
+    
+    conversionCommand =
+      new Command(QString("convert-") + name,
+                  effector(this, &ModifiedFit::convertDataSet),
+                  "fit", NULL, NULL,
+                  QString("Convert parameters for fit ") + name
+                  );
+  }
 
-  ArgumentList opts = underlyingFit->fitHardOptions();
-  opts << underlyingFit->fitSoftOptions();
-  makeCommands(ArgumentList(), NULL, NULL, opts);
-}
-
+  ~ModifiedFit() {
+    delete conversionCommand;
+  };
   
 };
 

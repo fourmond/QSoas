@@ -46,6 +46,10 @@
 #include <metadataprovider.hh>
 #include <metadatafile.hh>
 
+// I guess I have to include it from here...
+#include <datasetbrowser.hh>
+
+
 QList<DataBackend*> * DataBackend::availableBackends = NULL;
 
 QList<Command*> * DataBackend::backendCommands = NULL;
@@ -395,6 +399,93 @@ static void overlayFilesCommand(const QString &, QStringList files,
 
 
 
+//////////////////////////////////////////////////////////////////////
+
+static void pushOntoStack(const QList<const DataSet*> & lst)
+{
+  soas().view().disableUpdates();
+  for(int i = 0; i < lst.size(); i++) {
+    DataSet * ds = new DataSet(*lst[i]);
+    soas().stack().pushDataSet(ds);
+    if(i > 0)
+        soas().view().addDataSet(ds);
+    else
+      soas().view().showDataSet(ds);
+  }
+  soas().view().enableUpdates();
+}
+
+void browseFilesCommand(const QString &, const CommandOptions & opts)
+{
+  DatasetBrowser dlg;
+  QString pattern = "*";
+  updateFromOptions(opts, "pattern", pattern);
+  QStringList files = File::glob(pattern);
+
+
+  
+  QString frm;
+  updateFromOptions(opts, "for-which", frm);
+
+  QList<DataSet *> dataSets;
+  for(int i = 0; i < files.size(); i++) {
+    try {
+      QList<DataSet *> sets = DataBackend::loadFile(files[i], opts);
+      for(int j = 0; j < sets.size(); j++) {
+        DataSet * s = sets[j];
+        s->stripNaNColumns();
+        if(s->nbColumns() > 1 && s->nbRows() > 1) {
+          if(! frm.isEmpty()) {
+            try {
+              if(! s->matches(frm)) {
+                Terminal::out << files[i] << " [" << j 
+                              << "] does not match the selection rule" 
+                              << endl;
+                continue;
+              }
+            }
+            catch(const RuntimeError & re) {
+              Terminal::out << "Error evaluating expression with " << files[i] << " [" << j 
+                            << "]:" << re.message()
+                            << endl;
+              continue;
+            }
+          }
+          dataSets << s;
+        }
+        else {
+          Terminal::out << files[i] << " doesn't contain enough rows and/or columns, skipping" << endl;
+          delete s;
+        }
+      }
+    }
+    catch (const RuntimeError & e) {
+      Terminal::out << e.message() << endl;
+    }
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
+  }
+  if(dataSets.size() > 0) {
+    dlg.addButton("Push onto stack", &::pushOntoStack);
+    dlg.displayDataSets(dataSets);
+    dlg.exec();
+  }
+  for(int i = 0; i < dataSets.size(); i++)
+    delete dataSets[i];
+}
+
+
+static ArgumentList 
+bfOpts(QList<Argument*>()
+       << new StringArgument("pattern", 
+                             "Pattern",
+                             "Files to browse", true)
+       << new CodeArgument("for-which", 
+                           "For which",
+                           "Select on formula")
+       );
+
+
+
 QSet<QString> DataBackend::nonBackendOptions;
 
 void DataBackend::registerBackendCommands()
@@ -479,6 +570,17 @@ void DataBackend::registerBackendCommands()
                 "Loads files and overlay them",
                 "v");
   *backendCommands << cmd;
+
+  //
+  bfOpts.mergeOptions(*allBackendsOptions);
+  cmd = new Command("browse", // command name
+            effector(browseFilesCommand), // action
+            "view",  // group name
+            NULL, // args
+            &bfOpts, // options
+            "Browse files",
+            "Browse files",
+            "W");
 }
 
 void DataBackend::cleanupBackends()

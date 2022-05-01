@@ -44,9 +44,9 @@ protected:
   static QString detectFormat(const QByteArray & peek,  
                               const QString & fileName) {
     if(peek.startsWith("// QSoas JSON meta-data"))
-       return "QSoas meta data";
+       return "QSoas meta data file";
     if(peek.startsWith("%PDF-1."))
-      return "PDF";
+      return "PDF document";
     if(peek.startsWith("Opening log file:") &&
        peek.contains("This is QSoas version "))
       return "QSoas log file";
@@ -77,7 +77,7 @@ protected:
                                           const CommandOptions & opts) const override {
     QList<DataSet *> rv;
     QByteArray peek = stream->peek(4096);
-    throw RuntimeError("File '%1' appears to be a %2 file, ignoring.\n  -> if you think QSoas is wrong, use the appropriate load-as-xxx command").
+    throw RuntimeError("File '%1' appears to be a %2, ignoring it.\n  -> if you think QSoas is wrong, or want to load it anyway, use the appropriate load-as-xxx command").
       arg(fileName).arg(detectFormat(peek, fileName));
     return rv;
   };

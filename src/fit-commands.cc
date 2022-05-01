@@ -1675,6 +1675,7 @@ static void regularizeParametersCommand(const QString & /*name*/,
     for(int i = 0; i < ws->datasetNumber(); i++)
       perp << i;
   }
+  ws->retrieveParameters();
   for(int pm : parameters.keys()) {
     gsl_vector * values = ws->parameterVector(pm);
     PolynomialFunction fcn(order, perp);

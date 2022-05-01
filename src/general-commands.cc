@@ -1357,6 +1357,14 @@ head("head", // command name
      &headO, // options
      "Head");
 
+static Command 
+fitHead("head", // command name
+        effector(headCommand), // action
+        "fits",  // group name
+        &headA, // arguments
+        &headO, // options
+        "Head", "", "", CommandContext::fitContext());
+
 //////////////////////////////////////////////////////////////////////
 
 void lsCommand(const QString &, 

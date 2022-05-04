@@ -413,15 +413,14 @@ void QSoasFitEngine::trialStep(double l, gsl_vector * params,
   gsl_vector_add(params, deltap);
 
   fitData->f(params, func);
-  *res = Utils::finiteNorm(func);
+  gsl_blas_ddot(func, func, res);
   if(fitData->debug > 0) {
-    // Dump the jTj matrix:
     Debug::debug() << " -> residuals = " << *res << endl;
   }
 
   // If the residuals are NaN, throw an exception
-  if(std::isnan(*res))
-    throw RuntimeError("NaN in residuals");
+  if(! std::isfinite(*res))
+    throw RuntimeError("Residuals not finite");
 }
 
 int QSoasFitEngine::iterate() 
@@ -471,7 +470,8 @@ int QSoasFitEngine::iterate()
     bool didFirst = false;
     try {
       if(fitData->debug > 0) {
-        Debug::debug() << "Current residuals: " << cur_squares << endl;
+        Debug::debug() << "Try #" << nbtries << ", current residuals: "
+                       << cur_squares << endl;
       }
       
       trialStep(lambda, testp, testf, &ns);

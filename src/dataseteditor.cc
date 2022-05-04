@@ -54,6 +54,11 @@ void DatasetEditor::setupTable(QTableWidget * table, const DataSet * ds)
     for(int i = 0; i < cn.size(); i++)
       cn[i] += "\n(" + s[i] + ")";
   }
+  if(ds->perpendicularCoordinates().size() == (cn.size() - 1)) {
+    for(int i = 1; i < cn.size(); i++)
+      cn[i] += QString("\nZ = %1").
+        arg(ds->perpendicularCoordinates()[i-1]);
+  }
            
   table->setColumnCount(cn.size());
 

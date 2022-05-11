@@ -599,7 +599,7 @@ DataSet * FitWorkspace::exportAsDataSet(bool errors, bool meta,
     vects << v;
     if(errors) {
       colNames << name + "_err";
-      vects << v;
+      vects << err;
     }
   }
 

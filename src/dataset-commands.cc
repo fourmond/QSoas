@@ -2433,7 +2433,7 @@ static void setPerpCommand(const QString &,
   updateFromOptions(opts, "coords", coords);
   updateFromOptions(opts, "from-row", row);
 
-  std::unique_ptr<DataSet> newds(ds->derivedDataSet(""));
+  std::unique_ptr<DataSet> newds(ds->derivedDataSet(".dat"));
   if(row >= 0) {
     if(coords.size() != 0)
       throw RuntimeError("Perpendicular coordinates given even when /from-row is used");

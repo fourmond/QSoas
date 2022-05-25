@@ -7,3 +7,4 @@
 @ inline.cmds
 
 @ check-param-expansion.cmds 23
+@ check-parameters.cmds

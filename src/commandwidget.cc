@@ -660,7 +660,7 @@ CommandWidget::runCommandFile(QIODevice * source,
 
 
       // Now, we look for all possible argument substitutions
-      QRegExp substitutionRE("\\$\\{(\\d+)(?:(%%|##|:-|:\\+|\\?|[^}0-9])([^}]*))?\\}");
+      QRegExp substitutionRE("\\$\\{(\\w+)(?:(%%|##|:-|:\\+|\\?|[^}0-9])([^}]*))?\\}");
 
       typedef enum {
         Plain, RemoveSuffix, RemovePrefix, DefaultValue, AlternateValue,
@@ -675,15 +675,33 @@ CommandWidget::runCommandFile(QIODevice * source,
         // We build one substitution
         QString key = substitutionRE.cap(0);
         int argn = substitutionRE.cap(1).toInt() - 1;
+        QString paramValue;
+        QString paramName;
+        bool subsPresent = true;
+        if(argn < 0) {
+          paramName = substitutionRE.cap(1);
+          subsPresent = parameters.contains(paramName);
+          if(subsPresent)
+            paramValue = parameters[paramName];
+        }
+        else {
+          paramName = QString::number(argn);
+          if(argn >= args.size()) {
+            subsPresent = false;
+          }
+          else {
+            paramValue = args[argn];
+          }
+        }
         QString w = substitutionRE.cap(2);
         SubstitutionType type = Plain;
         QString oa = substitutionRE.cap(3);
         QString subst;
 
-        if(argn < 0)
-          throw RuntimeError("Invalid argument substitution: '%1' of "
-                             "line '%2'").
-            arg(key).arg(line);
+        // if(argn < 0)
+        //   throw RuntimeError("Invalid argument substitution: '%1' of "
+        //                      "line '%2'").
+        //     arg(key).arg(line);
          
           
 
@@ -703,34 +721,36 @@ CommandWidget::runCommandFile(QIODevice * source,
             arg(key).arg(line);
 
         if(type != DefaultValue && type != AlternateValue && 
-           type != TernaryValue && argn >= args.size()) {
-          throw RuntimeError("Script was given %1 parameters, "
-                             "but it needs at least %2, while parsing argument '%4' of line '%3'").
-            arg(args.size()).arg(argn+1).
-            arg(line).arg(key);
+           type != TernaryValue) {
+          if(! subsPresent) {
+            throw RuntimeError("Missing parameter ${%1} "
+                               "while parsing argument '%4' of line '%3'").
+              arg(paramName).
+              arg(line).arg(key);
+          }
         }
         switch(type) {
         case RemoveSuffix:
-          subst = args[argn];
+          subst = paramValue;
           if(subst.endsWith(oa))
             subst.truncate(subst.size() - oa.size());
           break;
         case RemovePrefix:
-          subst = args[argn];
+          subst = paramValue;
           if(subst.startsWith(oa))
             subst = subst.mid(oa.size());
           break;
         case DefaultValue:
-          if(argn >= args.size())
-            subst = oa;
+          if(subsPresent)
+            subst = paramValue;
           else
-            subst = args[argn];
+            subst = oa;
           break;
         case AlternateValue:
-          if(argn >= args.size())
-            subst = "";
-          else
+          if(subsPresent)
             subst = oa;         // the value of the parameter is not used :
+          else
+            subst = "";
           break;
         case TernaryValue: {
           QStringList bits = oa.split(":");
@@ -738,15 +758,15 @@ CommandWidget::runCommandFile(QIODevice * source,
             throw RuntimeError("No ':' found in parameter ternary expansion: "
                                "'%1'").
             arg(oa);
-          if(argn >= args.size())
-            subst = bits[1];
-          else
+          if(subsPresent)
             subst = bits[0];         // the value of the parameter is not used
+          else
+            subst = bits[1];
         }
           break;
         default:
         case Plain:
-          subst = args[argn];
+          subst = paramValue;
           break;
         }
         pos += substitutionRE.matchedLength();
@@ -795,6 +815,12 @@ CommandWidget::runCommandFile(QIODevice * source,
   }
   soas().stack().popSpy(level);
   return Success;
+}
+
+void CommandWidget::setParameter(const QString & name,
+                                 const QString & value)
+{
+  parameters[name] = value;
 }
 
 CommandWidget::ScriptStatus

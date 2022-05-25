@@ -1555,3 +1555,42 @@ settings("settings", // command name
 //     "...");
 
 
+
+
+//////////////////////////////////////////////////////////////////////
+
+void setCommand(const QString &,
+                QString paramName,
+                QString value,
+                const CommandOptions & opts)
+{
+  soas().prompt().setParameter(paramName, value);
+}
+
+static ArgumentList 
+setA(QList<Argument *>() 
+     << new StringArgument("name", 
+                           "Name",
+                           "the name of the parameter")
+     << new StringArgument("value", 
+                           "Value",
+                           "the value of the parameter")
+     );
+
+// static ArgumentList 
+// setO(QList<Argument *>() 
+//        << new NumberArgument("time", 
+//                              "Pause time",
+//                              "time to pause for, in seconds")
+//        << new StringArgument("message", 
+//                              "Text message",
+//                              "the message to display", true)
+//        );
+
+static Command 
+set("set", // command name
+    effector(setCommand), // action
+    "file",  // group name
+    &setA, // arguments
+    NULL,
+    "Set named parameters");

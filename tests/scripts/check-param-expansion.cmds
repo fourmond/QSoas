@@ -1,0 +1,15 @@
+# Should be called with:
+# * ${1} = 23
+
+# plain
+assert ${1}-23 0
+# default value
+assert ${1:-12}-23 0
+assert ${2:-12}-12 0
+# alternate value
+assert 1${1:+3}-13 0
+assert 1${2:+3}-1 0
+
+# ternary
+assert ${1?1:2}-1 0
+assert ${2?1:2}-2 0 

@@ -5,3 +5,5 @@
 @ verify.cmds
 
 @ inline.cmds
+
+@ check-param-expansion.cmds 23

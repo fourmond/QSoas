@@ -114,9 +114,12 @@ QList<Argument *> DataSetWriter::writeOptions()
      << new StringArgument("separator",
                            "Separator",
                            "column separator (default: tab)")
-     << new StringArgument("format",
+     << new StringArgument("number-format",
                            "Number format",
                            "printf-like format string for numbers")
+     << new StringArgument("comments",
+                           "Comments",
+                           "prefix for the comments")
     ;
   return rv;
 }
@@ -126,5 +129,6 @@ void DataSetWriter::setFromOptions(const CommandOptions & opts)
 {
   updateFromOptions(opts, "row-names", writeRowNames);
   updateFromOptions(opts, "separator", separator);
-  updateFromOptions(opts, "format", format);
+  updateFromOptions(opts, "number-format", format);
+  updateFromOptions(opts, "comments", commentPrefix);
 }

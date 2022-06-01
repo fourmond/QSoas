@@ -1229,7 +1229,7 @@ that could be included into a LaTeX document using `siunitx`, you
 could use:
 
 ~~~
-QSoas> save table.tex /separator=& /format=\num{%g}
+QSoas> save table.tex /separator=& /number-format=\num{%g}
 ~~~
 
 Be warned that QSoas is most probably not going to be able to detect

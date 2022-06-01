@@ -407,11 +407,11 @@ It is also indicated in the title of the QSoas window.
 
 ### `temperature` - Temperature {#cmd-temperature}
 
-`temperature` `/set=`_number_{:title="a floating-point number"}
+`temperature` (`/set=`)_number_{:title="a floating-point number"}
 
 Other name: `T`
 
-  * `/set=`_number_{:title="a floating-point number"} (default option): Sets the temperature -- values: a floating-point number
+  * (`/set=`)_number_{:title="a floating-point number"} [(default option)](#default-option): Sets the temperature -- values: a floating-point number
 
 {::comment} synopsis-end: temperature {:/}
 {::comment} description-start: temperature {:/}
@@ -443,18 +443,26 @@ file and aliases.
 
 ### `help` - Help on... {#cmd-help}
 
-`help` `/command=`_command_{:title="the name of one of QSoas's commands"} `/dump=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/synopsis=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`help` (`/command=`)_command_{:title="the name of one of QSoas's commands"} `/dump=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/location=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/synopsis=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
 Other name: `?`
 
-  * `/command=`_command_{:title="the name of one of QSoas's commands"} (default option): The command on which to give help -- values: the name of one of QSoas's commands
+  * (`/command=`)_command_{:title="the name of one of QSoas's commands"} [(default option)](#default-option): The command on which to give help -- values: the name of one of QSoas's commands
   * `/dump=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Shows information about the contents of the help files -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/location=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Shows the given URL location in the documentation -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/synopsis=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Does not show the help, but print a brief synopsis -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: help {:/}
 {::comment} description-start: help {:/}
-Gives all help available on the given command. By default, it spawns
-a browser to show the online help, unless you use `/online=false`.
+Gives all help available on the given command. It shows the inline
+(HTML) documentation.
+
+If you have doubts whether the documentation is up-to-date, you can
+use the `/synopsis=true` option to have a brief text description of
+the command together with its arguments and options. By construction,
+this small text is **always up-to-date**.
+
+If you don't know what the `/location` option does, you don't need it.
 {::comment} description-end: help {:/}
 
 {::comment} synopsis-start: tips {:/}
@@ -494,11 +502,11 @@ text editor.
 
 ### `print` - Print {#cmd-print}
 
-`print` `/file=`_file_{:title="name of a file"} `/nominal-height=`_integer_{:title="an integer"} `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/page-size=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
+`print` (`/file=`)_file_{:title="name of a file"} `/nominal-height=`_integer_{:title="an integer"} `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/page-size=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
 
 Other name: `p`
 
-  * `/file=`_file_{:title="name of a file"} (default option): Save as file -- values: name of a file
+  * (`/file=`)_file_{:title="name of a file"} [(default option)](#default-option): Save as file -- values: name of a file
   * `/nominal-height=`_integer_{:title="an integer"}: Correspondance of the height of the page in terms of points -- values: an integer
   * `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true, overwrite without prompting -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/page-size=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Sets the page size, like 9x6 for 9cm by 6cm -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
@@ -663,9 +671,9 @@ Exits from the current script. Has no effect if not inside a script.
 
 ### `debug` - Debug {#cmd-debug}
 
-`debug` `/directory=`_directory_{:title="name of a directory"} `/level=`_integer_{:title="an integer"}
+`debug` (`/directory=`)_directory_{:title="name of a directory"} `/level=`_integer_{:title="an integer"}
 
-  * `/directory=`_directory_{:title="name of a directory"} (default option): Directory in which the debug output is saved -- values: name of a directory
+  * (`/directory=`)_directory_{:title="name of a directory"} [(default option)](#default-option): Directory in which the debug output is saved -- values: name of a directory
   * `/level=`_integer_{:title="an integer"}: Sets the debug level -- values: an integer
 
 {::comment} synopsis-end: debug {:/}
@@ -757,9 +765,9 @@ providing its name to the [cmd: output] command.
 
 ### `output` - Change output file {#cmd-output}
 
-`output` `/file=`_file_{:title="name of a file"} `/meta=`_words_{:title="several words, separated by ','"} `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reopen=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`output` (`/file=`)_file_{:title="name of a file"} `/meta=`_words_{:title="several words, separated by ','"} `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reopen=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
-  * `/file=`_file_{:title="name of a file"} (default option): name of the new output file -- values: name of a file
+  * (`/file=`)_file_{:title="name of a file"} [(default option)](#default-option): name of the new output file -- values: name of a file
   * `/meta=`_words_{:title="several words, separated by ','"}: when writing to output file, also prints the listed meta-data -- values: several words, separated by ','
   * `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, overwrites the file instead of appending (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/reopen=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, forces reopening the file (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -815,7 +823,7 @@ The main command for loading data is [cmd: load].
 
 ### `load` - Load {#cmd-load}
 
-`load` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}
+`load` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
 
 Other name: `l`
 
@@ -836,7 +844,7 @@ Other name: `l`
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/text-columns=`_integers_{:title="a comma-separated list of integers"}: text columns  -- values: a comma-separated list of integers
-  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset
+  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
 
 {::comment} synopsis-end: load {:/}
 {::comment} description-start: load {:/}
@@ -933,7 +941,7 @@ for scripts, to abort the script when a file is missing, see
 
 ### `load-as-text` - Load files with backend 'text' {#cmd-load-as-text}
 
-`load-as-text` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}
+`load-as-text` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -951,7 +959,7 @@ for scripts, to abort the script when a file is missing, see
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/text-columns=`_integers_{:title="a comma-separated list of integers"}: text columns  -- values: a comma-separated list of integers
-  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset
+  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
 
 {::comment} synopsis-end: load-as-text {:/}
 {::comment} description-start: load-as-text {:/}
@@ -996,7 +1004,7 @@ interpreted:
 
 ### `load-as-csv` - Load files with backend 'csv' {#cmd-load-as-csv}
 
-`load-as-csv` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}
+`load-as-csv` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -1014,7 +1022,7 @@ interpreted:
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/text-columns=`_integers_{:title="a comma-separated list of integers"}: text columns  -- values: a comma-separated list of integers
-  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset
+  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
 
 {::comment} synopsis-end: load-as-csv {:/}
 {::comment} description-start: load-as-csv {:/}
@@ -1027,7 +1035,7 @@ Hence, the options have the same meaning as for [cmd: load-as-text].
 
 ### `load-as-chi-txt` - Load files with backend 'chi-txt' {#cmd-load-as-chi-txt}
 
-`load-as-chi-txt` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}
+`load-as-chi-txt` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -1045,7 +1053,7 @@ Hence, the options have the same meaning as for [cmd: load-as-text].
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/text-columns=`_integers_{:title="a comma-separated list of integers"}: text columns  -- values: a comma-separated list of integers
-  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset
+  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
 
 {::comment} synopsis-end: load-as-chi-txt {:/}
 {::comment} description-start: load-as-chi-txt {:/}
@@ -1058,7 +1066,7 @@ able to detect at least some of their meta-data).
 
 ### `load-as-eclab-ascii` - Load files with backend 'eclab-ascii' {#cmd-load-as-eclab-ascii}
 
-`load-as-eclab-ascii` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}
+`load-as-eclab-ascii` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -1076,7 +1084,7 @@ able to detect at least some of their meta-data).
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/text-columns=`_integers_{:title="a comma-separated list of integers"}: text columns  -- values: a comma-separated list of integers
-  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset
+  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
 
 {::comment} synopsis-end: load-as-eclab-ascii {:/}
 {::comment} description-start: load-as-eclab-ascii {:/}
@@ -1088,7 +1096,7 @@ handles better ASCII files exported from Biologic potentiostats.
 
 ### `load-as-parameters` - Load files with backend 'parameters' {#cmd-load-as-parameters}
 
-`load-as-parameters` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}
+`load-as-parameters` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/expected=`_integer_{:title="an integer"}: Expected number of loaded datasets -- values: an integer
@@ -1099,7 +1107,7 @@ handles better ASCII files exported from Biologic potentiostats.
   * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created datasets -- values: one or more meta=value assignements
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
-  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset
+  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
 
 {::comment} synopsis-end: load-as-parameters {:/}
 {::comment} description-start: load-as-parameters {:/}
@@ -1182,11 +1190,12 @@ try [cmd: save-datasets] with `/mode=rename`.
 
 ### `save` - Save {#cmd-save}
 
-`save` _file_{:title="name of a file"} `/mkpath=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/row-names=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
+`save` _file_{:title="name of a file"} `/format=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/mkpath=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/row-names=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
 
 Other name: `s`
 
   * _file_{:title="name of a file"}: File name for saving -- values: name of a file
+  * `/format=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: printf-like format string for numbers -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/mkpath=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true, creates all necessary directories -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true, overwrite without prompting -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/row-names=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Wether to write row names or not -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -1211,6 +1220,21 @@ If you use `/row-names=true`, you should reload the saved file using
 ~~~
 QSoas> load-as-text /text-columns=1 file.dat
 ~~~
+
+The `/format=` option can be used to specify a "sprintf-like" format
+for writing the numbers. See Ruby's
+[`sprintf`](https://ruby-doc.org/core-2.4.1/Kernel.html#method-i-sprintf)
+for more information. For instance, if you want to produce text files
+that could be included into a LaTeX document using `siunitx`, you
+could use:
+
+~~~
+QSoas> save table.tex /separator=& /format=\num{%g}
+~~~
+
+Be warned that QSoas is most probably not going to be able to detect
+automatically the format you use for saving if you use custom
+separators and/or formats.
 
 {::comment} description-end: save {:/}
 

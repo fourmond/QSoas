@@ -2094,7 +2094,7 @@ static void setSegmentsCommand(CurveEventLoop &loop, const QString &,
       for(int i = 0; i < ds->segments.size(); i++)
         Terminal::out << "Segment change #" << i << " @" << ds->segments[i] 
                       << "\t X= " << ds->x()[ds->segments[i]] <<endl;
-      
+      soas().view().invalidateCaches();
       break;
     }
     case DumpSegments:

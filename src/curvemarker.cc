@@ -133,3 +133,12 @@ QRectF CurveMarker::boundingRect() const
   }
   return rv;
 }
+
+void CurveMarker::setupCursorMarker(const QColor & color)
+{
+  QPen thin(QColor(0,0,0));
+  thin.setWidth(0.7);
+  size = 4;
+  pen = thin;
+  brush = QBrush(color);
+}

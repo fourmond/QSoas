@@ -799,17 +799,13 @@ static void cursorCommand(CurveEventLoop &loop, const QString &)
   QList<CurveCross*> crosses;
   pick.trackedButtons = Qt::LeftButton|Qt::RightButton|Qt::MiddleButton;
 
-  QPen thin(QColor(0,0,0));
-  thin.setWidth(0.7);
+  /// @todo Find a way to share this ?
   view.addItem(&m);
-  m.size = 4;
-  m.pen = thin;
-  m.brush = QBrush(QColor(0,0,255,100)); // A kind of transparent blue
+  m.setupCursorMarker(QColor(0,0,255,100)); // A kind of transparent blue
 
   view.addItem(&r);
-  r.size = 4;
-  r.pen = thin;
-  r.brush = QBrush(QColor(0,128,0,100)); // A kind of transparent green
+  r.setupCursorMarker(QColor(0,128,0,100)); // A kind of transparent green
+  
   loop.setHelpString("Cursor:\n" +
                      cursorHandler.buildHelpString());
 

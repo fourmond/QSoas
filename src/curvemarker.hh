@@ -80,6 +80,11 @@ public:
                                const QPen & pen = QPen());
 
   CurveMarker() : p(0.0/0.0, 0.0/0.0), size(1.0), type(Circle) {;};
+
+
+  /// Sets up the marker so it looks like the standard "cursor"
+  /// marker, with the given color.
+  void setupCursorMarker(const QColor & color);
 };
 
 

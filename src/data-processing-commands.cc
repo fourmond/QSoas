@@ -442,6 +442,8 @@ namespace __fl {
     NextSegment,
     PreviousSegment,
     SetManually,
+    RegressionMode,
+    LineMode,
     Abort
   } FilmLossActions;
 
@@ -458,7 +460,12 @@ namespace __fl {
     addKey('p', PreviousSegment, "previous segment").
     alsoKey('P').alsoKey('b').alsoKey('B').
     addKey('k', SetManually, "set manually rate constant").
-    alsoKey('K');
+    alsoKey('K').
+    addKey('r', RegressionMode, "regression mode").
+    alsoKey('R').
+    addKey('l', LineMode, "line mode").
+    alsoKey('L')
+    ;
 
 
 /// @todo This should be turned into a lambda expression !
@@ -501,6 +508,14 @@ static void filmLossCommand(CurveEventLoop &loop, const QString &)
   bottom.addItem(&d);
   view.addItem(&corr);
 
+  CurveMarker lm;
+  view.addItem(&lm);
+  lm.setupCursorMarker(QColor(0,0,255,100)); // A kind of transparent blue
+  CurveMarker rm;
+  view.addItem(&rm);
+  rm.setupCursorMarker(QColor(0,128,0,100)); // A kind of transparent blue
+
+
   bottom.yLabel = "Remaining coverage";
   d.countBB = true;
 
@@ -508,13 +523,19 @@ static void filmLossCommand(CurveEventLoop &loop, const QString &)
   view.addPanel(&bottom);
   line.pen = gs.getPen(GraphicsSettings::ReglinPen);
   d.pen = gs.getPen(GraphicsSettings::ResultPen);
-  QPair<double, double> reg;
   double xleft = ds->x().min();
   double xright = ds->x().max();
 
+  PointPicker pick(&loop, ds);
+  pick.trackedButtons = Qt::LeftButton|Qt::RightButton;
+  pick.resetMethod();
+
+  
   loop.setHelpString(QString("Film loss:\n")
                        + filmLossHandler.buildHelpString());
   bool needUpdate = false;
+
+  bool regressionMode = true;
 
   int currentSegment = 0;
   zoomToSegment(ds, currentSegment, view);
@@ -530,29 +551,80 @@ static void filmLossCommand(CurveEventLoop &loop, const QString &)
     return rv;
   };
 
-  while(! loop.finished()) {
-    int action = filmLossHandler.nextAction(loop);
-    switch(action) {
-    case PickLeft:
-    case PickRight: {
-      r.setX(loop.position().x(), loop.button());
-      reg = ds->reglin(r.xmin(), r.xmax());
-      double y = reg.first * xleft + reg.second;
-      line.p1 = QPointF(xleft, y);
-      y = reg.first * xright + reg.second;
-      line.p2 = QPointF(xright, y);
-      double decay = 1/(-reg.second/reg.first - r.xleft);
+  auto updateDecay =
+    [&regressionMode, &rateConstants, &needUpdate,
+     &currentSegment, &r, &line, &rm, &lm, xleft, xright, ds] {
+      if(regressionMode) {
+        QPair<double, double> reg = ds->reglin(r.xmin(), r.xmax());
+        double y = reg.first * r.xleft + reg.second;
+        line.p1 = QPointF(r.xleft, y);
+        y = reg.first * r.xright + reg.second;
+        line.p2 = QPointF(r.xright, y);
+      }
+      else {
+        line.p1 = lm.p;
+        line.p2 = rm.p;
+      }
+      double a = (line.p2.y() - line.p1.y())/
+        (line.p2.x() - line.p1.x());
+      double b = line.p1.y() - line.p1.x()*a;
+      double decay = -a/(b + a*line.p1.x());
       rateConstants[currentSegment] = decay;
       Terminal::out << "xleft = " << r.xleft << "\t" 
                     << "xright = " << r.xright << "\t" 
-                    << reg.first << "\t" << reg.second 
+                    << "x1 = " << line.p1.x() << "\t" 
+                    << "x2 = " << line.p2.x() << "\t" 
+                    << a << "\t" << b 
                     << "\t" << decay << endl;
-      soas().showMessage(QObject::tr("Regression between X=%1 and X=%2 "
-                                     "(segment #%3)").
-                         arg(r.xleft).arg(r.xright).arg(currentSegment + 1));
+
+      double y = a * xleft + b;
+      line.p1 = QPointF(xleft, y);
+      y = a * xright + b;
+      line.p2 = QPointF(xright, y);
+
+      // Now, update
+      if(regressionMode)
+        soas().showMessage(QString("Regression between X=%1 and X=%2 "
+                                   "(segment #%3)").
+                           arg(r.xleft).arg(r.xright).
+                           arg(currentSegment + 1));
+      else
+        soas().showMessage(QString("Drawing line between the points "
+                                   "(segment #%3)").
+                           arg(currentSegment + 1));
       needUpdate = true;
+    };
+
+  while(! loop.finished()) {
+    int action = filmLossHandler.nextAction(loop);
+    pick.processEvent(action);        // We don't filter actions out.
+      
+    switch(action) {
+    case PickLeft:
+    case PickRight: {
+      // r.setX(pick.point().x(), loop.button());
+      if(action == PickLeft) {
+        lm.p = pick.point();
+        r.xleft = lm.p.x();
+      }
+      else {
+        rm.p = pick.point();
+        r.xright = rm.p.x();
+      }
+      updateDecay();
+
       break;
     }
+    case RegressionMode:
+      regressionMode = true;
+      Terminal::out << "Using regression mode" << endl;
+      updateDecay();
+      break;
+    case LineMode:
+      regressionMode = false;
+      Terminal::out << "Using line mode" << endl;
+      updateDecay();
+      break;
     case SetManually: {
       QString str = loop.promptForString("Decay rate constant:");
       bool ok = false;

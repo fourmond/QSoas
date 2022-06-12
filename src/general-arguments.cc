@@ -1255,8 +1255,8 @@ QStringList SeveralColumnsArgument::toString(const ArgumentMarshaller * arg) con
 void SeveralColumnsArgument::concatenateArguments(ArgumentMarshaller * a, 
                                                   const ArgumentMarshaller * b) const
 {
-  a->value<QList<int> >() += 
-    b->value<QList<int> >();
+  a->value<ColumnListSpecification >().columns +=
+    b->value<ColumnListSpecification >().columns;
 }
 
 QString SeveralColumnsArgument::typeDescription() const

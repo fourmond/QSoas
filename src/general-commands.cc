@@ -838,6 +838,73 @@ rfef("run-for-each", // command name
      "Runs a script file repetitively with the given arguments",
      "", CommandContext::fitContext());
 
+
+
+//////////////////////////////////////////////////////////////////////
+
+
+static void runForValuesCommand(const QString &,
+                                QString script,
+                                ColumnListSpecification columns,
+                                const CommandOptions & opts)
+{
+  bool addToHistory = false;
+  updateFromOptions(opts, "add-to-history", addToHistory);
+
+  bool silent = false;
+  updateFromOptions(opts, "silent", silent);
+  CommandWidget::ScriptErrorMode mode = CommandWidget::Abort;
+  updateFromOptions(opts, "error", mode);
+  
+  WDisableUpdates eff(& soas().view(), silent);
+
+  const DataSet * ds = soas().currentDataSet();
+
+  QList<int> cols = columns.getValues(ds);
+
+  for(int i = 0; i < ds->nbRows(); i++) {
+    QStringList a;
+    for(int c : cols)
+      a << QString::number(ds->column(c)[i]);
+    soas().prompt().runCommandFile(script, a, addToHistory, mode);
+  }
+}
+
+static ArgumentList 
+rfvArgs(QList<Argument *>() 
+        << new FileArgument("script", 
+                            "Script",
+                            "The script file")
+        << new SeveralColumnsArgument("columns",
+                                      "Columns",
+                                      "The columns to use as arguments for the script")
+        );
+
+static ArgumentList 
+rfvOpts(ArgumentList()
+        << runOpts
+        );
+
+
+
+static Command 
+rfv("run-for-values", // command name
+    effector(runForValuesCommand), // action
+    "file",  // group name
+    &rfvArgs, // arguments
+    &rfvOpts, 
+    "Runs a script with each row of a dataset");
+
+// static Command 
+// rfef("run-for-each", // command name
+//      effector(runForEachCommand), // action
+//      "file",  // group name
+//      &rfeArgs, // arguments
+//      &rfeOpts, 
+//      "Runs a script for several arguments",
+//      "Runs a script file repetitively with the given arguments",
+//      "", CommandContext::fitContext());
+
 //////////////////////////////////////////////////////////////////////
 
 // This contains the list of all directories so far.

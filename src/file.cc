@@ -29,6 +29,9 @@
 #include <QFile>
 #include <QBuffer>
 
+// For quoting !
+#include <command.hh>
+
 File::File(const QString & fn, OpenModes m,
            const CommandOptions & opts) : fileName(fn),
                                           originalFileName(fn),
@@ -120,9 +123,9 @@ void File::writeDependencies(const QString & outputFile)
     }
     if(n == ot)
       continue;                 // No need !
-    // for(QString & d : deps)
-    //   d = simplifyPath(cwd, d);
-      /// @todo Quote spaces ?
+    for(QString & d : deps)
+      d = Command::quoteString(d);
+
     QString n2 = simplifyPath(cwd, n);
     o << n2 << ": " << deps.join(" ") << "\n";
   }

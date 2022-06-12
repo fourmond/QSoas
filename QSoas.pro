@@ -590,21 +590,21 @@ unix|macx {
 
 
 
-# ######################################################################
-# # Detection and handling of libzip
+######################################################################
+# Detection and handling of libzip
 
-# !win32 {
-#   exists(/usr/include/zip.h)|exists(/opt/local/include/zip.h) {
-#     DEFINES += HAS_LIBZIP
-#     LIBS += -lzip
-#     message("Found support for ZIP archives read/write")
-#     HEADERS += src/zipfile.hh
-#     SOURCES += src/zipfile.cc
-#   }
-#   else {
-#     message("Did not find libzip")
-#   }
-# }
+!win32 {
+  exists(/usr/include/zip.h)|exists(/opt/local/include/zip.h) {
+    DEFINES += HAS_LIBZIP
+    LIBS += -lzip
+    message("Found support for ZIP archives read/write")
+    HEADERS += src/zipfile.hh
+    SOURCES += src/zipfile.cc
+  }
+  else {
+    message("Did not find libzip")
+  }
+}
 
 
 

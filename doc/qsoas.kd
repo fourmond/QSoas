@@ -1125,14 +1125,16 @@ reusing later", the ones "exported" can be read using the standard
 
 ### `expand` - Expand {#cmd-expand}
 
-`expand` `/flags=`_words_{:title="several words, separated by ','"} `/group-columns=`_integer_{:title="an integer"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/x-every-nth=`_integer_{:title="an integer"}
+`expand` `/expand-meta=`_words_{:title="several words, separated by ''"} `/flags=`_words_{:title="several words, separated by ','"} `/group-columns=`_integer_{:title="an integer"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/x-columns=`_integer_{:title="an integer"} `/x-every-nth=`_integer_{:title="an integer"}
 
+  * `/expand-meta=`_words_{:title="several words, separated by ''"}: Expand all the given meta-data, one value per produced dataset -- values: several words, separated by ''
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
   * `/group-columns=`_integer_{:title="an integer"}: specifies the number of Y columns in the created datasets -- values: an integer
   * `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines meta-data from perpendicular coordinate -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created datasets -- values: one or more meta=value assignements
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
+  * `/x-columns=`_integer_{:title="an integer"}: specifies the number X columns -- values: an integer
   * `/x-every-nth=`_integer_{:title="an integer"}: specifies the number of columns between successive X values -- values: an integer
 
 {::comment} synopsis-end: expand {:/}
@@ -1163,6 +1165,22 @@ QSoas> expand /group-columns=2
 
 will result in two datasets: X Y1 Y2 and X Y3 Y4.
 
+
+The option `/x-columns` has a similar effect, but for the X
+columns. It gives the number of columns at the beginning of the
+dataset that will be considered as X columns. For instance, if you
+split a X1 X2 Y1 Y2 Y3 dataset with the command:
+
+~~~
+QSoas> expand /x-columns=2
+~~~
+
+You will get three datasets, X1 X2 Y1, X1 X2 Y2 and X1 X2 Y3.
+
+The option `/expand-meta` will expand the meta-data whose name is
+listed. It requires the meta are lists whose size is exactly the number
+of datasets to be created. See also [here](#meta-data-expansion).
+
 {::comment} description-end: expand {:/}
 
 {::comment} synopsis-start: rename {:/}
@@ -1190,13 +1208,14 @@ try [cmd: save-datasets] with `/mode=rename`.
 
 ### `save` - Save {#cmd-save}
 
-`save` _file_{:title="name of a file"} `/format=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/mkpath=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/row-names=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
+`save` _file_{:title="name of a file"} `/comments=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/mkpath=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number-format=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/row-names=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
 
 Other name: `s`
 
   * _file_{:title="name of a file"}: File name for saving -- values: name of a file
-  * `/format=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: printf-like format string for numbers -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/comments=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: prefix for the comments -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/mkpath=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true, creates all necessary directories -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/number-format=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: printf-like format string for numbers -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true, overwrite without prompting -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/row-names=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Wether to write row names or not -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/separator=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: column separator (default: tab) -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
@@ -1214,6 +1233,7 @@ The following options control the output format:
   (defaults to a tabulation).
   * `/row-names` specifies if the names of the rows are written out in
   the first column; it is off by default.
+  * `/number-format` to fine-tune the way the numbers are written.
 
 If you use `/row-names=true`, you should reload the saved file using
 
@@ -1221,7 +1241,7 @@ If you use `/row-names=true`, you should reload the saved file using
 QSoas> load-as-text /text-columns=1 file.dat
 ~~~
 
-The `/format=` option can be used to specify a "sprintf-like" format
+The `/number-format=` option can be used to specify a "sprintf-like" format
 for writing the numbers. See Ruby's
 [`sprintf`](https://ruby-doc.org/core-2.4.1/Kernel.html#method-i-sprintf)
 for more information. For instance, if you want to produce text files
@@ -1242,16 +1262,20 @@ separators and/or formats.
 
 ### `save-datasets` - Save {#cmd-save-datasets}
 
-`save-datasets` _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/expression=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/format=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/mkpath=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/mode=`_choice_{:title="one of: `both`, `rename`, `save`"} `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`save-datasets` _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/comments=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expression=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/format=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/mkpath=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/mode=`_choice_{:title="one of: `both`, `rename`, `save`"} `/number-format=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/row-names=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
 
 Other name: `save-buffers`
 
   * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: datasets to save -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * `/comments=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: prefix for the comments -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/expression=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: a Ruby expression to make file names -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/format=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: overrides dataset names if present -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/mkpath=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if true, creates all necessary directories (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/mode=`_choice_{:title="one of: `both`, `rename`, `save`"}: if using `/format` or `/expression`, whether to just `save`, to just `rename` or `both` (defaults to 'both') -- values: one of: `both`, `rename`, `save`
+  * `/number-format=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: printf-like format string for numbers -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if false, will not overwrite existing files (warning: default is true) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/row-names=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Wether to write row names or not -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/separator=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: column separator (default: tab) -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
 
 {::comment} synopsis-end: save-datasets {:/}
 {::comment} description-start: save-datasets {:/}
@@ -1304,12 +1328,19 @@ QSoas> save-datasets /format=non-existing-directory/buffer-%03d.dat 0..100 /mkpa
 
 ### `browse` - Browse files {#cmd-browse}
 
-`browse` `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/pattern=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
+`browse` (`/pattern=`)_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/skip=`_integer_{:title="an integer"} `/text-columns=`_integers_{:title="a comma-separated list of integers"}
 
 Other name: `W`
 
+  * (`/pattern=`)_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} [(default option)](#default-option): Files to browse -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/columns=`_integers_{:title="a comma-separated list of integers"}: columns loaded from the file -- values: a comma-separated list of integers
+  * `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: pattern for comment lines -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
+  * `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: decimal separator -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Select on formula -- values: a piece of [Ruby code](#ruby)
-  * `/pattern=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} (default option): Files to browse -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: separator between columns -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
+  * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
+  * `/text-columns=`_integers_{:title="a comma-separated list of integers"}: text columns  -- values: a comma-separated list of integers
 
 {::comment} synopsis-end: browse {:/}
 {::comment} description-start: browse {:/}
@@ -1321,6 +1352,10 @@ you're looking for.
 Using the  `/for-which` option, one can display only a certain set of
 files based on their meta-data and/or statistics. See the
 [dedicated section](#for-which) for more details.
+
+This command also takes all the fine-tuning option for loading files
+available to the [cmd: load] command.
+
 {::comment} description-end: browse {:/}
 
 
@@ -1330,11 +1365,11 @@ files based on their meta-data and/or statistics. See the
 
 ### `overlay-buffer` - Overlay buffers {#cmd-overlay-buffer}
 
-`overlay-buffer` `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+`overlay-buffer` (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
 Other name: `V`
 
-  * `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} (default option): Buffers to overlay -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): Buffers to overlay -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
   * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code -- values: a piece of [Ruby code](#ruby)
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for curves display -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
 
@@ -1367,7 +1402,7 @@ of passing it non-visible datasets, QSoas won't shout at you if you do.
 
 ### `overlay` - Overlay {#cmd-overlay}
 
-`overlay` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}
+`overlay` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
 
 Other name: `v`
 
@@ -1388,7 +1423,7 @@ Other name: `v`
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/text-columns=`_integers_{:title="a comma-separated list of integers"}: text columns  -- values: a comma-separated list of integers
-  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset
+  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
 
 {::comment} synopsis-end: overlay {:/}
 {::comment} description-start: overlay {:/}
@@ -1515,11 +1550,11 @@ ways:
 
 ### `browse-stack` - Browse stack {#cmd-browse-stack}
 
-`browse-stack` `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} **(interactive)**
+`browse-stack` (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} **(interactive)**
 
 Other name: `K`
 
-  * `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} (default option): Datasets to show -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): Datasets to show -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
   * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code -- values: a piece of [Ruby code](#ruby)
 
 {::comment} synopsis-end: browse-stack {:/}
@@ -1541,12 +1576,12 @@ of the given, comma-separated, [meta data](#meta-data).
 
 ### `show-stack` - Show stack {#cmd-show-stack}
 
-`show-stack` `/meta=`_words_{:title="several words, separated by ','"} `/number=`_integer_{:title="an integer"}
+`show-stack` (`/number=`)_integer_{:title="an integer"} `/meta=`_words_{:title="several words, separated by ','"}
 
 Other name: `k`
 
+  * (`/number=`)_integer_{:title="an integer"} [(default option)](#default-option): Display only that many datasets around 0 -- values: an integer
   * `/meta=`_words_{:title="several words, separated by ','"}: also lists the comma-separated meta-data -- values: several words, separated by ','
-  * `/number=`_integer_{:title="an integer"} (default option): Display only that many datasets around 0 -- values: an integer
 
 {::comment} synopsis-end: show-stack {:/}
 {::comment} description-start: show-stack {:/}
@@ -1560,11 +1595,11 @@ for instance (that will only show datasets `-9` to `9`).
 
 ### `undo` - Undo {#cmd-undo}
 
-`undo` `/number=`_integer_{:title="an integer"}
+`undo` (`/number=`)_integer_{:title="an integer"}
 
 Other name: `u`
 
-  * `/number=`_integer_{:title="an integer"} (default option): Number of operations to undo -- values: an integer
+  * (`/number=`)_integer_{:title="an integer"} [(default option)](#default-option): Number of operations to undo -- values: an integer
 
 {::comment} synopsis-end: undo {:/}
 {::comment} description-start: undo {:/}
@@ -1577,11 +1612,11 @@ stack. If `/number=` is specified, repeats that many times.
 
 ### `redo` - Redo {#cmd-redo}
 
-`redo` `/number=`_integer_{:title="an integer"}
+`redo` (`/number=`)_integer_{:title="an integer"}
 
 Other name: `r`
 
-  * `/number=`_integer_{:title="an integer"} (default option): Number of operations to redo -- values: an integer
+  * (`/number=`)_integer_{:title="an integer"} [(default option)](#default-option): Number of operations to redo -- values: an integer
 
 {::comment} synopsis-end: redo {:/}
 {::comment} description-start: redo {:/}
@@ -1678,9 +1713,9 @@ when you want to work again on a old dataset buried in the stack.
 
 ### `drop` - Drop dataset {#cmd-drop}
 
-`drop` `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}
+`drop` (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}
 
-  * `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} (default option): Datasets to drop -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): Datasets to drop -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
 
 {::comment} synopsis-end: drop {:/}
 {::comment} description-start: drop {:/}
@@ -1700,9 +1735,9 @@ dropped from the stack. [cmd: undo] won't work.
 
 ### `flag` - Flag datasets {#cmd-flag}
 
-`flag` `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/exclusive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/set=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`flag` (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/exclusive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/set=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
-  * `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} (default option): Buffers to flag/unflag -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): Buffers to flag/unflag -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
   * `/exclusive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, clears the given flags on all the datasets but the ones specified -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set/unset -- values: several words, separated by ','
   * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code -- values: a piece of [Ruby code](#ruby)
@@ -1739,9 +1774,9 @@ explictly with the command are cleared.
 
 ### `unflag` - Unflag datasets {#cmd-unflag}
 
-`unflag` `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}
+`unflag` (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}
 
-  * `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} (default option): Buffers to flag/unflag -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): Buffers to flag/unflag -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set/unset -- values: several words, separated by ','
   * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code -- values: a piece of [Ruby code](#ruby)
 
@@ -1757,9 +1792,9 @@ way as for [cmd: flag].
 
 ### `auto-flag` - Auto flag {#cmd-auto-flag}
 
-`auto-flag` `/flags=`_words_{:title="several words, separated by ','"}
+`auto-flag` (`/flags=`)_words_{:title="several words, separated by ','"}
 
-  * `/flags=`_words_{:title="several words, separated by ','"} (default option): Flags -- values: several words, separated by ','
+  * (`/flags=`)_words_{:title="several words, separated by ','"} [(default option)](#default-option): Flags -- values: several words, separated by ','
 
 {::comment} synopsis-end: auto-flag {:/}
 {::comment} description-start: auto-flag {:/}
@@ -1787,12 +1822,12 @@ instance.
 
 ### `apply-formula` - Apply formula {#cmd-apply-formula}
 
-`apply-formula` _formula_{:title="a piece of [Ruby code](#ruby)"} `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/extra-columns=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/keep-on-error=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/mode=`_choice_{:title="one of: `add-column`, `xyy2`, `xyz`"} `/name=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-names=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`apply-formula` _formula_{:title="a piece of [Ruby code](#ruby)"} (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/extra-columns=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/keep-on-error=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/mode=`_choice_{:title="one of: `add-column`, `xyy2`, `xyz`"} `/name=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-names=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
 Other name: `F`
 
   * _formula_{:title="a piece of [Ruby code](#ruby)"}: formula -- values: a piece of [Ruby code](#ruby)
-  * `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} (default option): Datasets to work on -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): Datasets to work on -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
   * `/extra-columns=`_integer_{:title="an integer"}: number of extra columns to create -- values: an integer
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
   * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code -- values: a piece of [Ruby code](#ruby)
@@ -2015,9 +2050,9 @@ Shift X values so that the first point has a X value of 0.
 
 ### `norm` - Normalize {#cmd-norm}
 
-`norm` `/map-to=`_numbers_{:title="several floating-point numbers, separated by :"} `/positive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`norm` (`/map-to=`)_numbers_{:title="several floating-point numbers, separated by :"} `/positive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
-  * `/map-to=`_numbers_{:title="several floating-point numbers, separated by :"} (default option): Normalizes by mapping to the given segment -- values: several floating-point numbers, separated by :
+  * (`/map-to=`)_numbers_{:title="several floating-point numbers, separated by :"} [(default option)](#default-option): Normalizes by mapping to the given segment -- values: several floating-point numbers, separated by :
   * `/positive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to normalize on positive or negative values (default true) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: norm {:/}
@@ -2099,10 +2134,10 @@ data, this will impact commands that work with indices, such as
 
 ### `strip-if` - Strip points {#cmd-strip-if}
 
-`strip-if` _formula_{:title="a piece of [Ruby code](#ruby)"} `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/threshold=`_integer_{:title="an integer"} `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`strip-if` _formula_{:title="a piece of [Ruby code](#ruby)"} (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/threshold=`_integer_{:title="an integer"} `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _formula_{:title="a piece of [Ruby code](#ruby)"}: Ruby boolean expression -- values: a piece of [Ruby code](#ruby)
-  * `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} (default option): Datasets to work on -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): Datasets to work on -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
   * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code -- values: a piece of [Ruby code](#ruby)
   * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -2226,10 +2261,10 @@ The same warnings apply as for [cmd: diff].
 
 ### `dataset-options` - Options {#cmd-dataset-options}
 
-`dataset-options` `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}
+`dataset-options` `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
 
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset
+  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
 
 {::comment} synopsis-end: dataset-options {:/}
 {::comment} description-start: dataset-options {:/}
@@ -2265,10 +2300,10 @@ fitting, by setting much larger errors for the bits than for the rest.
 
 ### `set-row-names` - Set row names {#cmd-set-row-names}
 
-`set-row-names` `/clear=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/names=`_words_{:title="several words, separated by ''"}
+`set-row-names` (`/names=`)_words_{:title="several words, separated by ''"} `/clear=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
+  * (`/names=`)_words_{:title="several words, separated by ''"} [(default option)](#default-option): Names of the columns -- values: several words, separated by ''
   * `/clear=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Removes all the names -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/names=`_words_{:title="several words, separated by ''"} (default option): Names of the columns -- values: several words, separated by ''
 
 {::comment} synopsis-end: set-row-names {:/}
 {::comment} description-start: set-row-names {:/}
@@ -2286,11 +2321,11 @@ starting from the end, or to all between the second and the sixth row
 
 ### `set-column-names` - Set column names {#cmd-set-column-names}
 
-`set-column-names` `/clear=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_columns_{:title="a comma-separated list of [columns names](#column-names)"} `/names=`_words_{:title="several words, separated by ''"} `/sanitize-names=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`set-column-names` (`/names=`)_words_{:title="several words, separated by ''"} `/clear=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_columns_{:title="a comma-separated list of [columns names](#column-names)"} `/sanitize-names=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
+  * (`/names=`)_words_{:title="several words, separated by ''"} [(default option)](#default-option): Names of the columns -- values: several words, separated by ''
   * `/clear=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Removes all the names -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/columns=`_columns_{:title="a comma-separated list of [columns names](#column-names)"}: Sets the names of these columns only -- values: a comma-separated list of [columns names](#column-names)
-  * `/names=`_words_{:title="several words, separated by ''"} (default option): Names of the columns -- values: several words, separated by ''
   * `/sanitize-names=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Adapts the names so that they can be used with apply-formula /use-names=true -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: set-column-names {:/}
@@ -2519,7 +2554,12 @@ Some of the meta-data has special meaning for `QSoas`, which uses them
 for specific functions:
 
   * `sr` is taken to be the *scan rate* of a voltammogram. This
-    information is used by [cmd: baseline]  and [cmd: fit-adsorbed].
+  information is used by [cmd: baseline]  and [cmd: fit-adsorbed].
+
+
+Meta-data can be of several types, like text or number, but also
+**lists**. See for instance the `/type=number-list` option of
+[cmd: set-meta]. 
 
 ## Selecting datasets and files based on meta-data {#for-which}
 
@@ -2545,6 +2585,25 @@ QSoas> flag all /for-which $meta.sr==0.1
 Replacing the `==` by `=` in the code above leads to selecting **all**
 the datasets, because `$meta.sr=0.1` is always `true` (see more about
 the ruby expressions [there](#ruby)).
+
+## Meta-data expansion/contraction {#meta-data-expansion}
+
+Some commands like [cmd: contract] gather several datasets into a
+single one, or on the contrary, like [cmd: expand] create many
+datasets from a single one.
+
+By default, the meta-data are either all copied from the source (when
+creating several datasets), or taken from one of the datasets (when
+making one from several). However, in some cases, you may want to
+contract all the values of a meta-data from several datasets into a
+single meta-data containing a *list* of the original meta-data, or,
+conversely, expanding the list by taking one value for each of the
+dataset produced.
+
+This can be achieved using the relevant `/expand-meta` or
+`/contract-meta` option which takes a list of the names of the
+meta-data you want to expand/contract.
+
 
 
 {::comment} synopsis-start: show {:/}
@@ -8021,6 +8080,111 @@ evaluation programs (it is quite close to the one from
  * Logical OR is done with the `||` operator and logical AND with the
    `&&` operator. The single-letter versions, `|` and `&` are
    **binary** operators and will not work as you intend.
+
+For instance:
+
+~~~
+QSoas> eval 2+2
+ => 4
+QSoas> eval 2**8
+ => 256
+QSoas> eval sin(0.5*PI)
+ => 1
+QSoas> eval sin(0.25*PI)
+ => 0.70710678118655
+~~~
+
+The last examples take advantage of the definition of the constant
+`PI`.
+
+## Define global variables {#global-variables}
+
+Using Ruby, it is possible to define local and global variables. Local
+variables have to start with a lowercase and they can just be defined
+by using an `=` sign. For instance:
+
+~~~
+QSoas> eval x=2;x**8
+ => 256
+~~~
+
+In this example, a variable called `x` is defined to be equal to 2;
+it's 8th power is computed afterwards. The `;` separates two
+instructions.
+
+The value of `x` is lost as soon as the command is finished:
+
+~~~
+QSoas> eval x
+Error: A ruby exception occurred: (eval):1: undefined method 'x'
+(NoMethodError)
+~~~
+
+To create persistent storage, you can use a global variable, which
+looks like a local one excepted that its name must be preceded by a
+`$` sign:
+
+
+~~~
+QSoas> eval $x=2
+ => 2
+QSoas> eval $x**8
+ => 256
+~~~
+
+In this case, the value of `$x` is not lost between the various calls
+to `eval`. It is in fact persistent over the whole duration of the
+QSoas session (but is forgotten once you close the program), and it
+can be used in other expressions as well (the other commands using
+Ruby code, see [below](#ruby-using-commands).
+
+## Boolean expressions {#boolean-expression}
+
+In Ruby, it is also possible to perform the usual tests:
+
+~~~
+QSoas> eval $x=2
+ => 2
+QSoas> eval $x>3
+ => false
+~~~
+
+The normal comparisons are available: `<`, `>`, `<=`, `>=`. To test
+for equality, use `==`. If you need to chain several tests, use the
+following operators:
+
+ * logical or: `||`, which will be true if either condition is true;
+ * logical and: `&&`, which will be true only if both conditions are
+ true.
+
+For instance:
+
+~~~
+QSoas> eval ($x>5)||($x<3)
+ => true
+QSoas> eval ($x>5)&&($x<3)
+ => false
+~~~
+
+## Using ruby code {#ruby-using-commands}
+
+Ruby code can be used in several contexts:
+
+ * in [cmd: eval], one can make "general computations", which can
+   refer to "global properties" of the current dataset, like its
+   [meta data](#meta-data) or [statistics](#cmd-stats) (or of other
+   datasets too);
+ * in the `/for-which` options that take a boolean expression to
+   select datasets from a list, using their "global properties";
+ * in [cmd: apply-formula], the formula is applied to each row of a
+   dataset, possibly modifying the values;
+ * in [cmd: strip-if] the formula is also applied to each row of a
+   dataset, but this time to evaluate if a row is kept (`false`) or
+   removed (`true`);
+ * in the [fit: arb] fits to specify the function (of the variable `x`)
+   to fit;
+ * in many other places too.
+
 
 ## Special variables {#special-variables}
 

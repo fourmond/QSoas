@@ -554,46 +554,52 @@ static void filmLossCommand(CurveEventLoop &loop, const QString &)
   auto updateDecay =
     [&regressionMode, &rateConstants, &needUpdate,
      &currentSegment, &r, &line, &rm, &lm, xleft, xright, ds] {
-      if(regressionMode) {
-        QPair<double, double> reg = ds->reglin(r.xmin(), r.xmax());
-        double y = reg.first * r.xleft + reg.second;
-        line.p1 = QPointF(r.xleft, y);
-        y = reg.first * r.xright + reg.second;
-        line.p2 = QPointF(r.xright, y);
-      }
-      else {
-        line.p1 = lm.p;
-        line.p2 = rm.p;
-      }
-      double a = (line.p2.y() - line.p1.y())/
-        (line.p2.x() - line.p1.x());
-      double b = line.p1.y() - line.p1.x()*a;
-      double decay = -a/(b + a*line.p1.x());
-      rateConstants[currentSegment] = decay;
-      Terminal::out << "xleft = " << r.xleft << "\t" 
-                    << "xright = " << r.xright << "\t" 
-                    << "x1 = " << line.p1.x() << "\t" 
-                    << "x2 = " << line.p2.x() << "\t" 
-                    << a << "\t" << b 
-                    << "\t" << decay << endl;
-
-      double y = a * xleft + b;
-      line.p1 = QPointF(xleft, y);
-      y = a * xright + b;
-      line.p2 = QPointF(xright, y);
-
-      // Now, update
-      if(regressionMode)
-        soas().showMessage(QString("Regression between X=%1 and X=%2 "
-                                   "(segment #%3)").
-                           arg(r.xleft).arg(r.xright).
-                           arg(currentSegment + 1));
+    double decay;
+    if(regressionMode) {
+      QPair<double, double> reg = ds->reglin(r.xmin(), r.xmax());
+      double y = reg.first * r.xleft + reg.second;
+      line.p1 = QPointF(r.xleft, y);
+      y = reg.first * r.xright + reg.second;
+      line.p2 = QPointF(r.xright, y);
+      decay = -reg.first/(reg.second + reg.first*line.p1.x());
+    }
+    else {
+      line.p1 = lm.p;
+      line.p2 = rm.p;
+      if(line.p1.y() * line.p2.y() > 0)
+        decay = log(line.p1.y()/line.p2.y())/
+          (line.p2.x() - line.p1.x());
       else
-        soas().showMessage(QString("Drawing line between the points "
-                                   "(segment #%3)").
-                           arg(currentSegment + 1));
-      needUpdate = true;
-    };
+        decay = 0;
+    }
+    double a = (line.p2.y() - line.p1.y())/
+    (line.p2.x() - line.p1.x());
+    double b = line.p1.y() - line.p1.x()*a;
+    rateConstants[currentSegment] = decay;
+    Terminal::out << "xleft = " << r.xleft << "\t" 
+    << "xright = " << r.xright << "\t" 
+    << "x1 = " << line.p1.x() << "\t" 
+    << "x2 = " << line.p2.x() << "\t" 
+    << a << "\t" << b 
+    << "\t" << decay << endl;
+
+    double y = a * xleft + b;
+    line.p1 = QPointF(xleft, y);
+    y = a * xright + b;
+    line.p2 = QPointF(xright, y);
+
+    // Now, update
+    if(regressionMode)
+      soas().showMessage(QString("Regression between X=%1 and X=%2 "
+                                 "(segment #%3)").
+                         arg(r.xleft).arg(r.xright).
+                         arg(currentSegment + 1));
+    else
+      soas().showMessage(QString("Drawing line between the points "
+                                 "(segment #%3)").
+                         arg(currentSegment + 1));
+    needUpdate = true;
+  };
 
   while(! loop.finished()) {
     int action = filmLossHandler.nextAction(loop);

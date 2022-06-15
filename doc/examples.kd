@@ -179,6 +179,25 @@ In this command, `0` is the current dataset, that is the 1000-points
 one. Then, you get your smooth curve, and you can save it using
 [cmd: save] if you want.
 
+## Taking advantage of Ruby {#ruby}
+
+### Saving a value for reusing later {#ruby-reuse-value}
+
+Lets say we want to generate a sinus cardinal whose magnitude is the
+same as the maximum value of a given dataset. Of course, it is
+possible to use [cmd: stats] to figure out what is the maximum, and
+then reuse it when using [cmd: generate-dataset]. However, this is not
+so comfortable, and it will not allow its use in scripts.
+
+Rather, the best way is to use [cmd: eval] to set a global variable
+(let's say `$max`) to the value of the maximum, and then reuse this
+value in [cmd: generate-dataset]:
+
+~~~
+QSoas> eval $max=$stats.y_max
+QSoas> generate-dataset -10 10 $max*sin(x)/x
+~~~
+
 
 
 

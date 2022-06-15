@@ -8081,6 +8081,111 @@ evaluation programs (it is quite close to the one from
    `&&` operator. The single-letter versions, `|` and `&` are
    **binary** operators and will not work as you intend.
 
+For instance:
+
+~~~
+QSoas> eval 2+2
+ => 4
+QSoas> eval 2**8
+ => 256
+QSoas> eval sin(0.5*PI)
+ => 1
+QSoas> eval sin(0.25*PI)
+ => 0.70710678118655
+~~~
+
+The last examples take advantage of the definition of the constant
+`PI`.
+
+## Define global variables {#global-variables}
+
+Using Ruby, it is possible to define local and global variables. Local
+variables have to start with a lowercase and they can just be defined
+by using an `=` sign. For instance:
+
+~~~
+QSoas> eval x=2;x**8
+ => 256
+~~~
+
+In this example, a variable called `x` is defined to be equal to 2;
+it's 8th power is computed afterwards. The `;` separates two
+instructions.
+
+The value of `x` is lost as soon as the command is finished:
+
+~~~
+QSoas> eval x
+Error: A ruby exception occurred: (eval):1: undefined method 'x'
+(NoMethodError)
+~~~
+
+To create persistent storage, you can use a global variable, which
+looks like a local one excepted that its name must be preceded by a
+`$` sign:
+
+
+~~~
+QSoas> eval $x=2
+ => 2
+QSoas> eval $x**8
+ => 256
+~~~
+
+In this case, the value of `$x` is not lost between the various calls
+to `eval`. It is in fact persistent over the whole duration of the
+QSoas session (but is forgotten once you close the program), and it
+can be used in other expressions as well (the other commands using
+Ruby code, see [below](#ruby-using-commands).
+
+## Boolean expressions {#boolean-expression}
+
+In Ruby, it is also possible to perform the usual tests:
+
+~~~
+QSoas> eval $x=2
+ => 2
+QSoas> eval $x>3
+ => false
+~~~
+
+The normal comparisons are available: `<`, `>`, `<=`, `>=`. To test
+for equality, use `==`. If you need to chain several tests, use the
+following operators:
+
+ * logical or: `||`, which will be true if either condition is true;
+ * logical and: `&&`, which will be true only if both conditions are
+ true.
+
+For instance:
+
+~~~
+QSoas> eval ($x>5)||($x<3)
+ => true
+QSoas> eval ($x>5)&&($x<3)
+ => false
+~~~
+
+## Using ruby code {#ruby-using-commands}
+
+Ruby code can be used in several contexts:
+
+ * in [cmd: eval], one can make "general computations", which can
+   refer to "global properties" of the current dataset, like its
+   [meta data](#meta-data) or [statistics](#cmd-stats) (or of other
+   datasets too);
+ * in the `/for-which` options that take a boolean expression to
+   select datasets from a list, using their "global properties";
+ * in [cmd: apply-formula], the formula is applied to each row of a
+   dataset, possibly modifying the values;
+ * in [cmd: strip-if] the formula is also applied to each row of a
+   dataset, but this time to evaluate if a row is kept (`false`) or
+   removed (`true`);
+ * in the [fit: arb] fits to specify the function (of the variable `x`)
+   to fit;
+ * in many other places too.
+
+
 ## Special variables {#special-variables}
 
 Most ruby expressions can make use of dataset information, such as

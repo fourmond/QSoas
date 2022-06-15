@@ -68,8 +68,9 @@ void Terminal::flushToTerminal()
       totalLines += buffer.count('\n');
 
       // Remove lines at the beginning
-      if(totalLines > ::maxLines) {
-        int nbdel = totalLines - (::maxLines + deletedLines);
+      int nbdel = totalLines - (::maxLines + deletedLines);
+      if(nbdel > 200) {         // Only remove them when there is a
+                                // lot of them.
         deleteCursor->movePosition(QTextCursor::Start);
         deleteCursor->movePosition(QTextCursor::Down,
                                    QTextCursor::KeepAnchor,

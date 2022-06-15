@@ -2105,12 +2105,32 @@ modification, press the "push new" button.
 
 ### `sort` - Sort {#cmd-sort}
 
-`sort` 
+`sort` (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/column=`_column_{:title="the [number/name of a column](#column-names) in a dataset"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/reverse=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
+  * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): Datasets to sort -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * `/column=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}:  -- values: the [number/name of a column](#column-names) in a dataset
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code -- values: a piece of [Ruby code](#ruby)
+  * `/reverse=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}:  -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created datasets -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
 
 {::comment} synopsis-end: sort {:/}
 {::comment} description-start: sort {:/}
-Sorts the dataset in increasing X values.
+Sorts the dataset in increasing X values. It can work on several
+datasets specified by the `/buffers=` option, and in that case
+produces several datasets. The behaviour is controlled by the various
+options, see [there](#several-datasets) for more information.
+
+In addition, it is possible to control the behaviour of `sort` using
+the following options:
+
+ * `/column` specified a column on which the sorting should be done
+   (defaults to the X column);
+ * if `/reversed` is true, then the dataset will be sorting in
+   descending order.
+ 
 {::comment} description-end: sort {:/}
 
 {::comment} synopsis-start: reverse {:/}
@@ -2377,10 +2397,11 @@ can switch back to display Y values as a function of X by hitting `x`.
 
 ### `chop` - Chop dataset {#cmd-chop}
 
-`chop` _lengths..._{:title="several floating-point numbers, separated by ,"} `/flags=`_words_{:title="several words, separated by ','"} `/mode=`_choice_{:title="one of: `deltax`, `index`, `indices`, `xvalues`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/set-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+`chop` (`/lengths=`)_numbers_{:title="several floating-point numbers, separated by ,"} `/flags=`_words_{:title="several words, separated by ','"} `/from-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/mode=`_choice_{:title="one of: `deltax`, `index`, `indices`, `xvalues`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/set-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
-  * _lengths..._{:title="several floating-point numbers, separated by ,"}: Lengths of the subsets -- values: several floating-point numbers, separated by ,
+  * (`/lengths=`)_numbers_{:title="several floating-point numbers, separated by ,"} [(default option)](#default-option): Lengths of the subsets -- values: several floating-point numbers, separated by ,
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/from-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}:  -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/mode=`_choice_{:title="one of: `deltax`, `index`, `indices`, `xvalues`"}: Whether to cut on index or x values (default) -- values: one of: `deltax`, `index`, `indices`, `xvalues`
   * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created datasets -- values: one or more meta=value assignements
@@ -2402,6 +2423,10 @@ datasets. The intepretation of the numbers depends on the value of the
 
 If `/set-segments` is on, the X values are not used to create independent
 datasets but rather to set the position of the [segments](#segments).
+
+If the option `/from-meta` is used, it designates a meta-data
+containing a list of values. In that case, the values given on the
+command-line are ignored, and the values contained in the meta are used.
 
 {::comment} description-end: chop {:/}
 
@@ -2493,12 +2518,13 @@ position of the segments to reconstruct the original data.
 
 ### `cat` - Concatenate {#cmd-cat}
 
-`cat` _buffers..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/add-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`cat` _buffers..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/add-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/contract-meta=`_words_{:title="several words, separated by ''"}
 
 Other name: `i`
 
   * _buffers..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: Datasets to concatenate -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
   * `/add-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on (default) segments are added between the old datasets -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/contract-meta=`_words_{:title="several words, separated by ''"}: Contracts all the named meta data meta-data lists -- values: several words, separated by ''
 
 {::comment} synopsis-end: cat {:/}
 {::comment} description-start: cat {:/}
@@ -2509,6 +2535,12 @@ reverse the effect of the previous commands.
 This does not change the number of columns. If you want to gather
 several Y columns as a function of the same X, use 
 [cmd: contract] instead.
+
+If the option `/contract-meta` is used, then the meta-data whose names
+are given to that option will be gathered from all the original
+datasets and transformed into a meta-data list. See
+[there](#meta-data-expansion) for more information.
+
 {::comment} description-end: cat {:/}
 
 ## Dataset's meta-data and perpendicular coordinates {#meta-data}

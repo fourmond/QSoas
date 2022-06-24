@@ -123,7 +123,7 @@ macx:QMAKE_CXXFLAGS += -stdlib=libc++
 
 
 
-QMAKE_CFLAGS += -O3
+QMAKE_CFLAGS += -O2
 
 # Generate doxygen documentation
 doc.commands = doxygen 

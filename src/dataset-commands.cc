@@ -2257,7 +2257,7 @@ rMO(QList<Argument *>()
                                 "exclude files")
     << new BoolArgument("remove", 
                         "Remove",
-                        "remove the meta rather than renaming it")
+                        "remove the meta rather than adding it")
     
     );
 

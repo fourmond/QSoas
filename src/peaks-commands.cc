@@ -185,7 +185,7 @@ fpBaseOps(QList<Argument *>()
                               "whether or not to include borders")
           << new FileSaveArgument("save-parameters",
                                   "Parameter file",
-                                  "a file to which to save the fit parameters")
+                                  "a file in which to save the peak parameters as fit parameters")
           << new ChoiceArgument(QStringList() 
                                 << "min" << "max" << "both",
                                 "which",

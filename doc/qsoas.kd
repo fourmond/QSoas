@@ -3840,17 +3840,22 @@ to fits. They all take a parameters file and a series of
 datasets. What they do depend on the value of the `/operation=`
 option.
 
- * with `/operation=compute`, the default, the command computes the
+ * With `/operation=compute`, the default, the command computes the
    $$y = f(x)$$ values predicted from the fit, as if one had used the
    `mfit-` command, loaded the parameters file, and used "Push to
-   stack";
- * with `/operation=reexport`, the command does the same as loading
-   the parameters and then "Export to output file with errors";
+   stack".
+ * With `/operation=reexport`, the command does the same as loading
+   the parameters and then "Export to output file with errors".
  * `/operation=subfunctions` is like `compute`, but the fit
-   subfunctions are also computed;
+   subfunctions are also computed, they are added as additional Y
+   columns.
+ * `/operation=residuals` is like `compute`, but the residuals are
+   computed, that is the difference between the original data and the
+   function. In addition, the global variable `$residuals` is set to
+   the sum of the square of the difference.
  * with `/operation=annotate`, the original data is left untouched,
    but [meta-data](#meta-data) corresponding to the fit parameters are
-   added;
+   added (new datasets are created with the new meta-data).
  * with `/operation=push`, the parameters are pushed as a single
    dataset on the stack.
 
@@ -8169,6 +8174,9 @@ to `eval`. It is in fact persistent over the whole duration of the
 QSoas session (but is forgotten once you close the program), and it
 can be used in other expressions as well (the other commands using
 Ruby code, see [below](#ruby-using-commands).
+
+Some commands also produce global variables in Ruby that you can use
+later using [cmd: eval], for instance.
 
 ## Boolean expressions {#boolean-expression}
 

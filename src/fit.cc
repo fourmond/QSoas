@@ -735,6 +735,7 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
   }
   else if(what == "residuals") {
     ws.computeResiduals(true);
+    ws.pushComputedData(true, false, &pusher);
     Terminal::out << "Computed residuals: " << ws.overallPointResiduals
                   << endl;
   }

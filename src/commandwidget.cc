@@ -152,10 +152,13 @@ QTextEdit * CommandWidget::createTerminalDisplay()
   QSize sz = mt.size(0, "-0001.771771771e+22");
   term->setTabStopWidth(sz.width());
 
-  // Get the same document as the main one.
-  if(terminalDisplay)
+  term->setLineWrapMode(QTextEdit::NoWrap);
+
+  // Extra setup in the case of a secondary display
+  if(terminalDisplay) {
     term->setDocument(terminalDisplay->document());
-  
+  }
+
   return term;
 }
 

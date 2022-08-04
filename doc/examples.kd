@@ -143,7 +143,41 @@ QSoas> split-monotonic
 In the last case, several datasets are generated, one for each
 scan. Use [cmd: fetch] or [cmd: undo] to get a specific one.
 
-It is also possible to use [cmd: cut] for selecting the scan one wants also.
+It is also possible to use [cmd: cut] for selecting the scan one wants
+also.
+
+### Interpolating data points
+
+The [cmd: interpolate] command works with the points saved from
+[cmd: baseline] to a dataset, using the `p` key. But it can also take
+values from any dataset in fact, which can be used as a
+general-purpose interpolation method. For instance, if you have a
+dataset with a small number of points ranging from 2 to 5, to generate
+a linear interpolation, you can use:
+
+~~~
+QSoas> generate-dataset 2 5
+QSoas> interpolate /type=linear 0 1
+~~~
+
+`0` is the generated dataset, serving as a model for the X values, and
+`1` is the dataset you want to create an interpolation for. You can
+also play with the interpolation type, `akima` and `splines` being
+probably the best choices.
+
+If you don't know in advance the boundaries of the dataset, you can
+take advantage of [cmd: eval] to store the min and max X values as
+[global variables](qsoas.html#global-variables), `$min` and `$max` for
+instance, and use their values:
+
+~~~
+QSoas> eval $min=$stats.x_min;$max=$stats.x_max;
+QSoas> generate-dataset %{$min} %{$max}
+QSoas> interpolate /type=linear 0 1
+~~~
+
+The `%{ ... }` is executed as a piece of [Ruby code](qsoas.html#ruby);
+the resulting value is used as replacement text when running the command.
 
 
 ## Fits

@@ -325,6 +325,14 @@ bool CommandWidget::runCommand(const QStringList & raw, bool doFullPrompt)
     PossessiveList<ArgumentMarshaller> arguments(a);
     PossessiveHash<QString, ArgumentMarshaller> options(b);
 
+    if(soas().isHeadless() && command->isInteractive()) {
+      // Disallow running interactive commands, unless they are fit
+      // commands
+
+      if(! (name.startsWith("fit") || name.startsWith("mfit")))
+        throw HeadlessError("Cannot run interactive command '%1' in headless mode").arg(name);
+
+    }
     command->runCommand(name, arguments, options);
   }
   catch(const RuntimeError & error) {

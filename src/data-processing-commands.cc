@@ -89,8 +89,8 @@ namespace __reg {
     alsoKey('E').
     addKey('x', ShowExponential, "show exponential").
     addKey('p', Peak, "detect peak").
-    addPointPicker(true).
     alsoKey('P').
+    addPointPicker(true).
     addKey('v', Divide, "divide by trend").
     alsoKey('V');
 

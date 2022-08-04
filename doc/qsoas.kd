@@ -80,12 +80,17 @@ Column names are used in particular to designate columns, either:
 
 Column names are visible in [cmd: edit] and [cmd: show]
 
-**TODO** **Warning** about default vs assigned names.
+<!-- **TODO** **Warning** about default vs assigned names. -->
 
-Row names are only visible in [cmd: edit]. Their use is relatively
-limited, but they become column names upon using [cmd: transpose].
+Row names are only visible in [cmd: edit]. As of now, their use is
+relatively limited, but they become column names upon using
+[cmd: transpose], and you can save them by specifying
+`/row-names=true` to the [cmd: save] command.
 
-QSoas can read the column and row names from a file.
+QSoas can read the column and row names from a file, generally
+seamlessly for column names, but for row names, most of the times, you
+have to let it know which columns contain the row names by using the
+`/text-column` option of [cmd: load].
 
 Learning to handle column names is particularly useful when working
 with exported fit parameters.
@@ -121,6 +126,15 @@ for instance:
 
 ~~~
 QSoas> load file1 file2 file3
+~~~
+
+The order of the arguments must absolutely be respected. On the other
+hand, the options can come at any place in the command line. For
+instance, the two following commands are equivalent:
+
+~~~ 
+QSoas> load file.dat /columns=2,3
+QSoas> load /columns=2,3 file.dat
 ~~~
 
 ### Default option {#default-option}
@@ -213,6 +227,10 @@ It is also possible to make use of dataset flags set by [cmd: flag]:
    _flagname_;
  * and the variants `flagged-:`_flagname_ and `unflagged-:`_flagname_
    for the reversed order.
+
+Finally, it is also possible to specify datasets by their name, using
+the `named:` prefix. For instance, `named:generated.dat` refers to
+all the datasets whose name is `generated.dat`.
 
 **Note** in this documentation, the terms "buffer" and
 "dataset" are synonyms.
@@ -2701,12 +2719,13 @@ effect as running [cmd: record-meta] on the original file.
 
 ### `record-meta` - Set meta-data {#cmd-record-meta}
 
-`record-meta` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _value_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _files..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/exclude=`_files_{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/type=`_choice_{:title="one of: `number`, `number-list`, `text`"}
+`record-meta` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _value_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _files..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/exclude=`_files_{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/remove=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/type=`_choice_{:title="one of: `number`, `number-list`, `text`"}
 
   * _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: name of the meta-data -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * _value_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: value of the meta-data -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * _files..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: files on which to set the meta-data -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/exclude=`_files_{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: exclude files -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
+  * `/remove=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: remove the meta rather than adding it -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/type=`_choice_{:title="one of: `number`, `number-list`, `text`"}: type of the meta-data -- values: one of: `number`, `number-list`, `text`
 
 {::comment} synopsis-end: record-meta {:/}
@@ -2728,6 +2747,17 @@ the data files. They are almost plain text files (more precisely, JSON
 files). The have the names of the original files with a `.qsm` suffix
 appended. If you move data files around, you need to also move these
 files if you want the meta-data to follow.
+
+If you use `/remove=true`, then the meta-data is *removed* instead of
+being added. **Important note:** you still must provide a value, which
+**will not be used**. This way, to remove the meta data added by the
+previous command, you could use:
+
+~~~ 
+QSoas> record-meta /remove=true pH whatever experiment.dat another.dat
+~~~
+
+
 {::comment} description-end: record-meta {:/}
 
 
@@ -2735,9 +2765,9 @@ files if you want the meta-data to follow.
 
 ### `set-perp` - Set perpendicular {#cmd-set-perp}
 
-`set-perp` `/coords=`_numbers_{:title="several floating-point numbers, separated by ,"} `/from-row=`_integer_{:title="an integer"}
+`set-perp` (`/coords=`)_numbers_{:title="several floating-point numbers, separated by ,"} `/from-row=`_integer_{:title="an integer"}
 
-  * `/coords=`_numbers_{:title="several floating-point numbers, separated by ,"} (default option): The values of the coordinates (one for each Y column) -- values: several floating-point numbers, separated by ,
+  * (`/coords=`)_numbers_{:title="several floating-point numbers, separated by ,"} [(default option)](#default-option): The values of the coordinates (one for each Y column) -- values: several floating-point numbers, separated by ,
   * `/from-row=`_integer_{:title="an integer"}: Sets the values from the given row (and delete it) -- values: an integer
 
 {::comment} synopsis-end: set-perp {:/}
@@ -2748,7 +2778,9 @@ coordinates as there are Y columns.
 
 Another possibility is to specify a row using `/from-row`. In that
 case, the perpendicular coordinates are taken from the values of the
-row (the first element is ignored), and the row is deleted.
+row (the first element, corresponding to the x value, is ignored), and
+the row is deleted. This is useful when the text data contains the
+perpendicular coordinates as a "text header".
 {::comment} description-end: set-perp {:/}
 
 {::comment} synopsis-start: transpose {:/}
@@ -2914,14 +2946,20 @@ If you want to do that non-interactively, look at [cmd: auto-filter-bs].
 
 ### `auto-filter-bs` - Auto B-splines {#cmd-auto-filter-bs}
 
-`auto-filter-bs` `/derivatives=`_integer_{:title="an integer"} `/number=`_integer_{:title="an integer"} `/optimize=`_integer_{:title="an integer"} `/order=`_integer_{:title="an integer"} `/weight-column=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}
+`auto-filter-bs` (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/derivatives=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/number=`_integer_{:title="an integer"} `/optimize=`_integer_{:title="an integer"} `/order=`_integer_{:title="an integer"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/weight-column=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}
 
 Other name: `afbs`
 
+  * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): Datasets to filter -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
   * `/derivatives=`_integer_{:title="an integer"}: computes derivatives up to this number -- values: an integer
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code -- values: a piece of [Ruby code](#ruby)
   * `/number=`_integer_{:title="an integer"}: number of segments -- values: an integer
   * `/optimize=`_integer_{:title="an integer"}: number of iterations to optimize the position of the nodes (defaults to 15, set to 0 or less to disable) -- values: an integer
   * `/order=`_integer_{:title="an integer"}: order of the splines -- values: an integer
+  * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created datasets -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/weight-column=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}: uses the weights in the given column -- values: the [number/name of a column](#column-names) in a dataset
 
 {::comment} synopsis-end: auto-filter-bs {:/}
@@ -2939,12 +2977,18 @@ This is mostly useful in scripts.
 
 ### `auto-filter-fft` - Auto FFT {#cmd-auto-filter-fft}
 
-`auto-filter-fft` `/cutoff=`_integer_{:title="an integer"} `/derive=`_integer_{:title="an integer"} `/transform=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`auto-filter-fft` (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/cutoff=`_integer_{:title="an integer"} `/derive=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/transform=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
 Other name: `afft`
 
+  * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): Datasets to filter -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
   * `/cutoff=`_integer_{:title="an integer"}: value of the cutoff -- values: an integer
   * `/derive=`_integer_{:title="an integer"}: differentiate to the given order -- values: an integer
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code -- values: a piece of [Ruby code](#ruby)
+  * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created datasets -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/transform=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, pushes the transform (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: auto-filter-fft {:/}
@@ -2965,8 +3009,9 @@ freq magnitude real imag
 
 ### `auto-reglin` - Automatic linear regression {#cmd-auto-reglin}
 
-`auto-reglin` `/window=`_integer_{:title="an integer"}
+`auto-reglin` `/filter=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window=`_integer_{:title="an integer"}
 
+  * `/filter=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true (not the default), filter the data instead of computing the slope -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/window=`_integer_{:title="an integer"}: Number of points (after and before) over which to perform regression -- values: an integer
 
 {::comment} synopsis-end: auto-reglin {:/}
@@ -2981,6 +3026,11 @@ derivative.
 The option `/window` specifies the number of points on either side of
 each point used for linear regression (defaults is 7, so the linear
 regression is made over 15 points in total).
+
+With `/filter=true`, the linear regression is used to predict values
+of the points, which acts as a filter of the data, just like
+[cmd: filter-fft] or [cmd: filter-bsplines].
+
 {::comment} description-end: auto-reglin {:/}
 
 {::comment} synopsis-start: remove-spikes {:/}
@@ -3166,6 +3216,8 @@ Computes the auto-correlation function of the data, using FFT.
   * `/boxes=`_integer_{:title="an integer"}:  -- values: an integer
   * `/column=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}:  -- values: the [number/name of a column](#column-names) in a dataset
   * `/log=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}:  -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/max=`_number_{:title="a floating-point number"}: Maximum value of the histogram, overrides the maximum of the values in the data -- values: a floating-point number
+  * `/min=`_number_{:title="a floating-point number"}: Minimum value of the histogram, overrides the minimum of the values in the data -- values: a floating-point number
   * `/norm=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}:  -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/weight=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}:  -- values: the [number/name of a column](#column-names) in a dataset
 
@@ -3180,6 +3232,10 @@ as Y values the number of data points that were in the boxes.
 By default, all original points have a weight of 1. You can specify a
 column number using the `/weight=` option that contains the weight of
 each point.
+
+The range of values used is automatically deduced from the data, but
+you can use the `/min=` and `/max=` options to set it manually.
+
 {::comment} description-end: bin {:/}
 
 
@@ -3237,8 +3293,9 @@ the closest segment.
 
 ### `segments-chop` - Chop into segments {#cmd-segments-chop}
 
-`segments-chop` `/flags=`_words_{:title="several words, separated by ','"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+`segments-chop` `/expand-meta=`_words_{:title="several words, separated by ''"} `/flags=`_words_{:title="several words, separated by ','"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
+  * `/expand-meta=`_words_{:title="several words, separated by ''"}: Expand all the given meta-data, one value per produced dataset -- values: several words, separated by ''
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
   * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created datasets -- values: one or more meta=value assignements
@@ -3251,6 +3308,10 @@ Cuts the dataset into several ones based on the segments defined in the
 current dataset. This way, the effect of a [cmd: chop]
 `/set-segment=true` followed by `segments-chop` is the same as the
 `chop` without `/set-segment=true`.
+
+If the option `/expand-meta` is used, the corresponding meta-data
+lists are split into the individually created datasets, see
+[here](#meta-data-expansion) for more information.
 
 {::comment} description-end: segments-chop {:/}
 {::comment} synopsis-start: film-loss {:/}
@@ -3318,12 +3379,16 @@ details (beginnings and duration of the steps) vary a a little.
 
 ### `subtract` - Subtract {#cmd-subtract}
 
-`subtract` _buffers..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/mode=`_choice_{:title="one of: `extend`, `indices`, `strict`, `xvalues`"} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`subtract` _buffers..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/flags=`_words_{:title="several words, separated by ','"} `/mode=`_choice_{:title="one of: `extend`, `indices`, `strict`, `xvalues`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
 Other name: `S`
 
   * _buffers..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: The datasets of the operation -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
   * `/mode=`_choice_{:title="one of: `extend`, `indices`, `strict`, `xvalues`"}: Whether operations try to match x values or indices -- values: one of: `extend`, `indices`, `strict`, `xvalues`
+  * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created datasets -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, operations are performed segment-by-segment -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: subtract {:/}
@@ -3336,10 +3401,14 @@ Useful for standard baseline removal.
 
 ### `div` - Divide {#cmd-div}
 
-`div` _buffers..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/mode=`_choice_{:title="one of: `extend`, `indices`, `strict`, `xvalues`"} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`div` _buffers..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/flags=`_words_{:title="several words, separated by ','"} `/mode=`_choice_{:title="one of: `extend`, `indices`, `strict`, `xvalues`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _buffers..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: The datasets of the operation -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
   * `/mode=`_choice_{:title="one of: `extend`, `indices`, `strict`, `xvalues`"}: Whether operations try to match x values or indices -- values: one of: `extend`, `indices`, `strict`, `xvalues`
+  * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created datasets -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, operations are performed segment-by-segment -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: div {:/}
@@ -3435,9 +3504,10 @@ each of those before.
 
 ### `contract` - Group datasets on X values {#cmd-contract}
 
-`contract` _buffers..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/mode=`_choice_{:title="one of: `extend`, `indices`, `strict`, `xvalues`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/use-columns=`_columns_{:title="a comma-separated list of [columns names](#column-names)"} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`contract` _buffers..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/contract-meta=`_words_{:title="several words, separated by ''"} `/mode=`_choice_{:title="one of: `extend`, `indices`, `strict`, `xvalues`"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/use-columns=`_columns_{:title="a comma-separated list of [columns names](#column-names)"} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _buffers..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: Datasets to contract -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * `/contract-meta=`_words_{:title="several words, separated by ''"}: Contracts all the named meta data meta-data lists -- values: several words, separated by ''
   * `/mode=`_choice_{:title="one of: `extend`, `indices`, `strict`, `xvalues`"}: Whether operations try to match x values or indices -- values: one of: `extend`, `indices`, `strict`, `xvalues`
   * `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines the perpendicular coordinate from meta-data -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/use-columns=`_columns_{:title="a comma-separated list of [columns names](#column-names)"}: if specified, uses only the given columns for the contraction -- values: a comma-separated list of [columns names](#column-names)
@@ -3455,6 +3525,13 @@ done as for the other commands in this section ([cmd: div] or
 You can specify a column list using `/use-columns` (see
 [above](#column-names) for more information about column lists), in
 which case the other columns from the datasets are ignored.
+
+If you specify one or several names of meta using the `/contract-meta`
+option, their values will be gathered into a list of meta-data
+(instead of keeping the value of the first dataset). See also
+[here](#meta-data-expansion).
+
+
 {::comment} description-end: contract {:/}
 
 # Data inspection facilities
@@ -3525,9 +3602,10 @@ using [cmd: run-for-each] or [cmd: run-for-datasets].
 
 ### `pop` - Pop accumulator {#cmd-pop}
 
-`pop` `/drop=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`pop` `/drop=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/status=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * `/drop=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Drop the accumulator instead of pushing it on the stack -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/status=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Gets the status of the accumulator -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: pop {:/}
 {::comment} description-start: pop {:/}
@@ -3537,6 +3615,9 @@ pushes it to the stack, and clears the "hidden" dataset.
 
 With `/drop=yes`, the "hidden" dataset is just clear, it is not pushed
 onto the stack.
+
+With `/status=yes`, this command just shows the current status of the
+hidden dataset.
 {::comment} description-end: pop {:/}
 
 

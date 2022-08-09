@@ -1021,7 +1021,7 @@ void KineticSystem::parseFile(QIODevice * device, const QString & n,
   QRegExp blankRE("^\\s*(#|$)");
   QRegExp reactionRE("^\\s*(.*)(<=>|->)(\\([^)]+\\))?\\s*(.*)$");
 
-  QRegExp reporterRE("^\\s*y\\s*=\\s*(.*)$");
+  QRegExp reporterRE("^\\s*\\w+\\s*=\\s*(.*)$");
 
   QRegExp doubleBraceRE("\\[\\[(.*)\\]\\]");
   doubleBraceRE.setMinimal(true);
@@ -1031,6 +1031,8 @@ void KineticSystem::parseFile(QIODevice * device, const QString & n,
   int number = 0;
 
   int reaction = 0;
+
+  QString reporter;
 
   while(true) {
     QString line = in.readLine();
@@ -1042,9 +1044,10 @@ void KineticSystem::parseFile(QIODevice * device, const QString & n,
       continue;
 
     if(reporterRE.indexIn(line) == 0) {
-      if(reporterExpression)
-        throw RuntimeError("Trying to set two reporters");
-      reporterExpression = new Expression(reporterRE.cap(1));
+      reporter += line + "\n";
+      // if(reporterExpression)
+      //   throw RuntimeError("Trying to set two reporters");
+      // reporterExpression = new Expression(reporterRE.cap(1));
       continue;
     }
 
@@ -1106,6 +1109,13 @@ void KineticSystem::parseFile(QIODevice * device, const QString & n,
     throw RuntimeError("Could not parse any reaction from file %1").
       arg(Utils::fileName(device));
   fileName = n;
+
+  if(! reporter.isEmpty()) {
+    reporter += "y";
+    // QTextStream o(stdout);
+    // o << "Reporter:\n" << reporter << endl;
+    reporterExpression = new Expression(reporter);
+  }
 }
 
 void KineticSystem::addReaction(QList<QString> species,

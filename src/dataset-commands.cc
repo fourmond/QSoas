@@ -500,6 +500,9 @@ static void expandCommand(const QString &,
   int xvs = 0;
   
   int nb = 0;
+  bool madeup;
+  QStringList dsColNames = ds->mainColumnNames(&madeup);
+
   for(int i = nbx; i < ds->nbColumns(); ) {
     if(xevery > 0 && ((i % xevery) == 0)) {
       xvs = i;
@@ -507,13 +510,16 @@ static void expandCommand(const QString &,
       continue;
     }
     QList<int> cols;
+    QStringList colnames;
     for(int j = 0; j < nbx; j++)
       cols << xvs + j;
-    QStringList colnames;
     for(int k = 0; k < group; ++k, ++i) {
       if(ds->nbColumns() > i) {
         cols << i;
-        colnames << QString("%1").arg(i+1);
+        if(madeup)
+          colnames << QString("%1").arg(i+1);
+        else
+          colnames << dsColNames[i];
       }
     }
     nb += 1;

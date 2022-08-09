@@ -241,14 +241,9 @@ showStack("show-stack", // command name
 static void dropDataSetCommand(const QString &, const CommandOptions & opts)
 {
   DataStack & stack = soas().stack();
-  if(opts.contains("buffers")) {
-    QList<const DataSet *> buffers = 
-      opts["buffers"]->value<QList<const DataSet *> >();
-    for(int i = 0; i < buffers.size(); i++)
-      stack.dropDataSet(buffers[i]);
-  }
-  else {
-    stack.dropDataSet(0);
+  DataSetList buffers(opts);
+  for(const DataSet * ds : buffers) {
+    stack.dropDataSet(ds);
   }
   // Shift the redo stack into the normal stack if the latter is empty
   if(stack.stackSize() == 0 && stack.redoStackSize() > 0) {
@@ -260,9 +255,8 @@ static void dropDataSetCommand(const QString &, const CommandOptions & opts)
 
 static ArgumentList 
 dropOps(QList<Argument *>() 
-        << new SeveralDataSetArgument("buffers", 
-                                      "Datasets",
-                                      "Datasets to drop", true, true));
+        << DataSetList::listOptions("Datasets to permanently remove")
+        );
 
 
 static Command 

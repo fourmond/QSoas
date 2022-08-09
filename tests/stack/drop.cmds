@@ -1,0 +1,30 @@
+clear-stack
+generate-dataset 0 10
+generate-dataset 0 1
+generate-dataset 0 2
+generate-dataset 0 3
+generate-dataset 0 4
+drop
+assert $stats.x_max-3 0
+
+drop 1 2
+u
+assert $stats.x_max-10 0
+
+clear-stack
+
+## INLINE: gen-meta-drop.cmds
+generate-dataset 0 ${1}
+set-meta a ${1}
+a data-${1}.dat
+## INLINE END
+
+run-for-each inline:gen-meta-drop.cmds 1 4 7 8 12
+generate-dataset 0 0.1
+drop all /for-which=$meta.a>3
+assert $stats.x_max-0.1 0
+drop
+assert $stats.x_max-1 0
+
+
+

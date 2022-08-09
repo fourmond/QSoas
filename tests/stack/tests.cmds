@@ -5,3 +5,4 @@
 # Run sort twice, just in case
 @ sort.cmds
 @ order-flags.cmds
+@ drop.cmds

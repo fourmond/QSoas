@@ -38,9 +38,6 @@ class DataSetList {
   /// parameters).
   QList<const DataSet *> pickFrom;
 
-  /// When only picking from the pickFrom list
-  bool isRestricted;
-
   /// The selected indices
   QSet<int> selectedIndices;
   
@@ -86,12 +83,9 @@ public:
 
   /// Returns the static list of options.
   /// The @a txt argument is the help text.
-  /// If @a defaultOptions, then the buffers option becomes the
-  /// default option.
-  /// If @a skipBuffers is used, then the /buffers
   static QList<Argument *> listOptions(const QString & txt,
                                        bool defaultOptions = true,
-                                       bool addBuffers = true);
+                                       bool skipBuffers = false);
 };
 
 

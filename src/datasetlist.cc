@@ -37,8 +37,8 @@ void DataSetList::parseOptions(const CommandOptions & opts, bool all)
   if(opts.contains("buffers"))
     updateFromOptions(opts, "buffers", datasets);
   else {
-    if(all) 
-      datasets = (isRestricted ? pickFrom : s.allDataSets());
+    if(all)
+      datasets = s.allDataSets();
     else
       datasets << s.currentDataSet();
   }
@@ -67,21 +67,26 @@ void DataSetList::parseOptions(const CommandOptions & opts, bool all)
 
 DataSetList::DataSetList(const CommandOptions & opts,
                          const QList<const DataSet *> & pF) :
-  pickFrom(pF), isRestricted(true)
+  pickFrom(pF)
 {
   // By default look in all the stack
   parseOptions(opts, true);
   QHash<const DataSet *, int> indices;
   for(int i = 0; i < pickFrom.size(); i++)
     indices[pickFrom[i]] = i;
-  for(const DataSet * ds : datasets) {
+  QList<const DataSet *> nl = datasets;
+  datasets.clear();
+  for(const DataSet * ds : nl) {
     if(indices.contains(ds))
       selectedIndices.insert(indices[ds]);
   }
+  for(int i = 0; i < pickFrom.size(); i++) {
+    if(selectedIndices.contains(i))
+      datasets << pickFrom[i];
+  }
 }
 
-DataSetList::DataSetList(const CommandOptions & opts, bool all) :
-  isRestricted(false)
+DataSetList::DataSetList(const CommandOptions & opts, bool all) 
 {
   parseOptions(opts, all);
 }
@@ -123,16 +128,17 @@ QList<const DataSet *>::const_iterator DataSetList::end() const
   return datasets.end();
 }
 
-QList<Argument *> DataSetList::listOptions(const QString & txt, bool def, bool addBuffers)
+QList<Argument *> DataSetList::listOptions(const QString & txt, bool def,
+                                           bool skip)
 {
   QList<Argument *> args;
-  if(addBuffers)
+  if(! skip)
     args << new SeveralDataSetArgument("buffers", 
                                        "Buffers",
                                        txt.toLocal8Bit(), true, def);
   args << new CodeArgument("for-which", 
                            "For which",
-                           "Only act on datasets matching the code (see [there](#for-which)).");
+                           "Only act on datasets matching the code");
   return args;
 }
 

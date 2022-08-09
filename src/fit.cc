@@ -403,7 +403,7 @@ void Fit::makeCommands(const ArgumentList &args,
                                   "a comma-separated list of parameters "
                                   "to override")
           << DataStackHelper::helperOptions()
-          << DataSetList::listOptions("datasets on which to base the computations", true, false)
+          << DataSetList::listOptions("datasets on which to base the computations", true, true)
           << new ChoiceArgument(QStringList() 
                                 << "annotate"
                                 << "compute"

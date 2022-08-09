@@ -42,6 +42,7 @@
 #include <debug.hh>
 
 #include <datastackhelper.hh>
+#include <datasetlist.hh>
 
 static Group fits("fits", 0,
                   "Fits",
@@ -402,6 +403,7 @@ void Fit::makeCommands(const ArgumentList &args,
                                   "a comma-separated list of parameters "
                                   "to override")
           << DataStackHelper::helperOptions()
+          << DataSetList::listOptions("datasets on which to base the computations", true, false)
           << new ChoiceArgument(QStringList() 
                                 << "annotate"
                                 << "compute"
@@ -634,10 +636,14 @@ void Fit::computeFit(const QString &n, QString file,
 
 void Fit::computeFit(std::function<void (FitData *)> hook,
                      const QString &, QString file,
-                     QList<const DataSet *> datasets,
+                     QList<const DataSet *> dss,
                      const CommandOptions & opts)
 {
   DataStackHelper pusher(opts);
+  DataSetList list(opts, dss);
+  QList<const DataSet *> datasets = list;
+
+  
   
   if(datasets.size() == 0)
     throw RuntimeError("No datasets for computing");

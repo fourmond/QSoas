@@ -43,6 +43,7 @@
 #include <hook.hh>
 
 #include <datasetlist.hh>
+#include <datastackhelper.hh>
 
 
 #include <file.hh>
@@ -241,14 +242,9 @@ showStack("show-stack", // command name
 static void dropDataSetCommand(const QString &, const CommandOptions & opts)
 {
   DataStack & stack = soas().stack();
-  if(opts.contains("buffers")) {
-    QList<const DataSet *> buffers = 
-      opts["buffers"]->value<QList<const DataSet *> >();
-    for(int i = 0; i < buffers.size(); i++)
-      stack.dropDataSet(buffers[i]);
-  }
-  else {
-    stack.dropDataSet(0);
+  DataSetList buffers(opts);
+  for(const DataSet * ds : buffers) {
+    stack.dropDataSet(ds);
   }
   // Shift the redo stack into the normal stack if the latter is empty
   if(stack.stackSize() == 0 && stack.redoStackSize() > 0) {
@@ -260,9 +256,8 @@ static void dropDataSetCommand(const QString &, const CommandOptions & opts)
 
 static ArgumentList 
 dropOps(QList<Argument *>() 
-        << new SeveralDataSetArgument("buffers", 
-                                      "Datasets",
-                                      "Datasets to drop", true, true));
+        << DataSetList::listOptions("Datasets to permanently remove")
+        );
 
 
 static Command 
@@ -654,11 +649,13 @@ browseStack("browse-stack",     // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void fetchCommand(const QString &, QList<const DataSet *> buffers)
+static void fetchCommand(const QString &, QList<const DataSet *> dss, const CommandOptions & opts)
 {
+  DataSetList buffers(opts, dss);
+  DataStackHelper pusher(opts);
   for(const DataSet * ds : buffers) {
     if(ds)
-      soas().pushDataSet(new DataSet(*ds));
+      pusher << new DataSet(*ds);
   }
 }
 
@@ -668,13 +665,19 @@ fetchArgs(QList<Argument *>()
                                         "Datasets",
                                         "Datasets to fetch", true));
 
+static ArgumentList 
+fetchOpts(QList<Argument *>() 
+          << DataSetList::listOptions("datasets to fetch", true, false)
+          << DataStackHelper::helperOptions()
+          );
+
 
 static Command 
 fetch("fetch", // command name
-      optionLessEffector(fetchCommand), // action
+      effector(fetchCommand), // action
       "stack",  // group name
       &fetchArgs, // arguments
-      NULL, // options
+      &fetchOpts, // options
       "Fetch datasets from the stack");
 
                              

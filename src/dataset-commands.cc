@@ -500,6 +500,9 @@ static void expandCommand(const QString &,
   int xvs = 0;
   
   int nb = 0;
+  bool madeup;
+  QStringList dsColNames = ds->mainColumnNames(&madeup);
+
   for(int i = nbx; i < ds->nbColumns(); ) {
     if(xevery > 0 && ((i % xevery) == 0)) {
       xvs = i;
@@ -507,13 +510,16 @@ static void expandCommand(const QString &,
       continue;
     }
     QList<int> cols;
+    QStringList colnames;
     for(int j = 0; j < nbx; j++)
       cols << xvs + j;
-    QStringList colnames;
     for(int k = 0; k < group; ++k, ++i) {
       if(ds->nbColumns() > i) {
         cols << i;
-        colnames << QString("%1").arg(i+1);
+        if(madeup)
+          colnames << QString("%1").arg(i+1);
+        else
+          colnames << dsColNames[i];
       }
     }
     nb += 1;
@@ -1992,10 +1998,7 @@ static void statsOn(const DataSet * ds, const CommandOptions & opts,
 
 static void statsCommand(const QString &, const CommandOptions & opts)
 {
-  QList<const DataSet *> datasets;
-  updateFromOptions(opts, "buffers", datasets);
-  if(datasets.isEmpty())
-    datasets <<  soas().currentDataSet();
+  DataSetList buffers(opts);
 
   bool bySegments = false;
   updateFromOptions(opts, "use-segments", bySegments);
@@ -2003,7 +2006,7 @@ static void statsCommand(const QString &, const CommandOptions & opts)
   updateFromOptions(opts, "stats", statsNames);
 
 
-  for(const DataSet * ds : datasets) {
+  for(const DataSet * ds : buffers) {
     if(bySegments) {
       QList<DataSet * > segs = ds->chopIntoSegments();
       for(int i = 0; i < segs.size(); i++) {
@@ -2038,9 +2041,7 @@ public:
 
 static ArgumentList 
 statsO(QList<Argument *>() 
-       << new SeveralDataSetArgument("buffers", 
-                                     "Datasets",
-                                     "datasets to work on", true, true)
+       << DataSetList::listOptions("datasets to work on")
        << new StatsArgument("stats",
                             "Select stats",
                             "writes only the given stats")

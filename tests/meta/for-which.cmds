@@ -16,6 +16,20 @@ flag all /for-which $meta.a>10 /flags=stuff
 fetch flagged:stuff
 assert $stats.x_max-20 0
 
+
+# Same thing as before, but using directly fetch /for-which
+clear-stack
+generate-dataset 0 10
+set-meta a 10
+
+generate-dataset 0 20
+set-meta a 20
+
+generate-dataset 0 5
+
+fetch all /for-which $meta.a>10
+assert $stats.x_max-20 0
+
 # Now using other commands
 
 clear-stack
@@ -29,3 +43,5 @@ set-meta a 20
 
 apply-formula x-=8 all /for-which $meta.a<20 
 assert $stats.x_max-2 0
+
+

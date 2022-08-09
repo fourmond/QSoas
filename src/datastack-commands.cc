@@ -43,6 +43,7 @@
 #include <hook.hh>
 
 #include <datasetlist.hh>
+#include <datastackhelper.hh>
 
 
 #include <file.hh>
@@ -651,9 +652,10 @@ browseStack("browse-stack",     // command name
 static void fetchCommand(const QString &, QList<const DataSet *> dss, const CommandOptions & opts)
 {
   DataSetList buffers(opts, dss);
+  DataStackHelper pusher(opts);
   for(const DataSet * ds : buffers) {
     if(ds)
-      soas().pushDataSet(new DataSet(*ds));
+      pusher << new DataSet(*ds);
   }
 }
 
@@ -666,6 +668,7 @@ fetchArgs(QList<Argument *>()
 static ArgumentList 
 fetchOpts(QList<Argument *>() 
           << DataSetList::listOptions("datasets to fetch", true, false)
+          << DataStackHelper::helperOptions()
           );
 
 

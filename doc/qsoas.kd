@@ -3557,10 +3557,10 @@ option, their values will be gathered into a list of meta-data
 
 ## Options for data output {#data-output}
 
-The commands below are able to compute a number of quantities from the
-datasets they work on, such as various statistics, the position of
-peaks, and so on. `QSoas` provides several ways to store and work with
-these data.
+The commands below (and some others too, like [cmd: eval]) are able to
+compute a number of quantities from the datasets they work on, such as
+various statistics, the position of peaks, and so on. `QSoas` provides
+several ways to store and work with these data.
 
 ### Saving to the output file
 
@@ -3808,7 +3808,9 @@ comma-separated list to the `/meta` option, or, alternatively, use the
 [above](#data-output).
 
 It is possible to run [cmd: stats] on several datasets by using the
-`/buffers=` option.
+`/buffers=` option, to extract information from a large number of
+datasets.  However, it should be noted that, for most of the cases,
+using [cmd: eval] can help you produce a much more tailored output.
 
 
 {::comment} description-end: stats {:/}
@@ -7553,11 +7555,37 @@ the meta-data and statistics of the (as [cmd: apply-formula] with
 
 ~~~~
 QSoas> generate-dataset 0 10 x**3
-QSoas> eval '$stats["y_int"]'
+QSoas> eval $stats.y_int
  => 2500.002505007509
 ~~~~
 
 You can also use this command as a calculator.
+
+Starting from version 3.1, `eval` can be used much more effectively
+for data extraction from a number of datasets. It can work on several
+datasets in a row using the [classical](#dataset-lists) `/buffer` and
+`/for-which` options, and can use several formulas. For instance:
+
+~~~
+QSoas> eval $stats.x_max $stats.y_int /buffers=flagged:my-data /output=true
+~~~
+
+will write to the output file the max x value and the corresponding
+integration over Y of all the datasets flagged `my-data`. To ease the
+parsing afterwards, the values can be given a name, which will be used
+as a column name for the output file (and the accumulator if you chose
+this): 
+
+~~~
+QSoas> eval xmax:$stats.x_max my_int:$stats.y_int /buffers=flagged:my-data /output=true
+~~~
+
+This is now the recommended way to extract all kind of information
+from datasets.
+
+
+
+
 {::comment} description-end: eval {:/}
 {::comment} synopsis-start: verify {:/}
 

@@ -377,7 +377,7 @@ static MultiLambdaStat reglin(QStringList()
                                   << -a.first/y0;
                                return rv;
                              },
-                              "the linear regression coefficients of the Y column over X: `a` is the slope and `b` the value at 0.");
+                              "the linear regression coefficients of the Y column over X: `a` is the slope and `b` the value at 0, and `keff` is the effective first-order rate constant of decay to 0.");
 
 
 

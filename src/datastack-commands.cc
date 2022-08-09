@@ -648,8 +648,9 @@ browseStack("browse-stack",     // command name
 
 //////////////////////////////////////////////////////////////////////
 
-static void fetchCommand(const QString &, QList<const DataSet *> buffers)
+static void fetchCommand(const QString &, QList<const DataSet *> dss, const CommandOptions & opts)
 {
+  DataSetList buffers(opts, dss);
   for(const DataSet * ds : buffers) {
     if(ds)
       soas().pushDataSet(new DataSet(*ds));
@@ -662,13 +663,18 @@ fetchArgs(QList<Argument *>()
                                         "Datasets",
                                         "Datasets to fetch", true));
 
+static ArgumentList 
+fetchOpts(QList<Argument *>() 
+          << DataSetList::listOptions("datasets to fetch", true, false)
+          );
+
 
 static Command 
 fetch("fetch", // command name
-      optionLessEffector(fetchCommand), // action
+      effector(fetchCommand), // action
       "stack",  // group name
       &fetchArgs, // arguments
-      NULL, // options
+      &fetchOpts, // options
       "Fetch datasets from the stack");
 
                              

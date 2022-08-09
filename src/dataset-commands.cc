@@ -1998,10 +1998,7 @@ static void statsOn(const DataSet * ds, const CommandOptions & opts,
 
 static void statsCommand(const QString &, const CommandOptions & opts)
 {
-  QList<const DataSet *> datasets;
-  updateFromOptions(opts, "buffers", datasets);
-  if(datasets.isEmpty())
-    datasets <<  soas().currentDataSet();
+  DataSetList buffers(opts);
 
   bool bySegments = false;
   updateFromOptions(opts, "use-segments", bySegments);
@@ -2009,7 +2006,7 @@ static void statsCommand(const QString &, const CommandOptions & opts)
   updateFromOptions(opts, "stats", statsNames);
 
 
-  for(const DataSet * ds : datasets) {
+  for(const DataSet * ds : buffers) {
     if(bySegments) {
       QList<DataSet * > segs = ds->chopIntoSegments();
       for(int i = 0; i < segs.size(); i++) {
@@ -2044,9 +2041,7 @@ public:
 
 static ArgumentList 
 statsO(QList<Argument *>() 
-       << new SeveralDataSetArgument("buffers", 
-                                     "Datasets",
-                                     "datasets to work on", true, true)
+       << DataSetList::listOptions("datasets to work on")
        << new StatsArgument("stats",
                             "Select stats",
                             "writes only the given stats")

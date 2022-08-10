@@ -1717,23 +1717,32 @@ Removes all the datasets from both normal and redo stack
 
 ### `fetch` - Fetch datasets from the stack {#cmd-fetch}
 
-`fetch` _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}
+`fetch` _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: Datasets to fetch -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
+  * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created datasets -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
 
 {::comment} synopsis-end: fetch {:/}
 {::comment} description-start: fetch {:/}
 Put back a *copy* of the given dataset on the top of the stack. Useful
 when you want to work again on a old dataset buried in the stack.
+
+It is possible to fine-tune the datasets you pick using the
+[`/for-which`](#for-which) option.
 {::comment} description-end: fetch {:/}
 
 {::comment} synopsis-start: drop {:/}
 
 ### `drop` - Drop dataset {#cmd-drop}
 
-`drop` (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}
+`drop` (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}
 
-  * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): Datasets to drop -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): Datasets to permanently remove -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
 
 {::comment} synopsis-end: drop {:/}
 {::comment} description-start: drop {:/}
@@ -1748,6 +1757,9 @@ drops all the datasets from 3 to 16 included.
 
 *Important:* it is *not* possible to recover a dataset once it has been
 dropped from the stack. [cmd: undo] won't work.
+
+It is possible to fine-tune the datasets you pick using the
+[`/for-which`](#for-which) option.
 {::comment} description-end: drop {:/}
 {::comment} synopsis-start: flag {:/}
 
@@ -3762,10 +3774,11 @@ QSoas> find-peaks /peaks=2 /output=true
 
 ### `stats` - Statistics {#cmd-stats}
 
-`stats` (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/accumulate=`_words_{:title="several words, separated by ','"} `/meta=`_words_{:title="several words, separated by ','"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_words_{:title="several words, separated by ','"} `/stats=`_stats-names_{:title="one or more name of statistics (as displayed by stats), separated by `,`."} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`stats` (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/accumulate=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/meta=`_words_{:title="several words, separated by ','"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_words_{:title="several words, separated by ','"} `/stats=`_stats-names_{:title="one or more name of statistics (as displayed by stats), separated by `,`."} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): datasets to work on -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
   * `/accumulate=`_words_{:title="several words, separated by ','"}: accumulate the given data into a dataset -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/meta=`_words_{:title="several words, separated by ','"}: when writing to output file, also prints the listed meta-data -- values: several words, separated by ','
   * `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to write data to output file (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-meta=`_words_{:title="several words, separated by ','"}: saves the results of the command as meta-data rather than/in addition to saving to the output file -- values: several words, separated by ','
@@ -3787,7 +3800,7 @@ specified by the `/buffer` option). The following statistics are available:
 * `y_int`: the integral of the Y values over the X values.
 * `_med`, `_q10`, `_q25`, `_q75`, `_q90`: the median, and the 10th, 25th, 75th and 90th percentiles.
 * `_delta_min`, `_delta_max`: the min and max values of the difference between two successive values.
-* `y_a`, `y_b`, `y_keff`: the linear regression coefficients of the Y column over X: `a` is the slope and `b` the value at 0.
+* `y_a`, `y_b`, `y_keff`: the linear regression coefficients of the Y column over X: `a` is the slope and `b` the value at 0, and `keff` is the effective first-order rate constant of decay to 0.
 {::comment} statistics-end {:/}
 
 In this list, the statistics that start with `_` are available for all columns
@@ -3808,9 +3821,12 @@ comma-separated list to the `/meta` option, or, alternatively, use the
 [above](#data-output).
 
 It is possible to run [cmd: stats] on several datasets by using the
-`/buffers=` option, to extract information from a large number of
-datasets.  However, it should be noted that, for most of the cases,
-using [cmd: eval] can help you produce a much more tailored output.
+`/buffers=` option (possibly combined with the
+[`/for-which`](#for-which) option), to extract information from a
+large number of datasets.  However, it should be noted that, for most
+of the cases, using [cmd: eval] can help you produce a much more
+tailored output.
+
 
 
 {::comment} description-end: stats {:/}
@@ -4309,7 +4325,7 @@ Multi-dataset version of the
 
 ### `sim-exponential-decay` - Simulation: Multi-exponential fits {#cmd-sim-exponential-decay}
 
-`sim-exponential-decay` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/absolute=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/exponentials=`_integer_{:title="an integer"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/slow=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+`sim-exponential-decay` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/absolute=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/exponentials=`_integer_{:title="an integer"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/slow=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: the datasets whose X values will be used for simulations -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
@@ -4319,6 +4335,7 @@ Multi-dataset version of the
   * `/exponentials=`_integer_{:title="an integer"}: Number of exponentials -- values: an integer
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: wether the sum of exponentials should be multiplied by an exp(-kt) function (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`
   * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
@@ -4423,7 +4440,7 @@ This is the multi-dataset version of the [fit: multiexp-multistep] fit.
 
 ### `sim-multiexp-multistep` - Simulation: Multi-step and multi-exponential {#cmd-sim-multiexp-multistep}
 
-`sim-multiexp-multistep` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/exponentials=`_integer_{:title="an integer"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/independent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/steps=`_integers_{:title="a comma-separated list of integers"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+`sim-multiexp-multistep` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/exponentials=`_integer_{:title="an integer"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/independent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/steps=`_integers_{:title="a comma-separated list of integers"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: the datasets whose X values will be used for simulations -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
@@ -4432,6 +4449,7 @@ This is the multi-dataset version of the [fit: multiexp-multistep] fit.
   * `/exponentials=`_integer_{:title="an integer"}: Number of exponentials -- values: an integer
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/independent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Whether irreversible loss is independent on each step -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`
   * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
@@ -4534,7 +4552,7 @@ This is the multi-dataset version of the [fit: linear-kinetic-system] fit.
 
 ### `sim-linear-kinetic-system` - Simulation: Several steps with a kinetic evolution {#cmd-sim-linear-kinetic-system}
 
-`sim-linear-kinetic-system` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/additional-loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/offset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/species=`_integer_{:title="an integer"} `/steps=`_words_{:title="several words, separated by ','"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+`sim-linear-kinetic-system` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/additional-loss=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/offset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/species=`_integer_{:title="an integer"} `/steps=`_words_{:title="several words, separated by ','"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: the datasets whose X values will be used for simulations -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
@@ -4543,6 +4561,7 @@ This is the multi-dataset version of the [fit: linear-kinetic-system] fit.
   * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/offset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, allow for a constant offset to be added -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`
   * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
@@ -4648,7 +4667,7 @@ This is the multidataset version of the [fit: polynomial] fit.
 
 ### `sim-polynomial` - Simulation: Fit to a polynomial function {#cmd-sim-polynomial}
 
-`sim-polynomial` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/order=`_integers_{:title="a comma-separated list of integers"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`sim-polynomial` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/number=`_integer_{:title="an integer"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/order=`_integers_{:title="a comma-separated list of integers"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/prefactor=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/without-inflexions=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: the datasets whose X values will be used for simulations -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
@@ -4656,6 +4675,7 @@ This is the multidataset version of the [fit: polynomial] fit.
   * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/monotonic=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: With this on, only monotonic polynomials are solutions -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/number=`_integer_{:title="an integer"}: Number of distinct polynomial functions -- values: an integer
   * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`
@@ -4791,7 +4811,7 @@ and have `a` common to all dataset, but `b` dataset-specific.
 
 ### `sim-arb` - Simulation: Arbitrary fit {#cmd-sim-arb}
 
-`sim-arb` _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: biexp, exp, ramps, rexp, steps"}
+`sim-arb` _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: biexp, exp, ramps, rexp, steps"}
 
   * _formulas_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: \|-separated formulas for the fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
@@ -4800,6 +4820,7 @@ and have `a` common to all dataset, but `b` dataset-specific.
   * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`
   * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
   * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -4950,7 +4971,7 @@ Multidataset variant of [cmd: fit-implicit].
 
 ### `sim-implicit` - Simulation: Implicit fit {#cmd-sim-implicit}
 
-`sim-implicit` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/iterations=`_integer_{:title="an integer"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: biexp, exp, ramps, rexp, steps"}
+`sim-implicit` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/iterations=`_integer_{:title="an integer"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: biexp, exp, ramps, rexp, steps"}
 
   * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: formula for the fit (y is the variable) -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
@@ -4959,6 +4980,7 @@ Multidataset variant of [cmd: fit-implicit].
   * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/iterations=`_integer_{:title="an integer"}: Maximum number of iterations before giving up -- values: an integer
   * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`
   * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
@@ -5076,7 +5098,7 @@ Multi-dataset variant of the [cmd: fit-gaussian] fit.
 
 ### `sim-gaussian` - Simulation: One or several gaussians {#cmd-sim-gaussian}
 
-`sim-gaussian` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/number=`_integer_{:title="an integer"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`sim-gaussian` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/number=`_integer_{:title="an integer"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: the datasets whose X values will be used for simulations -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
@@ -5084,6 +5106,7 @@ Multi-dataset variant of the [cmd: fit-gaussian] fit.
   * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/number=`_integer_{:title="an integer"}: number of distinct peaks (default 1) -- values: an integer
   * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`
   * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
@@ -5167,7 +5190,7 @@ Multi-dataset variant of the [cmd: fit-lorentzian] fit.
 
 ### `sim-lorentzian` - Simulation: A Lorentzian (also named Cauchy distribution) {#cmd-sim-lorentzian}
 
-`sim-lorentzian` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/number=`_integer_{:title="an integer"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`sim-lorentzian` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/number=`_integer_{:title="an integer"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: the datasets whose X values will be used for simulations -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
@@ -5175,6 +5198,7 @@ Multi-dataset variant of the [cmd: fit-lorentzian] fit.
   * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/number=`_integer_{:title="an integer"}: number of distinct peaks (default 1) -- values: an integer
   * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`
   * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
@@ -5253,7 +5277,7 @@ Multi-dataset variant of the [cmd: fit-pseudo-voigt] fit.
 
 ### `sim-pseudo-voigt` - Simulation: A pseudo-voigt distribution (linear combination of a gaussian and a lorentzian) {#cmd-sim-pseudo-voigt}
 
-`sim-pseudo-voigt` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/number=`_integer_{:title="an integer"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`sim-pseudo-voigt` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/number=`_integer_{:title="an integer"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-surface=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: the datasets whose X values will be used for simulations -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
@@ -5261,6 +5285,7 @@ Multi-dataset variant of the [cmd: fit-pseudo-voigt] fit.
   * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/number=`_integer_{:title="an integer"}: number of distinct peaks (default 1) -- values: an integer
   * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`
   * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
@@ -5370,7 +5395,7 @@ for fitting multi-wavelength redox titrations.
 
 ### `sim-nernst` - Simulation: Nerstian behaviour {#cmd-sim-nernst}
 
-`sim-nernst` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/species=`_integer_{:title="an integer"} `/species-names=`_words_{:title="several words, separated by ','"} `/states=`_integers_{:title="a comma-separated list of integers"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+`sim-nernst` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/species=`_integer_{:title="an integer"} `/species-names=`_words_{:title="several words, separated by ','"} `/states=`_integers_{:title="a comma-separated list of integers"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: the datasets whose X values will be used for simulations -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
@@ -5378,6 +5403,7 @@ for fitting multi-wavelength redox titrations.
   * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`
   * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
   * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -5502,7 +5528,7 @@ Multi-dataset version of the [fit: adsorbed] fit.
 
 ### `sim-adsorbed` - Simulation: Adsorbed species {#cmd-sim-adsorbed}
 
-`sim-adsorbed` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/2el=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/distinct=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/species=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+`sim-adsorbed` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/2el=`_integer_{:title="an integer"} `/debug=`_integer_{:title="an integer"} `/distinct=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/species=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: the datasets whose X values will be used for simulations -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
@@ -5512,6 +5538,7 @@ Multi-dataset version of the [fit: adsorbed] fit.
   * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`
   * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
   * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -5620,7 +5647,7 @@ Multidataset version of the [fit: ode] fit.
 
 ### `sim-ode` - Simulation: Fit an ODE system {#cmd-sim-ode}
 
-`sim-ode` _system_{:title="name of a file"} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/min-step-size=`_number_{:title="a floating-point number"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/sub-steps=`_integer_{:title="an integer"} `/voltammogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: biexp, exp, ramps, rexp, steps"}
+`sim-ode` _system_{:title="name of a file"} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/min-step-size=`_number_{:title="a floating-point number"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/sub-steps=`_integer_{:title="an integer"} `/voltammogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: biexp, exp, ramps, rexp, steps"}
 
   * _system_{:title="name of a file"}: Path to the file describing the ODE system -- values: name of a file
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
@@ -5631,6 +5658,7 @@ Multidataset version of the [fit: ode] fit.
   * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/min-step-size=`_number_{:title="a floating-point number"}: minimum step size for the stepper -- values: a floating-point number
   * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`
   * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
@@ -5869,7 +5897,7 @@ Multi-dataset variant of the
 
 ### `sim-kinetic-system` - Simulation: Full kinetic system {#cmd-sim-kinetic-system}
 
-`sim-kinetic-system` _system_{:title="name of a file"} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/min-step-size=`_number_{:title="a floating-point number"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/redox-type=`_choice_{:title="one of: `bv`, `bva`, `mhc`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/sub-steps=`_integer_{:title="an integer"} `/voltammogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: biexp, exp, ramps, rexp, steps"}
+`sim-kinetic-system` _system_{:title="name of a file"} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/choose-t0=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/min-step-size=`_number_{:title="a floating-point number"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/redox-type=`_choice_{:title="one of: `bv`, `bva`, `mhc`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/sub-steps=`_integer_{:title="an integer"} `/voltammogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: biexp, exp, ramps, rexp, steps"}
 
   * _system_{:title="name of a file"}: file describing the system -- values: name of a file
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
@@ -5880,6 +5908,7 @@ Multi-dataset variant of the
   * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/min-step-size=`_number_{:title="a floating-point number"}: minimum step size for the stepper -- values: a floating-point number
   * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`
   * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
@@ -6153,7 +6182,7 @@ Multi-dataset variant of the
 
 ### `sim-slow-scan-lp` - Simulation: Slow scan test {#cmd-sim-slow-scan-lp}
 
-`sim-slow-scan-lp` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+`sim-slow-scan-lp` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: the datasets whose X values will be used for simulations -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
@@ -6162,6 +6191,7 @@ Multi-dataset variant of the
   * `/explicit-rate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the scan rate is an explicit parameter of the fit (default false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`
   * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
   * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -6178,7 +6208,7 @@ Multi-dataset variant of the
 
 ### `sim-slow-scan-hp` - Simulation: Slow scan test {#cmd-sim-slow-scan-hp}
 
-`sim-slow-scan-hp` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+`sim-slow-scan-hp` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/bi-exp=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/scaling=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: the datasets whose X values will be used for simulations -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
@@ -6187,6 +6217,7 @@ Multi-dataset variant of the
   * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`
   * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
   * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -6346,7 +6377,7 @@ Multi-dataset version of the [fit: eci-wave] fit.
 
 ### `sim-eci-wave` - Simulation: Fit of an EC irreversible catalytic wave {#cmd-sim-eci-wave}
 
-`sim-eci-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+`sim-eci-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: the datasets whose X values will be used for simulations -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
@@ -6354,6 +6385,7 @@ Multi-dataset version of the [fit: eci-wave] fit.
   * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"}: the kind of model used for the computation (default: dispersion) -- values: one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`
   * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`
   * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
@@ -6447,7 +6479,7 @@ Multi-dataset version of the [`ecr-wave`](#cmd-fit-ecr-wave) fit.
 
 ### `sim-ecr-wave` - Simulation: Fit of an EC reversible catalytic wave {#cmd-sim-ecr-wave}
 
-`sim-ecr-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`sim-ecr-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: the datasets whose X values will be used for simulations -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
@@ -6455,6 +6487,7 @@ Multi-dataset version of the [`ecr-wave`](#cmd-fit-ecr-wave) fit.
   * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"}: the kind of model used for the computation (default: dispersion) -- values: one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`
   * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`
   * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
@@ -6554,7 +6587,7 @@ Multidataset version of the [fit: eeci-wave] fit.
 
 ### `sim-eeci-wave` - Simulation: Fit of an EC irreversible catalytic wave {#cmd-sim-eeci-wave}
 
-`sim-eeci-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+`sim-eeci-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: the datasets whose X values will be used for simulations -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
@@ -6562,6 +6595,7 @@ Multidataset version of the [fit: eeci-wave] fit.
   * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"}: the kind of model used for the computation (default: dispersion) -- values: one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`
   * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`
   * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
@@ -6664,7 +6698,7 @@ Multi-dataset variant of [cmd: fit-eecr-wave].
 
 ### `sim-eecr-wave` - Simulation: Fit of an EEC reversible catalytic wave {#cmd-sim-eecr-wave}
 
-`sim-eecr-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`sim-eecr-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reduction=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: the datasets whose X values will be used for simulations -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
@@ -6672,6 +6706,7 @@ Multi-dataset variant of [cmd: fit-eecr-wave].
   * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/model=`_choice_{:title="one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`"}: the kind of model used for the computation (default: dispersion) -- values: one of: `nernst`, `slow-et`, `bd0-inf`, `disp-k0`
   * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`
   * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
@@ -6742,7 +6777,7 @@ Multi-dataset version of the [`eecr-relay-wave`](#cmd-fit-eecr-relay-wave) fit.
 
 ### `sim-eecr-relay-wave` - Simulation: Fit of an EECR+relay catalytic wave {#cmd-sim-eecr-relay-wave}
 
-`sim-eecr-relay-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-potentials=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`sim-eecr-relay-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-potentials=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: the datasets whose X values will be used for simulations -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
@@ -6750,6 +6785,7 @@ Multi-dataset version of the [`eecr-relay-wave`](#cmd-fit-eecr-relay-wave) fit.
   * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
   * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`
   * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
   * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -6894,6 +6930,8 @@ the parameters spreadsheet.
 `fix` _parameter_{:title="..."} `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} **(fit command)**
 
   * _parameter_{:title="..."}: the parameters to fix/unfix -- values: ...
+  * `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: restrict to selected datasets -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
 
 {::comment} synopsis-end: fit-fix {:/}
 {::comment} description-start: fit-fix {:/}
@@ -6906,6 +6944,10 @@ QSoas.fit> fix b[#3]
 
 This fixes parameter `a` everywher and `b` only for dataset `#3`
 (i.e. the fourth one).
+
+It is possible to target only specific datasets using the
+[`/buffers=`](#dataset-lists) and [`/for-which=`](#for-which) options,
+which have  selection rule as outside of the fit interface..
 {::comment} description-end: fit-fix {:/}
 {::comment} synopsis-start: fit-unfix {:/}
 
@@ -6914,6 +6956,8 @@ This fixes parameter `a` everywher and `b` only for dataset `#3`
 `unfix` _parameter_{:title="..."} `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} **(fit command)**
 
   * _parameter_{:title="..."}: the parameters to fix/unfix -- values: ...
+  * `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: restrict to selected datasets -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
 
 {::comment} synopsis-end: fit-unfix {:/}
 {::comment} description-start: fit-unfix {:/}
@@ -6928,8 +6972,10 @@ Same as [fit-cmd: fix] but sets the parameter free.
 
   * _parameter_{:title="..."}: the parameters of the fit -- values: ...
   * _value_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: the value -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: restrict to selected datasets -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
   * `/expression=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the value is evaluated as an expression -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/fix=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if true, also fixes the parameters -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/unfix=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if true, also unfixes the parameters -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: fit-set {:/}
@@ -6939,6 +6985,11 @@ value is interpreted as an expression that is evaluated immediately in
 the context of each fit dataset, as in [cmd: eval] or
 [cmd: apply-formula]. The `/fix=true` and `/unfix=true` can be used to
 fix or free the parameter at the same time as setting its value.
+
+Like in the case of [fit-cmd: fix], it is possible to target only
+specific datasets using the [`/buffers=`](#dataset-lists) and
+[`/for-which=`](#for-which) options.
+
 {::comment} description-end: fit-set {:/}
 {::comment} synopsis-start: fit-local {:/}
 
@@ -6984,14 +7035,52 @@ Saves the current parameters to the given file, as one would with
 
 ### `load` - Load {#fit-cmd-load}
 
-`load` _file_{:title="name of a file"} `/mode=`_choice_{:title="one of: `buffer-name`, `closest-Z`, `normal`"} **(fit command)**
+`load` _file_{:title="name of a file"} `/mode=`_choice_{:title="one of: `buffer-name`, `closest-Z`, `normal`"} `/only=`_words_{:title="several words, separated by ','"} `/rename=`_words_{:title="a comma-separated list of old->new parameter rename specifications"} **(fit command)**
 
   * _file_{:title="name of a file"}: name of the file to load the parameters from -- values: name of a file
   * `/mode=`_choice_{:title="one of: `buffer-name`, `closest-Z`, `normal`"}:  -- values: one of: `buffer-name`, `closest-Z`, `normal`
+  * `/only=`_words_{:title="several words, separated by ','"}: loads only the given parameters -- values: several words, separated by ','
+  * `/rename=`_words_{:title="a comma-separated list of old->new parameter rename specifications"}: rename parameters before setting -- values: a comma-separated list of old->new parameter rename specifications
 
 {::comment} synopsis-end: fit-load {:/}
 {::comment} description-start: fit-load {:/}
 Loads the parameters from the given file.
+
+By default, the parameters are copied from the parameters in the order
+in which they are to the datasets currently fitted. Parameters that
+are not present in the parameters file are left unchanged. Extra
+parameters are just ignored.
+
+Using `/mode=buffer-name`, the datasets of the parameters will be
+matched based on the names of the datasets. Any dataset whose name is
+not in the parameters name is ignored. **Warning:** exact match is
+required !
+
+Using `/mode=closest-Z`, the parameters corresponding to the closest
+value of the perpendicular coordinate will be chose from the
+parameters file. This guarantees that all datasets will receive
+parameter values (provided there are parameters in the parameters file
+that are relevant for the current fit). Of course, the parameters file
+had to be saved from a fit in which relevant perpendicular coordinates
+had been set, which is possible either using [cmd: set-perp] or using
+the `/perp-meta` option to the `mfit-` command, and the current fit
+need also to have relevant perpendicular coordinates.
+
+You can load only specifically named parameters by passing the
+comma-separated list of their names to the `/only=` option.
+
+You can also rename the parameters upon loading using the `/rename=`
+option, which takes a *old*`->`*new* specification, like for instance
+this which loads the `A_2` parameters from `fit.params` into the `A_4`
+parameters of the current fit.
+
+~~~
+QSoas.fit> load /rename='A_2->A_4' fit.params
+~~~
+
+Beware that `/only` applies before `/rename`.
+
+
 {::comment} description-end: fit-load {:/}
 {::comment} synopsis-start: fit-show-parameters {:/}
 
@@ -7021,10 +7110,10 @@ parameters for a large number of datasets.
 
 ### `export` - Export parameters {#fit-cmd-export}
 
-`export` `/errors=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/file=`_file_{:title="name of a file"} `/mkpath=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} **(fit command)**
+`export` (`/file=`)_file_{:title="name of a file"} `/errors=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/mkpath=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} **(fit command)**
 
+  * (`/file=`)_file_{:title="name of a file"} [(default option)](#default-option): name of the file for saving the parameters -- values: name of a file
   * `/errors=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the errors are exported too -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/file=`_file_{:title="name of a file"} (default option): name of the file for saving the parameters -- values: name of a file
   * `/mkpath=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true, creates all necessary directories -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true, overwrite without prompting -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
@@ -7198,12 +7287,17 @@ Deletes the trajectories whose flags are given as argument.
   * `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"}: Behaviour to adopt on error -- values: one of: `abort`, `delete`, `except`, `ignore`
   * `/parameters=`_choice_{:title="one of: `final`, `initial`"}: which parameters to use -- values: one of: `final`, `initial`
   * `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to switch off display updates during the script (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/sort=`_choice_{:title="one of: `date`, `residuals`"}: whether to sort the trajectories (by resdiuals, by date) -- values: one of: `date`, `residuals`
 
 {::comment} synopsis-end: fit-run-for-trajectories {:/}
 {::comment} description-start: fit-run-for-trajectories {:/}
 Loops through the specified trajectories, restore their final (or
 initial parameters, depending on the `/parameters` option), and runs
-the given script. See [cmd: run] for more information about the options.
+the given script. See [cmd: run] for more information about the
+options.
+
+If `/sort` is given, the trajectories will first be sorted according to
+the criteria (`date` or `residuals`) before running the script.
 {::comment} description-end: fit-run-for-trajectories {:/}
 
 
@@ -7299,6 +7393,7 @@ Other name: `@`
   * `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the commands run are added to the history (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/cd-to-script=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, automatically change the directory to that oof the script -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"}: Behaviour to adopt on error -- values: one of: `abort`, `delete`, `except`, `ignore`
+  * `/only-if=`_code_{:title="a piece of [Ruby code](#ruby)"}: If specified, the script is only run when the condition is true -- values: a piece of [Ruby code](#ruby)
   * `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to switch off display updates during the script (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: fit-run {:/}
@@ -7347,15 +7442,39 @@ Does the same as the general [cmd: verify] command.
 
 ### `fit` - Fit {#fit-cmd-fit}
 
-`fit` `/iterations=`_integer_{:title="an integer"} **(fit command)**
+`fit` `/iterations=`_integer_{:title="an integer"} `/trace-file=`_file_{:title="name of a file"} **(fit command)**
 
   * `/iterations=`_integer_{:title="an integer"}: the maximum number of iterations of the fitting process -- values: an integer
+  * `/trace-file=`_file_{:title="name of a file"}: a file to save the details of the fitting process -- values: name of a file
 
 {::comment} synopsis-end: fit-fit {:/}
 {::comment} description-start: fit-fit {:/}
 Runs the fit, optionally changing the number of maximum fit iterations
 through the `/iterations` option.
 {::comment} description-end: fit-fit {:/}
+{::comment} synopsis-start: fit-linear-prefit {:/}
+
+### `linear-prefit` - Linear prefit {#fit-cmd-linear-prefit}
+
+`linear-prefit` `/just-look=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/threshold=`_number_{:title="a floating-point number"} **(fit command)**
+
+  * `/just-look=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if true, just find the linear parameters, do not adjust -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/threshold=`_number_{:title="a floating-point number"}: threshold under which to consider linearity -- values: a floating-point number
+
+{::comment} synopsis-end: fit-linear-prefit {:/}
+{::comment} description-start: fit-linear-prefit {:/}
+This command determines which parameters are linear in the current
+fit, and runs a linear least square minimization procedure on
+them. This can greatly help with convergence in some cases, or simply
+greatly speed it up.
+
+With `/just-look=true`, this command doesn't modify the fit
+parameters, but just displays in the terminal which parameters were
+found to be linear.
+{::comment} description-end: fit-linear-prefit {:/}
+
+
+
 {::comment} synopsis-start: fit-commands {:/}
 
 ### `commands` - Commands {#fit-cmd-commands}
@@ -7434,6 +7553,7 @@ iterations specified by the explorer is finished.
 
   * _parameters..._{:title="several words, separated by ''"}: Parameter specification -- values: several words, separated by ''
   * `/fit-iterations=`_integer_{:title="an integer"}: Maximum number of fit iterations -- values: an integer
+  * `/gradual-datasets=`_integer_{:title="an integer"}: Number of starting datasets when doing gradual exploration -- values: an integer
   * `/iterations=`_integer_{:title="an integer"}: Number of monte-carlo iterations -- values: an integer
   * `/reset-frequency=`_integer_{:title="an integer"}: If > 0 reset to the best parameters every that many iterations -- values: an integer
 
@@ -7450,6 +7570,11 @@ This command sets up the exploration, with the parameter `A_inf`
 uniformly distributed between -10 and 10, and `tau_1` with a log
 uniform distribution between 1e-2 and 1e2. The other parameters are
 left untouched from the previous fit iteration.
+
+If `/reset=` is used to specify a number above 0, all the other
+parameters of the fit (the ones that are not listed in the
+command-line) will be reset to the values they had at the end of the
+current best fit every that many explorator iteration.
 {::comment} description-end: fit-monte-carlo-explorer {:/}
 {::comment} synopsis-start: fit-linear-explorer {:/}
 
@@ -7479,14 +7604,15 @@ correlated). Adding `,log` switches to an exponential progression.
 
 ### `iterate-explorer` - Iterate explorer {#fit-cmd-iterate-explorer}
 
-`iterate-explorer` `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/improved-script=`_file_{:title="name of a file"} `/just-pick=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/pre-script=`_file_{:title="name of a file"} `/script=`_file_{:title="name of a file"} **(fit command)**
+`iterate-explorer` (`/script=`)_file_{:title="name of a file"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/improved-script=`_file_{:title="name of a file"} `/just-pick=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/linear-prefit=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/pre-script=`_file_{:title="name of a file"} **(fit command)**
 
+  * (`/script=`)_file_{:title="name of a file"} [(default option)](#default-option): script file run after the iteration -- values: name of a file
   * `/arg1=`_file_{:title="name of a file"}: First argument to the scripts -- values: name of a file
   * `/arg2=`_file_{:title="name of a file"}: Second argument to the scripts -- values: name of a file
-  * `/improved-script=`_file_{:title="name of a file"} (default option): script file run whenever the best residuals have improved -- values: name of a file
+  * `/improved-script=`_file_{:title="name of a file"}: script file run whenever the best residuals have improved -- values: name of a file
   * `/just-pick=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true, then just picks the next initial parameters, don't fit, don't iterate -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/pre-script=`_file_{:title="name of a file"} (default option): script file run after choosing the parameters and before choosing the file -- values: name of a file
-  * `/script=`_file_{:title="name of a file"} (default option): script file run after the iteration -- values: name of a file
+  * `/linear-prefit=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true, runs a linear pre-fit on before running the real fit -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/pre-script=`_file_{:title="name of a file"}: script file run after choosing the parameters and before choosing the file -- values: name of a file
 
 {::comment} synopsis-end: fit-iterate-explorer {:/}
 {::comment} description-start: fit-iterate-explorer {:/}
@@ -7521,13 +7647,14 @@ mathematical operations.
 
 ### `eval` - Ruby eval {#cmd-eval}
 
-`eval` _codes..._{:title="several pieces of [Ruby code](#ruby)"} `/accumulate=`_words_{:title="several words, separated by ','"} `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/meta=`_words_{:title="several words, separated by ','"} `/modify-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_words_{:title="several words, separated by ','"} `/use-dataset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`eval` _codes..._{:title="several pieces of [Ruby code](#ruby)"} (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/accumulate=`_words_{:title="several words, separated by ','"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/meta=`_words_{:title="several words, separated by ','"} `/modify-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_words_{:title="several words, separated by ','"} `/use-dataset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
 Other name: `eval-cmd`
 
+  * _codes..._{:title="several pieces of [Ruby code](#ruby)"}: Any ruby code -- values: several pieces of [Ruby code](#ruby)
+  * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): Datasets to run eval on -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
   * `/accumulate=`_words_{:title="several words, separated by ','"}: accumulate the given data into a dataset -- values: several words, separated by ','
-  * `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} (default option): Datasets to run eval on -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
-  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code -- values: a piece of [Ruby code](#ruby)
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/meta=`_words_{:title="several words, separated by ','"}: when writing to output file, also prints the listed meta-data -- values: several words, separated by ','
   * `/modify-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Reads backs the modifications made to the $meta hash (implies /use-dataset=true) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to write data to output file (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -7591,11 +7718,11 @@ from datasets.
 
 ### `verify` - Verify {#cmd-verify}
 
-`verify` _formula_{:title="a piece of [Ruby code](#ruby)"} `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/use-dataset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`verify` _formula_{:title="a piece of [Ruby code](#ruby)"} (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/use-dataset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _formula_{:title="a piece of [Ruby code](#ruby)"}: formula -- values: a piece of [Ruby code](#ruby)
-  * `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} (default option): Datasets to run verify on -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
-  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code -- values: a piece of [Ruby code](#ruby)
+  * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): Datasets to run verify on -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/use-dataset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on (the default) and if there is a current dataset, the $meta and $stats hashes are available -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: verify {:/}
@@ -7619,11 +7746,11 @@ verify $stats.x_min>0
 
 ### `find-root` - Finds a root {#cmd-find-root}
 
-`find-root` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _seed_{:title="a floating-point number"} `/max=`_number_{:title="a floating-point number"}
+`find-root` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _seed_{:title="a floating-point number"} (`/max=`)_number_{:title="a floating-point number"}
 
   * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: An expression of 1 variable (not an equation !) -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * _seed_{:title="a floating-point number"}: Initial X value from which to search -- values: a floating-point number
-  * `/max=`_number_{:title="a floating-point number"} (default option): If present, uses dichotomy between seed and max -- values: a floating-point number
+  * (`/max=`)_number_{:title="a floating-point number"} [(default option)](#default-option): If present, uses dichotomy between seed and max -- values: a floating-point number
 
 {::comment} synopsis-end: find-root {:/}
 {::comment} description-start: find-root {:/}
@@ -7703,14 +7830,17 @@ created by [cmd: define-distribution-fit].
 
 ### `generate-dataset` - Generate dataset {#cmd-generate-dataset}
 
-`generate-dataset` _start_{:title="a floating-point number"} _end_{:title="a floating-point number"} `/columns=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/formula=`_words_{:title="several words, separated by ''"} `/log=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/name=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/number=`_integer_{:title="an integer"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/samples=`_integer_{:title="an integer"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+`generate-dataset` _start_{:title="a floating-point number"} _end_{:title="a floating-point number"} (`/formula=`)_words_{:title="several words, separated by ''"} `/columns=`_integer_{:title="an integer"} `/flags=`_words_{:title="several words, separated by ','"} `/log=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/name=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/number=`_integer_{:title="an integer"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/samples=`_integer_{:title="an integer"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
 
 Other name: `generate-buffer`
 
   * _start_{:title="a floating-point number"}: The first X value -- values: a floating-point number
   * _end_{:title="a floating-point number"}: The last X value -- values: a floating-point number
+  * (`/formula=`)_words_{:title="several words, separated by ''"} [(default option)](#default-option): Formula to generate the Y values -- values: several words, separated by ''
+  * `/columns=`_integer_{:title="an integer"}: number of columns of the generated datasets -- values: an integer
   * `/flags=`_words_{:title="several words, separated by ','"}: Flags to set on the newly created datasets -- values: several words, separated by ','
-  * `/formula=`_words_{:title="several words, separated by ''"} (default option): Formula to generate the Y values -- values: several words, separated by ''
+  * `/log=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: uses logarithmically spaced X values -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/name=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: The name of the newly generated bufffers (may include a %d specification for the number) -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/number=`_integer_{:title="an integer"}: generates that many datasets -- values: an integer
   * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/samples=`_integer_{:title="an integer"}: number of data points -- values: an integer
@@ -7793,14 +7923,14 @@ QSoas> kinetic-system system.sys 'c0_A = 1;ka = 1; ki = 1'
 
 ### `ode` - ODE solver {#cmd-ode}
 
-`ode` _file_{:title="name of a file"} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/annotate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/dump=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/min-step-size=`_number_{:title="a floating-point number"} `/parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"}
+`ode` _file_{:title="name of a file"} (`/parameters=`)_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/annotate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/dump=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/min-step-size=`_number_{:title="a floating-point number"} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"} `/step-size=`_number_{:title="a floating-point number"} `/stepper=`_stepper_{:title="[ODE stepper algorithm](#ode-stepper), one of: `bsimp`, `msadams`, `msbdf`, `rk1imp`, `rk2`, `rk2imp`, `rk4`, `rk4imp`, `rk8pd`, `rkck`, `rkf45`"} `/sub-steps=`_integer_{:title="an integer"}
 
   * _file_{:title="name of a file"}: File containing the system -- values: name of a file
+  * (`/parameters=`)_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} [(default option)](#default-option): Values of the parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/adaptive=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to use an adaptive stepper (on by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/annotate=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, a last column will contain the number of function evaluation for each step -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/dump=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, do not integrate, just dumps the parse contents of the ODE file -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/min-step-size=`_number_{:title="a floating-point number"}: minimum step size for the stepper -- values: a floating-point number
-  * `/parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} (default option): Values of the parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/prec-absolute=`_number_{:title="a floating-point number"}: absolute precision required -- values: a floating-point number
   * `/prec-relative=`_number_{:title="a floating-point number"}: relative precision required -- values: a floating-point number
   * `/step-size=`_number_{:title="a floating-point number"}: initial step size for the stepper -- values: a floating-point number
@@ -7930,6 +8060,7 @@ Other name: `@`
   * `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the commands run are added to the history (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/cd-to-script=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, automatically change the directory to that oof the script -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"}: Behaviour to adopt on error -- values: one of: `abort`, `delete`, `except`, `ignore`
+  * `/only-if=`_code_{:title="a piece of [Ruby code](#ruby)"}: If specified, the script is only run when the condition is true -- values: a piece of [Ruby code](#ruby)
   * `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to switch off display updates during the script (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: run {:/}
@@ -7965,6 +8096,12 @@ If you use `run` regularly, you may be interested in the other
 scripting commands, such as [cmd: run-for-each],
 [cmd: run-for-datasets] and [cmd: startup-files]
 
+If the  `/only-if=`*condition* option is specified, the script will only be
+executed if the condition is true. The condition has the same
+behaviour as that for the [cmd: verify] command.
+
+#### Advanced use of script parameters {#parameters-use}
+
 If you want to manipulate the arguments or provide defaut values for
 some of them, you can use the following syntax:
 
@@ -7980,7 +8117,7 @@ some of them, you can use the following syntax:
  * `${2?yes:no}`: this will be replaced by "`yes`" if parameter 2 has been
    provided to the script, or by "`no`" if that is not the case.
 
-####Error handling {#script-error-handling}
+#### Error handling {#script-error-handling}
 It is possible to change how the script handles errors using the
 `/error` option, which can take the following values:
 
@@ -8006,9 +8143,9 @@ It is possible to change how the script handles errors using the
 
 ### `startup-files` - Startup files {#cmd-startup-files}
 
-`startup-files` `/add=`_file_{:title="name of a file"} `/rm=`_integer_{:title="an integer"} `/run=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`startup-files` (`/add=`)_file_{:title="name of a file"} `/rm=`_integer_{:title="an integer"} `/run=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
-  * `/add=`_file_{:title="name of a file"} (default option): adds the given startup file -- values: name of a file
+  * (`/add=`)_file_{:title="name of a file"} [(default option)](#default-option): adds the given startup file -- values: name of a file
   * `/rm=`_integer_{:title="an integer"}: removes the numbered file -- values: an integer
   * `/run=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, runs all the startup files right now (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
@@ -8122,9 +8259,9 @@ The `/error=` option controls how the scripts handle errors. See
 
 ### `noop` - No op {#cmd-noop}
 
-`noop` `/*=`_words_{:title="several words, separated by ''"}
+`noop` (`/*=`)_words_{:title="several words, separated by ''"}
 
-  * `/*=`_words_{:title="several words, separated by ''"} (default option): Ignored options -- values: several words, separated by ''
+  * (`/*=`)_words_{:title="several words, separated by ''"} [(default option)](#default-option): Ignored options -- values: several words, separated by ''
 
 {::comment} synopsis-end: noop {:/}
 {::comment} description-start: noop {:/}

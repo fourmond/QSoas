@@ -214,9 +214,9 @@ ArgumentList lO(QList<Argument*>()
                                               "only",
                                               "Only parameters",
                                               "loads only the given parameters")
-                << new SeveralStringsArgument("rename",
+                << (new SeveralStringsArgument("rename",
                                               "Rename",
-                                              "rename parameters before setting")
+                                               "rename parameters before setting"))->describe("A comma-separated list of old->new parameter rename specifications")
                 );
 
 static Command 

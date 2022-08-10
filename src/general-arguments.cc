@@ -116,11 +116,16 @@ QStringList SeveralStringsArgument::toString(const ArgumentMarshaller * arg) con
 }
 
 QString SeveralStringsArgument::typeName() const {
-  return "words";
+  if(type.isEmpty())
+    return "words";
+  else
+    return type;
 }
 
 QString SeveralStringsArgument::typeDescription() const
 {
+  if(! description.isEmpty())
+    return description;
   QString sep;
   if(separator.pattern() == " " || separator.pattern() == "\\s+")
     sep = "spaces";
@@ -156,6 +161,14 @@ void SeveralStringsArgument::setEditorValue(QWidget * editor,
                                             const ArgumentMarshaller * value) const
 {
   setTextEditorValue(editor, value);
+}
+
+SeveralStringsArgument * SeveralStringsArgument::describe(const QString & desc,
+                                                          const QString & t)
+{
+  description = desc;
+  type = t;
+  return this;
 }
 
 ////////////////////////////////////////////////////////////

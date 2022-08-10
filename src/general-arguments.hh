@@ -61,6 +61,9 @@ public:
 /// Several strings
 class SeveralStringsArgument : public Argument {
   QRegExp separator;
+
+  /// 
+  QString type, description;
 public:
 
   SeveralStringsArgument(const char * cn, const char * pn,
@@ -93,6 +96,10 @@ public:
   virtual QWidget * createEditor(QWidget * parent = NULL) const override;
   virtual void setEditorValue(QWidget * editor, 
                               const ArgumentMarshaller * value) const override;
+
+  /// This function is here to help describe the type.
+  /// Returns this so it can be easily chained
+  SeveralStringsArgument * describe(const QString &desc, const QString & type = "");
 
 };
 

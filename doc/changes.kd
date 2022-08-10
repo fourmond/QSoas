@@ -53,6 +53,166 @@ functions.
 
 See the full list of changes [below](#v2p0)
 
+
+# Changes in version 3.1 (xx.xx.2022) {#v3p1}
+
+## Fits
+
+ * now the main terminal is also accessible via a tab on from the fit
+   window, which makes it much easier to follow the output of the
+   various fit commands
+ * more flexibility in [fit-cmd: load] for loading parameters,
+   matching datasets, even renaming parameters on the fly
+ * [fit: ode] and [fit: kinetic-system] now have a `/voltammogram`
+   option to work better with the time and potential dependence of
+   voltammograms
+ * [fit: kinetic-system] now provide means to use various interfacial
+   electron transfer models, including Marcus-Hush-Chidsey
+ * definition of species names in [fit: nernst]
+ * more flexibility to designate datasets for [fit-cmd: fix],
+   [fit-cmd: unfix], [fit-cmd: set]
+ * a [fit-cmd: sort-trajectories] command to sort the trajectories
+ * the time-dependent parameters now allow to have several parameters
+   controlled by the same time dependence (with different values)
+ * it is now possible to use `j_elec` as a reporter in the
+   [cmd: kinetic-system] fit to represent the electrical current at
+   the electrode
+ * the fit engines are now more robust to the appearance of NaN, and
+   also the trajectory sorting now handles them better too
+ * the sim commands can now push the parameters as a dataset with
+   `/operation=push`
+ * the fit interface now has menus instead of the previously used
+   combo boxes
+ * trajectory loading is more resistant to manually modified
+   trajectory files
+ * the use of [cmd: reparametrize-fit] now also creates a command that
+   can regenerate the parameters of the original fit from a dataset
+   containing parameters of the reparametrized one
+
+
+## New commands
+
+ * a [cmd: add-noise] command to add random, controlable, noise to
+   datasets
+ * a [cmd: files-browser] command to browse files on the local storage
+   and display/modify their meta-data
+ * a [cmd: contour] to compute contour lines at a certain level from a
+   y = f(x,z) dataset
+ * a [cmd: clear-segments] command to remove all the segments of a
+   dataset
+ * an [cmd: save-meta] command to save the meta defined on the
+   current dataset back to the original data file
+ * a [cmd: head] command to display the beginning of a file (as text),
+   as QSoas is seeing it (helpful for when [cmd: load] doesn't do what
+   you want)
+ * a [cmd: ls] command to list the files in the current directory
+ * a [cmd: linear-least-squares] command that performs the (exact)
+   determination of the parameters in the case of linear least
+   squares, very powerful for data extraction
+ * a [cmd: pause] command to temporarily stop the execution of a
+   script
+ * a [cmd: rotate] command to move points of a dataset from the
+   beginning to the end
+ * the [cmd: set-column-names] and [cmd: set-row-names] commands to
+   set the column and row names of a dataset
+ * a [cmd: set] command to define named parameters to be used inside
+   scripts
+ * a [cmd: sort-datasets] command to sort a series of datasets
+   directly from within the stack
+ * a [cmd: kernel-filter] command offering several kernel-like filters
+
+## Improvements of previous commands
+
+ * use of `$c.`*column* to read the value of a column in
+   [cmd: strip-if] and [cmd: apply-formula]
+ * [cmd: apply-formula] got several new modes of action, one in which
+   a new column is added, another in which the dataset is considered
+   as a global function y = f(x,z) (z is the perpendicular
+   coordinate)
+ * [cmd: apply-formula] can also use column names for both
+   reading and modifying
+ * truncate the dataset using the Ruby function `break` in
+   [cmd: apply-formula]
+ * many commands got the possibility to work on several datasets at
+   the same time, and others that already had this also were given the
+   `/for-which` option to better fine-tune the datasets they work on
+ * possibilty to specify min and max in [cmd: bin]
+ * [cmd: browse] got all the backend-specific options of the
+   [cmd: load] command
+ * [cmd: eval] got greatly improved, with the possibility to evaluate
+   several formulas on several datasets at the same time, making it
+   the best command for data extraction on series of datasets
+ * [cmd: eval] can now also modify the row and column names 
+ * [cmd: film-loss] got a new mode for determining the film loss rate
+   constant on a given segment
+ * the [cmd: find-peaks] command now can save the peak data into
+   parameter files to help with initial parameters in fits
+ * [cmd: generate-dataset] can generate different columns with
+   different formulas in one go, and can directly give a name to the
+   generated datasets with the `/name` option
+ * [cmd: generate-dataset] can also have the X values logarithmically
+   spaced
+ * loading of row names from text files with the `/text-columns` option
+   of [cmd: load]
+ * the possibility to get the status of the accumulator with
+   [cmd: pop]
+ * the possibility to toggle between datasets in [cmd: reglin]
+ * more flexibility in controling the format used for saving by
+   [cmd: save] and [cmd: save-datasets]
+ * the commands that generate several datasets in one go can now push
+   them in the reverse order of what they usually do by using
+   `/reversed=true`
+ * the [cmd: sort] command can now work on any column, not just the X
+   one
+ * [cmd: edit] shows the perpendicular coordinates
+ * a `/select=` option to [cmd: tweak-columns] that selects only a
+   given number of (possibly named) columns from a dataset
+ * conditional execution of scripts in [cmd: run]
+ * [cmd: load] plays better with QSoas's own files, including the
+   saved parameters files (which can be loaded as normal data files)
+ * [cmd: edit] shows the column and row names
+ * all the commands now preserve column and row names whenever
+   possible, or handle them as they should
+ * [cmd: cursor] can now quit subtracting X values
+ * greatly improved speed for [cmd: load]
+ * [cmd: save] now saves the meta-data in the `.qsm` files
+ * commands that produce many datasets from one, or one from many now
+   offer the possibilty to expand or contract the meta-data to lists
+ * [cmd: auto-reglin] can also now be used as a filter
+ * [cmd: record-meta] can now also be used to remove meta-data
+ 
+## Other improvements
+
+ * inline files: it is now possible to define "inline files" inside
+   files already, which makes subroutine construction/calling much
+   much easier to write and maintain
+ * better handling of files that QSoas should not try to load (PDF
+   files, etc...)
+ * better display of the segments delimitation
+ * it is now possible to specify columns using their name, via the
+   `name:`*column* or `$c`.*column* syntax (with completion)
+ * handling of complex numbers from within Ruby formulas
+ * a `--headless` command-line option to run non-interactively
+ * a `--run-script` command-line option to run directly a script
+ * a true Win64 build, allowing you to use much more ram should the
+   need arise
+ * the tooltip over a dataset point also shows the row name when
+   applicable
+ * the terminal now uses bold and color when useful
+ * now understands the `QSOAS_DEBUG` environment variable
+ * a `--write-deps` command-line option that writes the dependency of
+   all the generated files on the files QSoas had to read to generate
+   them, in `Makefile` format
+ * quite a few bug fixes, in particular concerning the interaction
+   with Ruby
+ * implemented a dataset rendering cache to greatly improve the
+   responsivity when using commands like [cmd: cursor] on very "jaggy"
+   datasets
+ * disable the ugly "black console" window on Win platforms
+ * NaN in datasets are now shown as a "cross" next to the non NaN
+   points they are next to
+
+
 # Changes in version 3.0 (03.12.2020) {#v3p0}
 
 ## Fits

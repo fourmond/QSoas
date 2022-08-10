@@ -80,8 +80,6 @@ Column names are used in particular to designate columns, either:
 
 Column names are visible in [cmd: edit] and [cmd: show]
 
-<!-- **TODO** **Warning** about default vs assigned names. -->
-
 Row names are only visible in [cmd: edit]. As of now, their use is
 relatively limited, but they become column names upon using
 [cmd: transpose], and you can save them by specifying
@@ -192,6 +190,9 @@ you hit Cmd+Shift+T to switch to "plain text" format; the default is
 rich text (i.e. text with formatting informations) in the RTF format,
 and `QSoas` does not understand RTF.
 
+
+
+TODO: inline text files !
 
 ## Dataset lists (or buffer lists) arguments {#dataset-lists}
 
@@ -1973,6 +1974,9 @@ is a real pain !).
 It is now possible to work with several datasets using the `/buffers`
 option, and control the resulting datasets using the commands described
 [there](#several-datasets).
+
+
+TODO: $row_name
 
 #### Using column and row names
 

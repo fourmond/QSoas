@@ -667,7 +667,7 @@ fetchArgs(QList<Argument *>()
 
 static ArgumentList 
 fetchOpts(QList<Argument *>() 
-          << DataSetList::listOptions("datasets to fetch", true, false)
+          << DataSetList::listOptions("datasets to fetch", true, true)
           << DataStackHelper::helperOptions()
           );
 

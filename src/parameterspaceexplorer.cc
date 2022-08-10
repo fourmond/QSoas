@@ -284,13 +284,13 @@ static void iterateExplorerCommand(const QString & /*name*/,
 ArgumentList ieOpts(QList<Argument*>() 
                     << new FileArgument("pre-script", 
                                         "Pre-iteration script",
-                                        "script file run after choosing the parameters and before choosing the file", false, true)
+                                        "script file run after choosing the parameters and before choosing the file")
                     << new FileArgument("script", 
                                         "Script",
                                         "script file run after the iteration", false, true)
                     << new FileArgument("improved-script", 
                                         "Script for improvement",
-                                        "script file run whenever the best residuals have improved", false, true)
+                                        "script file run whenever the best residuals have improved")
                     << new BoolArgument("just-pick", 
                                         "Just pick",
                                         "If true, then just picks the next initial parameters, don't fit, don't iterate")

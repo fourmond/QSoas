@@ -528,6 +528,9 @@ QList<Argument *> ValueHash::outputOptions(bool deflt)
        << new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "accumulate", 
                                      "Accumulate",
                                      "accumulate the given data into a dataset")
+       << new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "set-global", 
+                                     "Set the $values global variable",
+                                     "saves the results of the command into the $values global variable")
     ;
 }
 
@@ -575,6 +578,7 @@ bool ValueHash::hasOutputOptions(const CommandOptions & opts)
   return (opts.contains("output") ||
           opts.contains("meta") ||
           opts.contains("set-meta") ||
+          opts.contains("set-global") ||
           opts.contains("accumulate"));
 }
 
@@ -590,6 +594,9 @@ void ValueHash::handleOutput(const DataSet * ds, const CommandOptions & opts,
 
   QStringList setMeta;
   updateFromOptions(opts, "set-meta", setMeta);
+
+  QStringList setGlobal;
+  updateFromOptions(opts, "set-global", setGlobal);
 
   QStringList accumulate;
   updateFromOptions(opts, "accumulate", accumulate);
@@ -631,6 +638,18 @@ void ValueHash::handleOutput(const DataSet * ds, const CommandOptions & opts,
                   << QStringList(cnv.keys()).join("', '")
                   << "'" << endl;
     d->addMetaData(cnv);
+  }
+
+  if(setGlobal.size() > 0) {
+    QStringList missing;
+    ValueHash cnv = copyFromSpec(setGlobal, &missing);
+    if(missing.size() > 0)
+      Terminal::out << "Missing the values for keys '" << missing.join("', '")
+                    << "'" << endl;
+    
+    MRuby * mr = MRuby::ruby();
+    mr->setGlobal("$values", cnv.toRuby());
+
   }
 
   if(accumulate.size() > 0) {

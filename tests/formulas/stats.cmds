@@ -26,3 +26,7 @@ assert '$stats["y_average"].negligible?'
 generate-buffer -1 1 2*x+3
 assert $stats.y_a-2
 assert $stats.y_b-3
+
+stats /set-global=x_max->a,x_min->b
+assert $values.a-1 0
+assert $values.b+1 0

@@ -1,0 +1,5611 @@
+# The following information are comments, but Soas may make use of those if they are present
+# Fit used: kinetic-system (system: ./2els.qss)
+# Command-line: mfit-kinetic-system 2els.qss /set-from-meta=lambda=lambda flagged:evolutions
+kb	1	!	1
+kk	0.1	!	1
+kr	1	!	1
+l1	400	!	1
+l2	500	!	1
+s1	20	!	1
+s2	30	!	1
+buffer_weight[#0]	1
+buffer_name[#0]	generated_transposed_mod_transposed_col_400.dat
+Z[#0]	698
+c0_OO[#0]		1	!	0
+c0_RO[#0]		0	!	0
+c0_OR[#0]		0	!	0
+c0_RR[#0]		0	!	0
+lambda[#0]		698	!	1
+buffer_weight[#1]	1
+buffer_name[#1]	generated_transposed_mod_transposed_col_399.dat
+Z[#1]	697
+c0_OO[#1]		1	!	0
+c0_RO[#1]		0	!	0
+c0_OR[#1]		0	!	0
+c0_RR[#1]		0	!	0
+lambda[#1]		697	!	1
+buffer_weight[#2]	1
+buffer_name[#2]	generated_transposed_mod_transposed_col_398.dat
+Z[#2]	696
+c0_OO[#2]		1	!	0
+c0_RO[#2]		0	!	0
+c0_OR[#2]		0	!	0
+c0_RR[#2]		0	!	0
+lambda[#2]		696	!	1
+buffer_weight[#3]	1
+buffer_name[#3]	generated_transposed_mod_transposed_col_397.dat
+Z[#3]	695
+c0_OO[#3]		1	!	0
+c0_RO[#3]		0	!	0
+c0_OR[#3]		0	!	0
+c0_RR[#3]		0	!	0
+lambda[#3]		695	!	1
+buffer_weight[#4]	1
+buffer_name[#4]	generated_transposed_mod_transposed_col_396.dat
+Z[#4]	694
+c0_OO[#4]		1	!	0
+c0_RO[#4]		0	!	0
+c0_OR[#4]		0	!	0
+c0_RR[#4]		0	!	0
+lambda[#4]		694	!	1
+buffer_weight[#5]	1
+buffer_name[#5]	generated_transposed_mod_transposed_col_395.dat
+Z[#5]	693
+c0_OO[#5]		1	!	0
+c0_RO[#5]		0	!	0
+c0_OR[#5]		0	!	0
+c0_RR[#5]		0	!	0
+lambda[#5]		693	!	1
+buffer_weight[#6]	1
+buffer_name[#6]	generated_transposed_mod_transposed_col_394.dat
+Z[#6]	692
+c0_OO[#6]		1	!	0
+c0_RO[#6]		0	!	0
+c0_OR[#6]		0	!	0
+c0_RR[#6]		0	!	0
+lambda[#6]		692	!	1
+buffer_weight[#7]	1
+buffer_name[#7]	generated_transposed_mod_transposed_col_393.dat
+Z[#7]	691
+c0_OO[#7]		1	!	0
+c0_RO[#7]		0	!	0
+c0_OR[#7]		0	!	0
+c0_RR[#7]		0	!	0
+lambda[#7]		691	!	1
+buffer_weight[#8]	1
+buffer_name[#8]	generated_transposed_mod_transposed_col_392.dat
+Z[#8]	690
+c0_OO[#8]		1	!	0
+c0_RO[#8]		0	!	0
+c0_OR[#8]		0	!	0
+c0_RR[#8]		0	!	0
+lambda[#8]		690	!	1
+buffer_weight[#9]	1
+buffer_name[#9]	generated_transposed_mod_transposed_col_391.dat
+Z[#9]	689
+c0_OO[#9]		1	!	0
+c0_RO[#9]		0	!	0
+c0_OR[#9]		0	!	0
+c0_RR[#9]		0	!	0
+lambda[#9]		689	!	1
+buffer_weight[#10]	1
+buffer_name[#10]	generated_transposed_mod_transposed_col_390.dat
+Z[#10]	688
+c0_OO[#10]		1	!	0
+c0_RO[#10]		0	!	0
+c0_OR[#10]		0	!	0
+c0_RR[#10]		0	!	0
+lambda[#10]		688	!	1
+buffer_weight[#11]	1
+buffer_name[#11]	generated_transposed_mod_transposed_col_389.dat
+Z[#11]	687
+c0_OO[#11]		1	!	0
+c0_RO[#11]		0	!	0
+c0_OR[#11]		0	!	0
+c0_RR[#11]		0	!	0
+lambda[#11]		687	!	1
+buffer_weight[#12]	1
+buffer_name[#12]	generated_transposed_mod_transposed_col_388.dat
+Z[#12]	686
+c0_OO[#12]		1	!	0
+c0_RO[#12]		0	!	0
+c0_OR[#12]		0	!	0
+c0_RR[#12]		0	!	0
+lambda[#12]		686	!	1
+buffer_weight[#13]	1
+buffer_name[#13]	generated_transposed_mod_transposed_col_387.dat
+Z[#13]	685
+c0_OO[#13]		1	!	0
+c0_RO[#13]		0	!	0
+c0_OR[#13]		0	!	0
+c0_RR[#13]		0	!	0
+lambda[#13]		685	!	1
+buffer_weight[#14]	1
+buffer_name[#14]	generated_transposed_mod_transposed_col_386.dat
+Z[#14]	684
+c0_OO[#14]		1	!	0
+c0_RO[#14]		0	!	0
+c0_OR[#14]		0	!	0
+c0_RR[#14]		0	!	0
+lambda[#14]		684	!	1
+buffer_weight[#15]	1
+buffer_name[#15]	generated_transposed_mod_transposed_col_385.dat
+Z[#15]	683
+c0_OO[#15]		1	!	0
+c0_RO[#15]		0	!	0
+c0_OR[#15]		0	!	0
+c0_RR[#15]		0	!	0
+lambda[#15]		683	!	1
+buffer_weight[#16]	1
+buffer_name[#16]	generated_transposed_mod_transposed_col_384.dat
+Z[#16]	682
+c0_OO[#16]		1	!	0
+c0_RO[#16]		0	!	0
+c0_OR[#16]		0	!	0
+c0_RR[#16]		0	!	0
+lambda[#16]		682	!	1
+buffer_weight[#17]	1
+buffer_name[#17]	generated_transposed_mod_transposed_col_383.dat
+Z[#17]	681
+c0_OO[#17]		1	!	0
+c0_RO[#17]		0	!	0
+c0_OR[#17]		0	!	0
+c0_RR[#17]		0	!	0
+lambda[#17]		681	!	1
+buffer_weight[#18]	1
+buffer_name[#18]	generated_transposed_mod_transposed_col_382.dat
+Z[#18]	680
+c0_OO[#18]		1	!	0
+c0_RO[#18]		0	!	0
+c0_OR[#18]		0	!	0
+c0_RR[#18]		0	!	0
+lambda[#18]		680	!	1
+buffer_weight[#19]	1
+buffer_name[#19]	generated_transposed_mod_transposed_col_381.dat
+Z[#19]	679
+c0_OO[#19]		1	!	0
+c0_RO[#19]		0	!	0
+c0_OR[#19]		0	!	0
+c0_RR[#19]		0	!	0
+lambda[#19]		679	!	1
+buffer_weight[#20]	1
+buffer_name[#20]	generated_transposed_mod_transposed_col_380.dat
+Z[#20]	678
+c0_OO[#20]		1	!	0
+c0_RO[#20]		0	!	0
+c0_OR[#20]		0	!	0
+c0_RR[#20]		0	!	0
+lambda[#20]		678	!	1
+buffer_weight[#21]	1
+buffer_name[#21]	generated_transposed_mod_transposed_col_379.dat
+Z[#21]	677
+c0_OO[#21]		1	!	0
+c0_RO[#21]		0	!	0
+c0_OR[#21]		0	!	0
+c0_RR[#21]		0	!	0
+lambda[#21]		677	!	1
+buffer_weight[#22]	1
+buffer_name[#22]	generated_transposed_mod_transposed_col_378.dat
+Z[#22]	676
+c0_OO[#22]		1	!	0
+c0_RO[#22]		0	!	0
+c0_OR[#22]		0	!	0
+c0_RR[#22]		0	!	0
+lambda[#22]		676	!	1
+buffer_weight[#23]	1
+buffer_name[#23]	generated_transposed_mod_transposed_col_377.dat
+Z[#23]	675
+c0_OO[#23]		1	!	0
+c0_RO[#23]		0	!	0
+c0_OR[#23]		0	!	0
+c0_RR[#23]		0	!	0
+lambda[#23]		675	!	1
+buffer_weight[#24]	1
+buffer_name[#24]	generated_transposed_mod_transposed_col_376.dat
+Z[#24]	674
+c0_OO[#24]		1	!	0
+c0_RO[#24]		0	!	0
+c0_OR[#24]		0	!	0
+c0_RR[#24]		0	!	0
+lambda[#24]		674	!	1
+buffer_weight[#25]	1
+buffer_name[#25]	generated_transposed_mod_transposed_col_375.dat
+Z[#25]	673
+c0_OO[#25]		1	!	0
+c0_RO[#25]		0	!	0
+c0_OR[#25]		0	!	0
+c0_RR[#25]		0	!	0
+lambda[#25]		673	!	1
+buffer_weight[#26]	1
+buffer_name[#26]	generated_transposed_mod_transposed_col_374.dat
+Z[#26]	672
+c0_OO[#26]		1	!	0
+c0_RO[#26]		0	!	0
+c0_OR[#26]		0	!	0
+c0_RR[#26]		0	!	0
+lambda[#26]		672	!	1
+buffer_weight[#27]	1
+buffer_name[#27]	generated_transposed_mod_transposed_col_373.dat
+Z[#27]	671
+c0_OO[#27]		1	!	0
+c0_RO[#27]		0	!	0
+c0_OR[#27]		0	!	0
+c0_RR[#27]		0	!	0
+lambda[#27]		671	!	1
+buffer_weight[#28]	1
+buffer_name[#28]	generated_transposed_mod_transposed_col_372.dat
+Z[#28]	670
+c0_OO[#28]		1	!	0
+c0_RO[#28]		0	!	0
+c0_OR[#28]		0	!	0
+c0_RR[#28]		0	!	0
+lambda[#28]		670	!	1
+buffer_weight[#29]	1
+buffer_name[#29]	generated_transposed_mod_transposed_col_371.dat
+Z[#29]	669
+c0_OO[#29]		1	!	0
+c0_RO[#29]		0	!	0
+c0_OR[#29]		0	!	0
+c0_RR[#29]		0	!	0
+lambda[#29]		669	!	1
+buffer_weight[#30]	1
+buffer_name[#30]	generated_transposed_mod_transposed_col_370.dat
+Z[#30]	668
+c0_OO[#30]		1	!	0
+c0_RO[#30]		0	!	0
+c0_OR[#30]		0	!	0
+c0_RR[#30]		0	!	0
+lambda[#30]		668	!	1
+buffer_weight[#31]	1
+buffer_name[#31]	generated_transposed_mod_transposed_col_369.dat
+Z[#31]	667
+c0_OO[#31]		1	!	0
+c0_RO[#31]		0	!	0
+c0_OR[#31]		0	!	0
+c0_RR[#31]		0	!	0
+lambda[#31]		667	!	1
+buffer_weight[#32]	1
+buffer_name[#32]	generated_transposed_mod_transposed_col_368.dat
+Z[#32]	666
+c0_OO[#32]		1	!	0
+c0_RO[#32]		0	!	0
+c0_OR[#32]		0	!	0
+c0_RR[#32]		0	!	0
+lambda[#32]		666	!	1
+buffer_weight[#33]	1
+buffer_name[#33]	generated_transposed_mod_transposed_col_367.dat
+Z[#33]	665
+c0_OO[#33]		1	!	0
+c0_RO[#33]		0	!	0
+c0_OR[#33]		0	!	0
+c0_RR[#33]		0	!	0
+lambda[#33]		665	!	1
+buffer_weight[#34]	1
+buffer_name[#34]	generated_transposed_mod_transposed_col_366.dat
+Z[#34]	664
+c0_OO[#34]		1	!	0
+c0_RO[#34]		0	!	0
+c0_OR[#34]		0	!	0
+c0_RR[#34]		0	!	0
+lambda[#34]		664	!	1
+buffer_weight[#35]	1
+buffer_name[#35]	generated_transposed_mod_transposed_col_365.dat
+Z[#35]	663
+c0_OO[#35]		1	!	0
+c0_RO[#35]		0	!	0
+c0_OR[#35]		0	!	0
+c0_RR[#35]		0	!	0
+lambda[#35]		663	!	1
+buffer_weight[#36]	1
+buffer_name[#36]	generated_transposed_mod_transposed_col_364.dat
+Z[#36]	662
+c0_OO[#36]		1	!	0
+c0_RO[#36]		0	!	0
+c0_OR[#36]		0	!	0
+c0_RR[#36]		0	!	0
+lambda[#36]		662	!	1
+buffer_weight[#37]	1
+buffer_name[#37]	generated_transposed_mod_transposed_col_363.dat
+Z[#37]	661
+c0_OO[#37]		1	!	0
+c0_RO[#37]		0	!	0
+c0_OR[#37]		0	!	0
+c0_RR[#37]		0	!	0
+lambda[#37]		661	!	1
+buffer_weight[#38]	1
+buffer_name[#38]	generated_transposed_mod_transposed_col_362.dat
+Z[#38]	660
+c0_OO[#38]		1	!	0
+c0_RO[#38]		0	!	0
+c0_OR[#38]		0	!	0
+c0_RR[#38]		0	!	0
+lambda[#38]		660	!	1
+buffer_weight[#39]	1
+buffer_name[#39]	generated_transposed_mod_transposed_col_361.dat
+Z[#39]	659
+c0_OO[#39]		1	!	0
+c0_RO[#39]		0	!	0
+c0_OR[#39]		0	!	0
+c0_RR[#39]		0	!	0
+lambda[#39]		659	!	1
+buffer_weight[#40]	1
+buffer_name[#40]	generated_transposed_mod_transposed_col_360.dat
+Z[#40]	658
+c0_OO[#40]		1	!	0
+c0_RO[#40]		0	!	0
+c0_OR[#40]		0	!	0
+c0_RR[#40]		0	!	0
+lambda[#40]		658	!	1
+buffer_weight[#41]	1
+buffer_name[#41]	generated_transposed_mod_transposed_col_359.dat
+Z[#41]	657
+c0_OO[#41]		1	!	0
+c0_RO[#41]		0	!	0
+c0_OR[#41]		0	!	0
+c0_RR[#41]		0	!	0
+lambda[#41]		657	!	1
+buffer_weight[#42]	1
+buffer_name[#42]	generated_transposed_mod_transposed_col_358.dat
+Z[#42]	656
+c0_OO[#42]		1	!	0
+c0_RO[#42]		0	!	0
+c0_OR[#42]		0	!	0
+c0_RR[#42]		0	!	0
+lambda[#42]		656	!	1
+buffer_weight[#43]	1
+buffer_name[#43]	generated_transposed_mod_transposed_col_357.dat
+Z[#43]	655
+c0_OO[#43]		1	!	0
+c0_RO[#43]		0	!	0
+c0_OR[#43]		0	!	0
+c0_RR[#43]		0	!	0
+lambda[#43]		655	!	1
+buffer_weight[#44]	1
+buffer_name[#44]	generated_transposed_mod_transposed_col_356.dat
+Z[#44]	654
+c0_OO[#44]		1	!	0
+c0_RO[#44]		0	!	0
+c0_OR[#44]		0	!	0
+c0_RR[#44]		0	!	0
+lambda[#44]		654	!	1
+buffer_weight[#45]	1
+buffer_name[#45]	generated_transposed_mod_transposed_col_355.dat
+Z[#45]	653
+c0_OO[#45]		1	!	0
+c0_RO[#45]		0	!	0
+c0_OR[#45]		0	!	0
+c0_RR[#45]		0	!	0
+lambda[#45]		653	!	1
+buffer_weight[#46]	1
+buffer_name[#46]	generated_transposed_mod_transposed_col_354.dat
+Z[#46]	652
+c0_OO[#46]		1	!	0
+c0_RO[#46]		0	!	0
+c0_OR[#46]		0	!	0
+c0_RR[#46]		0	!	0
+lambda[#46]		652	!	1
+buffer_weight[#47]	1
+buffer_name[#47]	generated_transposed_mod_transposed_col_353.dat
+Z[#47]	651
+c0_OO[#47]		1	!	0
+c0_RO[#47]		0	!	0
+c0_OR[#47]		0	!	0
+c0_RR[#47]		0	!	0
+lambda[#47]		651	!	1
+buffer_weight[#48]	1
+buffer_name[#48]	generated_transposed_mod_transposed_col_352.dat
+Z[#48]	650
+c0_OO[#48]		1	!	0
+c0_RO[#48]		0	!	0
+c0_OR[#48]		0	!	0
+c0_RR[#48]		0	!	0
+lambda[#48]		650	!	1
+buffer_weight[#49]	1
+buffer_name[#49]	generated_transposed_mod_transposed_col_351.dat
+Z[#49]	649
+c0_OO[#49]		1	!	0
+c0_RO[#49]		0	!	0
+c0_OR[#49]		0	!	0
+c0_RR[#49]		0	!	0
+lambda[#49]		649	!	1
+buffer_weight[#50]	1
+buffer_name[#50]	generated_transposed_mod_transposed_col_350.dat
+Z[#50]	648
+c0_OO[#50]		1	!	0
+c0_RO[#50]		0	!	0
+c0_OR[#50]		0	!	0
+c0_RR[#50]		0	!	0
+lambda[#50]		648	!	1
+buffer_weight[#51]	1
+buffer_name[#51]	generated_transposed_mod_transposed_col_349.dat
+Z[#51]	647
+c0_OO[#51]		1	!	0
+c0_RO[#51]		0	!	0
+c0_OR[#51]		0	!	0
+c0_RR[#51]		0	!	0
+lambda[#51]		647	!	1
+buffer_weight[#52]	1
+buffer_name[#52]	generated_transposed_mod_transposed_col_348.dat
+Z[#52]	646
+c0_OO[#52]		1	!	0
+c0_RO[#52]		0	!	0
+c0_OR[#52]		0	!	0
+c0_RR[#52]		0	!	0
+lambda[#52]		646	!	1
+buffer_weight[#53]	1
+buffer_name[#53]	generated_transposed_mod_transposed_col_347.dat
+Z[#53]	645
+c0_OO[#53]		1	!	0
+c0_RO[#53]		0	!	0
+c0_OR[#53]		0	!	0
+c0_RR[#53]		0	!	0
+lambda[#53]		645	!	1
+buffer_weight[#54]	1
+buffer_name[#54]	generated_transposed_mod_transposed_col_346.dat
+Z[#54]	644
+c0_OO[#54]		1	!	0
+c0_RO[#54]		0	!	0
+c0_OR[#54]		0	!	0
+c0_RR[#54]		0	!	0
+lambda[#54]		644	!	1
+buffer_weight[#55]	1
+buffer_name[#55]	generated_transposed_mod_transposed_col_345.dat
+Z[#55]	643
+c0_OO[#55]		1	!	0
+c0_RO[#55]		0	!	0
+c0_OR[#55]		0	!	0
+c0_RR[#55]		0	!	0
+lambda[#55]		643	!	1
+buffer_weight[#56]	1
+buffer_name[#56]	generated_transposed_mod_transposed_col_344.dat
+Z[#56]	642
+c0_OO[#56]		1	!	0
+c0_RO[#56]		0	!	0
+c0_OR[#56]		0	!	0
+c0_RR[#56]		0	!	0
+lambda[#56]		642	!	1
+buffer_weight[#57]	1
+buffer_name[#57]	generated_transposed_mod_transposed_col_343.dat
+Z[#57]	641
+c0_OO[#57]		1	!	0
+c0_RO[#57]		0	!	0
+c0_OR[#57]		0	!	0
+c0_RR[#57]		0	!	0
+lambda[#57]		641	!	1
+buffer_weight[#58]	1
+buffer_name[#58]	generated_transposed_mod_transposed_col_342.dat
+Z[#58]	640
+c0_OO[#58]		1	!	0
+c0_RO[#58]		0	!	0
+c0_OR[#58]		0	!	0
+c0_RR[#58]		0	!	0
+lambda[#58]		640	!	1
+buffer_weight[#59]	1
+buffer_name[#59]	generated_transposed_mod_transposed_col_341.dat
+Z[#59]	639
+c0_OO[#59]		1	!	0
+c0_RO[#59]		0	!	0
+c0_OR[#59]		0	!	0
+c0_RR[#59]		0	!	0
+lambda[#59]		639	!	1
+buffer_weight[#60]	1
+buffer_name[#60]	generated_transposed_mod_transposed_col_340.dat
+Z[#60]	638
+c0_OO[#60]		1	!	0
+c0_RO[#60]		0	!	0
+c0_OR[#60]		0	!	0
+c0_RR[#60]		0	!	0
+lambda[#60]		638	!	1
+buffer_weight[#61]	1
+buffer_name[#61]	generated_transposed_mod_transposed_col_339.dat
+Z[#61]	637
+c0_OO[#61]		1	!	0
+c0_RO[#61]		0	!	0
+c0_OR[#61]		0	!	0
+c0_RR[#61]		0	!	0
+lambda[#61]		637	!	1
+buffer_weight[#62]	1
+buffer_name[#62]	generated_transposed_mod_transposed_col_338.dat
+Z[#62]	636
+c0_OO[#62]		1	!	0
+c0_RO[#62]		0	!	0
+c0_OR[#62]		0	!	0
+c0_RR[#62]		0	!	0
+lambda[#62]		636	!	1
+buffer_weight[#63]	1
+buffer_name[#63]	generated_transposed_mod_transposed_col_337.dat
+Z[#63]	635
+c0_OO[#63]		1	!	0
+c0_RO[#63]		0	!	0
+c0_OR[#63]		0	!	0
+c0_RR[#63]		0	!	0
+lambda[#63]		635	!	1
+buffer_weight[#64]	1
+buffer_name[#64]	generated_transposed_mod_transposed_col_336.dat
+Z[#64]	634
+c0_OO[#64]		1	!	0
+c0_RO[#64]		0	!	0
+c0_OR[#64]		0	!	0
+c0_RR[#64]		0	!	0
+lambda[#64]		634	!	1
+buffer_weight[#65]	1
+buffer_name[#65]	generated_transposed_mod_transposed_col_335.dat
+Z[#65]	633
+c0_OO[#65]		1	!	0
+c0_RO[#65]		0	!	0
+c0_OR[#65]		0	!	0
+c0_RR[#65]		0	!	0
+lambda[#65]		633	!	1
+buffer_weight[#66]	1
+buffer_name[#66]	generated_transposed_mod_transposed_col_334.dat
+Z[#66]	632
+c0_OO[#66]		1	!	0
+c0_RO[#66]		0	!	0
+c0_OR[#66]		0	!	0
+c0_RR[#66]		0	!	0
+lambda[#66]		632	!	1
+buffer_weight[#67]	1
+buffer_name[#67]	generated_transposed_mod_transposed_col_333.dat
+Z[#67]	631
+c0_OO[#67]		1	!	0
+c0_RO[#67]		0	!	0
+c0_OR[#67]		0	!	0
+c0_RR[#67]		0	!	0
+lambda[#67]		631	!	1
+buffer_weight[#68]	1
+buffer_name[#68]	generated_transposed_mod_transposed_col_332.dat
+Z[#68]	630
+c0_OO[#68]		1	!	0
+c0_RO[#68]		0	!	0
+c0_OR[#68]		0	!	0
+c0_RR[#68]		0	!	0
+lambda[#68]		630	!	1
+buffer_weight[#69]	1
+buffer_name[#69]	generated_transposed_mod_transposed_col_331.dat
+Z[#69]	629
+c0_OO[#69]		1	!	0
+c0_RO[#69]		0	!	0
+c0_OR[#69]		0	!	0
+c0_RR[#69]		0	!	0
+lambda[#69]		629	!	1
+buffer_weight[#70]	1
+buffer_name[#70]	generated_transposed_mod_transposed_col_330.dat
+Z[#70]	628
+c0_OO[#70]		1	!	0
+c0_RO[#70]		0	!	0
+c0_OR[#70]		0	!	0
+c0_RR[#70]		0	!	0
+lambda[#70]		628	!	1
+buffer_weight[#71]	1
+buffer_name[#71]	generated_transposed_mod_transposed_col_329.dat
+Z[#71]	627
+c0_OO[#71]		1	!	0
+c0_RO[#71]		0	!	0
+c0_OR[#71]		0	!	0
+c0_RR[#71]		0	!	0
+lambda[#71]		627	!	1
+buffer_weight[#72]	1
+buffer_name[#72]	generated_transposed_mod_transposed_col_328.dat
+Z[#72]	626
+c0_OO[#72]		1	!	0
+c0_RO[#72]		0	!	0
+c0_OR[#72]		0	!	0
+c0_RR[#72]		0	!	0
+lambda[#72]		626	!	1
+buffer_weight[#73]	1
+buffer_name[#73]	generated_transposed_mod_transposed_col_327.dat
+Z[#73]	625
+c0_OO[#73]		1	!	0
+c0_RO[#73]		0	!	0
+c0_OR[#73]		0	!	0
+c0_RR[#73]		0	!	0
+lambda[#73]		625	!	1
+buffer_weight[#74]	1
+buffer_name[#74]	generated_transposed_mod_transposed_col_326.dat
+Z[#74]	624
+c0_OO[#74]		1	!	0
+c0_RO[#74]		0	!	0
+c0_OR[#74]		0	!	0
+c0_RR[#74]		0	!	0
+lambda[#74]		624	!	1
+buffer_weight[#75]	1
+buffer_name[#75]	generated_transposed_mod_transposed_col_325.dat
+Z[#75]	623
+c0_OO[#75]		1	!	0
+c0_RO[#75]		0	!	0
+c0_OR[#75]		0	!	0
+c0_RR[#75]		0	!	0
+lambda[#75]		623	!	1
+buffer_weight[#76]	1
+buffer_name[#76]	generated_transposed_mod_transposed_col_324.dat
+Z[#76]	622
+c0_OO[#76]		1	!	0
+c0_RO[#76]		0	!	0
+c0_OR[#76]		0	!	0
+c0_RR[#76]		0	!	0
+lambda[#76]		622	!	1
+buffer_weight[#77]	1
+buffer_name[#77]	generated_transposed_mod_transposed_col_323.dat
+Z[#77]	621
+c0_OO[#77]		1	!	0
+c0_RO[#77]		0	!	0
+c0_OR[#77]		0	!	0
+c0_RR[#77]		0	!	0
+lambda[#77]		621	!	1
+buffer_weight[#78]	1
+buffer_name[#78]	generated_transposed_mod_transposed_col_322.dat
+Z[#78]	620
+c0_OO[#78]		1	!	0
+c0_RO[#78]		0	!	0
+c0_OR[#78]		0	!	0
+c0_RR[#78]		0	!	0
+lambda[#78]		620	!	1
+buffer_weight[#79]	1
+buffer_name[#79]	generated_transposed_mod_transposed_col_321.dat
+Z[#79]	619
+c0_OO[#79]		1	!	0
+c0_RO[#79]		0	!	0
+c0_OR[#79]		0	!	0
+c0_RR[#79]		0	!	0
+lambda[#79]		619	!	1
+buffer_weight[#80]	1
+buffer_name[#80]	generated_transposed_mod_transposed_col_320.dat
+Z[#80]	618
+c0_OO[#80]		1	!	0
+c0_RO[#80]		0	!	0
+c0_OR[#80]		0	!	0
+c0_RR[#80]		0	!	0
+lambda[#80]		618	!	1
+buffer_weight[#81]	1
+buffer_name[#81]	generated_transposed_mod_transposed_col_319.dat
+Z[#81]	617
+c0_OO[#81]		1	!	0
+c0_RO[#81]		0	!	0
+c0_OR[#81]		0	!	0
+c0_RR[#81]		0	!	0
+lambda[#81]		617	!	1
+buffer_weight[#82]	1
+buffer_name[#82]	generated_transposed_mod_transposed_col_318.dat
+Z[#82]	616
+c0_OO[#82]		1	!	0
+c0_RO[#82]		0	!	0
+c0_OR[#82]		0	!	0
+c0_RR[#82]		0	!	0
+lambda[#82]		616	!	1
+buffer_weight[#83]	1
+buffer_name[#83]	generated_transposed_mod_transposed_col_317.dat
+Z[#83]	615
+c0_OO[#83]		1	!	0
+c0_RO[#83]		0	!	0
+c0_OR[#83]		0	!	0
+c0_RR[#83]		0	!	0
+lambda[#83]		615	!	1
+buffer_weight[#84]	1
+buffer_name[#84]	generated_transposed_mod_transposed_col_316.dat
+Z[#84]	614
+c0_OO[#84]		1	!	0
+c0_RO[#84]		0	!	0
+c0_OR[#84]		0	!	0
+c0_RR[#84]		0	!	0
+lambda[#84]		614	!	1
+buffer_weight[#85]	1
+buffer_name[#85]	generated_transposed_mod_transposed_col_315.dat
+Z[#85]	613
+c0_OO[#85]		1	!	0
+c0_RO[#85]		0	!	0
+c0_OR[#85]		0	!	0
+c0_RR[#85]		0	!	0
+lambda[#85]		613	!	1
+buffer_weight[#86]	1
+buffer_name[#86]	generated_transposed_mod_transposed_col_314.dat
+Z[#86]	612
+c0_OO[#86]		1	!	0
+c0_RO[#86]		0	!	0
+c0_OR[#86]		0	!	0
+c0_RR[#86]		0	!	0
+lambda[#86]		612	!	1
+buffer_weight[#87]	1
+buffer_name[#87]	generated_transposed_mod_transposed_col_313.dat
+Z[#87]	611
+c0_OO[#87]		1	!	0
+c0_RO[#87]		0	!	0
+c0_OR[#87]		0	!	0
+c0_RR[#87]		0	!	0
+lambda[#87]		611	!	1
+buffer_weight[#88]	1
+buffer_name[#88]	generated_transposed_mod_transposed_col_312.dat
+Z[#88]	610
+c0_OO[#88]		1	!	0
+c0_RO[#88]		0	!	0
+c0_OR[#88]		0	!	0
+c0_RR[#88]		0	!	0
+lambda[#88]		610	!	1
+buffer_weight[#89]	1
+buffer_name[#89]	generated_transposed_mod_transposed_col_311.dat
+Z[#89]	609
+c0_OO[#89]		1	!	0
+c0_RO[#89]		0	!	0
+c0_OR[#89]		0	!	0
+c0_RR[#89]		0	!	0
+lambda[#89]		609	!	1
+buffer_weight[#90]	1
+buffer_name[#90]	generated_transposed_mod_transposed_col_310.dat
+Z[#90]	608
+c0_OO[#90]		1	!	0
+c0_RO[#90]		0	!	0
+c0_OR[#90]		0	!	0
+c0_RR[#90]		0	!	0
+lambda[#90]		608	!	1
+buffer_weight[#91]	1
+buffer_name[#91]	generated_transposed_mod_transposed_col_309.dat
+Z[#91]	607
+c0_OO[#91]		1	!	0
+c0_RO[#91]		0	!	0
+c0_OR[#91]		0	!	0
+c0_RR[#91]		0	!	0
+lambda[#91]		607	!	1
+buffer_weight[#92]	1
+buffer_name[#92]	generated_transposed_mod_transposed_col_308.dat
+Z[#92]	606
+c0_OO[#92]		1	!	0
+c0_RO[#92]		0	!	0
+c0_OR[#92]		0	!	0
+c0_RR[#92]		0	!	0
+lambda[#92]		606	!	1
+buffer_weight[#93]	1
+buffer_name[#93]	generated_transposed_mod_transposed_col_307.dat
+Z[#93]	605
+c0_OO[#93]		1	!	0
+c0_RO[#93]		0	!	0
+c0_OR[#93]		0	!	0
+c0_RR[#93]		0	!	0
+lambda[#93]		605	!	1
+buffer_weight[#94]	1
+buffer_name[#94]	generated_transposed_mod_transposed_col_306.dat
+Z[#94]	604
+c0_OO[#94]		1	!	0
+c0_RO[#94]		0	!	0
+c0_OR[#94]		0	!	0
+c0_RR[#94]		0	!	0
+lambda[#94]		604	!	1
+buffer_weight[#95]	1
+buffer_name[#95]	generated_transposed_mod_transposed_col_305.dat
+Z[#95]	603
+c0_OO[#95]		1	!	0
+c0_RO[#95]		0	!	0
+c0_OR[#95]		0	!	0
+c0_RR[#95]		0	!	0
+lambda[#95]		603	!	1
+buffer_weight[#96]	1
+buffer_name[#96]	generated_transposed_mod_transposed_col_304.dat
+Z[#96]	602
+c0_OO[#96]		1	!	0
+c0_RO[#96]		0	!	0
+c0_OR[#96]		0	!	0
+c0_RR[#96]		0	!	0
+lambda[#96]		602	!	1
+buffer_weight[#97]	1
+buffer_name[#97]	generated_transposed_mod_transposed_col_303.dat
+Z[#97]	601
+c0_OO[#97]		1	!	0
+c0_RO[#97]		0	!	0
+c0_OR[#97]		0	!	0
+c0_RR[#97]		0	!	0
+lambda[#97]		601	!	1
+buffer_weight[#98]	1
+buffer_name[#98]	generated_transposed_mod_transposed_col_302.dat
+Z[#98]	600
+c0_OO[#98]		1	!	0
+c0_RO[#98]		0	!	0
+c0_OR[#98]		0	!	0
+c0_RR[#98]		0	!	0
+lambda[#98]		600	!	1
+buffer_weight[#99]	1
+buffer_name[#99]	generated_transposed_mod_transposed_col_301.dat
+Z[#99]	599
+c0_OO[#99]		1	!	0
+c0_RO[#99]		0	!	0
+c0_OR[#99]		0	!	0
+c0_RR[#99]		0	!	0
+lambda[#99]		599	!	1
+buffer_weight[#100]	1
+buffer_name[#100]	generated_transposed_mod_transposed_col_300.dat
+Z[#100]	598
+c0_OO[#100]		1	!	0
+c0_RO[#100]		0	!	0
+c0_OR[#100]		0	!	0
+c0_RR[#100]		0	!	0
+lambda[#100]		598	!	1
+buffer_weight[#101]	1
+buffer_name[#101]	generated_transposed_mod_transposed_col_299.dat
+Z[#101]	597
+c0_OO[#101]		1	!	0
+c0_RO[#101]		0	!	0
+c0_OR[#101]		0	!	0
+c0_RR[#101]		0	!	0
+lambda[#101]		597	!	1
+buffer_weight[#102]	1
+buffer_name[#102]	generated_transposed_mod_transposed_col_298.dat
+Z[#102]	596
+c0_OO[#102]		1	!	0
+c0_RO[#102]		0	!	0
+c0_OR[#102]		0	!	0
+c0_RR[#102]		0	!	0
+lambda[#102]		596	!	1
+buffer_weight[#103]	1
+buffer_name[#103]	generated_transposed_mod_transposed_col_297.dat
+Z[#103]	595
+c0_OO[#103]		1	!	0
+c0_RO[#103]		0	!	0
+c0_OR[#103]		0	!	0
+c0_RR[#103]		0	!	0
+lambda[#103]		595	!	1
+buffer_weight[#104]	1
+buffer_name[#104]	generated_transposed_mod_transposed_col_296.dat
+Z[#104]	594
+c0_OO[#104]		1	!	0
+c0_RO[#104]		0	!	0
+c0_OR[#104]		0	!	0
+c0_RR[#104]		0	!	0
+lambda[#104]		594	!	1
+buffer_weight[#105]	1
+buffer_name[#105]	generated_transposed_mod_transposed_col_295.dat
+Z[#105]	593
+c0_OO[#105]		1	!	0
+c0_RO[#105]		0	!	0
+c0_OR[#105]		0	!	0
+c0_RR[#105]		0	!	0
+lambda[#105]		593	!	1
+buffer_weight[#106]	1
+buffer_name[#106]	generated_transposed_mod_transposed_col_294.dat
+Z[#106]	592
+c0_OO[#106]		1	!	0
+c0_RO[#106]		0	!	0
+c0_OR[#106]		0	!	0
+c0_RR[#106]		0	!	0
+lambda[#106]		592	!	1
+buffer_weight[#107]	1
+buffer_name[#107]	generated_transposed_mod_transposed_col_293.dat
+Z[#107]	591
+c0_OO[#107]		1	!	0
+c0_RO[#107]		0	!	0
+c0_OR[#107]		0	!	0
+c0_RR[#107]		0	!	0
+lambda[#107]		591	!	1
+buffer_weight[#108]	1
+buffer_name[#108]	generated_transposed_mod_transposed_col_292.dat
+Z[#108]	590
+c0_OO[#108]		1	!	0
+c0_RO[#108]		0	!	0
+c0_OR[#108]		0	!	0
+c0_RR[#108]		0	!	0
+lambda[#108]		590	!	1
+buffer_weight[#109]	1
+buffer_name[#109]	generated_transposed_mod_transposed_col_291.dat
+Z[#109]	589
+c0_OO[#109]		1	!	0
+c0_RO[#109]		0	!	0
+c0_OR[#109]		0	!	0
+c0_RR[#109]		0	!	0
+lambda[#109]		589	!	1
+buffer_weight[#110]	1
+buffer_name[#110]	generated_transposed_mod_transposed_col_290.dat
+Z[#110]	588
+c0_OO[#110]		1	!	0
+c0_RO[#110]		0	!	0
+c0_OR[#110]		0	!	0
+c0_RR[#110]		0	!	0
+lambda[#110]		588	!	1
+buffer_weight[#111]	1
+buffer_name[#111]	generated_transposed_mod_transposed_col_289.dat
+Z[#111]	587
+c0_OO[#111]		1	!	0
+c0_RO[#111]		0	!	0
+c0_OR[#111]		0	!	0
+c0_RR[#111]		0	!	0
+lambda[#111]		587	!	1
+buffer_weight[#112]	1
+buffer_name[#112]	generated_transposed_mod_transposed_col_288.dat
+Z[#112]	586
+c0_OO[#112]		1	!	0
+c0_RO[#112]		0	!	0
+c0_OR[#112]		0	!	0
+c0_RR[#112]		0	!	0
+lambda[#112]		586	!	1
+buffer_weight[#113]	1
+buffer_name[#113]	generated_transposed_mod_transposed_col_287.dat
+Z[#113]	585
+c0_OO[#113]		1	!	0
+c0_RO[#113]		0	!	0
+c0_OR[#113]		0	!	0
+c0_RR[#113]		0	!	0
+lambda[#113]		585	!	1
+buffer_weight[#114]	1
+buffer_name[#114]	generated_transposed_mod_transposed_col_286.dat
+Z[#114]	584
+c0_OO[#114]		1	!	0
+c0_RO[#114]		0	!	0
+c0_OR[#114]		0	!	0
+c0_RR[#114]		0	!	0
+lambda[#114]		584	!	1
+buffer_weight[#115]	1
+buffer_name[#115]	generated_transposed_mod_transposed_col_285.dat
+Z[#115]	583
+c0_OO[#115]		1	!	0
+c0_RO[#115]		0	!	0
+c0_OR[#115]		0	!	0
+c0_RR[#115]		0	!	0
+lambda[#115]		583	!	1
+buffer_weight[#116]	1
+buffer_name[#116]	generated_transposed_mod_transposed_col_284.dat
+Z[#116]	582
+c0_OO[#116]		1	!	0
+c0_RO[#116]		0	!	0
+c0_OR[#116]		0	!	0
+c0_RR[#116]		0	!	0
+lambda[#116]		582	!	1
+buffer_weight[#117]	1
+buffer_name[#117]	generated_transposed_mod_transposed_col_283.dat
+Z[#117]	581
+c0_OO[#117]		1	!	0
+c0_RO[#117]		0	!	0
+c0_OR[#117]		0	!	0
+c0_RR[#117]		0	!	0
+lambda[#117]		581	!	1
+buffer_weight[#118]	1
+buffer_name[#118]	generated_transposed_mod_transposed_col_282.dat
+Z[#118]	580
+c0_OO[#118]		1	!	0
+c0_RO[#118]		0	!	0
+c0_OR[#118]		0	!	0
+c0_RR[#118]		0	!	0
+lambda[#118]		580	!	1
+buffer_weight[#119]	1
+buffer_name[#119]	generated_transposed_mod_transposed_col_281.dat
+Z[#119]	579
+c0_OO[#119]		1	!	0
+c0_RO[#119]		0	!	0
+c0_OR[#119]		0	!	0
+c0_RR[#119]		0	!	0
+lambda[#119]		579	!	1
+buffer_weight[#120]	1
+buffer_name[#120]	generated_transposed_mod_transposed_col_280.dat
+Z[#120]	578
+c0_OO[#120]		1	!	0
+c0_RO[#120]		0	!	0
+c0_OR[#120]		0	!	0
+c0_RR[#120]		0	!	0
+lambda[#120]		578	!	1
+buffer_weight[#121]	1
+buffer_name[#121]	generated_transposed_mod_transposed_col_279.dat
+Z[#121]	577
+c0_OO[#121]		1	!	0
+c0_RO[#121]		0	!	0
+c0_OR[#121]		0	!	0
+c0_RR[#121]		0	!	0
+lambda[#121]		577	!	1
+buffer_weight[#122]	1
+buffer_name[#122]	generated_transposed_mod_transposed_col_278.dat
+Z[#122]	576
+c0_OO[#122]		1	!	0
+c0_RO[#122]		0	!	0
+c0_OR[#122]		0	!	0
+c0_RR[#122]		0	!	0
+lambda[#122]		576	!	1
+buffer_weight[#123]	1
+buffer_name[#123]	generated_transposed_mod_transposed_col_277.dat
+Z[#123]	575
+c0_OO[#123]		1	!	0
+c0_RO[#123]		0	!	0
+c0_OR[#123]		0	!	0
+c0_RR[#123]		0	!	0
+lambda[#123]		575	!	1
+buffer_weight[#124]	1
+buffer_name[#124]	generated_transposed_mod_transposed_col_276.dat
+Z[#124]	574
+c0_OO[#124]		1	!	0
+c0_RO[#124]		0	!	0
+c0_OR[#124]		0	!	0
+c0_RR[#124]		0	!	0
+lambda[#124]		574	!	1
+buffer_weight[#125]	1
+buffer_name[#125]	generated_transposed_mod_transposed_col_275.dat
+Z[#125]	573
+c0_OO[#125]		1	!	0
+c0_RO[#125]		0	!	0
+c0_OR[#125]		0	!	0
+c0_RR[#125]		0	!	0
+lambda[#125]		573	!	1
+buffer_weight[#126]	1
+buffer_name[#126]	generated_transposed_mod_transposed_col_274.dat
+Z[#126]	572
+c0_OO[#126]		1	!	0
+c0_RO[#126]		0	!	0
+c0_OR[#126]		0	!	0
+c0_RR[#126]		0	!	0
+lambda[#126]		572	!	1
+buffer_weight[#127]	1
+buffer_name[#127]	generated_transposed_mod_transposed_col_273.dat
+Z[#127]	571
+c0_OO[#127]		1	!	0
+c0_RO[#127]		0	!	0
+c0_OR[#127]		0	!	0
+c0_RR[#127]		0	!	0
+lambda[#127]		571	!	1
+buffer_weight[#128]	1
+buffer_name[#128]	generated_transposed_mod_transposed_col_272.dat
+Z[#128]	570
+c0_OO[#128]		1	!	0
+c0_RO[#128]		0	!	0
+c0_OR[#128]		0	!	0
+c0_RR[#128]		0	!	0
+lambda[#128]		570	!	1
+buffer_weight[#129]	1
+buffer_name[#129]	generated_transposed_mod_transposed_col_271.dat
+Z[#129]	569
+c0_OO[#129]		1	!	0
+c0_RO[#129]		0	!	0
+c0_OR[#129]		0	!	0
+c0_RR[#129]		0	!	0
+lambda[#129]		569	!	1
+buffer_weight[#130]	1
+buffer_name[#130]	generated_transposed_mod_transposed_col_270.dat
+Z[#130]	568
+c0_OO[#130]		1	!	0
+c0_RO[#130]		0	!	0
+c0_OR[#130]		0	!	0
+c0_RR[#130]		0	!	0
+lambda[#130]		568	!	1
+buffer_weight[#131]	1
+buffer_name[#131]	generated_transposed_mod_transposed_col_269.dat
+Z[#131]	567
+c0_OO[#131]		1	!	0
+c0_RO[#131]		0	!	0
+c0_OR[#131]		0	!	0
+c0_RR[#131]		0	!	0
+lambda[#131]		567	!	1
+buffer_weight[#132]	1
+buffer_name[#132]	generated_transposed_mod_transposed_col_268.dat
+Z[#132]	566
+c0_OO[#132]		1	!	0
+c0_RO[#132]		0	!	0
+c0_OR[#132]		0	!	0
+c0_RR[#132]		0	!	0
+lambda[#132]		566	!	1
+buffer_weight[#133]	1
+buffer_name[#133]	generated_transposed_mod_transposed_col_267.dat
+Z[#133]	565
+c0_OO[#133]		1	!	0
+c0_RO[#133]		0	!	0
+c0_OR[#133]		0	!	0
+c0_RR[#133]		0	!	0
+lambda[#133]		565	!	1
+buffer_weight[#134]	1
+buffer_name[#134]	generated_transposed_mod_transposed_col_266.dat
+Z[#134]	564
+c0_OO[#134]		1	!	0
+c0_RO[#134]		0	!	0
+c0_OR[#134]		0	!	0
+c0_RR[#134]		0	!	0
+lambda[#134]		564	!	1
+buffer_weight[#135]	1
+buffer_name[#135]	generated_transposed_mod_transposed_col_265.dat
+Z[#135]	563
+c0_OO[#135]		1	!	0
+c0_RO[#135]		0	!	0
+c0_OR[#135]		0	!	0
+c0_RR[#135]		0	!	0
+lambda[#135]		563	!	1
+buffer_weight[#136]	1
+buffer_name[#136]	generated_transposed_mod_transposed_col_264.dat
+Z[#136]	562
+c0_OO[#136]		1	!	0
+c0_RO[#136]		0	!	0
+c0_OR[#136]		0	!	0
+c0_RR[#136]		0	!	0
+lambda[#136]		562	!	1
+buffer_weight[#137]	1
+buffer_name[#137]	generated_transposed_mod_transposed_col_263.dat
+Z[#137]	561
+c0_OO[#137]		1	!	0
+c0_RO[#137]		0	!	0
+c0_OR[#137]		0	!	0
+c0_RR[#137]		0	!	0
+lambda[#137]		561	!	1
+buffer_weight[#138]	1
+buffer_name[#138]	generated_transposed_mod_transposed_col_262.dat
+Z[#138]	560
+c0_OO[#138]		1	!	0
+c0_RO[#138]		0	!	0
+c0_OR[#138]		0	!	0
+c0_RR[#138]		0	!	0
+lambda[#138]		560	!	1
+buffer_weight[#139]	1
+buffer_name[#139]	generated_transposed_mod_transposed_col_261.dat
+Z[#139]	559
+c0_OO[#139]		1	!	0
+c0_RO[#139]		0	!	0
+c0_OR[#139]		0	!	0
+c0_RR[#139]		0	!	0
+lambda[#139]		559	!	1
+buffer_weight[#140]	1
+buffer_name[#140]	generated_transposed_mod_transposed_col_260.dat
+Z[#140]	558
+c0_OO[#140]		1	!	0
+c0_RO[#140]		0	!	0
+c0_OR[#140]		0	!	0
+c0_RR[#140]		0	!	0
+lambda[#140]		558	!	1
+buffer_weight[#141]	1
+buffer_name[#141]	generated_transposed_mod_transposed_col_259.dat
+Z[#141]	557
+c0_OO[#141]		1	!	0
+c0_RO[#141]		0	!	0
+c0_OR[#141]		0	!	0
+c0_RR[#141]		0	!	0
+lambda[#141]		557	!	1
+buffer_weight[#142]	1
+buffer_name[#142]	generated_transposed_mod_transposed_col_258.dat
+Z[#142]	556
+c0_OO[#142]		1	!	0
+c0_RO[#142]		0	!	0
+c0_OR[#142]		0	!	0
+c0_RR[#142]		0	!	0
+lambda[#142]		556	!	1
+buffer_weight[#143]	1
+buffer_name[#143]	generated_transposed_mod_transposed_col_257.dat
+Z[#143]	555
+c0_OO[#143]		1	!	0
+c0_RO[#143]		0	!	0
+c0_OR[#143]		0	!	0
+c0_RR[#143]		0	!	0
+lambda[#143]		555	!	1
+buffer_weight[#144]	1
+buffer_name[#144]	generated_transposed_mod_transposed_col_256.dat
+Z[#144]	554
+c0_OO[#144]		1	!	0
+c0_RO[#144]		0	!	0
+c0_OR[#144]		0	!	0
+c0_RR[#144]		0	!	0
+lambda[#144]		554	!	1
+buffer_weight[#145]	1
+buffer_name[#145]	generated_transposed_mod_transposed_col_255.dat
+Z[#145]	553
+c0_OO[#145]		1	!	0
+c0_RO[#145]		0	!	0
+c0_OR[#145]		0	!	0
+c0_RR[#145]		0	!	0
+lambda[#145]		553	!	1
+buffer_weight[#146]	1
+buffer_name[#146]	generated_transposed_mod_transposed_col_254.dat
+Z[#146]	552
+c0_OO[#146]		1	!	0
+c0_RO[#146]		0	!	0
+c0_OR[#146]		0	!	0
+c0_RR[#146]		0	!	0
+lambda[#146]		552	!	1
+buffer_weight[#147]	1
+buffer_name[#147]	generated_transposed_mod_transposed_col_253.dat
+Z[#147]	551
+c0_OO[#147]		1	!	0
+c0_RO[#147]		0	!	0
+c0_OR[#147]		0	!	0
+c0_RR[#147]		0	!	0
+lambda[#147]		551	!	1
+buffer_weight[#148]	1
+buffer_name[#148]	generated_transposed_mod_transposed_col_252.dat
+Z[#148]	550
+c0_OO[#148]		1	!	0
+c0_RO[#148]		0	!	0
+c0_OR[#148]		0	!	0
+c0_RR[#148]		0	!	0
+lambda[#148]		550	!	1
+buffer_weight[#149]	1
+buffer_name[#149]	generated_transposed_mod_transposed_col_251.dat
+Z[#149]	549
+c0_OO[#149]		1	!	0
+c0_RO[#149]		0	!	0
+c0_OR[#149]		0	!	0
+c0_RR[#149]		0	!	0
+lambda[#149]		549	!	1
+buffer_weight[#150]	1
+buffer_name[#150]	generated_transposed_mod_transposed_col_250.dat
+Z[#150]	548
+c0_OO[#150]		1	!	0
+c0_RO[#150]		0	!	0
+c0_OR[#150]		0	!	0
+c0_RR[#150]		0	!	0
+lambda[#150]		548	!	1
+buffer_weight[#151]	1
+buffer_name[#151]	generated_transposed_mod_transposed_col_249.dat
+Z[#151]	547
+c0_OO[#151]		1	!	0
+c0_RO[#151]		0	!	0
+c0_OR[#151]		0	!	0
+c0_RR[#151]		0	!	0
+lambda[#151]		547	!	1
+buffer_weight[#152]	1
+buffer_name[#152]	generated_transposed_mod_transposed_col_248.dat
+Z[#152]	546
+c0_OO[#152]		1	!	0
+c0_RO[#152]		0	!	0
+c0_OR[#152]		0	!	0
+c0_RR[#152]		0	!	0
+lambda[#152]		546	!	1
+buffer_weight[#153]	1
+buffer_name[#153]	generated_transposed_mod_transposed_col_247.dat
+Z[#153]	545
+c0_OO[#153]		1	!	0
+c0_RO[#153]		0	!	0
+c0_OR[#153]		0	!	0
+c0_RR[#153]		0	!	0
+lambda[#153]		545	!	1
+buffer_weight[#154]	1
+buffer_name[#154]	generated_transposed_mod_transposed_col_246.dat
+Z[#154]	544
+c0_OO[#154]		1	!	0
+c0_RO[#154]		0	!	0
+c0_OR[#154]		0	!	0
+c0_RR[#154]		0	!	0
+lambda[#154]		544	!	1
+buffer_weight[#155]	1
+buffer_name[#155]	generated_transposed_mod_transposed_col_245.dat
+Z[#155]	543
+c0_OO[#155]		1	!	0
+c0_RO[#155]		0	!	0
+c0_OR[#155]		0	!	0
+c0_RR[#155]		0	!	0
+lambda[#155]		543	!	1
+buffer_weight[#156]	1
+buffer_name[#156]	generated_transposed_mod_transposed_col_244.dat
+Z[#156]	542
+c0_OO[#156]		1	!	0
+c0_RO[#156]		0	!	0
+c0_OR[#156]		0	!	0
+c0_RR[#156]		0	!	0
+lambda[#156]		542	!	1
+buffer_weight[#157]	1
+buffer_name[#157]	generated_transposed_mod_transposed_col_243.dat
+Z[#157]	541
+c0_OO[#157]		1	!	0
+c0_RO[#157]		0	!	0
+c0_OR[#157]		0	!	0
+c0_RR[#157]		0	!	0
+lambda[#157]		541	!	1
+buffer_weight[#158]	1
+buffer_name[#158]	generated_transposed_mod_transposed_col_242.dat
+Z[#158]	540
+c0_OO[#158]		1	!	0
+c0_RO[#158]		0	!	0
+c0_OR[#158]		0	!	0
+c0_RR[#158]		0	!	0
+lambda[#158]		540	!	1
+buffer_weight[#159]	1
+buffer_name[#159]	generated_transposed_mod_transposed_col_241.dat
+Z[#159]	539
+c0_OO[#159]		1	!	0
+c0_RO[#159]		0	!	0
+c0_OR[#159]		0	!	0
+c0_RR[#159]		0	!	0
+lambda[#159]		539	!	1
+buffer_weight[#160]	1
+buffer_name[#160]	generated_transposed_mod_transposed_col_240.dat
+Z[#160]	538
+c0_OO[#160]		1	!	0
+c0_RO[#160]		0	!	0
+c0_OR[#160]		0	!	0
+c0_RR[#160]		0	!	0
+lambda[#160]		538	!	1
+buffer_weight[#161]	1
+buffer_name[#161]	generated_transposed_mod_transposed_col_239.dat
+Z[#161]	537
+c0_OO[#161]		1	!	0
+c0_RO[#161]		0	!	0
+c0_OR[#161]		0	!	0
+c0_RR[#161]		0	!	0
+lambda[#161]		537	!	1
+buffer_weight[#162]	1
+buffer_name[#162]	generated_transposed_mod_transposed_col_238.dat
+Z[#162]	536
+c0_OO[#162]		1	!	0
+c0_RO[#162]		0	!	0
+c0_OR[#162]		0	!	0
+c0_RR[#162]		0	!	0
+lambda[#162]		536	!	1
+buffer_weight[#163]	1
+buffer_name[#163]	generated_transposed_mod_transposed_col_237.dat
+Z[#163]	535
+c0_OO[#163]		1	!	0
+c0_RO[#163]		0	!	0
+c0_OR[#163]		0	!	0
+c0_RR[#163]		0	!	0
+lambda[#163]		535	!	1
+buffer_weight[#164]	1
+buffer_name[#164]	generated_transposed_mod_transposed_col_236.dat
+Z[#164]	534
+c0_OO[#164]		1	!	0
+c0_RO[#164]		0	!	0
+c0_OR[#164]		0	!	0
+c0_RR[#164]		0	!	0
+lambda[#164]		534	!	1
+buffer_weight[#165]	1
+buffer_name[#165]	generated_transposed_mod_transposed_col_235.dat
+Z[#165]	533
+c0_OO[#165]		1	!	0
+c0_RO[#165]		0	!	0
+c0_OR[#165]		0	!	0
+c0_RR[#165]		0	!	0
+lambda[#165]		533	!	1
+buffer_weight[#166]	1
+buffer_name[#166]	generated_transposed_mod_transposed_col_234.dat
+Z[#166]	532
+c0_OO[#166]		1	!	0
+c0_RO[#166]		0	!	0
+c0_OR[#166]		0	!	0
+c0_RR[#166]		0	!	0
+lambda[#166]		532	!	1
+buffer_weight[#167]	1
+buffer_name[#167]	generated_transposed_mod_transposed_col_233.dat
+Z[#167]	531
+c0_OO[#167]		1	!	0
+c0_RO[#167]		0	!	0
+c0_OR[#167]		0	!	0
+c0_RR[#167]		0	!	0
+lambda[#167]		531	!	1
+buffer_weight[#168]	1
+buffer_name[#168]	generated_transposed_mod_transposed_col_232.dat
+Z[#168]	530
+c0_OO[#168]		1	!	0
+c0_RO[#168]		0	!	0
+c0_OR[#168]		0	!	0
+c0_RR[#168]		0	!	0
+lambda[#168]		530	!	1
+buffer_weight[#169]	1
+buffer_name[#169]	generated_transposed_mod_transposed_col_231.dat
+Z[#169]	529
+c0_OO[#169]		1	!	0
+c0_RO[#169]		0	!	0
+c0_OR[#169]		0	!	0
+c0_RR[#169]		0	!	0
+lambda[#169]		529	!	1
+buffer_weight[#170]	1
+buffer_name[#170]	generated_transposed_mod_transposed_col_230.dat
+Z[#170]	528
+c0_OO[#170]		1	!	0
+c0_RO[#170]		0	!	0
+c0_OR[#170]		0	!	0
+c0_RR[#170]		0	!	0
+lambda[#170]		528	!	1
+buffer_weight[#171]	1
+buffer_name[#171]	generated_transposed_mod_transposed_col_229.dat
+Z[#171]	527
+c0_OO[#171]		1	!	0
+c0_RO[#171]		0	!	0
+c0_OR[#171]		0	!	0
+c0_RR[#171]		0	!	0
+lambda[#171]		527	!	1
+buffer_weight[#172]	1
+buffer_name[#172]	generated_transposed_mod_transposed_col_228.dat
+Z[#172]	526
+c0_OO[#172]		1	!	0
+c0_RO[#172]		0	!	0
+c0_OR[#172]		0	!	0
+c0_RR[#172]		0	!	0
+lambda[#172]		526	!	1
+buffer_weight[#173]	1
+buffer_name[#173]	generated_transposed_mod_transposed_col_227.dat
+Z[#173]	525
+c0_OO[#173]		1	!	0
+c0_RO[#173]		0	!	0
+c0_OR[#173]		0	!	0
+c0_RR[#173]		0	!	0
+lambda[#173]		525	!	1
+buffer_weight[#174]	1
+buffer_name[#174]	generated_transposed_mod_transposed_col_226.dat
+Z[#174]	524
+c0_OO[#174]		1	!	0
+c0_RO[#174]		0	!	0
+c0_OR[#174]		0	!	0
+c0_RR[#174]		0	!	0
+lambda[#174]		524	!	1
+buffer_weight[#175]	1
+buffer_name[#175]	generated_transposed_mod_transposed_col_225.dat
+Z[#175]	523
+c0_OO[#175]		1	!	0
+c0_RO[#175]		0	!	0
+c0_OR[#175]		0	!	0
+c0_RR[#175]		0	!	0
+lambda[#175]		523	!	1
+buffer_weight[#176]	1
+buffer_name[#176]	generated_transposed_mod_transposed_col_224.dat
+Z[#176]	522
+c0_OO[#176]		1	!	0
+c0_RO[#176]		0	!	0
+c0_OR[#176]		0	!	0
+c0_RR[#176]		0	!	0
+lambda[#176]		522	!	1
+buffer_weight[#177]	1
+buffer_name[#177]	generated_transposed_mod_transposed_col_223.dat
+Z[#177]	521
+c0_OO[#177]		1	!	0
+c0_RO[#177]		0	!	0
+c0_OR[#177]		0	!	0
+c0_RR[#177]		0	!	0
+lambda[#177]		521	!	1
+buffer_weight[#178]	1
+buffer_name[#178]	generated_transposed_mod_transposed_col_222.dat
+Z[#178]	520
+c0_OO[#178]		1	!	0
+c0_RO[#178]		0	!	0
+c0_OR[#178]		0	!	0
+c0_RR[#178]		0	!	0
+lambda[#178]		520	!	1
+buffer_weight[#179]	1
+buffer_name[#179]	generated_transposed_mod_transposed_col_221.dat
+Z[#179]	519
+c0_OO[#179]		1	!	0
+c0_RO[#179]		0	!	0
+c0_OR[#179]		0	!	0
+c0_RR[#179]		0	!	0
+lambda[#179]		519	!	1
+buffer_weight[#180]	1
+buffer_name[#180]	generated_transposed_mod_transposed_col_220.dat
+Z[#180]	518
+c0_OO[#180]		1	!	0
+c0_RO[#180]		0	!	0
+c0_OR[#180]		0	!	0
+c0_RR[#180]		0	!	0
+lambda[#180]		518	!	1
+buffer_weight[#181]	1
+buffer_name[#181]	generated_transposed_mod_transposed_col_219.dat
+Z[#181]	517
+c0_OO[#181]		1	!	0
+c0_RO[#181]		0	!	0
+c0_OR[#181]		0	!	0
+c0_RR[#181]		0	!	0
+lambda[#181]		517	!	1
+buffer_weight[#182]	1
+buffer_name[#182]	generated_transposed_mod_transposed_col_218.dat
+Z[#182]	516
+c0_OO[#182]		1	!	0
+c0_RO[#182]		0	!	0
+c0_OR[#182]		0	!	0
+c0_RR[#182]		0	!	0
+lambda[#182]		516	!	1
+buffer_weight[#183]	1
+buffer_name[#183]	generated_transposed_mod_transposed_col_217.dat
+Z[#183]	515
+c0_OO[#183]		1	!	0
+c0_RO[#183]		0	!	0
+c0_OR[#183]		0	!	0
+c0_RR[#183]		0	!	0
+lambda[#183]		515	!	1
+buffer_weight[#184]	1
+buffer_name[#184]	generated_transposed_mod_transposed_col_216.dat
+Z[#184]	514
+c0_OO[#184]		1	!	0
+c0_RO[#184]		0	!	0
+c0_OR[#184]		0	!	0
+c0_RR[#184]		0	!	0
+lambda[#184]		514	!	1
+buffer_weight[#185]	1
+buffer_name[#185]	generated_transposed_mod_transposed_col_215.dat
+Z[#185]	513
+c0_OO[#185]		1	!	0
+c0_RO[#185]		0	!	0
+c0_OR[#185]		0	!	0
+c0_RR[#185]		0	!	0
+lambda[#185]		513	!	1
+buffer_weight[#186]	1
+buffer_name[#186]	generated_transposed_mod_transposed_col_214.dat
+Z[#186]	512
+c0_OO[#186]		1	!	0
+c0_RO[#186]		0	!	0
+c0_OR[#186]		0	!	0
+c0_RR[#186]		0	!	0
+lambda[#186]		512	!	1
+buffer_weight[#187]	1
+buffer_name[#187]	generated_transposed_mod_transposed_col_213.dat
+Z[#187]	511
+c0_OO[#187]		1	!	0
+c0_RO[#187]		0	!	0
+c0_OR[#187]		0	!	0
+c0_RR[#187]		0	!	0
+lambda[#187]		511	!	1
+buffer_weight[#188]	1
+buffer_name[#188]	generated_transposed_mod_transposed_col_212.dat
+Z[#188]	510
+c0_OO[#188]		1	!	0
+c0_RO[#188]		0	!	0
+c0_OR[#188]		0	!	0
+c0_RR[#188]		0	!	0
+lambda[#188]		510	!	1
+buffer_weight[#189]	1
+buffer_name[#189]	generated_transposed_mod_transposed_col_211.dat
+Z[#189]	509
+c0_OO[#189]		1	!	0
+c0_RO[#189]		0	!	0
+c0_OR[#189]		0	!	0
+c0_RR[#189]		0	!	0
+lambda[#189]		509	!	1
+buffer_weight[#190]	1
+buffer_name[#190]	generated_transposed_mod_transposed_col_210.dat
+Z[#190]	508
+c0_OO[#190]		1	!	0
+c0_RO[#190]		0	!	0
+c0_OR[#190]		0	!	0
+c0_RR[#190]		0	!	0
+lambda[#190]		508	!	1
+buffer_weight[#191]	1
+buffer_name[#191]	generated_transposed_mod_transposed_col_209.dat
+Z[#191]	507
+c0_OO[#191]		1	!	0
+c0_RO[#191]		0	!	0
+c0_OR[#191]		0	!	0
+c0_RR[#191]		0	!	0
+lambda[#191]		507	!	1
+buffer_weight[#192]	1
+buffer_name[#192]	generated_transposed_mod_transposed_col_208.dat
+Z[#192]	506
+c0_OO[#192]		1	!	0
+c0_RO[#192]		0	!	0
+c0_OR[#192]		0	!	0
+c0_RR[#192]		0	!	0
+lambda[#192]		506	!	1
+buffer_weight[#193]	1
+buffer_name[#193]	generated_transposed_mod_transposed_col_207.dat
+Z[#193]	505
+c0_OO[#193]		1	!	0
+c0_RO[#193]		0	!	0
+c0_OR[#193]		0	!	0
+c0_RR[#193]		0	!	0
+lambda[#193]		505	!	1
+buffer_weight[#194]	1
+buffer_name[#194]	generated_transposed_mod_transposed_col_206.dat
+Z[#194]	504
+c0_OO[#194]		1	!	0
+c0_RO[#194]		0	!	0
+c0_OR[#194]		0	!	0
+c0_RR[#194]		0	!	0
+lambda[#194]		504	!	1
+buffer_weight[#195]	1
+buffer_name[#195]	generated_transposed_mod_transposed_col_205.dat
+Z[#195]	503
+c0_OO[#195]		1	!	0
+c0_RO[#195]		0	!	0
+c0_OR[#195]		0	!	0
+c0_RR[#195]		0	!	0
+lambda[#195]		503	!	1
+buffer_weight[#196]	1
+buffer_name[#196]	generated_transposed_mod_transposed_col_204.dat
+Z[#196]	502
+c0_OO[#196]		1	!	0
+c0_RO[#196]		0	!	0
+c0_OR[#196]		0	!	0
+c0_RR[#196]		0	!	0
+lambda[#196]		502	!	1
+buffer_weight[#197]	1
+buffer_name[#197]	generated_transposed_mod_transposed_col_203.dat
+Z[#197]	501
+c0_OO[#197]		1	!	0
+c0_RO[#197]		0	!	0
+c0_OR[#197]		0	!	0
+c0_RR[#197]		0	!	0
+lambda[#197]		501	!	1
+buffer_weight[#198]	1
+buffer_name[#198]	generated_transposed_mod_transposed_col_202.dat
+Z[#198]	500
+c0_OO[#198]		1	!	0
+c0_RO[#198]		0	!	0
+c0_OR[#198]		0	!	0
+c0_RR[#198]		0	!	0
+lambda[#198]		500	!	1
+buffer_weight[#199]	1
+buffer_name[#199]	generated_transposed_mod_transposed_col_201.dat
+Z[#199]	499
+c0_OO[#199]		1	!	0
+c0_RO[#199]		0	!	0
+c0_OR[#199]		0	!	0
+c0_RR[#199]		0	!	0
+lambda[#199]		499	!	1
+buffer_weight[#200]	1
+buffer_name[#200]	generated_transposed_mod_transposed_col_200.dat
+Z[#200]	498
+c0_OO[#200]		1	!	0
+c0_RO[#200]		0	!	0
+c0_OR[#200]		0	!	0
+c0_RR[#200]		0	!	0
+lambda[#200]		498	!	1
+buffer_weight[#201]	1
+buffer_name[#201]	generated_transposed_mod_transposed_col_199.dat
+Z[#201]	497
+c0_OO[#201]		1	!	0
+c0_RO[#201]		0	!	0
+c0_OR[#201]		0	!	0
+c0_RR[#201]		0	!	0
+lambda[#201]		497	!	1
+buffer_weight[#202]	1
+buffer_name[#202]	generated_transposed_mod_transposed_col_198.dat
+Z[#202]	496
+c0_OO[#202]		1	!	0
+c0_RO[#202]		0	!	0
+c0_OR[#202]		0	!	0
+c0_RR[#202]		0	!	0
+lambda[#202]		496	!	1
+buffer_weight[#203]	1
+buffer_name[#203]	generated_transposed_mod_transposed_col_197.dat
+Z[#203]	495
+c0_OO[#203]		1	!	0
+c0_RO[#203]		0	!	0
+c0_OR[#203]		0	!	0
+c0_RR[#203]		0	!	0
+lambda[#203]		495	!	1
+buffer_weight[#204]	1
+buffer_name[#204]	generated_transposed_mod_transposed_col_196.dat
+Z[#204]	494
+c0_OO[#204]		1	!	0
+c0_RO[#204]		0	!	0
+c0_OR[#204]		0	!	0
+c0_RR[#204]		0	!	0
+lambda[#204]		494	!	1
+buffer_weight[#205]	1
+buffer_name[#205]	generated_transposed_mod_transposed_col_195.dat
+Z[#205]	493
+c0_OO[#205]		1	!	0
+c0_RO[#205]		0	!	0
+c0_OR[#205]		0	!	0
+c0_RR[#205]		0	!	0
+lambda[#205]		493	!	1
+buffer_weight[#206]	1
+buffer_name[#206]	generated_transposed_mod_transposed_col_194.dat
+Z[#206]	492
+c0_OO[#206]		1	!	0
+c0_RO[#206]		0	!	0
+c0_OR[#206]		0	!	0
+c0_RR[#206]		0	!	0
+lambda[#206]		492	!	1
+buffer_weight[#207]	1
+buffer_name[#207]	generated_transposed_mod_transposed_col_193.dat
+Z[#207]	491
+c0_OO[#207]		1	!	0
+c0_RO[#207]		0	!	0
+c0_OR[#207]		0	!	0
+c0_RR[#207]		0	!	0
+lambda[#207]		491	!	1
+buffer_weight[#208]	1
+buffer_name[#208]	generated_transposed_mod_transposed_col_192.dat
+Z[#208]	490
+c0_OO[#208]		1	!	0
+c0_RO[#208]		0	!	0
+c0_OR[#208]		0	!	0
+c0_RR[#208]		0	!	0
+lambda[#208]		490	!	1
+buffer_weight[#209]	1
+buffer_name[#209]	generated_transposed_mod_transposed_col_191.dat
+Z[#209]	489
+c0_OO[#209]		1	!	0
+c0_RO[#209]		0	!	0
+c0_OR[#209]		0	!	0
+c0_RR[#209]		0	!	0
+lambda[#209]		489	!	1
+buffer_weight[#210]	1
+buffer_name[#210]	generated_transposed_mod_transposed_col_190.dat
+Z[#210]	488
+c0_OO[#210]		1	!	0
+c0_RO[#210]		0	!	0
+c0_OR[#210]		0	!	0
+c0_RR[#210]		0	!	0
+lambda[#210]		488	!	1
+buffer_weight[#211]	1
+buffer_name[#211]	generated_transposed_mod_transposed_col_189.dat
+Z[#211]	487
+c0_OO[#211]		1	!	0
+c0_RO[#211]		0	!	0
+c0_OR[#211]		0	!	0
+c0_RR[#211]		0	!	0
+lambda[#211]		487	!	1
+buffer_weight[#212]	1
+buffer_name[#212]	generated_transposed_mod_transposed_col_188.dat
+Z[#212]	486
+c0_OO[#212]		1	!	0
+c0_RO[#212]		0	!	0
+c0_OR[#212]		0	!	0
+c0_RR[#212]		0	!	0
+lambda[#212]		486	!	1
+buffer_weight[#213]	1
+buffer_name[#213]	generated_transposed_mod_transposed_col_187.dat
+Z[#213]	485
+c0_OO[#213]		1	!	0
+c0_RO[#213]		0	!	0
+c0_OR[#213]		0	!	0
+c0_RR[#213]		0	!	0
+lambda[#213]		485	!	1
+buffer_weight[#214]	1
+buffer_name[#214]	generated_transposed_mod_transposed_col_186.dat
+Z[#214]	484
+c0_OO[#214]		1	!	0
+c0_RO[#214]		0	!	0
+c0_OR[#214]		0	!	0
+c0_RR[#214]		0	!	0
+lambda[#214]		484	!	1
+buffer_weight[#215]	1
+buffer_name[#215]	generated_transposed_mod_transposed_col_185.dat
+Z[#215]	483
+c0_OO[#215]		1	!	0
+c0_RO[#215]		0	!	0
+c0_OR[#215]		0	!	0
+c0_RR[#215]		0	!	0
+lambda[#215]		483	!	1
+buffer_weight[#216]	1
+buffer_name[#216]	generated_transposed_mod_transposed_col_184.dat
+Z[#216]	482
+c0_OO[#216]		1	!	0
+c0_RO[#216]		0	!	0
+c0_OR[#216]		0	!	0
+c0_RR[#216]		0	!	0
+lambda[#216]		482	!	1
+buffer_weight[#217]	1
+buffer_name[#217]	generated_transposed_mod_transposed_col_183.dat
+Z[#217]	481
+c0_OO[#217]		1	!	0
+c0_RO[#217]		0	!	0
+c0_OR[#217]		0	!	0
+c0_RR[#217]		0	!	0
+lambda[#217]		481	!	1
+buffer_weight[#218]	1
+buffer_name[#218]	generated_transposed_mod_transposed_col_182.dat
+Z[#218]	480
+c0_OO[#218]		1	!	0
+c0_RO[#218]		0	!	0
+c0_OR[#218]		0	!	0
+c0_RR[#218]		0	!	0
+lambda[#218]		480	!	1
+buffer_weight[#219]	1
+buffer_name[#219]	generated_transposed_mod_transposed_col_181.dat
+Z[#219]	479
+c0_OO[#219]		1	!	0
+c0_RO[#219]		0	!	0
+c0_OR[#219]		0	!	0
+c0_RR[#219]		0	!	0
+lambda[#219]		479	!	1
+buffer_weight[#220]	1
+buffer_name[#220]	generated_transposed_mod_transposed_col_180.dat
+Z[#220]	478
+c0_OO[#220]		1	!	0
+c0_RO[#220]		0	!	0
+c0_OR[#220]		0	!	0
+c0_RR[#220]		0	!	0
+lambda[#220]		478	!	1
+buffer_weight[#221]	1
+buffer_name[#221]	generated_transposed_mod_transposed_col_179.dat
+Z[#221]	477
+c0_OO[#221]		1	!	0
+c0_RO[#221]		0	!	0
+c0_OR[#221]		0	!	0
+c0_RR[#221]		0	!	0
+lambda[#221]		477	!	1
+buffer_weight[#222]	1
+buffer_name[#222]	generated_transposed_mod_transposed_col_178.dat
+Z[#222]	476
+c0_OO[#222]		1	!	0
+c0_RO[#222]		0	!	0
+c0_OR[#222]		0	!	0
+c0_RR[#222]		0	!	0
+lambda[#222]		476	!	1
+buffer_weight[#223]	1
+buffer_name[#223]	generated_transposed_mod_transposed_col_177.dat
+Z[#223]	475
+c0_OO[#223]		1	!	0
+c0_RO[#223]		0	!	0
+c0_OR[#223]		0	!	0
+c0_RR[#223]		0	!	0
+lambda[#223]		475	!	1
+buffer_weight[#224]	1
+buffer_name[#224]	generated_transposed_mod_transposed_col_176.dat
+Z[#224]	474
+c0_OO[#224]		1	!	0
+c0_RO[#224]		0	!	0
+c0_OR[#224]		0	!	0
+c0_RR[#224]		0	!	0
+lambda[#224]		474	!	1
+buffer_weight[#225]	1
+buffer_name[#225]	generated_transposed_mod_transposed_col_175.dat
+Z[#225]	473
+c0_OO[#225]		1	!	0
+c0_RO[#225]		0	!	0
+c0_OR[#225]		0	!	0
+c0_RR[#225]		0	!	0
+lambda[#225]		473	!	1
+buffer_weight[#226]	1
+buffer_name[#226]	generated_transposed_mod_transposed_col_174.dat
+Z[#226]	472
+c0_OO[#226]		1	!	0
+c0_RO[#226]		0	!	0
+c0_OR[#226]		0	!	0
+c0_RR[#226]		0	!	0
+lambda[#226]		472	!	1
+buffer_weight[#227]	1
+buffer_name[#227]	generated_transposed_mod_transposed_col_173.dat
+Z[#227]	471
+c0_OO[#227]		1	!	0
+c0_RO[#227]		0	!	0
+c0_OR[#227]		0	!	0
+c0_RR[#227]		0	!	0
+lambda[#227]		471	!	1
+buffer_weight[#228]	1
+buffer_name[#228]	generated_transposed_mod_transposed_col_172.dat
+Z[#228]	470
+c0_OO[#228]		1	!	0
+c0_RO[#228]		0	!	0
+c0_OR[#228]		0	!	0
+c0_RR[#228]		0	!	0
+lambda[#228]		470	!	1
+buffer_weight[#229]	1
+buffer_name[#229]	generated_transposed_mod_transposed_col_171.dat
+Z[#229]	469
+c0_OO[#229]		1	!	0
+c0_RO[#229]		0	!	0
+c0_OR[#229]		0	!	0
+c0_RR[#229]		0	!	0
+lambda[#229]		469	!	1
+buffer_weight[#230]	1
+buffer_name[#230]	generated_transposed_mod_transposed_col_170.dat
+Z[#230]	468
+c0_OO[#230]		1	!	0
+c0_RO[#230]		0	!	0
+c0_OR[#230]		0	!	0
+c0_RR[#230]		0	!	0
+lambda[#230]		468	!	1
+buffer_weight[#231]	1
+buffer_name[#231]	generated_transposed_mod_transposed_col_169.dat
+Z[#231]	467
+c0_OO[#231]		1	!	0
+c0_RO[#231]		0	!	0
+c0_OR[#231]		0	!	0
+c0_RR[#231]		0	!	0
+lambda[#231]		467	!	1
+buffer_weight[#232]	1
+buffer_name[#232]	generated_transposed_mod_transposed_col_168.dat
+Z[#232]	466
+c0_OO[#232]		1	!	0
+c0_RO[#232]		0	!	0
+c0_OR[#232]		0	!	0
+c0_RR[#232]		0	!	0
+lambda[#232]		466	!	1
+buffer_weight[#233]	1
+buffer_name[#233]	generated_transposed_mod_transposed_col_167.dat
+Z[#233]	465
+c0_OO[#233]		1	!	0
+c0_RO[#233]		0	!	0
+c0_OR[#233]		0	!	0
+c0_RR[#233]		0	!	0
+lambda[#233]		465	!	1
+buffer_weight[#234]	1
+buffer_name[#234]	generated_transposed_mod_transposed_col_166.dat
+Z[#234]	464
+c0_OO[#234]		1	!	0
+c0_RO[#234]		0	!	0
+c0_OR[#234]		0	!	0
+c0_RR[#234]		0	!	0
+lambda[#234]		464	!	1
+buffer_weight[#235]	1
+buffer_name[#235]	generated_transposed_mod_transposed_col_165.dat
+Z[#235]	463
+c0_OO[#235]		1	!	0
+c0_RO[#235]		0	!	0
+c0_OR[#235]		0	!	0
+c0_RR[#235]		0	!	0
+lambda[#235]		463	!	1
+buffer_weight[#236]	1
+buffer_name[#236]	generated_transposed_mod_transposed_col_164.dat
+Z[#236]	462
+c0_OO[#236]		1	!	0
+c0_RO[#236]		0	!	0
+c0_OR[#236]		0	!	0
+c0_RR[#236]		0	!	0
+lambda[#236]		462	!	1
+buffer_weight[#237]	1
+buffer_name[#237]	generated_transposed_mod_transposed_col_163.dat
+Z[#237]	461
+c0_OO[#237]		1	!	0
+c0_RO[#237]		0	!	0
+c0_OR[#237]		0	!	0
+c0_RR[#237]		0	!	0
+lambda[#237]		461	!	1
+buffer_weight[#238]	1
+buffer_name[#238]	generated_transposed_mod_transposed_col_162.dat
+Z[#238]	460
+c0_OO[#238]		1	!	0
+c0_RO[#238]		0	!	0
+c0_OR[#238]		0	!	0
+c0_RR[#238]		0	!	0
+lambda[#238]		460	!	1
+buffer_weight[#239]	1
+buffer_name[#239]	generated_transposed_mod_transposed_col_161.dat
+Z[#239]	459
+c0_OO[#239]		1	!	0
+c0_RO[#239]		0	!	0
+c0_OR[#239]		0	!	0
+c0_RR[#239]		0	!	0
+lambda[#239]		459	!	1
+buffer_weight[#240]	1
+buffer_name[#240]	generated_transposed_mod_transposed_col_160.dat
+Z[#240]	458
+c0_OO[#240]		1	!	0
+c0_RO[#240]		0	!	0
+c0_OR[#240]		0	!	0
+c0_RR[#240]		0	!	0
+lambda[#240]		458	!	1
+buffer_weight[#241]	1
+buffer_name[#241]	generated_transposed_mod_transposed_col_159.dat
+Z[#241]	457
+c0_OO[#241]		1	!	0
+c0_RO[#241]		0	!	0
+c0_OR[#241]		0	!	0
+c0_RR[#241]		0	!	0
+lambda[#241]		457	!	1
+buffer_weight[#242]	1
+buffer_name[#242]	generated_transposed_mod_transposed_col_158.dat
+Z[#242]	456
+c0_OO[#242]		1	!	0
+c0_RO[#242]		0	!	0
+c0_OR[#242]		0	!	0
+c0_RR[#242]		0	!	0
+lambda[#242]		456	!	1
+buffer_weight[#243]	1
+buffer_name[#243]	generated_transposed_mod_transposed_col_157.dat
+Z[#243]	455
+c0_OO[#243]		1	!	0
+c0_RO[#243]		0	!	0
+c0_OR[#243]		0	!	0
+c0_RR[#243]		0	!	0
+lambda[#243]		455	!	1
+buffer_weight[#244]	1
+buffer_name[#244]	generated_transposed_mod_transposed_col_156.dat
+Z[#244]	454
+c0_OO[#244]		1	!	0
+c0_RO[#244]		0	!	0
+c0_OR[#244]		0	!	0
+c0_RR[#244]		0	!	0
+lambda[#244]		454	!	1
+buffer_weight[#245]	1
+buffer_name[#245]	generated_transposed_mod_transposed_col_155.dat
+Z[#245]	453
+c0_OO[#245]		1	!	0
+c0_RO[#245]		0	!	0
+c0_OR[#245]		0	!	0
+c0_RR[#245]		0	!	0
+lambda[#245]		453	!	1
+buffer_weight[#246]	1
+buffer_name[#246]	generated_transposed_mod_transposed_col_154.dat
+Z[#246]	452
+c0_OO[#246]		1	!	0
+c0_RO[#246]		0	!	0
+c0_OR[#246]		0	!	0
+c0_RR[#246]		0	!	0
+lambda[#246]		452	!	1
+buffer_weight[#247]	1
+buffer_name[#247]	generated_transposed_mod_transposed_col_153.dat
+Z[#247]	451
+c0_OO[#247]		1	!	0
+c0_RO[#247]		0	!	0
+c0_OR[#247]		0	!	0
+c0_RR[#247]		0	!	0
+lambda[#247]		451	!	1
+buffer_weight[#248]	1
+buffer_name[#248]	generated_transposed_mod_transposed_col_152.dat
+Z[#248]	450
+c0_OO[#248]		1	!	0
+c0_RO[#248]		0	!	0
+c0_OR[#248]		0	!	0
+c0_RR[#248]		0	!	0
+lambda[#248]		450	!	1
+buffer_weight[#249]	1
+buffer_name[#249]	generated_transposed_mod_transposed_col_151.dat
+Z[#249]	449
+c0_OO[#249]		1	!	0
+c0_RO[#249]		0	!	0
+c0_OR[#249]		0	!	0
+c0_RR[#249]		0	!	0
+lambda[#249]		449	!	1
+buffer_weight[#250]	1
+buffer_name[#250]	generated_transposed_mod_transposed_col_150.dat
+Z[#250]	448
+c0_OO[#250]		1	!	0
+c0_RO[#250]		0	!	0
+c0_OR[#250]		0	!	0
+c0_RR[#250]		0	!	0
+lambda[#250]		448	!	1
+buffer_weight[#251]	1
+buffer_name[#251]	generated_transposed_mod_transposed_col_149.dat
+Z[#251]	447
+c0_OO[#251]		1	!	0
+c0_RO[#251]		0	!	0
+c0_OR[#251]		0	!	0
+c0_RR[#251]		0	!	0
+lambda[#251]		447	!	1
+buffer_weight[#252]	1
+buffer_name[#252]	generated_transposed_mod_transposed_col_148.dat
+Z[#252]	446
+c0_OO[#252]		1	!	0
+c0_RO[#252]		0	!	0
+c0_OR[#252]		0	!	0
+c0_RR[#252]		0	!	0
+lambda[#252]		446	!	1
+buffer_weight[#253]	1
+buffer_name[#253]	generated_transposed_mod_transposed_col_147.dat
+Z[#253]	445
+c0_OO[#253]		1	!	0
+c0_RO[#253]		0	!	0
+c0_OR[#253]		0	!	0
+c0_RR[#253]		0	!	0
+lambda[#253]		445	!	1
+buffer_weight[#254]	1
+buffer_name[#254]	generated_transposed_mod_transposed_col_146.dat
+Z[#254]	444
+c0_OO[#254]		1	!	0
+c0_RO[#254]		0	!	0
+c0_OR[#254]		0	!	0
+c0_RR[#254]		0	!	0
+lambda[#254]		444	!	1
+buffer_weight[#255]	1
+buffer_name[#255]	generated_transposed_mod_transposed_col_145.dat
+Z[#255]	443
+c0_OO[#255]		1	!	0
+c0_RO[#255]		0	!	0
+c0_OR[#255]		0	!	0
+c0_RR[#255]		0	!	0
+lambda[#255]		443	!	1
+buffer_weight[#256]	1
+buffer_name[#256]	generated_transposed_mod_transposed_col_144.dat
+Z[#256]	442
+c0_OO[#256]		1	!	0
+c0_RO[#256]		0	!	0
+c0_OR[#256]		0	!	0
+c0_RR[#256]		0	!	0
+lambda[#256]		442	!	1
+buffer_weight[#257]	1
+buffer_name[#257]	generated_transposed_mod_transposed_col_143.dat
+Z[#257]	441
+c0_OO[#257]		1	!	0
+c0_RO[#257]		0	!	0
+c0_OR[#257]		0	!	0
+c0_RR[#257]		0	!	0
+lambda[#257]		441	!	1
+buffer_weight[#258]	1
+buffer_name[#258]	generated_transposed_mod_transposed_col_142.dat
+Z[#258]	440
+c0_OO[#258]		1	!	0
+c0_RO[#258]		0	!	0
+c0_OR[#258]		0	!	0
+c0_RR[#258]		0	!	0
+lambda[#258]		440	!	1
+buffer_weight[#259]	1
+buffer_name[#259]	generated_transposed_mod_transposed_col_141.dat
+Z[#259]	439
+c0_OO[#259]		1	!	0
+c0_RO[#259]		0	!	0
+c0_OR[#259]		0	!	0
+c0_RR[#259]		0	!	0
+lambda[#259]		439	!	1
+buffer_weight[#260]	1
+buffer_name[#260]	generated_transposed_mod_transposed_col_140.dat
+Z[#260]	438
+c0_OO[#260]		1	!	0
+c0_RO[#260]		0	!	0
+c0_OR[#260]		0	!	0
+c0_RR[#260]		0	!	0
+lambda[#260]		438	!	1
+buffer_weight[#261]	1
+buffer_name[#261]	generated_transposed_mod_transposed_col_139.dat
+Z[#261]	437
+c0_OO[#261]		1	!	0
+c0_RO[#261]		0	!	0
+c0_OR[#261]		0	!	0
+c0_RR[#261]		0	!	0
+lambda[#261]		437	!	1
+buffer_weight[#262]	1
+buffer_name[#262]	generated_transposed_mod_transposed_col_138.dat
+Z[#262]	436
+c0_OO[#262]		1	!	0
+c0_RO[#262]		0	!	0
+c0_OR[#262]		0	!	0
+c0_RR[#262]		0	!	0
+lambda[#262]		436	!	1
+buffer_weight[#263]	1
+buffer_name[#263]	generated_transposed_mod_transposed_col_137.dat
+Z[#263]	435
+c0_OO[#263]		1	!	0
+c0_RO[#263]		0	!	0
+c0_OR[#263]		0	!	0
+c0_RR[#263]		0	!	0
+lambda[#263]		435	!	1
+buffer_weight[#264]	1
+buffer_name[#264]	generated_transposed_mod_transposed_col_136.dat
+Z[#264]	434
+c0_OO[#264]		1	!	0
+c0_RO[#264]		0	!	0
+c0_OR[#264]		0	!	0
+c0_RR[#264]		0	!	0
+lambda[#264]		434	!	1
+buffer_weight[#265]	1
+buffer_name[#265]	generated_transposed_mod_transposed_col_135.dat
+Z[#265]	433
+c0_OO[#265]		1	!	0
+c0_RO[#265]		0	!	0
+c0_OR[#265]		0	!	0
+c0_RR[#265]		0	!	0
+lambda[#265]		433	!	1
+buffer_weight[#266]	1
+buffer_name[#266]	generated_transposed_mod_transposed_col_134.dat
+Z[#266]	432
+c0_OO[#266]		1	!	0
+c0_RO[#266]		0	!	0
+c0_OR[#266]		0	!	0
+c0_RR[#266]		0	!	0
+lambda[#266]		432	!	1
+buffer_weight[#267]	1
+buffer_name[#267]	generated_transposed_mod_transposed_col_133.dat
+Z[#267]	431
+c0_OO[#267]		1	!	0
+c0_RO[#267]		0	!	0
+c0_OR[#267]		0	!	0
+c0_RR[#267]		0	!	0
+lambda[#267]		431	!	1
+buffer_weight[#268]	1
+buffer_name[#268]	generated_transposed_mod_transposed_col_132.dat
+Z[#268]	430
+c0_OO[#268]		1	!	0
+c0_RO[#268]		0	!	0
+c0_OR[#268]		0	!	0
+c0_RR[#268]		0	!	0
+lambda[#268]		430	!	1
+buffer_weight[#269]	1
+buffer_name[#269]	generated_transposed_mod_transposed_col_131.dat
+Z[#269]	429
+c0_OO[#269]		1	!	0
+c0_RO[#269]		0	!	0
+c0_OR[#269]		0	!	0
+c0_RR[#269]		0	!	0
+lambda[#269]		429	!	1
+buffer_weight[#270]	1
+buffer_name[#270]	generated_transposed_mod_transposed_col_130.dat
+Z[#270]	428
+c0_OO[#270]		1	!	0
+c0_RO[#270]		0	!	0
+c0_OR[#270]		0	!	0
+c0_RR[#270]		0	!	0
+lambda[#270]		428	!	1
+buffer_weight[#271]	1
+buffer_name[#271]	generated_transposed_mod_transposed_col_129.dat
+Z[#271]	427
+c0_OO[#271]		1	!	0
+c0_RO[#271]		0	!	0
+c0_OR[#271]		0	!	0
+c0_RR[#271]		0	!	0
+lambda[#271]		427	!	1
+buffer_weight[#272]	1
+buffer_name[#272]	generated_transposed_mod_transposed_col_128.dat
+Z[#272]	426
+c0_OO[#272]		1	!	0
+c0_RO[#272]		0	!	0
+c0_OR[#272]		0	!	0
+c0_RR[#272]		0	!	0
+lambda[#272]		426	!	1
+buffer_weight[#273]	1
+buffer_name[#273]	generated_transposed_mod_transposed_col_127.dat
+Z[#273]	425
+c0_OO[#273]		1	!	0
+c0_RO[#273]		0	!	0
+c0_OR[#273]		0	!	0
+c0_RR[#273]		0	!	0
+lambda[#273]		425	!	1
+buffer_weight[#274]	1
+buffer_name[#274]	generated_transposed_mod_transposed_col_126.dat
+Z[#274]	424
+c0_OO[#274]		1	!	0
+c0_RO[#274]		0	!	0
+c0_OR[#274]		0	!	0
+c0_RR[#274]		0	!	0
+lambda[#274]		424	!	1
+buffer_weight[#275]	1
+buffer_name[#275]	generated_transposed_mod_transposed_col_125.dat
+Z[#275]	423
+c0_OO[#275]		1	!	0
+c0_RO[#275]		0	!	0
+c0_OR[#275]		0	!	0
+c0_RR[#275]		0	!	0
+lambda[#275]		423	!	1
+buffer_weight[#276]	1
+buffer_name[#276]	generated_transposed_mod_transposed_col_124.dat
+Z[#276]	422
+c0_OO[#276]		1	!	0
+c0_RO[#276]		0	!	0
+c0_OR[#276]		0	!	0
+c0_RR[#276]		0	!	0
+lambda[#276]		422	!	1
+buffer_weight[#277]	1
+buffer_name[#277]	generated_transposed_mod_transposed_col_123.dat
+Z[#277]	421
+c0_OO[#277]		1	!	0
+c0_RO[#277]		0	!	0
+c0_OR[#277]		0	!	0
+c0_RR[#277]		0	!	0
+lambda[#277]		421	!	1
+buffer_weight[#278]	1
+buffer_name[#278]	generated_transposed_mod_transposed_col_122.dat
+Z[#278]	420
+c0_OO[#278]		1	!	0
+c0_RO[#278]		0	!	0
+c0_OR[#278]		0	!	0
+c0_RR[#278]		0	!	0
+lambda[#278]		420	!	1
+buffer_weight[#279]	1
+buffer_name[#279]	generated_transposed_mod_transposed_col_121.dat
+Z[#279]	419
+c0_OO[#279]		1	!	0
+c0_RO[#279]		0	!	0
+c0_OR[#279]		0	!	0
+c0_RR[#279]		0	!	0
+lambda[#279]		419	!	1
+buffer_weight[#280]	1
+buffer_name[#280]	generated_transposed_mod_transposed_col_120.dat
+Z[#280]	418
+c0_OO[#280]		1	!	0
+c0_RO[#280]		0	!	0
+c0_OR[#280]		0	!	0
+c0_RR[#280]		0	!	0
+lambda[#280]		418	!	1
+buffer_weight[#281]	1
+buffer_name[#281]	generated_transposed_mod_transposed_col_119.dat
+Z[#281]	417
+c0_OO[#281]		1	!	0
+c0_RO[#281]		0	!	0
+c0_OR[#281]		0	!	0
+c0_RR[#281]		0	!	0
+lambda[#281]		417	!	1
+buffer_weight[#282]	1
+buffer_name[#282]	generated_transposed_mod_transposed_col_118.dat
+Z[#282]	416
+c0_OO[#282]		1	!	0
+c0_RO[#282]		0	!	0
+c0_OR[#282]		0	!	0
+c0_RR[#282]		0	!	0
+lambda[#282]		416	!	1
+buffer_weight[#283]	1
+buffer_name[#283]	generated_transposed_mod_transposed_col_117.dat
+Z[#283]	415
+c0_OO[#283]		1	!	0
+c0_RO[#283]		0	!	0
+c0_OR[#283]		0	!	0
+c0_RR[#283]		0	!	0
+lambda[#283]		415	!	1
+buffer_weight[#284]	1
+buffer_name[#284]	generated_transposed_mod_transposed_col_116.dat
+Z[#284]	414
+c0_OO[#284]		1	!	0
+c0_RO[#284]		0	!	0
+c0_OR[#284]		0	!	0
+c0_RR[#284]		0	!	0
+lambda[#284]		414	!	1
+buffer_weight[#285]	1
+buffer_name[#285]	generated_transposed_mod_transposed_col_115.dat
+Z[#285]	413
+c0_OO[#285]		1	!	0
+c0_RO[#285]		0	!	0
+c0_OR[#285]		0	!	0
+c0_RR[#285]		0	!	0
+lambda[#285]		413	!	1
+buffer_weight[#286]	1
+buffer_name[#286]	generated_transposed_mod_transposed_col_114.dat
+Z[#286]	412
+c0_OO[#286]		1	!	0
+c0_RO[#286]		0	!	0
+c0_OR[#286]		0	!	0
+c0_RR[#286]		0	!	0
+lambda[#286]		412	!	1
+buffer_weight[#287]	1
+buffer_name[#287]	generated_transposed_mod_transposed_col_113.dat
+Z[#287]	411
+c0_OO[#287]		1	!	0
+c0_RO[#287]		0	!	0
+c0_OR[#287]		0	!	0
+c0_RR[#287]		0	!	0
+lambda[#287]		411	!	1
+buffer_weight[#288]	1
+buffer_name[#288]	generated_transposed_mod_transposed_col_112.dat
+Z[#288]	410
+c0_OO[#288]		1	!	0
+c0_RO[#288]		0	!	0
+c0_OR[#288]		0	!	0
+c0_RR[#288]		0	!	0
+lambda[#288]		410	!	1
+buffer_weight[#289]	1
+buffer_name[#289]	generated_transposed_mod_transposed_col_111.dat
+Z[#289]	409
+c0_OO[#289]		1	!	0
+c0_RO[#289]		0	!	0
+c0_OR[#289]		0	!	0
+c0_RR[#289]		0	!	0
+lambda[#289]		409	!	1
+buffer_weight[#290]	1
+buffer_name[#290]	generated_transposed_mod_transposed_col_110.dat
+Z[#290]	408
+c0_OO[#290]		1	!	0
+c0_RO[#290]		0	!	0
+c0_OR[#290]		0	!	0
+c0_RR[#290]		0	!	0
+lambda[#290]		408	!	1
+buffer_weight[#291]	1
+buffer_name[#291]	generated_transposed_mod_transposed_col_109.dat
+Z[#291]	407
+c0_OO[#291]		1	!	0
+c0_RO[#291]		0	!	0
+c0_OR[#291]		0	!	0
+c0_RR[#291]		0	!	0
+lambda[#291]		407	!	1
+buffer_weight[#292]	1
+buffer_name[#292]	generated_transposed_mod_transposed_col_108.dat
+Z[#292]	406
+c0_OO[#292]		1	!	0
+c0_RO[#292]		0	!	0
+c0_OR[#292]		0	!	0
+c0_RR[#292]		0	!	0
+lambda[#292]		406	!	1
+buffer_weight[#293]	1
+buffer_name[#293]	generated_transposed_mod_transposed_col_107.dat
+Z[#293]	405
+c0_OO[#293]		1	!	0
+c0_RO[#293]		0	!	0
+c0_OR[#293]		0	!	0
+c0_RR[#293]		0	!	0
+lambda[#293]		405	!	1
+buffer_weight[#294]	1
+buffer_name[#294]	generated_transposed_mod_transposed_col_106.dat
+Z[#294]	404
+c0_OO[#294]		1	!	0
+c0_RO[#294]		0	!	0
+c0_OR[#294]		0	!	0
+c0_RR[#294]		0	!	0
+lambda[#294]		404	!	1
+buffer_weight[#295]	1
+buffer_name[#295]	generated_transposed_mod_transposed_col_105.dat
+Z[#295]	403
+c0_OO[#295]		1	!	0
+c0_RO[#295]		0	!	0
+c0_OR[#295]		0	!	0
+c0_RR[#295]		0	!	0
+lambda[#295]		403	!	1
+buffer_weight[#296]	1
+buffer_name[#296]	generated_transposed_mod_transposed_col_104.dat
+Z[#296]	402
+c0_OO[#296]		1	!	0
+c0_RO[#296]		0	!	0
+c0_OR[#296]		0	!	0
+c0_RR[#296]		0	!	0
+lambda[#296]		402	!	1
+buffer_weight[#297]	1
+buffer_name[#297]	generated_transposed_mod_transposed_col_103.dat
+Z[#297]	401
+c0_OO[#297]		1	!	0
+c0_RO[#297]		0	!	0
+c0_OR[#297]		0	!	0
+c0_RR[#297]		0	!	0
+lambda[#297]		401	!	1
+buffer_weight[#298]	1
+buffer_name[#298]	generated_transposed_mod_transposed_col_102.dat
+Z[#298]	400
+c0_OO[#298]		1	!	0
+c0_RO[#298]		0	!	0
+c0_OR[#298]		0	!	0
+c0_RR[#298]		0	!	0
+lambda[#298]		400	!	1
+buffer_weight[#299]	1
+buffer_name[#299]	generated_transposed_mod_transposed_col_101.dat
+Z[#299]	399
+c0_OO[#299]		1	!	0
+c0_RO[#299]		0	!	0
+c0_OR[#299]		0	!	0
+c0_RR[#299]		0	!	0
+lambda[#299]		399	!	1
+buffer_weight[#300]	1
+buffer_name[#300]	generated_transposed_mod_transposed_col_100.dat
+Z[#300]	398
+c0_OO[#300]		1	!	0
+c0_RO[#300]		0	!	0
+c0_OR[#300]		0	!	0
+c0_RR[#300]		0	!	0
+lambda[#300]		398	!	1
+buffer_weight[#301]	1
+buffer_name[#301]	generated_transposed_mod_transposed_col_99.dat
+Z[#301]	397
+c0_OO[#301]		1	!	0
+c0_RO[#301]		0	!	0
+c0_OR[#301]		0	!	0
+c0_RR[#301]		0	!	0
+lambda[#301]		397	!	1
+buffer_weight[#302]	1
+buffer_name[#302]	generated_transposed_mod_transposed_col_98.dat
+Z[#302]	396
+c0_OO[#302]		1	!	0
+c0_RO[#302]		0	!	0
+c0_OR[#302]		0	!	0
+c0_RR[#302]		0	!	0
+lambda[#302]		396	!	1
+buffer_weight[#303]	1
+buffer_name[#303]	generated_transposed_mod_transposed_col_97.dat
+Z[#303]	395
+c0_OO[#303]		1	!	0
+c0_RO[#303]		0	!	0
+c0_OR[#303]		0	!	0
+c0_RR[#303]		0	!	0
+lambda[#303]		395	!	1
+buffer_weight[#304]	1
+buffer_name[#304]	generated_transposed_mod_transposed_col_96.dat
+Z[#304]	394
+c0_OO[#304]		1	!	0
+c0_RO[#304]		0	!	0
+c0_OR[#304]		0	!	0
+c0_RR[#304]		0	!	0
+lambda[#304]		394	!	1
+buffer_weight[#305]	1
+buffer_name[#305]	generated_transposed_mod_transposed_col_95.dat
+Z[#305]	393
+c0_OO[#305]		1	!	0
+c0_RO[#305]		0	!	0
+c0_OR[#305]		0	!	0
+c0_RR[#305]		0	!	0
+lambda[#305]		393	!	1
+buffer_weight[#306]	1
+buffer_name[#306]	generated_transposed_mod_transposed_col_94.dat
+Z[#306]	392
+c0_OO[#306]		1	!	0
+c0_RO[#306]		0	!	0
+c0_OR[#306]		0	!	0
+c0_RR[#306]		0	!	0
+lambda[#306]		392	!	1
+buffer_weight[#307]	1
+buffer_name[#307]	generated_transposed_mod_transposed_col_93.dat
+Z[#307]	391
+c0_OO[#307]		1	!	0
+c0_RO[#307]		0	!	0
+c0_OR[#307]		0	!	0
+c0_RR[#307]		0	!	0
+lambda[#307]		391	!	1
+buffer_weight[#308]	1
+buffer_name[#308]	generated_transposed_mod_transposed_col_92.dat
+Z[#308]	390
+c0_OO[#308]		1	!	0
+c0_RO[#308]		0	!	0
+c0_OR[#308]		0	!	0
+c0_RR[#308]		0	!	0
+lambda[#308]		390	!	1
+buffer_weight[#309]	1
+buffer_name[#309]	generated_transposed_mod_transposed_col_91.dat
+Z[#309]	389
+c0_OO[#309]		1	!	0
+c0_RO[#309]		0	!	0
+c0_OR[#309]		0	!	0
+c0_RR[#309]		0	!	0
+lambda[#309]		389	!	1
+buffer_weight[#310]	1
+buffer_name[#310]	generated_transposed_mod_transposed_col_90.dat
+Z[#310]	388
+c0_OO[#310]		1	!	0
+c0_RO[#310]		0	!	0
+c0_OR[#310]		0	!	0
+c0_RR[#310]		0	!	0
+lambda[#310]		388	!	1
+buffer_weight[#311]	1
+buffer_name[#311]	generated_transposed_mod_transposed_col_89.dat
+Z[#311]	387
+c0_OO[#311]		1	!	0
+c0_RO[#311]		0	!	0
+c0_OR[#311]		0	!	0
+c0_RR[#311]		0	!	0
+lambda[#311]		387	!	1
+buffer_weight[#312]	1
+buffer_name[#312]	generated_transposed_mod_transposed_col_88.dat
+Z[#312]	386
+c0_OO[#312]		1	!	0
+c0_RO[#312]		0	!	0
+c0_OR[#312]		0	!	0
+c0_RR[#312]		0	!	0
+lambda[#312]		386	!	1
+buffer_weight[#313]	1
+buffer_name[#313]	generated_transposed_mod_transposed_col_87.dat
+Z[#313]	385
+c0_OO[#313]		1	!	0
+c0_RO[#313]		0	!	0
+c0_OR[#313]		0	!	0
+c0_RR[#313]		0	!	0
+lambda[#313]		385	!	1
+buffer_weight[#314]	1
+buffer_name[#314]	generated_transposed_mod_transposed_col_86.dat
+Z[#314]	384
+c0_OO[#314]		1	!	0
+c0_RO[#314]		0	!	0
+c0_OR[#314]		0	!	0
+c0_RR[#314]		0	!	0
+lambda[#314]		384	!	1
+buffer_weight[#315]	1
+buffer_name[#315]	generated_transposed_mod_transposed_col_85.dat
+Z[#315]	383
+c0_OO[#315]		1	!	0
+c0_RO[#315]		0	!	0
+c0_OR[#315]		0	!	0
+c0_RR[#315]		0	!	0
+lambda[#315]		383	!	1
+buffer_weight[#316]	1
+buffer_name[#316]	generated_transposed_mod_transposed_col_84.dat
+Z[#316]	382
+c0_OO[#316]		1	!	0
+c0_RO[#316]		0	!	0
+c0_OR[#316]		0	!	0
+c0_RR[#316]		0	!	0
+lambda[#316]		382	!	1
+buffer_weight[#317]	1
+buffer_name[#317]	generated_transposed_mod_transposed_col_83.dat
+Z[#317]	381
+c0_OO[#317]		1	!	0
+c0_RO[#317]		0	!	0
+c0_OR[#317]		0	!	0
+c0_RR[#317]		0	!	0
+lambda[#317]		381	!	1
+buffer_weight[#318]	1
+buffer_name[#318]	generated_transposed_mod_transposed_col_82.dat
+Z[#318]	380
+c0_OO[#318]		1	!	0
+c0_RO[#318]		0	!	0
+c0_OR[#318]		0	!	0
+c0_RR[#318]		0	!	0
+lambda[#318]		380	!	1
+buffer_weight[#319]	1
+buffer_name[#319]	generated_transposed_mod_transposed_col_81.dat
+Z[#319]	379
+c0_OO[#319]		1	!	0
+c0_RO[#319]		0	!	0
+c0_OR[#319]		0	!	0
+c0_RR[#319]		0	!	0
+lambda[#319]		379	!	1
+buffer_weight[#320]	1
+buffer_name[#320]	generated_transposed_mod_transposed_col_80.dat
+Z[#320]	378
+c0_OO[#320]		1	!	0
+c0_RO[#320]		0	!	0
+c0_OR[#320]		0	!	0
+c0_RR[#320]		0	!	0
+lambda[#320]		378	!	1
+buffer_weight[#321]	1
+buffer_name[#321]	generated_transposed_mod_transposed_col_79.dat
+Z[#321]	377
+c0_OO[#321]		1	!	0
+c0_RO[#321]		0	!	0
+c0_OR[#321]		0	!	0
+c0_RR[#321]		0	!	0
+lambda[#321]		377	!	1
+buffer_weight[#322]	1
+buffer_name[#322]	generated_transposed_mod_transposed_col_78.dat
+Z[#322]	376
+c0_OO[#322]		1	!	0
+c0_RO[#322]		0	!	0
+c0_OR[#322]		0	!	0
+c0_RR[#322]		0	!	0
+lambda[#322]		376	!	1
+buffer_weight[#323]	1
+buffer_name[#323]	generated_transposed_mod_transposed_col_77.dat
+Z[#323]	375
+c0_OO[#323]		1	!	0
+c0_RO[#323]		0	!	0
+c0_OR[#323]		0	!	0
+c0_RR[#323]		0	!	0
+lambda[#323]		375	!	1
+buffer_weight[#324]	1
+buffer_name[#324]	generated_transposed_mod_transposed_col_76.dat
+Z[#324]	374
+c0_OO[#324]		1	!	0
+c0_RO[#324]		0	!	0
+c0_OR[#324]		0	!	0
+c0_RR[#324]		0	!	0
+lambda[#324]		374	!	1
+buffer_weight[#325]	1
+buffer_name[#325]	generated_transposed_mod_transposed_col_75.dat
+Z[#325]	373
+c0_OO[#325]		1	!	0
+c0_RO[#325]		0	!	0
+c0_OR[#325]		0	!	0
+c0_RR[#325]		0	!	0
+lambda[#325]		373	!	1
+buffer_weight[#326]	1
+buffer_name[#326]	generated_transposed_mod_transposed_col_74.dat
+Z[#326]	372
+c0_OO[#326]		1	!	0
+c0_RO[#326]		0	!	0
+c0_OR[#326]		0	!	0
+c0_RR[#326]		0	!	0
+lambda[#326]		372	!	1
+buffer_weight[#327]	1
+buffer_name[#327]	generated_transposed_mod_transposed_col_73.dat
+Z[#327]	371
+c0_OO[#327]		1	!	0
+c0_RO[#327]		0	!	0
+c0_OR[#327]		0	!	0
+c0_RR[#327]		0	!	0
+lambda[#327]		371	!	1
+buffer_weight[#328]	1
+buffer_name[#328]	generated_transposed_mod_transposed_col_72.dat
+Z[#328]	370
+c0_OO[#328]		1	!	0
+c0_RO[#328]		0	!	0
+c0_OR[#328]		0	!	0
+c0_RR[#328]		0	!	0
+lambda[#328]		370	!	1
+buffer_weight[#329]	1
+buffer_name[#329]	generated_transposed_mod_transposed_col_71.dat
+Z[#329]	369
+c0_OO[#329]		1	!	0
+c0_RO[#329]		0	!	0
+c0_OR[#329]		0	!	0
+c0_RR[#329]		0	!	0
+lambda[#329]		369	!	1
+buffer_weight[#330]	1
+buffer_name[#330]	generated_transposed_mod_transposed_col_70.dat
+Z[#330]	368
+c0_OO[#330]		1	!	0
+c0_RO[#330]		0	!	0
+c0_OR[#330]		0	!	0
+c0_RR[#330]		0	!	0
+lambda[#330]		368	!	1
+buffer_weight[#331]	1
+buffer_name[#331]	generated_transposed_mod_transposed_col_69.dat
+Z[#331]	367
+c0_OO[#331]		1	!	0
+c0_RO[#331]		0	!	0
+c0_OR[#331]		0	!	0
+c0_RR[#331]		0	!	0
+lambda[#331]		367	!	1
+buffer_weight[#332]	1
+buffer_name[#332]	generated_transposed_mod_transposed_col_68.dat
+Z[#332]	366
+c0_OO[#332]		1	!	0
+c0_RO[#332]		0	!	0
+c0_OR[#332]		0	!	0
+c0_RR[#332]		0	!	0
+lambda[#332]		366	!	1
+buffer_weight[#333]	1
+buffer_name[#333]	generated_transposed_mod_transposed_col_67.dat
+Z[#333]	365
+c0_OO[#333]		1	!	0
+c0_RO[#333]		0	!	0
+c0_OR[#333]		0	!	0
+c0_RR[#333]		0	!	0
+lambda[#333]		365	!	1
+buffer_weight[#334]	1
+buffer_name[#334]	generated_transposed_mod_transposed_col_66.dat
+Z[#334]	364
+c0_OO[#334]		1	!	0
+c0_RO[#334]		0	!	0
+c0_OR[#334]		0	!	0
+c0_RR[#334]		0	!	0
+lambda[#334]		364	!	1
+buffer_weight[#335]	1
+buffer_name[#335]	generated_transposed_mod_transposed_col_65.dat
+Z[#335]	363
+c0_OO[#335]		1	!	0
+c0_RO[#335]		0	!	0
+c0_OR[#335]		0	!	0
+c0_RR[#335]		0	!	0
+lambda[#335]		363	!	1
+buffer_weight[#336]	1
+buffer_name[#336]	generated_transposed_mod_transposed_col_64.dat
+Z[#336]	362
+c0_OO[#336]		1	!	0
+c0_RO[#336]		0	!	0
+c0_OR[#336]		0	!	0
+c0_RR[#336]		0	!	0
+lambda[#336]		362	!	1
+buffer_weight[#337]	1
+buffer_name[#337]	generated_transposed_mod_transposed_col_63.dat
+Z[#337]	361
+c0_OO[#337]		1	!	0
+c0_RO[#337]		0	!	0
+c0_OR[#337]		0	!	0
+c0_RR[#337]		0	!	0
+lambda[#337]		361	!	1
+buffer_weight[#338]	1
+buffer_name[#338]	generated_transposed_mod_transposed_col_62.dat
+Z[#338]	360
+c0_OO[#338]		1	!	0
+c0_RO[#338]		0	!	0
+c0_OR[#338]		0	!	0
+c0_RR[#338]		0	!	0
+lambda[#338]		360	!	1
+buffer_weight[#339]	1
+buffer_name[#339]	generated_transposed_mod_transposed_col_61.dat
+Z[#339]	359
+c0_OO[#339]		1	!	0
+c0_RO[#339]		0	!	0
+c0_OR[#339]		0	!	0
+c0_RR[#339]		0	!	0
+lambda[#339]		359	!	1
+buffer_weight[#340]	1
+buffer_name[#340]	generated_transposed_mod_transposed_col_60.dat
+Z[#340]	358
+c0_OO[#340]		1	!	0
+c0_RO[#340]		0	!	0
+c0_OR[#340]		0	!	0
+c0_RR[#340]		0	!	0
+lambda[#340]		358	!	1
+buffer_weight[#341]	1
+buffer_name[#341]	generated_transposed_mod_transposed_col_59.dat
+Z[#341]	357
+c0_OO[#341]		1	!	0
+c0_RO[#341]		0	!	0
+c0_OR[#341]		0	!	0
+c0_RR[#341]		0	!	0
+lambda[#341]		357	!	1
+buffer_weight[#342]	1
+buffer_name[#342]	generated_transposed_mod_transposed_col_58.dat
+Z[#342]	356
+c0_OO[#342]		1	!	0
+c0_RO[#342]		0	!	0
+c0_OR[#342]		0	!	0
+c0_RR[#342]		0	!	0
+lambda[#342]		356	!	1
+buffer_weight[#343]	1
+buffer_name[#343]	generated_transposed_mod_transposed_col_57.dat
+Z[#343]	355
+c0_OO[#343]		1	!	0
+c0_RO[#343]		0	!	0
+c0_OR[#343]		0	!	0
+c0_RR[#343]		0	!	0
+lambda[#343]		355	!	1
+buffer_weight[#344]	1
+buffer_name[#344]	generated_transposed_mod_transposed_col_56.dat
+Z[#344]	354
+c0_OO[#344]		1	!	0
+c0_RO[#344]		0	!	0
+c0_OR[#344]		0	!	0
+c0_RR[#344]		0	!	0
+lambda[#344]		354	!	1
+buffer_weight[#345]	1
+buffer_name[#345]	generated_transposed_mod_transposed_col_55.dat
+Z[#345]	353
+c0_OO[#345]		1	!	0
+c0_RO[#345]		0	!	0
+c0_OR[#345]		0	!	0
+c0_RR[#345]		0	!	0
+lambda[#345]		353	!	1
+buffer_weight[#346]	1
+buffer_name[#346]	generated_transposed_mod_transposed_col_54.dat
+Z[#346]	352
+c0_OO[#346]		1	!	0
+c0_RO[#346]		0	!	0
+c0_OR[#346]		0	!	0
+c0_RR[#346]		0	!	0
+lambda[#346]		352	!	1
+buffer_weight[#347]	1
+buffer_name[#347]	generated_transposed_mod_transposed_col_53.dat
+Z[#347]	351
+c0_OO[#347]		1	!	0
+c0_RO[#347]		0	!	0
+c0_OR[#347]		0	!	0
+c0_RR[#347]		0	!	0
+lambda[#347]		351	!	1
+buffer_weight[#348]	1
+buffer_name[#348]	generated_transposed_mod_transposed_col_52.dat
+Z[#348]	350
+c0_OO[#348]		1	!	0
+c0_RO[#348]		0	!	0
+c0_OR[#348]		0	!	0
+c0_RR[#348]		0	!	0
+lambda[#348]		350	!	1
+buffer_weight[#349]	1
+buffer_name[#349]	generated_transposed_mod_transposed_col_51.dat
+Z[#349]	349
+c0_OO[#349]		1	!	0
+c0_RO[#349]		0	!	0
+c0_OR[#349]		0	!	0
+c0_RR[#349]		0	!	0
+lambda[#349]		349	!	1
+buffer_weight[#350]	1
+buffer_name[#350]	generated_transposed_mod_transposed_col_50.dat
+Z[#350]	348
+c0_OO[#350]		1	!	0
+c0_RO[#350]		0	!	0
+c0_OR[#350]		0	!	0
+c0_RR[#350]		0	!	0
+lambda[#350]		348	!	1
+buffer_weight[#351]	1
+buffer_name[#351]	generated_transposed_mod_transposed_col_49.dat
+Z[#351]	347
+c0_OO[#351]		1	!	0
+c0_RO[#351]		0	!	0
+c0_OR[#351]		0	!	0
+c0_RR[#351]		0	!	0
+lambda[#351]		347	!	1
+buffer_weight[#352]	1
+buffer_name[#352]	generated_transposed_mod_transposed_col_48.dat
+Z[#352]	346
+c0_OO[#352]		1	!	0
+c0_RO[#352]		0	!	0
+c0_OR[#352]		0	!	0
+c0_RR[#352]		0	!	0
+lambda[#352]		346	!	1
+buffer_weight[#353]	1
+buffer_name[#353]	generated_transposed_mod_transposed_col_47.dat
+Z[#353]	345
+c0_OO[#353]		1	!	0
+c0_RO[#353]		0	!	0
+c0_OR[#353]		0	!	0
+c0_RR[#353]		0	!	0
+lambda[#353]		345	!	1
+buffer_weight[#354]	1
+buffer_name[#354]	generated_transposed_mod_transposed_col_46.dat
+Z[#354]	344
+c0_OO[#354]		1	!	0
+c0_RO[#354]		0	!	0
+c0_OR[#354]		0	!	0
+c0_RR[#354]		0	!	0
+lambda[#354]		344	!	1
+buffer_weight[#355]	1
+buffer_name[#355]	generated_transposed_mod_transposed_col_45.dat
+Z[#355]	343
+c0_OO[#355]		1	!	0
+c0_RO[#355]		0	!	0
+c0_OR[#355]		0	!	0
+c0_RR[#355]		0	!	0
+lambda[#355]		343	!	1
+buffer_weight[#356]	1
+buffer_name[#356]	generated_transposed_mod_transposed_col_44.dat
+Z[#356]	342
+c0_OO[#356]		1	!	0
+c0_RO[#356]		0	!	0
+c0_OR[#356]		0	!	0
+c0_RR[#356]		0	!	0
+lambda[#356]		342	!	1
+buffer_weight[#357]	1
+buffer_name[#357]	generated_transposed_mod_transposed_col_43.dat
+Z[#357]	341
+c0_OO[#357]		1	!	0
+c0_RO[#357]		0	!	0
+c0_OR[#357]		0	!	0
+c0_RR[#357]		0	!	0
+lambda[#357]		341	!	1
+buffer_weight[#358]	1
+buffer_name[#358]	generated_transposed_mod_transposed_col_42.dat
+Z[#358]	340
+c0_OO[#358]		1	!	0
+c0_RO[#358]		0	!	0
+c0_OR[#358]		0	!	0
+c0_RR[#358]		0	!	0
+lambda[#358]		340	!	1
+buffer_weight[#359]	1
+buffer_name[#359]	generated_transposed_mod_transposed_col_41.dat
+Z[#359]	339
+c0_OO[#359]		1	!	0
+c0_RO[#359]		0	!	0
+c0_OR[#359]		0	!	0
+c0_RR[#359]		0	!	0
+lambda[#359]		339	!	1
+buffer_weight[#360]	1
+buffer_name[#360]	generated_transposed_mod_transposed_col_40.dat
+Z[#360]	338
+c0_OO[#360]		1	!	0
+c0_RO[#360]		0	!	0
+c0_OR[#360]		0	!	0
+c0_RR[#360]		0	!	0
+lambda[#360]		338	!	1
+buffer_weight[#361]	1
+buffer_name[#361]	generated_transposed_mod_transposed_col_39.dat
+Z[#361]	337
+c0_OO[#361]		1	!	0
+c0_RO[#361]		0	!	0
+c0_OR[#361]		0	!	0
+c0_RR[#361]		0	!	0
+lambda[#361]		337	!	1
+buffer_weight[#362]	1
+buffer_name[#362]	generated_transposed_mod_transposed_col_38.dat
+Z[#362]	336
+c0_OO[#362]		1	!	0
+c0_RO[#362]		0	!	0
+c0_OR[#362]		0	!	0
+c0_RR[#362]		0	!	0
+lambda[#362]		336	!	1
+buffer_weight[#363]	1
+buffer_name[#363]	generated_transposed_mod_transposed_col_37.dat
+Z[#363]	335
+c0_OO[#363]		1	!	0
+c0_RO[#363]		0	!	0
+c0_OR[#363]		0	!	0
+c0_RR[#363]		0	!	0
+lambda[#363]		335	!	1
+buffer_weight[#364]	1
+buffer_name[#364]	generated_transposed_mod_transposed_col_36.dat
+Z[#364]	334
+c0_OO[#364]		1	!	0
+c0_RO[#364]		0	!	0
+c0_OR[#364]		0	!	0
+c0_RR[#364]		0	!	0
+lambda[#364]		334	!	1
+buffer_weight[#365]	1
+buffer_name[#365]	generated_transposed_mod_transposed_col_35.dat
+Z[#365]	333
+c0_OO[#365]		1	!	0
+c0_RO[#365]		0	!	0
+c0_OR[#365]		0	!	0
+c0_RR[#365]		0	!	0
+lambda[#365]		333	!	1
+buffer_weight[#366]	1
+buffer_name[#366]	generated_transposed_mod_transposed_col_34.dat
+Z[#366]	332
+c0_OO[#366]		1	!	0
+c0_RO[#366]		0	!	0
+c0_OR[#366]		0	!	0
+c0_RR[#366]		0	!	0
+lambda[#366]		332	!	1
+buffer_weight[#367]	1
+buffer_name[#367]	generated_transposed_mod_transposed_col_33.dat
+Z[#367]	331
+c0_OO[#367]		1	!	0
+c0_RO[#367]		0	!	0
+c0_OR[#367]		0	!	0
+c0_RR[#367]		0	!	0
+lambda[#367]		331	!	1
+buffer_weight[#368]	1
+buffer_name[#368]	generated_transposed_mod_transposed_col_32.dat
+Z[#368]	330
+c0_OO[#368]		1	!	0
+c0_RO[#368]		0	!	0
+c0_OR[#368]		0	!	0
+c0_RR[#368]		0	!	0
+lambda[#368]		330	!	1
+buffer_weight[#369]	1
+buffer_name[#369]	generated_transposed_mod_transposed_col_31.dat
+Z[#369]	329
+c0_OO[#369]		1	!	0
+c0_RO[#369]		0	!	0
+c0_OR[#369]		0	!	0
+c0_RR[#369]		0	!	0
+lambda[#369]		329	!	1
+buffer_weight[#370]	1
+buffer_name[#370]	generated_transposed_mod_transposed_col_30.dat
+Z[#370]	328
+c0_OO[#370]		1	!	0
+c0_RO[#370]		0	!	0
+c0_OR[#370]		0	!	0
+c0_RR[#370]		0	!	0
+lambda[#370]		328	!	1
+buffer_weight[#371]	1
+buffer_name[#371]	generated_transposed_mod_transposed_col_29.dat
+Z[#371]	327
+c0_OO[#371]		1	!	0
+c0_RO[#371]		0	!	0
+c0_OR[#371]		0	!	0
+c0_RR[#371]		0	!	0
+lambda[#371]		327	!	1
+buffer_weight[#372]	1
+buffer_name[#372]	generated_transposed_mod_transposed_col_28.dat
+Z[#372]	326
+c0_OO[#372]		1	!	0
+c0_RO[#372]		0	!	0
+c0_OR[#372]		0	!	0
+c0_RR[#372]		0	!	0
+lambda[#372]		326	!	1
+buffer_weight[#373]	1
+buffer_name[#373]	generated_transposed_mod_transposed_col_27.dat
+Z[#373]	325
+c0_OO[#373]		1	!	0
+c0_RO[#373]		0	!	0
+c0_OR[#373]		0	!	0
+c0_RR[#373]		0	!	0
+lambda[#373]		325	!	1
+buffer_weight[#374]	1
+buffer_name[#374]	generated_transposed_mod_transposed_col_26.dat
+Z[#374]	324
+c0_OO[#374]		1	!	0
+c0_RO[#374]		0	!	0
+c0_OR[#374]		0	!	0
+c0_RR[#374]		0	!	0
+lambda[#374]		324	!	1
+buffer_weight[#375]	1
+buffer_name[#375]	generated_transposed_mod_transposed_col_25.dat
+Z[#375]	323
+c0_OO[#375]		1	!	0
+c0_RO[#375]		0	!	0
+c0_OR[#375]		0	!	0
+c0_RR[#375]		0	!	0
+lambda[#375]		323	!	1
+buffer_weight[#376]	1
+buffer_name[#376]	generated_transposed_mod_transposed_col_24.dat
+Z[#376]	322
+c0_OO[#376]		1	!	0
+c0_RO[#376]		0	!	0
+c0_OR[#376]		0	!	0
+c0_RR[#376]		0	!	0
+lambda[#376]		322	!	1
+buffer_weight[#377]	1
+buffer_name[#377]	generated_transposed_mod_transposed_col_23.dat
+Z[#377]	321
+c0_OO[#377]		1	!	0
+c0_RO[#377]		0	!	0
+c0_OR[#377]		0	!	0
+c0_RR[#377]		0	!	0
+lambda[#377]		321	!	1
+buffer_weight[#378]	1
+buffer_name[#378]	generated_transposed_mod_transposed_col_22.dat
+Z[#378]	320
+c0_OO[#378]		1	!	0
+c0_RO[#378]		0	!	0
+c0_OR[#378]		0	!	0
+c0_RR[#378]		0	!	0
+lambda[#378]		320	!	1
+buffer_weight[#379]	1
+buffer_name[#379]	generated_transposed_mod_transposed_col_21.dat
+Z[#379]	319
+c0_OO[#379]		1	!	0
+c0_RO[#379]		0	!	0
+c0_OR[#379]		0	!	0
+c0_RR[#379]		0	!	0
+lambda[#379]		319	!	1
+buffer_weight[#380]	1
+buffer_name[#380]	generated_transposed_mod_transposed_col_20.dat
+Z[#380]	318
+c0_OO[#380]		1	!	0
+c0_RO[#380]		0	!	0
+c0_OR[#380]		0	!	0
+c0_RR[#380]		0	!	0
+lambda[#380]		318	!	1
+buffer_weight[#381]	1
+buffer_name[#381]	generated_transposed_mod_transposed_col_19.dat
+Z[#381]	317
+c0_OO[#381]		1	!	0
+c0_RO[#381]		0	!	0
+c0_OR[#381]		0	!	0
+c0_RR[#381]		0	!	0
+lambda[#381]		317	!	1
+buffer_weight[#382]	1
+buffer_name[#382]	generated_transposed_mod_transposed_col_18.dat
+Z[#382]	316
+c0_OO[#382]		1	!	0
+c0_RO[#382]		0	!	0
+c0_OR[#382]		0	!	0
+c0_RR[#382]		0	!	0
+lambda[#382]		316	!	1
+buffer_weight[#383]	1
+buffer_name[#383]	generated_transposed_mod_transposed_col_17.dat
+Z[#383]	315
+c0_OO[#383]		1	!	0
+c0_RO[#383]		0	!	0
+c0_OR[#383]		0	!	0
+c0_RR[#383]		0	!	0
+lambda[#383]		315	!	1
+buffer_weight[#384]	1
+buffer_name[#384]	generated_transposed_mod_transposed_col_16.dat
+Z[#384]	314
+c0_OO[#384]		1	!	0
+c0_RO[#384]		0	!	0
+c0_OR[#384]		0	!	0
+c0_RR[#384]		0	!	0
+lambda[#384]		314	!	1
+buffer_weight[#385]	1
+buffer_name[#385]	generated_transposed_mod_transposed_col_15.dat
+Z[#385]	313
+c0_OO[#385]		1	!	0
+c0_RO[#385]		0	!	0
+c0_OR[#385]		0	!	0
+c0_RR[#385]		0	!	0
+lambda[#385]		313	!	1
+buffer_weight[#386]	1
+buffer_name[#386]	generated_transposed_mod_transposed_col_14.dat
+Z[#386]	312
+c0_OO[#386]		1	!	0
+c0_RO[#386]		0	!	0
+c0_OR[#386]		0	!	0
+c0_RR[#386]		0	!	0
+lambda[#386]		312	!	1
+buffer_weight[#387]	1
+buffer_name[#387]	generated_transposed_mod_transposed_col_13.dat
+Z[#387]	311
+c0_OO[#387]		1	!	0
+c0_RO[#387]		0	!	0
+c0_OR[#387]		0	!	0
+c0_RR[#387]		0	!	0
+lambda[#387]		311	!	1
+buffer_weight[#388]	1
+buffer_name[#388]	generated_transposed_mod_transposed_col_12.dat
+Z[#388]	310
+c0_OO[#388]		1	!	0
+c0_RO[#388]		0	!	0
+c0_OR[#388]		0	!	0
+c0_RR[#388]		0	!	0
+lambda[#388]		310	!	1
+buffer_weight[#389]	1
+buffer_name[#389]	generated_transposed_mod_transposed_col_11.dat
+Z[#389]	309
+c0_OO[#389]		1	!	0
+c0_RO[#389]		0	!	0
+c0_OR[#389]		0	!	0
+c0_RR[#389]		0	!	0
+lambda[#389]		309	!	1
+buffer_weight[#390]	1
+buffer_name[#390]	generated_transposed_mod_transposed_col_10.dat
+Z[#390]	308
+c0_OO[#390]		1	!	0
+c0_RO[#390]		0	!	0
+c0_OR[#390]		0	!	0
+c0_RR[#390]		0	!	0
+lambda[#390]		308	!	1
+buffer_weight[#391]	1
+buffer_name[#391]	generated_transposed_mod_transposed_col_9.dat
+Z[#391]	307
+c0_OO[#391]		1	!	0
+c0_RO[#391]		0	!	0
+c0_OR[#391]		0	!	0
+c0_RR[#391]		0	!	0
+lambda[#391]		307	!	1
+buffer_weight[#392]	1
+buffer_name[#392]	generated_transposed_mod_transposed_col_8.dat
+Z[#392]	306
+c0_OO[#392]		1	!	0
+c0_RO[#392]		0	!	0
+c0_OR[#392]		0	!	0
+c0_RR[#392]		0	!	0
+lambda[#392]		306	!	1
+buffer_weight[#393]	1
+buffer_name[#393]	generated_transposed_mod_transposed_col_7.dat
+Z[#393]	305
+c0_OO[#393]		1	!	0
+c0_RO[#393]		0	!	0
+c0_OR[#393]		0	!	0
+c0_RR[#393]		0	!	0
+lambda[#393]		305	!	1
+buffer_weight[#394]	1
+buffer_name[#394]	generated_transposed_mod_transposed_col_6.dat
+Z[#394]	304
+c0_OO[#394]		1	!	0
+c0_RO[#394]		0	!	0
+c0_OR[#394]		0	!	0
+c0_RR[#394]		0	!	0
+lambda[#394]		304	!	1
+buffer_weight[#395]	1
+buffer_name[#395]	generated_transposed_mod_transposed_col_5.dat
+Z[#395]	303
+c0_OO[#395]		1	!	0
+c0_RO[#395]		0	!	0
+c0_OR[#395]		0	!	0
+c0_RR[#395]		0	!	0
+lambda[#395]		303	!	1
+buffer_weight[#396]	1
+buffer_name[#396]	generated_transposed_mod_transposed_col_4.dat
+Z[#396]	302
+c0_OO[#396]		1	!	0
+c0_RO[#396]		0	!	0
+c0_OR[#396]		0	!	0
+c0_RR[#396]		0	!	0
+lambda[#396]		302	!	1
+buffer_weight[#397]	1
+buffer_name[#397]	generated_transposed_mod_transposed_col_3.dat
+Z[#397]	301
+c0_OO[#397]		1	!	0
+c0_RO[#397]		0	!	0
+c0_OR[#397]		0	!	0
+c0_RR[#397]		0	!	0
+lambda[#397]		301	!	1
+buffer_weight[#398]	1
+buffer_name[#398]	generated_transposed_mod_transposed_col_2.dat
+Z[#398]	300
+c0_OO[#398]		1	!	0
+c0_RO[#398]		0	!	0
+c0_OR[#398]		0	!	0
+c0_RR[#398]		0	!	0
+lambda[#398]		300	!	1
+# The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas
+# Final residuals: 57.7302
+# Global parameters: 
+
+# kb	=	1	+- 0	+-0%
+# kk	=	0.1	+- 0	+-0%
+# kr	=	1	+- 0	+-0%
+# l1	=	400	+- 0	+-0%
+# l2	=	500	+- 0	+-0%
+# s1	=	20	+- 0	+-0%
+# s2	=	30	+- 0	+-0%
+# 
+# 
+# Buffer-local parameters: 
+# 
+# Buffer: generated_transposed_mod_transposed_col_400.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	698	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_399.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	697	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_398.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	696	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_397.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	695	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_396.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	694	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_395.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	693	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_394.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	692	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_393.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	691	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_392.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	690	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_391.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	689	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_390.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	688	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_389.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	687	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_388.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	686	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_387.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	685	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_386.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	684	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_385.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	683	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_384.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	682	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_383.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	681	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_382.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	680	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_381.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	679	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_380.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	678	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_379.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	677	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_378.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	676	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_377.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	675	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_376.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	674	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_375.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	673	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_374.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	672	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_373.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	671	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_372.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	670	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_371.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	669	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_370.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	668	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_369.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	667	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_368.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	666	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_367.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	665	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_366.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	664	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_365.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	663	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_364.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	662	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_363.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	661	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_362.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	660	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_361.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	659	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_360.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	658	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_359.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	657	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_358.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	656	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_357.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	655	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_356.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	654	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_355.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	653	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_354.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	652	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_353.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	651	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_352.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	650	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_351.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	649	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_350.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	648	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_349.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	647	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_348.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	646	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_347.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	645	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_346.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	644	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_345.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	643	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_344.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	642	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_343.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	641	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_342.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	640	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_341.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	639	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_340.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	638	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_339.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	637	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_338.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	636	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_337.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	635	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_336.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	634	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_335.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	633	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_334.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	632	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_333.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	631	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_332.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	630	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_331.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	629	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_330.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	628	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_329.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	627	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_328.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	626	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_327.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	625	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_326.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	624	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_325.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	623	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_324.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	622	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_323.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	621	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_322.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	620	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_321.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	619	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_320.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	618	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_319.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	617	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_318.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	616	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_317.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	615	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_316.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	614	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_315.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	613	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_314.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	612	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_313.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	611	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_312.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	610	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_311.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	609	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_310.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	608	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_309.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	607	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_308.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	606	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_307.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	605	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_306.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	604	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_305.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	603	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_304.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	602	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_303.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	601	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_302.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	600	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_301.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	599	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_300.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	598	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_299.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	597	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_298.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	596	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_297.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	595	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_296.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	594	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_295.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	593	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_294.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	592	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_293.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	591	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_292.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	590	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_291.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	589	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_290.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	588	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_289.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	587	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_288.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	586	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_287.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	585	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_286.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	584	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_285.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	583	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_284.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	582	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_283.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	581	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_282.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	580	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_281.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	579	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_280.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	578	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_279.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	577	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_278.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	576	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_277.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	575	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_276.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	574	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_275.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	573	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_274.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	572	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_273.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	571	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_272.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	570	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_271.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	569	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_270.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	568	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_269.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	567	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_268.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	566	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_267.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	565	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_266.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	564	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_265.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	563	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_264.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	562	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_263.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	561	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_262.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	560	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_261.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	559	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_260.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	558	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_259.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	557	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_258.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	556	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_257.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	555	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_256.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	554	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_255.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	553	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_254.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	552	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_253.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	551	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_252.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	550	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_251.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	549	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_250.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	548	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_249.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	547	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_248.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	546	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_247.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	545	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_246.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	544	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_245.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	543	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_244.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	542	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_243.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	541	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_242.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	540	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_241.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	539	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_240.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	538	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_239.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	537	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_238.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	536	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_237.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	535	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_236.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	534	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_235.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	533	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_234.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	532	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_233.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	531	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_232.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	530	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_231.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	529	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_230.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	528	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_229.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	527	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_228.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	526	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_227.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	525	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_226.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	524	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_225.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	523	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_224.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	522	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_223.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	521	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_222.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	520	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_221.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	519	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_220.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	518	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_219.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	517	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_218.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	516	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_217.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	515	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_216.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	514	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_215.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	513	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_214.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	512	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_213.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	511	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_212.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	510	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_211.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	509	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_210.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	508	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_209.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	507	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_208.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	506	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_207.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	505	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_206.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	504	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_205.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	503	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_204.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	502	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_203.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	501	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_202.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	500	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_201.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	499	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_200.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	498	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_199.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	497	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_198.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	496	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_197.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	495	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_196.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	494	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_195.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	493	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_194.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	492	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_193.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	491	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_192.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	490	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_191.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	489	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_190.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	488	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_189.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	487	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_188.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	486	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_187.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	485	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_186.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	484	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_185.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	483	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_184.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	482	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_183.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	481	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_182.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	480	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_181.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	479	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_180.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	478	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_179.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	477	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_178.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	476	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_177.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	475	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_176.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	474	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_175.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	473	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_174.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	472	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_173.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	471	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_172.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	470	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_171.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	469	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_170.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	468	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_169.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	467	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_168.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	466	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_167.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	465	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_166.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	464	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_165.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	463	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_164.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	462	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_163.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	461	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_162.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	460	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_161.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	459	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_160.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	458	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_159.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	457	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_158.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	456	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_157.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	455	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_156.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	454	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_155.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	453	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_154.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	452	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_153.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	451	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_152.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	450	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_151.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	449	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_150.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	448	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_149.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	447	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_148.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	446	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_147.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	445	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_146.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	444	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_145.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	443	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_144.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	442	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_143.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	441	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_142.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	440	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_141.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	439	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_140.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	438	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_139.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	437	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_138.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	436	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_137.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	435	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_136.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	434	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_135.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	433	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_134.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	432	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_133.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	431	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_132.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	430	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_131.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	429	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_130.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	428	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_129.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	427	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_128.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	426	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_127.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	425	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_126.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	424	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_125.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	423	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_124.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	422	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_123.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	421	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_122.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	420	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_121.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	419	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_120.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	418	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_119.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	417	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_118.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	416	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_117.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	415	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_116.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	414	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_115.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	413	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_114.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	412	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_113.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	411	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_112.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	410	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_111.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	409	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_110.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	408	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_109.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	407	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_108.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	406	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_107.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	405	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_106.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	404	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_105.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	403	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_104.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	402	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_103.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	401	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_102.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	400	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_101.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	399	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_100.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	398	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_99.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	397	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_98.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	396	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_97.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	395	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_96.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	394	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_95.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	393	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_94.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	392	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_93.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	391	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_92.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	390	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_91.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	389	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_90.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	388	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_89.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	387	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_88.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	386	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_87.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	385	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_86.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	384	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_85.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	383	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_84.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	382	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_83.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	381	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_82.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	380	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_81.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	379	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_80.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	378	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_79.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	377	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_78.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	376	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_77.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	375	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_76.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	374	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_75.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	373	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_74.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	372	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_73.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	371	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_72.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	370	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_71.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	369	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_70.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	368	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_69.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	367	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_68.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	366	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_67.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	365	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_66.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	364	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_65.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	363	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_64.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	362	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_63.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	361	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_62.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	360	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_61.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	359	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_60.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	358	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_59.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	357	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_58.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	356	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_57.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	355	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_56.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	354	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_55.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	353	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_54.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	352	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_53.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	351	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_52.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	350	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_51.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	349	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_50.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	348	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_49.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	347	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_48.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	346	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_47.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	345	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_46.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	344	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_45.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	343	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_44.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	342	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_43.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	341	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_42.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	340	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_41.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	339	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_40.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	338	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_39.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	337	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_38.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	336	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_37.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	335	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_36.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	334	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_35.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	333	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_34.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	332	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_33.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	331	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_32.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	330	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_31.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	329	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_30.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	328	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_29.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	327	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_28.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	326	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_27.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	325	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_26.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	324	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_25.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	323	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_24.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	322	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_23.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	321	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_22.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	320	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_21.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	319	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_20.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	318	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_19.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	317	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_18.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	316	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_17.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	315	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_16.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	314	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_15.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	313	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_14.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	312	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_13.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	311	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_12.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	310	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_11.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	309	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_10.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	308	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_9.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	307	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_8.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	306	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_7.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	305	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_6.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	304	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_5.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	303	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_4.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	302	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_3.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	301	+- 0	+- 0%
+# Buffer: generated_transposed_mod_transposed_col_2.dat (weight: 1)
+# c0_OO	=	1	(fixed)
+# c0_RO	=	0	(fixed)
+# c0_OR	=	0	(fixed)
+# c0_RR	=	0	(fixed)
+# lambda	=	300	+- 0	+- 0%

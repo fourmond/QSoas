@@ -1,0 +1,6 @@
+generate-dataset 0 100 /columns=400 /samples=400
+transpose
+apply-formula x=i+300
+transpose
+expand /perp-meta=lambda /flags=evolutions
+sim-kinetic-system /stepper=bsimp 2els-reporters.qss 2els-reporters.params flagged:evolutions /override=kk=.1;kb=10;kr=0.1

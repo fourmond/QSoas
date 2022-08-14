@@ -1,0 +1,5 @@
+OO ->[kr] RO
+RO ->[kk*kb][kb] OR
+OR ->[kr] RR
+
+y = 1;a1 = 2*exp(-((lambda-l1)/s1)**2);a2 = 2*exp(-((lambda-l2)/s2)**2); y = (a1+a2)*c_OO + a1*c_OR + a2*c_RO

@@ -1,4 +1,4 @@
-generate-dataset 0 100 /columns=400
+generate-dataset 0 100 /columns=400 /samples=2000
 transpose
 apply-formula x=i+300
 transpose

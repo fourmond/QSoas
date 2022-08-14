@@ -38,6 +38,10 @@ public:
   Vector(const QVector<double> & d) : QVector<double>(d) {;};
   Vector(int nb, double value) : QVector<double>(nb, value) {;};
 
+  /// Creates vector from raw data: @a nb doubles given in @a init
+  /// This should seldom be ambiguous, I think.
+  Vector(const double * init, int nb);
+
   /// @name Arithmetic operations
   /// 
   /// The arithmetic operations are redefined to better suit the needs

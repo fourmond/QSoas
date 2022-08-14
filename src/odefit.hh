@@ -117,6 +117,18 @@ protected:
 
     /// A cache for parameters
     QList<ParameterDefinition> parametersCache;
+
+
+    /// A cache for the values, potentially very useful when in a
+    /// multifit with a common time evolution but various linear
+    /// combination of the values. Typical example: stopped-flow data
+
+    /// The index of the first linear reporter.
+    int reporterIndex;
+    /// The parameters that were last cached
+    Vector cachedParameters;
+    Vector cachedX;
+    QList<Vector> cachedValues;
   };
 
   virtual void processOptions(const CommandOptions & opts, FitData * data) const override;

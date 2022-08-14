@@ -71,6 +71,7 @@ CommandOptions ODEFit::currentSoftOptions(FitData * data) const
 void ODEFit::processSoftOptions(const CommandOptions & opts, FitData * data) const
 {
   // Parse ODEStepperOptions
+  Storage * s = storage<Storage>(data);
   ODESolver * slv = solver(data);
   ODEStepperOptions op = slv->getStepperOptions();
   op.fixed = false;           // Drop non-adaptive steps !
@@ -94,6 +95,23 @@ void ODEFit::processSoftOptions(const CommandOptions & opts, FitData * data) con
   // Dump the options on the terminal ?
   Terminal::out << "Using integrator parameters: " 
                 << op.description() << endl;
+
+  s->cachedX.clear();
+  s->cachedValues.clear();
+  s->cachedParameters.clear();
+
+  // // Setting up the cache:
+  // if(! hasReporters(data) && data->datasets.size() > 1) {
+  //   s->cachedX.clear();
+  //   for(const DataSet * ds : data->datasets) {
+  //     if(ds->nbRows() > s->cachedX.size())
+  //       s->cachedX = ds->x();
+  //   }
+  //   s->cachedValues.clear();
+  //   for(int i = 0; i < slv->dimension(); i++)
+  //     s->cachedValues << s->cachedX;
+  //   s->cachedParameters.clear();
+  // }
 }
 
 void ODEFit::updateParameters(FitData * data) const
@@ -118,9 +136,11 @@ void ODEFit::updateParameters(FitData * data) const
   s->timeIndex= -1;
   s->temperatureIndex = -1;
   s->potentialIndex = -1;
+  s->reporterIndex = -1;
 
   if(! hasReporters(data)) {
     QStringList names = variableNames(data);
+    s->reporterIndex = defs.size();
     for(int i = 0; i < names.size(); i++)
       defs << ParameterDefinition(QString("y_%1").
                                   arg(names[i]), i != 0);
@@ -211,6 +231,66 @@ void ODEFit::compute(const double * a, FitData * data,
 {
   Storage * s = storage<Storage>(data);
   ODESolver * slv = solver(data);
+
+  auto prepareParameters =
+    [s, slv, a]() -> Vector {
+      int d = slv->dimension();
+      Vector v(a, s->parametersCache.size());
+      if(s->reporterIndex >= 0) {
+        for(int i = 0; i < slv->dimension(); i++)
+          v[s->reporterIndex + i] = 0;
+      }
+      return v;
+    };
+
+  // QTextStream o(stdout);
+  // o << "Cached parameters:" << endl;
+  // for(int i = 0; i < s->cachedParameters.size(); i++) {
+  //   o << " * " << s->cachedParameters[i] << endl;
+  // }
+  // o << "reporter: " << s->reporterIndex << " -- " << hasReporters(data) 
+  //   << " -- " << data->datasets.size() << endl;
+
+  // OK, first thing: let's see if we can get the values from the cache
+  if(s->reporterIndex >= 0 && s->cachedX == ds->x()) {
+    // Let's look in more details:
+    Vector v = prepareParameters();
+    if(v == s->cachedParameters) {
+      // OK, now we have the same values, so we just use the cache
+      int nb = s->cachedX.size();
+      int dim = slv->dimension();
+      if(targetData) {
+        *targetData = s->cachedValues; // Yep.
+      }
+      for(int i = 0; i < nb; i++) {
+        double v = 0;
+        if(target) {
+          for(int j = 0; j < dim; j++)
+            v += a[s->reporterIndex + j] * s->cachedValues[j][i];
+          gsl_vector_set(target, i, v);
+        }
+      }
+      // We have computed !
+      return;
+    }
+  }
+
+  
+  // Setup the cache
+  bool doCache = false;
+  if(s->reporterIndex >= 0 && data->datasets.size() > 1) {
+    // o << "Setting up cache" << endl;
+    s->cachedX = ds->x();
+    for(int i = 0; i < slv->dimension(); i++)
+      s->cachedValues << s->cachedX;
+    s->cachedParameters = prepareParameters();
+    // o << "Setting up cache" << endl;
+    // for(int i = 0; i < s->cachedParameters.size(); i++) {
+    //   o << " -> " << s->cachedParameters[i] << endl;
+    // }
+    doCache = true;
+  }
+  
   slv->resetStepper();
 
   s->timeDependentParameters.initialize(a + s->tdBase);
@@ -305,6 +385,11 @@ void ODEFit::compute(const double * a, FitData * data,
     }
     if(target)
       gsl_vector_set(target, i, val);
+    if(doCache) {
+      int sz = slv->dimension();
+      for(int j = 0; j < sz; j++)
+        s->cachedValues[j][i] = cv[j];
+    }
   }
 
   if(data->debug) {

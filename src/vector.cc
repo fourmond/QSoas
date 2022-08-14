@@ -27,6 +27,16 @@
 
 #include <linereader.hh>
 
+
+Vector::Vector(const double * values, int nb)
+{
+  resize(nb);
+  double * d = data();
+  for(int i = 0; i < nb; i++)
+    d[i] = values[i];
+}
+
+
 QList<QList<Vector> > Vector::readFromStream(QTextStream * source,
                                              std::function<void (const QString &, QVector<int> *)> splitter,
                                              const QRegExp & commentREt,

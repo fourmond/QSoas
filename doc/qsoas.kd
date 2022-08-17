@@ -7197,7 +7197,12 @@ trajectories.
 {::comment} synopsis-end: fit-trim-trajectories {:/}
 {::comment} description-start: fit-trim-trajectories {:/}
 Removes from the list of trajectories all the trajectories whose final
-residuals are more than _threshold_ greater than the best final residuals.
+residuals are more than _threshold_ times greater than the best final
+residuals.
+
+If `/at-most` is specified, it will keep only that many best
+trajectories (after trimming according to _threshold_).
+
 {::comment} description-end: fit-trim-trajectories {:/}
 {::comment} synopsis-start: fit-save-trajectories {:/}
 

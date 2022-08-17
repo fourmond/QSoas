@@ -775,6 +775,9 @@ static void runForEachCommand(const QString &, QString script,
         }
         Terminal::out << "s = " << s << "\te = " << e << endl;
         int nb = rangeRE.cap(3).toInt();
+        if(nb <= 1)
+          throw RuntimeError("Cannot use a range with only one value: '%1'").
+            arg(a);
         for(int j = 0; j < nb; j++) {
           double x = s + ((e - s) * j)/(nb - 1);
           if(lg)

@@ -1,4 +1,4 @@
-set bb 23
+let bb 23
 
 # plain
 assert ${bb}-23 0

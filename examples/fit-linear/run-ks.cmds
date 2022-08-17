@@ -1,0 +1,12 @@
+## INLINE: system.qss
+A <=>[k1][k2] B
+## INLINE END
+
+generate-dataset 0 10
+sim-kinetic-system inline:system.qss /dev/null 0 /override=y_B=2;y_A=4
+sim-kinetic-system inline:system.qss /dev/null 0 /override=y_B=1;y_A=2
+mfit-exponential-decay 0 1
+# Try with linear-prefit
+
+mfit-kinetic-system inline:system.qss 0 1
+# Try with linear-prefit

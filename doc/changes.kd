@@ -115,7 +115,7 @@ See the full list of changes [below](#v2p0)
    beginning to the end
  * the [cmd: set-column-names] and [cmd: set-row-names] commands to
    set the column and row names of a dataset
- * a [cmd: set] command to define named parameters to be used inside
+ * a [cmd: let] command to define named parameters to be used inside
    scripts
  * a [cmd: sort-datasets] command to sort a series of datasets
    directly from within the stack

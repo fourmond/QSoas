@@ -775,6 +775,9 @@ static void runForEachCommand(const QString &, QString script,
         }
         Terminal::out << "s = " << s << "\te = " << e << endl;
         int nb = rangeRE.cap(3).toInt();
+        if(nb <= 1)
+          throw RuntimeError("Cannot use a range with only one value: '%1'").
+            arg(a);
         for(int j = 0; j < nb; j++) {
           double x = s + ((e - s) * j)/(nb - 1);
           if(lg)
@@ -1626,7 +1629,7 @@ settings("settings", // command name
 
 //////////////////////////////////////////////////////////////////////
 
-void setCommand(const QString &,
+void letCommand(const QString &,
                 QString paramName,
                 QString value,
                 const CommandOptions & opts)
@@ -1635,7 +1638,7 @@ void setCommand(const QString &,
 }
 
 static ArgumentList 
-setA(QList<Argument *>() 
+letA(QList<Argument *>() 
      << new StringArgument("name", 
                            "Name",
                            "the name of the parameter")
@@ -1644,20 +1647,19 @@ setA(QList<Argument *>()
                            "the value of the parameter")
      );
 
-// static ArgumentList 
-// setO(QList<Argument *>() 
-//        << new NumberArgument("time", 
-//                              "Pause time",
-//                              "time to pause for, in seconds")
-//        << new StringArgument("message", 
-//                              "Text message",
-//                              "the message to display", true)
-//        );
+static Command 
+let("let", // command name
+    effector(letCommand), // action
+    "file",  // group name
+    &letA, // arguments
+    NULL,
+    "Define a named parameter");
 
 static Command 
-set("set", // command name
-    effector(setCommand), // action
-    "file",  // group name
-    &setA, // arguments
-    NULL,
-    "Set named parameters");
+let2("let", // command name
+     effector(letCommand), // action
+     "file",  // group name
+     &letA, // arguments
+     NULL,
+     "Define a named parameter", "",
+     "", CommandContext::fitContext());

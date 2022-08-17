@@ -286,7 +286,10 @@ static void linearPrefitCommand(const QString & /*name*/, const CommandOptions &
   double threshold = 1e-5;
   updateFromOptions(opts, "threshold", threshold);
   Vector tgt;
-  
+
+  // We need this to take into account the change in parameter status,
+  // like fixed/free
+  ws->prepareFit(NULL);
   QList<QPair<int, int> > params =
     ws->findLinearParameters(justLook ? (& tgt) : NULL,
                              threshold);

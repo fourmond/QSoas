@@ -221,7 +221,7 @@ int FitTrajectories::keepBestTrajectories(int max)
       return a.first < b.first;
     });
   QList<int> toTrim;
-  for(int i = max-1; i < res.size(); i++)
+  for(int i = max; i < res.size(); i++)
     toTrim << res[i].second;
   std::sort(toTrim.begin(), toTrim.end());
   while(toTrim.size() > 0) {

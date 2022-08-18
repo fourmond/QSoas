@@ -65,6 +65,24 @@ quit("quit", // command name
      "Closes the fit window",
      "", CommandContext::fitContext());
 
+//////////////////////////////////////////////////////////////////////
+
+static void computeCommand(const QString & /*name*/)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  ws->recompute(false, false);
+}
+
+static Command 
+compute("compute", // command name
+        optionLessEffector(computeCommand), // action
+        "fits",  // group name
+        NULL, // arguments
+        NULL, // options
+        "Compute",
+        "Recompute the fit function using the current parameters",
+        "", CommandContext::fitContext());
+
 
 //////////////////////////////////////////////////////////////////////
 

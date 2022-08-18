@@ -176,6 +176,13 @@ void Debug::timeStamp()
   (*this) << "[" << dt.toString() << "] ";
 }
 
+const char * Debug::dumpString(const QString & c)
+{
+  static QByteArray buf;
+  buf = c.toUtf8();
+  return buf.constData();
+}
+
 //////////////////////////////////////////////////////////////////////
 #include <commandlineparser.hh>
 

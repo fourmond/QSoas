@@ -140,6 +140,19 @@ public:
   };
 
   /// @}
+
+  /// @name GDB functions
+  ///
+  /// A series of functions whose purpose is to help dumping the
+  /// contents of Qt objects from within GDB
+  /// @{
+
+  /// Dumps the utf8 contents of the string
+  static const char * dumpString(const QString & str);
+
+  /// @}
+
+  
 };
 
 template<class T> inline Debug& Debug::operator<<(T t) {

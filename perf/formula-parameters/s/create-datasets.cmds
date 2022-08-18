@@ -1,0 +1,3 @@
+clear-stack
+generate-dataset 0 10 /samples=101 /columns=4000
+expand /flags=data

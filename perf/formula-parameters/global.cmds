@@ -1,0 +1,10 @@
+@ s/create-datasets.cmds
+
+## INLINE: run.cmds
+global tau_1
+set tau_1 /fix=true "=A_1 * A_1"
+compute
+quit
+## INLINE END
+
+mfit-exponential-decay flagged:data /script=inline:run.cmds

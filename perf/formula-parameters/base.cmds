@@ -1,0 +1,8 @@
+@ s/create-datasets.cmds
+
+## INLINE: run.cmds
+compute
+quit
+## INLINE END
+
+mfit-exponential-decay flagged:data /script=inline:run.cmds

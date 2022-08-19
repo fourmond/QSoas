@@ -279,7 +279,7 @@ void DerivativeFit::function(const double * parameters,
       DataSet::firstDerivative(derDS->x().data(), 1, 
                                bufView.vector.data, bufView.vector.stride,
                                derView.vector.data, derView.vector.stride,
-                               derDS->x().size());
+                               derDS->x().size(), false);
     }
 
 

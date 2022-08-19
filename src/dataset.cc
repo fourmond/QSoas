@@ -1329,8 +1329,14 @@ void DataSet::firstDerivative(const double *x, int xstride,
       delta_3 = x[(i+2) * xstride] - x[i * xstride]; v3 = y[(i+2) * ystride];
       delta_4 = x[(i+1) * xstride] - x[i * xstride]; v4 = y[(i+1) * ystride];
     }
-    if((! silent) && (delta_1 == 0) || (delta_2 == 0))
-      throw RuntimeError("Duplicate value of X in the derivative");
+    if((! silent) &&
+       (
+        (delta_1 == 0) || (delta_2 == 0)
+        || (delta_3 == 0) || (delta_4 == 0)
+        )
+       )
+      throw RuntimeError("Duplicate value of X in the derivative around x = %1").
+       arg(x[i*xstride]);
     alpha_1 = delta_2*delta_3*delta_4/
       (delta_1 * (delta_2 - delta_1) * (delta_3 - delta_1) 
        * (delta_4 - delta_1));

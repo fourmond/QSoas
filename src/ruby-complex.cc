@@ -218,8 +218,8 @@ void MRuby::initializeComplex()
 
   mrb_define_method(mrb, mrb->kernel_module, "Cplx", &::co_new,
                     MRB_ARGS_REQ(1)|MRB_ARGS_OPT(1));
-  mrb_define_method(mrb, mrb->kernel_module, "Z", &::co_new,
-                    MRB_ARGS_REQ(1)|MRB_ARGS_OPT(1));
+  // mrb_define_method(mrb, mrb->kernel_module, "Z", &::co_new,
+  //                   MRB_ARGS_REQ(1)|MRB_ARGS_OPT(1));
 
 
   // Operations...

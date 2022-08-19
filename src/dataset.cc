@@ -550,16 +550,23 @@ QList<DataSet *> DataSet::splitIntoMonotonic(int col, int group) const
   int nbcrossed = 0;
   if(size >= 3) {
     double dv0 = val[1] - val[0];
+    bool last0 = false;
     for(idx = 1; idx < size - 1; idx++) {
       if(dv0 == 0) {
         dv0 = val[idx+1] - val[idx];
         continue;
       }
       double dv = val[idx+1] - val[idx];
+      if(dv == 0) {
+        last0 = true;
+        continue;
+      }
       if(dv * dv0 < 0) {
         nbcrossed += 1;
         if(nbcrossed % group == 0) {
           QList<Vector> cols;
+          if(last0)
+            idx--;
           for(int j = 0; j < columns.size(); j++)
             cols << columns[j].mid(curStart, idx - curStart + 1);
           ret << derivedDataSet(cols,
@@ -571,7 +578,7 @@ QList<DataSet *> DataSet::splitIntoMonotonic(int col, int group) const
         if(idx < size)
           dv0 = val[idx] - val[idx-1];
       }
-      
+      last0 = false;
     }
   }
   QList<Vector> cols;

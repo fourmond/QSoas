@@ -198,7 +198,7 @@ static mrb_value co_conj(mrb_state * mrb, mrb_value self)
 static mrb_value co_to_s(mrb_state * mrb, mrb_value self)
 {
   gsl_complex * c = co_get_c(mrb, self);
-  QString s = QString("%1%2%3*i").arg(GSL_REAL(*c)).
+  QString s = QString("%1%2%3*I").arg(GSL_REAL(*c)).
     arg(GSL_IMAG(*c) < 0 ? "" : "+").
     arg(GSL_IMAG(*c));
   MRuby * m = MRuby::ruby();

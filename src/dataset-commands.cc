@@ -2911,7 +2911,8 @@ typedef double (*generator)(const gsl_rng *, double);
 
 static double uniform(const gsl_rng * r, double sigma)
 {
-  return (0.5 - gsl_rng_uniform(r)) * sigma/(sqrt(3));
+  return (0.5 - gsl_rng_uniform(r)) * 2*sigma;
+  // There was a /(sqrt(3)) element instead of 2*. I have no clue why.
 }
 
 QHash<QString, generator> generators = {

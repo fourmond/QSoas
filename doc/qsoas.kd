@@ -3272,6 +3272,25 @@ The range of values used is automatically deduced from the data, but
 you can use the `/min=` and `/max=` options to set it manually.
 
 {::comment} description-end: bin {:/}
+{::comment} synopsis-start: add-noise {:/}
+
+### `add-noise` - Add noise {#cmd-add-noise}
+
+`add-noise` _sigma_{:title="a floating-point number"} `/distribution=`_choice_{:title="one of: `cauchy`, `gaussian`, `uniform`"} `/seed=`_integer_{:title="an integer"}
+
+  * _sigma_{:title="a floating-point number"}: 'Amplitude' of the noise -- values: a floating-point number
+  * `/distribution=`_choice_{:title="one of: `cauchy`, `gaussian`, `uniform`"}: The noise distribution -- values: one of: `cauchy`, `gaussian`, `uniform`
+  * `/seed=`_integer_{:title="an integer"}: The generator seed. If not specified or negative, uses the current time -- values: an integer
+
+{::comment} synopsis-end: add-noise {:/}
+{::comment} description-start: add-noise {:/}
+This command adds random noise following the distribution given as the
+`/distribution` option (default is uniform noise) with the given
+"amplitude" (the scale parameter of the distributions).
+
+It is possible to obtain reproducible results by using a given `/seed`
+parameter. 
+{::comment} description-end: add-noise {:/}
 
 
 # Segments {#segments}

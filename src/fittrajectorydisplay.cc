@@ -572,6 +572,41 @@ void TrajectoryParametersDisplay::displayRows(const QSet<int>& trjs)
     setupTrajectory(idx++, &(workspace->trajectories)[i/2], i % 2);
 }
 
+//////////////////////////////////////////////////////////////////////
+
+/// The class that displays both a table view of the trajectories and 
+class DoubleDisplay : public QWidget {
+
+  TrajectoryParametersDisplay * display;
+public:
+
+  DoubleDisplay(TrajectoriesModel * model, FitWorkspace * workspace)  {
+    QSplitter * main = new QSplitter(Qt::Horizontal);
+    QTableView * view = new QTableView;
+    view->setModel(model);
+    main->addWidget(view);
+
+    display = new TrajectoryParametersDisplay(workspace);
+    main->addWidget(display);
+
+    QHBoxLayout * l = new QHBoxLayout(this);
+    l->addWidget(main);
+
+    connect(view->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this,
+            [this, view](const QItemSelection &selected,
+                         const QItemSelection &deselected) {
+              QSet<int> d;
+              for(const QModelIndex & cur :
+                    view->selectionModel()->selectedIndexes()) {
+                int idx = cur.row();
+                d.insert(idx);
+              }
+              display->displayRows(d);
+            });
+  };
+  
+};
 
 //////////////////////////////////////////////////////////////////////
 
@@ -703,6 +738,12 @@ void FitTrajectoryDisplay::setupFrame()
   }
 
   tabs->addTab(viewtab, "Display");
+
+
+  //////////////////////////////
+  // Setup of the mixed display
+  DoubleDisplay * dd = new DoubleDisplay(model, workspace);
+  tabs->addTab(dd, "Parameters");
 
   /// Here the close button at the bottom:
   hb = new QHBoxLayout;

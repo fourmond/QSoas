@@ -1663,3 +1663,44 @@ let2("let", // command name
      NULL,
      "Define a named parameter", "",
      "", CommandContext::fitContext());
+
+//////////////////////////////////////////////////////////////////////
+
+void clipboardDumpCommand(const QString &,
+                          const CommandOptions & opts)
+{
+  QClipboard *clipboard = QGuiApplication::clipboard();
+  QStringList avail = clipboard->mimeData()->formats();
+  QString base = "cp-t-%1";
+  updateFromOptions(opts, "file-name", base);
+  if(! base.contains("%1"))
+    base += "-%1";
+  QTextStream o(stdout);
+  o << "Formats: \n * " << avail.join("\n * ") << endl;
+  int idx = 0;
+  for(const QString & fmt : avail) {
+    o << "Writing: " << fmt << endl;
+    QString f = base.arg(idx, 2, 10, QChar('0'));
+    File t(f + ".fmt", File::TextOverwrite);
+    QTextStream t1(t);
+    t1 << "Format: " << fmt << endl;
+    
+    File t2(f + ".dat", File::BinaryOverwrite);
+    t2.ioDevice()->write(clipboard->mimeData()->data(fmt));
+    idx += 1;
+  }
+}
+
+static ArgumentList 
+clipO(QList<Argument *>() 
+      << new StringArgument("file-name", 
+                            "File name",
+                            "base for output file names")
+      );
+
+static Command 
+tin("clipboard-dump", // command name
+    effector(clipboardDumpCommand), // action
+    "file",  // group name
+    NULL,
+    &clipO, "Dump clipboard contents");

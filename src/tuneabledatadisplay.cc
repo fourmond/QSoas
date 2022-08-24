@@ -69,6 +69,8 @@ TuneableDataDisplay::TuneableDataDisplay(const QString & n,
 
 TuneableDataDisplay::~TuneableDataDisplay()
 {
+  for(CurvePoints * p : items)
+    delete p;
 }
 
 void TuneableDataDisplay::setName(const QString & n)

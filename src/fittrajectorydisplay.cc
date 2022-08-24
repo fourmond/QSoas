@@ -512,6 +512,7 @@ void TrajectoryParametersDisplay::setupTrajectory(int index,
       }
       d->changeColor(c);
       parametersLayout->addWidget(d, i, sz+1);
+      d->toggleDisplay(parameters[i]->isChecked());
       o << "Sz2: " << i << endl;
       parameterDisplays[i] << d;
       gsl_vector_view v;
@@ -570,6 +571,11 @@ void TrajectoryParametersDisplay::displayRows(const QSet<int>& trjs)
   int idx = 0;
   for(int i : trjs)
     setupTrajectory(idx++, &(workspace->trajectories)[i/2], i % 2);
+  for(QList<TuneableDataDisplay * > & lst : parameterDisplays) {
+    while(lst.size() > idx) {
+      delete lst.takeLast();
+    }
+  }
 }
 
 //////////////////////////////////////////////////////////////////////

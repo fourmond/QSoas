@@ -30,6 +30,8 @@
 #include <fitworkspace.hh>
 #include <fittrajectory.hh>
 
+#include <file.hh>
+
 #include <terminal.hh>
 
 ParameterSpaceExplorerFactoryItem::
@@ -200,6 +202,16 @@ static void iterateExplorerCommand(const QString & /*name*/,
   explorer->linearPreFit = false;
   updateFromOptions(opts, "linear-prefit", explorer->linearPreFit);
 
+
+  QString autoSave = QString("QSoas-%1-%2.%3.trj.dat").
+    arg(ws->fitName(false)).
+    arg(explorer->createdFrom->name).
+    arg(QCoreApplication::applicationPid());
+  bool disableAutoSave = false;
+  updateFromOptions(opts, "disable-auto-save", disableAutoSave);
+  if(disableAutoSave)
+    autoSave = "";
+
   QStringList lst;
   for(int i = 1; i <= 2; i++) {
     QString n = QString("arg%1").arg(i);
@@ -274,6 +286,20 @@ static void iterateExplorerCommand(const QString & /*name*/,
       }
       
     }
+    if(! autoSave.isEmpty()) {
+      try {
+        Terminal::out << "Saving trajectories to '"
+                      << autoSave << "'";
+        File f(autoSave, File::TextOverwrite);
+        QTextStream o(f);
+        o << "# Fit command-line: " << soas().currentCommandLine() << endl;
+        ws->trajectories.exportToFile(o);
+        Terminal::out << " -> OK" << endl;
+      }
+      catch(const RuntimeError & e) {
+        Terminal::out << " -> failed: " << e.message() << endl;
+      }
+    }
     
     if(! cont)
       break;
@@ -297,6 +323,9 @@ ArgumentList ieOpts(QList<Argument*>()
                     << new BoolArgument("linear-prefit", 
                                         "Linear prefit",
                                         "If true, runs a linear pre-fit on before running the real fit")
+                    << new BoolArgument("disable-auto-save",
+                                        "Disable auto save",
+                                        "If true, the trajectories are not automatically saved at each iteration (default: false)")
                     << new FileArgument("arg1", 
                                         "First argument",
                                         "First argument to the scripts")

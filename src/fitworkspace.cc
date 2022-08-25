@@ -1561,6 +1561,9 @@ QList<QPair<int, int> > FitWorkspace::findLinearParameters(Vector * deltas,
                                                            double threshold)
 {
   QList<QPair<int, int> > rv;
+  sendDataParameters();
+  fitData->initializeParameters();
+  
   QVarLengthArray<double, 1000> params(fitData->freeParameters());
   int sz = fitData->freeParameters();
   if(sz == 0)

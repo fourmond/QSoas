@@ -1,0 +1,12 @@
+# Here we check that split-monotonic handles properly duplicated X values
+let size 101
+generate-dataset -1 1 /samples=${size}
+apply-formula x=-x
+cat 1 0
+split-monotonic
+# Make sure both elements have the same size
+assert $stats.rows-${size} 0
+drop
+assert $stats.rows-${size} 0
+
+

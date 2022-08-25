@@ -44,8 +44,8 @@ QSoas> solve y*cosh(y)-x
 
 This looks for points for which $$y \times \cosh y = x$$. Two caveats:
 
- * the variable is $$y$$ and not $$x$$, so that you can obtain
-   functions of $$x$$ in the end
+ * the variable you're solving for is $$y$$ and not $$x$$,
+   so that you can obtain functions of $$x$$ in the end
  * the algorithm is iterative, starting with the values of $$y$$
    currently in the buffer. Try to start with a first approximation of
    the solution, or at least some value for which your equation is

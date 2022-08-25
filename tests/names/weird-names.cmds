@@ -24,3 +24,8 @@ assert $stats.y_max-5 0
 assert $stats.y_min-5 0
 assert '$col_names[1]=="du[#3]"'
 
+# We want to use Z as a column name too
+generate-dataset 0 10 x**3 x
+set-column-names x yyy Z
+apply-formula y-=$c.Z**3
+assert $stats.y_norm 0

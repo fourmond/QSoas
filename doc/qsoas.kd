@@ -422,6 +422,42 @@ Prints the full path of the current directory.
 It is also indicated in the title of the QSoas window.
 {::comment} description-end: pwd {:/}
 
+{::comment} synopsis-start: head {:/}
+### `head` - Head {#cmd-head}
+
+`head` _file_{:title="name of a file"} `/number=`_integer_{:title="an integer"} `/skip=`_integer_{:title="an integer"}
+
+  * _file_{:title="name of a file"}: name of the file to show -- values: name of a file
+  * `/number=`_integer_{:title="an integer"}: number of lines to show -- values: an integer
+  * `/skip=`_integer_{:title="an integer"}: number of lines to skip -- values: an integer
+
+{::comment} synopsis-end: head {:/}
+{::comment} description-start: head {:/}
+This commands prints the first few lines of the given file to the
+terminal. This is useful to quickly see the contents of a file, and to
+see how `QSoas` is able to read it.
+
+The number of lines being printed is chosen using the `/number=`
+option (negative means print everything).
+
+A number of lines can be skipped at the beginning using the `/skip=`
+option.
+{::comment} description-end: head {:/}
+{::comment} synopsis-start: ls {:/}
+
+### `ls` - List files {#cmd-ls}
+
+`ls` (`/directory=`)_directory_{:title="name of a directory"}
+
+  * (`/directory=`)_directory_{:title="name of a directory"} [(default option)](#default-option): Directory to list -- values: name of a directory
+
+{::comment} synopsis-end: ls {:/}
+{::comment} description-start: ls {:/}
+`ls` lists the files in the current directory, just like the standard
+Unix command.
+{::comment} description-end: ls {:/}
+
+
 {::comment} synopsis-start: temperature {:/}
 
 ### `temperature` - Temperature {#cmd-temperature}
@@ -1844,6 +1880,39 @@ instance.
 
 
 {::comment} description-end: auto-flag {:/}
+{::comment} synopsis-start: sort-datasets {:/}
+
+### `sort-datasets` - Sort datasets {#cmd-sort-datasets}
+
+`sort-datasets` _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} _key_{:title="a piece of [Ruby code](#ruby)"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+
+  * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: Datasets to sort -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * _key_{:title="a piece of [Ruby code](#ruby)"}: Sorting key (a ruby expression) -- values: a piece of [Ruby code](#ruby)
+  * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Sorts in the reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Use statistics in the expressions -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+
+{::comment} synopsis-end: sort-datasets {:/}
+{::comment} description-start: sort-datasets {:/}
+`sort-datasets` reorders the given datasets **inside the stack** using
+the Ruby formula given as the last argument. It does not touch the
+other datasets from the stack. For instance, to sort the first 10
+datasets alphabetically according to their dataset name, it is
+possible to use:
+
+~~~
+QSoas> sort-datasets 0..9 $meta.name
+~~~
+
+It is possible to sort in the reverse order using `/reversed=true`. By
+default, the statistics are not available, but you can use
+`/use-stats=true` to make them available under the variable `$stats`
+(as usual).
+
+**Important** this command modifies directly the stack, it is not
+possible to undo it, unless you took care of saving the stack before
+using [cmd: save-stack].
+{::comment} description-end: sort-datasets {:/}
+
 
 
 
@@ -1976,13 +2045,16 @@ option, and control the resulting datasets using the commands described
 [there](#several-datasets).
 
 
-TODO: $row_name
+If the Ruby code uses the Ruby keyword `break`, then the processing of
+the dataset ends at that moment, keeping all the data points that have
+been calculated so far.
+
 
 #### Using column and row names
 
 It is possible to use column and row names:
 
-* The syntax `$c.name` refers to the value of the column `name`
+* The syntax `$c.name` refers to the value of the column `name`.
 * `$row_name` is the name of the current value of the row name. It
   **can** be used to modify the row names of the dataset.
 * It is possible to set the value of a named column directly. This
@@ -2901,6 +2973,7 @@ noise:
  * Data approximation using basis splines via 
    [cmd: filter-bsplines] or 
    [cmd: auto-filter-bs].
+ * Other kinds of filters using [cmd: kernel-filter].
  * Splike removals using [cmd: remove-spikes] or even [cmd: deldp].
 
 In addition, QSoas provides ways to remove calculated "baselines":
@@ -3067,6 +3140,35 @@ of the points, which acts as a filter of the data, just like
 [cmd: filter-fft] or [cmd: filter-bsplines].
 
 {::comment} description-end: auto-reglin {:/}
+{::comment} synopsis-start: kernel-filter {:/}
+
+### `kernel-filter` - Kernel filter {#cmd-kernel-filter}
+
+`kernel-filter` `/alpha=`_number_{:title="a floating-point number"} `/size=`_integer_{:title="an integer"} `/threshold=`_number_{:title="a floating-point number"} `/type=`_choice_{:title="one of: `gaussian`, `impulse-iqr`, `impulse-mad`, `impulse-qn`, `impulse-sn`, `median`, `rmedian`"}
+
+  * `/alpha=`_number_{:title="a floating-point number"}: Gaussian spread (only for gaussian) -- values: a floating-point number
+  * `/size=`_integer_{:title="an integer"}: Half window size -- values: an integer
+  * `/threshold=`_number_{:title="a floating-point number"}: Threshold for impulse filters -- values: a floating-point number
+  * `/type=`_choice_{:title="one of: `gaussian`, `impulse-iqr`, `impulse-mad`, `impulse-qn`, `impulse-sn`, `median`, `rmedian`"}: Kernel type -- values: one of: `gaussian`, `impulse-iqr`, `impulse-mad`, `impulse-qn`, `impulse-sn`, `median`, `rmedian`
+
+{::comment} synopsis-end: kernel-filter {:/}
+{::comment} description-start: kernel-filter {:/}
+This command filters the data using different filters that have in
+command to work on a small number of points at the same time (given as
+argument to the `/size` argument, which corresponds to the
+half-width).
+
+The filters available are:
+ * `gaussian`, a gaussian kernel (see
+ [there](https://www.gnu.org/software/gsl/doc/html/filter.html#gaussian-filter)),
+ whose spread can be parametrized using the `/alpha` option;
+ * `median` and `rmedian` are median and recursive median filters (see
+ [there](https://www.gnu.org/software/gsl/doc/html/filter.html#standard-median-filter));
+ * `impulse-iqr`, `impulse-mad`, `impulse-qn` and `impulse-sn` are
+ various types of impulsion detection filters (see
+ [there](https://www.gnu.org/software/gsl/doc/html/filter.html#impulse-detection-filter)),
+ parametrized using the `/threshold=` option.
+{::comment} description-end: kernel-filter {:/}
 
 {::comment} synopsis-start: remove-spikes {:/}
 
@@ -3272,6 +3374,25 @@ The range of values used is automatically deduced from the data, but
 you can use the `/min=` and `/max=` options to set it manually.
 
 {::comment} description-end: bin {:/}
+{::comment} synopsis-start: add-noise {:/}
+
+### `add-noise` - Add noise {#cmd-add-noise}
+
+`add-noise` _sigma_{:title="a floating-point number"} `/distribution=`_choice_{:title="one of: `cauchy`, `gaussian`, `uniform`"} `/seed=`_integer_{:title="an integer"}
+
+  * _sigma_{:title="a floating-point number"}: 'Amplitude' of the noise -- values: a floating-point number
+  * `/distribution=`_choice_{:title="one of: `cauchy`, `gaussian`, `uniform`"}: The noise distribution -- values: one of: `cauchy`, `gaussian`, `uniform`
+  * `/seed=`_integer_{:title="an integer"}: The generator seed. If not specified or negative, uses the current time -- values: an integer
+
+{::comment} synopsis-end: add-noise {:/}
+{::comment} description-start: add-noise {:/}
+This command adds random noise following the distribution given as the
+`/distribution` option (default is uniform noise) with the given
+"amplitude" (the scale parameter of the distributions).
+
+It is possible to obtain reproducible results by using a given `/seed`
+parameter. 
+{::comment} description-end: add-noise {:/}
 
 
 # Segments {#segments}
@@ -3288,6 +3409,8 @@ step-by-step film loss correction
 Segments can be detected using
 [cmd: find-steps], or set manually using
 [cmd: set-segments] or [cmd: chop].
+
+It is possible to remove the segments from a dataset by using [cmd: clear-segments].
 
 {::comment} synopsis-start: find-steps {:/}
 
@@ -3349,6 +3472,18 @@ lists are split into the individually created datasets, see
 [here](#meta-data-expansion) for more information.
 
 {::comment} description-end: segments-chop {:/}
+{::comment} synopsis-start: clear-segments {:/}
+
+### `clear-segments` - Clear segments {#cmd-clear-segments}
+
+`clear-segments` 
+
+
+{::comment} synopsis-end: clear-segments {:/}
+{::comment} description-start: clear-segments {:/}
+Removes all the segments from the current dataset.
+{::comment} description-end: clear-segments {:/}
+
 {::comment} synopsis-start: film-loss {:/}
 
 ### `film-loss` - Film loss {#cmd-film-loss}
@@ -7229,6 +7364,10 @@ single line. It contains, among other things:
   of the the weighted average of the square of the difference between
   the fit and the data, so they represent an "average distance"
   between the fit and the data;
+  * the "relative residuals" (`relative_res`) are the square root of
+  the weighted average of the square of the difference between the
+  fit and the data divided by the weighted average of the squares of
+  the data, so that they represent an "average" relative error;
   * the weights of the buffers (`buffer_weight[...]`);
   * the `engine` used...
   
@@ -8145,8 +8284,29 @@ It is possible to change how the script handles errors using the
 
 {::comment} description-end: run {:/}
 
+{::comment} synopsis-start: let {:/}
 
+### `let` - Define a named parameter {#cmd-let}
 
+`let` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _value_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}
+
+  * _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: the name of the parameter -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _value_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: the value of the parameter -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+
+{::comment} synopsis-end: let {:/}
+{::comment} description-start: let {:/}
+`let` makes it possible to define "named parameters" that can be
+reused inside scripts (but **only** inside scripts). For instance:
+
+~~~
+QSoas> let max 100
+QSoas> generate-dataset 0 ${max}
+~~~
+
+They can also be used in more elaborated fashions like the normal
+script parameters, see [there](#parameters-use).
+
+{::comment} description-end: let {:/}
 
 {::comment} synopsis-start: startup-files {:/}
 
@@ -8274,11 +8434,27 @@ The `/error=` option controls how the scripts handle errors. See
 
 {::comment} synopsis-end: noop {:/}
 {::comment} description-start: noop {:/}
-Does nothing.
+Does nothing (no operation).
 
 This command can be combined with the advanced argument
 uses described in [cmd: run] to conditionally execute some commands.
 {::comment} description-end: noop {:/}
+{::comment} synopsis-start: pause {:/}
+
+### `pause` - Pause {#cmd-pause}
+
+`pause` (`/message=`)_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/time=`_number_{:title="a floating-point number"}
+
+  * (`/message=`)_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} [(default option)](#default-option): the message to display -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/time=`_number_{:title="a floating-point number"}: time to pause for, in seconds -- values: a floating-point number
+
+{::comment} synopsis-end: pause {:/}
+{::comment} description-start: pause {:/}
+This commands temporarily stops the execution of a script either
+displaying the message given or for a certain time (if the `/time=`
+option is used).
+{::comment} description-end: pause {:/}
+
 
 
 ## Non-interactive commands {#non-interactive}
@@ -8590,7 +8766,44 @@ To show the name of the original file of the current dataset.
 QSoas> eval $meta.original_file
 ~~~
 
-Auto completion is able to complete the `$stats` or `$meta` completions.
+Auto completion is able to complete the `$stats` or `$meta`
+completions.
+
+## Complex numbers {#complex-numbers}
+
+QSoas includes now a limited support for handling complex
+numbers. While the contents of the datasets can only be series of
+**real** numbers, all the ruby formulas can define and use complex
+numbers. You can create complex numbers using the `Cplx(real, imag)`
+function, or just using `I`:
+
+~~~
+QSoas> eval Cplx(1,2)
+ => (1+2*I)
+QSoas> eval (I+2)**2
+ => (3+4*I)
+~~~
+
+The trigonometric functions accept complex numbers as arguments:
+
+~~~
+QSoas> eval exp(2+PI*I/4)
+ => (5.22485+5.22485*I)
+~~~
+
+To convert back to real values, you can use the `.real` or the `.imag`
+methods to get the real or imaginary parts, or the `abs` function
+which returns the module of the complex number, or the `arg` function
+which returns the argument (all this in radians).
+
+For instance, you can generate a spiral using:
+
+~~~
+QSoas> generate-dataset -20 20
+QSoas> apply-formula z=exp((0.1+PI*I)*x);x=z.real;y=z.imag
+Applying formula 'z=exp((0.1+PI*I)*x);x=z.real;y=z.imag' to buffer generated.dat
+~~~
+
 
 ## Special functions {#special-functions}
 
@@ -8600,11 +8813,12 @@ module (that contains, among others, the error function
 
 {::comment} special-functions-start {:/}
 
- * `abs(x)`: $$|x|$$
+ * `abs(x)`: $$\left| x\right|$$, works on complex numbers too
  * `airy_ai(x)`: Airy Ai function $$AiryAi(x)$$. Precision to about $$10^{-7}$$. Other variants available: `airy_ai_fast` is faster, (precision $$5\times10^{-4}$$) and `airy_ai_double` slower, (precision $$2\times10^{-16}$$).  (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#airy-functions-and-derivatives))
  * `airy_ai_deriv(x)`: First derivative of Airy Ai function $$\mathrm{d}AiryAi(x)/\mathrm{d}x$$. Precision to about $$10^{-7}$$. Other variants available: `airy_ai_deriv_fast` is faster, (precision $$5\times10^{-4}$$) and `airy_ai_deriv_double` slower, (precision $$2\times10^{-16}$$).  (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#airy-functions-and-derivatives))
  * `airy_bi(x)`: Airy Bi function $$AiryBi(x)$$. Precision to about $$10^{-7}$$. Other variants available: `airy_bi_fast` is faster, (precision $$5\times10^{-4}$$) and `airy_bi_double` slower, (precision $$2\times10^{-16}$$).  (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#airy-functions-and-derivatives))
  * `airy_bi_deriv(x)`: First derivative of Airy Bi function $$\mathrm{d}AiryBi(x)/\mathrm{d}x$$. Precision to about $$10^{-7}$$. Other variants available: `airy_bi_deriv_fast` is faster, (precision $$5\times10^{-4}$$) and `airy_bi_deriv_double` slower, (precision $$2\times10^{-16}$$).  (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#airy-functions-and-derivatives))
+ * `arg(x)`: $$\arg  x$$, the argument of the complex number
  * `atanc(x)`: $$\frac{\tan^{-1} x}{x}$$
  * `atanhc(x)`: $$\frac{\tanh^{-1} x}{x}$$
  * `bessel_j0(x)`: Regular cylindrical Bessel function of 0th order, $$J_0(x)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#bessel-functions))
@@ -8622,6 +8836,7 @@ module (that contains, among others, the error function
  * `debye_5(x)`: Debye function of order 5, $$D_5 = (5/x^5) \int_0^x \mathrm{d}t (t^5/(e^t - 1))$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#debye-functions))
  * `debye_6(x)`: Debye function of order 6, $$D_6 = (6/x^6) \int_0^x \mathrm{d}t (t^6/(e^t - 1))$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#debye-functions))
  * `dilog(x)`: The dilogarithm, $$Li_2(x) = - \Re \left(\int_0^x \mathrm{d}s \log(1-s) / s\right)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#dilogarithm))
+ * `exp(x)`: $$\exp x$$, works on complex numbers too
  * `expint_e1(x)`: Exponential integral $$E_1(x) = \int_{x}^{\infty} \frac{\exp -t}{t} \mathrm{d} t$$
  * `expint_e2(x)`: Exponential integral $$E_2(x) = \int_{x}^{\infty} \frac{\exp -t}{t^2} \mathrm{d} t$$
  * `expint_en(x,n)`: Exponential integral $$E_n(x) = \int_{x}^{\infty} \frac{\exp -t}{t^n} \mathrm{d} t$$
@@ -8652,6 +8867,7 @@ module (that contains, among others, the error function
  * `landau(x)`: Probability density of the Landau distribution, $$p(x) = 1/\pi \int_0^x \mathrm{d}t \exp(-t\log(t) - xt)\sin(\pi t)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/randist.html#the-landau-distribution))
  * `ln_erfc(x)`: Logarithm of the complementary error function $$\log(\mathop{erfc}(x))$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#error-functions))
  * `ln_gamma(x)`: The logarithm of the gamma function $$\log (\Gamma(x))$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#gamma-and-beta-functions))
+ * `log(x)`: $$\log x$$, works on complex numbers too
  * `log1p(x)`: $$\ln (1 + x)$$, but accurate for $$x$$ close to 0
  * `lorentzian(x,gamma)`: Normalized lorentzian: $$p(x,\gamma) = \frac{1}{ \gamma \pi (1 + (x/\gamma)^2) }$$
  * `pseudo_voigt(x, w, mu)`: Pseudo-Voigt function, defined by: $$\frac{1-\mu}{\sqrt{2 \pi w^2}} \exp (-x^2 / 2w^2) + \frac{\mu}{ w \pi (1 + (x/w)^2) }$$
@@ -8660,6 +8876,7 @@ module (that contains, among others, the error function
  * `psi_n(x, n)`: Polygamma function: $$\psi^{(n)} = \frac{\mathrm d^n \Gamma'(x)/\Gamma(x)}{\mathrm d x
 }$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/specfunc.html#polygamma-function))
  * `trumpet_bv(m, alpha, prec)`: Position of an oxidative adsorbed 1-electron peak. $$m$$ is the coefficient defined by Laviron, the value is returned in units of $$RT/F$$
+ * `weibull(x,a,b)`: Probability of the Weibull distribution $$P_W(x,a,b)$$ (more information [there](https://www.gnu.org/software/gsl/doc/html/randist.html#the-weibull-distribution))
 
 {::comment} special-functions-end {:/}
 

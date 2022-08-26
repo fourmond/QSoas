@@ -177,7 +177,46 @@ QSoas> interpolate /type=linear 0 1
 ~~~
 
 The `%{ ... }` is executed as a piece of [Ruby code](qsoas.html#ruby);
-the resulting value is used as replacement text when running the command.
+the resulting value is used as replacement text when running the
+command.
+
+## Perpendicular coordinates, row and column names, y=f(x,z) datasets
+
+### Full generation of a y=f(x,z) example
+
+In this example, we generate a $$y = f(x,z)$$ dataset containing the
+values of $$\sin r/r$$ for $$r = \sqrt{x^2+z^2}$$, for $$x$$ and $$z$$
+both ranging between -10 and 10.
+
+The following command generates a dataset containing 400 rows and 401
+columns including the X column.
+
+~~~
+QSoas> generate-dataset -10 10 /columns=400
+~~~
+
+The $$x$$ colunm ranges between -10 and 10, but the $$z$$ values
+(perpendicular coordinates) are unspecified. A simple way to change
+this is just to [cmd: transpose] the dataset, and change the new x
+values (which were the old z values, here QSoas is making them up on
+the spot):
+
+~~~
+QSoas> transpose
+QSoas> apply-formula x=i*20/($stats.rows-1)-10
+~~~
+
+The second command makes sure that the new x values are spread evenly
+between -10 and 10. Don't forget that `i` represents the index of the
+current row [cmd: apply-formula] is working on. Then, for setting the
+values of all the columns, the simplest is to use the `/mode=xyz`
+option to [cld: apply-formula], which makes the y values of every y
+column a function of $$x$$ and of the perpendicular coordinate $$z$$:
+
+~~~
+QSoas> apply-formula /mode=xyz r=(x**2+z**2)**0.5;sin(r)/r
+~~~
+
 
 
 ## Fits

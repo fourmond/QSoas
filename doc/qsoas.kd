@@ -1360,7 +1360,8 @@ QSoas> save-datasets '/expression="File-#{$meta.sr}.dat"'
 ~~~
 
 This requires careful quoting: outer single quotes (`'`) for QSoas and
-inner double quotes for [Ruby](#ruby). See more information about the
+inner double quotes for [Ruby](#ruby) (you could also do the other way
+around). See more information about the
 informations available from within the ruby code [there](#for-which).
 
 If you only need to rename the datasets without saving them, use
@@ -7858,8 +7859,33 @@ QSoas> eval xmax:$stats.x_max my_int:$stats.y_int /buffers=flagged:my-data /outp
 This is now the recommended way to extract all kind of information
 from datasets.
 
+#### `/modify-meta=true`
 
+With the option `/modify-meta=true`, it is possible to modify the
+[meta-data](#meta-data) of the dataset by changing the values of the
+`$meta` dictionnary. It is possible to add new values. For instance,
+the following command:
 
+~~~
+QSoas> eval /modify-meta=true $meta.yyy=3
+~~~
+
+is equivalent to using [cmd: set-meta] this way:
+
+~~~
+QSoas> set-meta yyy 3
+~~~
+
+This option also makes it possible to modify the row and column names
+by modifying the `$row_names` and `$col_names` variables:
+
+~~~
+QSoas> eval /modify-meta=true "$col_names[1]='my_y'"
+~~~
+
+This sets the name of the first Y column to `my_y`. Watch out, this
+will only work for setting row names if some row names already exist
+in the given datasets.
 
 {::comment} description-end: eval {:/}
 {::comment} synopsis-start: verify {:/}

@@ -3724,7 +3724,7 @@ file](#output-file), you can force the writing of extra columns
 containing some [meta-data](#meta-data) by listing them using the
 `/meta-data=` option.
 
-### Saving as meta-data
+### Saving as meta-data {#output-set-meta}
 
 It is also possible to use the `/set-meta=` option to "decorate" the
 datasets with the results of the command, as meta-data. For instance:
@@ -3748,7 +3748,7 @@ this time under the name `my_interesting_meta`.
 You can save all the data in one go under their original name using
 `/set-meta=*`.
 
-### Combining `/accumulate=` and `pop` to create new datasets on the fly
+### Combining `/accumulate=` and `pop` to create new datasets on the fly {#output-accumulate}
 
 It is now possible to generate a data from scratch using the
 `/accumulate=` option. This option takes an ordered list of output

@@ -519,15 +519,16 @@ QList<Argument *> ValueHash::outputOptions(bool deflt)
                            (deflt ?
                             "whether to write data to output file (defaults to true)" : "whether to write data to output file (defaults to false)")
                            )
-       << new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "meta", 
+       << (new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "meta", 
                                      "Meta-data",
-                                     "when writing to output file, also prints the listed meta-data")
-       << new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "set-meta", 
+                                      "when writing to output file, also prints the listed meta-data"))->describe("comma-separated list of names of meta-data", "meta-data")
+       << (new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "set-meta", 
                                      "Set meta-data",
-                                     "saves the results of the command as meta-data rather than/in addition to saving to the output file")
-       << new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "accumulate", 
+                                      "saves the results of the command as meta-data rather than/in addition to saving to the output file"))->describe("comma separated list of names of meta-data, or `a->b` specifications, see [here](#output-set-meta)", "meta-data")
+       << (new SeveralStringsArgument(QRegExp("\\s*,\\s*"), "accumulate", 
                                      "Accumulate",
-                                     "accumulate the given data into a dataset")
+                                      "accumulate the given data into a dataset"))->describe("comma separated list of names of meta-data to accumulate, see [here](#output-accumulate)", "meta-data")
+
     ;
 }
 

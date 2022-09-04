@@ -6246,6 +6246,7 @@ QSoas> fit-kinetic-system /with=o2:3,exp,common kinetic-file.txt
   hydrogenase by CO and O2, see for instance [Liebgott _et al_,
   __Nat. Chem. Biol.__, 2010](http://dx.doi.org/10.1038/nchembio.276).
 
+  * `biexp`, same as `exp` but with bi-exponential decays.
   * `steps`, where the given parameter, takes a series of values (1
   more than the _number_ given) at the given times.
   * `ramps`, in which the given parameter is constant before a certain
@@ -6277,6 +6278,20 @@ Another way to look at the different types of time-dependent
 parameters available in your version of `QSoas` is to run the file
 `make-all.cmds` from the `tests/time-dependent-parameters` directory
 of the [source code archive][code].
+
+### Synchronised parameters
+
+It is possible to specify more than one parameter on the left of the
+`:`, like for instance:
+
+~~~~
+QSoas> fit-kinetic-system /with=o2,o3:3,exp kinetic-file.txt
+~~~~
+
+In that case, the parameters governing the *time dependence* (time
+constant, starting time in this case) are common to both `o2` and
+`o3`. However, the *amplitude* of the parameters can be tuned for each
+parameter.
 
 
 

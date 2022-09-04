@@ -1,2 +1,2 @@
-generate-buffer /samples=1000001 -10 10
-apply-formula /extra-columns=1 a=exp(Z(x,x));y=a.real;y2=a.imag
+generate-dataset /samples=1000001 -10 10
+apply-formula /extra-columns=1 a=exp(Cplx(x,x));y=a.real;y2=a.imag

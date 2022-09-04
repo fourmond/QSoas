@@ -332,10 +332,10 @@ void Fit::makeCommands(const ArgumentList &args,
                               "Argument 3",
                               "third argument of the script file");
 
-  options << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
-                                        "set-from-meta", 
-                                        "Set from meta-data",
-                                        "sets parameter values from meta-data");
+  options << (new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
+                                         "set-from-meta", 
+                                         "Set from meta-data",
+                                         "sets parameter values from meta-data"))->describe("comma-separated list of *parameter*`=`*meta* speficiations", "parameters-meta-data (see [there](#fits))");
   options << new BoolArgument("expert", 
                               "Expert mode",
                               "runs the fit in expert mode");

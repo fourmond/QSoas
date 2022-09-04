@@ -553,9 +553,10 @@ expandOpts(QList<Argument *>()
            << new IntegerArgument("group-columns", 
                                   "Group several Y columns in created datasets",
                                   "specifies the number of Y columns in the created datasets")
-           << new SeveralStringsArgument("expand-meta",
-                                         "Expand meta data",
-                                         "Expand all the given meta-data, one value per produced dataset")
+           << (new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
+                                          "expand-meta",
+                                          "Expand meta data",
+                                          "Expand all the given meta-data, one value per produced dataset"))->describe("comma-separated list of meta-data that will be expanded into individual datasets, see [there](#meta-data-expansion)", "meta-data")
            << DataStackHelper::helperOptions()
            );
 
@@ -1772,9 +1773,10 @@ contractOpts(ArgumentList()
              << new SeveralColumnsArgument("use-columns", 
                                            "The columns to use",
                                            "if specified, uses only the given columns for the contraction")
-             << new SeveralStringsArgument("contract-meta",
-                                           "Contract meta data",
-                                           "Contracts all the named meta data meta-data lists")
+             << (new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
+                                            "contract-meta",
+                                            "Contract meta data",
+                                            "Contracts all the named meta data meta-data lists"))->describe("comma-separated list of meta-data to group into lists, see [there](#meta-data-expansion)", "meta-data")
              );
 
 static Command 
@@ -1924,9 +1926,10 @@ catOpts(QList<Argument *>()
                             "Add segments",
                             "If on (default) segments are added between "
                             "the old datasets")
-        << new SeveralStringsArgument("contract-meta",
-                                      "Contract meta data",
-                                      "Contracts all the named meta data meta-data lists")
+        << (new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
+                                       "contract-meta",
+                                       "Contract meta data",
+                                       "Contracts all the named meta data meta-data lists"))->describe("comma-separated list of meta-data to group into lists, see [there](#meta-data-expansion)", "meta-data")
         );
 
 static Command 

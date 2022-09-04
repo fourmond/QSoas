@@ -65,10 +65,10 @@ const QList<DataSet *> & DataStackHelper::currentDataSets() const
 QList<Argument *> DataStackHelper::helperOptions()
 {
   QList<Argument *> args;
-  args << new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
+  args << (new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                      "flags", 
                                      "Flags",
-                                     "Flags to set on the newly created datasets")
+                                      "Flags to set on the newly created datasets"))->describe("a comma-separated list of flags", "flags")
        << new StyleGeneratorArgument("style", 
                                      "Style",
                                      "Style for the displayed curves")

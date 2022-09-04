@@ -211,7 +211,7 @@ load inline:data.dat
 ~~~
 
 This is very useful in particular in combination with
-[cmd: run-for-each] or [cmd: run-for-dataset] to define "subroutines"
+[cmd: run-for-each] or [cmd: run-for-datasets] to define "subroutines"
 that are maintained in the same file as the main one.
 
 

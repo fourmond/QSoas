@@ -267,6 +267,7 @@ def parse_file(info)
   cur_short = nil
   
   txt = ""
+  id_less = 0
   for l in f
     nb += 1
 
@@ -295,7 +296,8 @@ def parse_file(info)
         if $3
           sec['id'] = $4
         else
-          id = "#id-#{nb}"
+          id_less += 1
+          id = "#id-#{id_less}"
           sec['id'] = id
           l = "#{l.chomp} {#{id}}\n"
         end

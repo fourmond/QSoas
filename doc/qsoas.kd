@@ -49,7 +49,7 @@ information:
  [cmd: set-column-names] and [cmd: set-row-names]; see
  [below](#row-and-column-names).
 
-## Different ways to interpret datasets
+## Different ways to interpret datasets {#different-dataset-modes}
 
 Datasets are really just a collection of columns with numbers, but it
 is possible to give them different significations.
@@ -60,7 +60,8 @@ is possible to give them different significations.
  is possible to view these columns as a table of $$y = f(x,z)$$
  values, with $$x$$ corresponding to the first column, and a value of
  $$z$$ for *each* "y" column. It is possible to treat data this way
- using for instance the `/mode=xyz` of [cmd: apply-formula].
+ using for instance the `/mode=xyz` of [cmd: apply-formula], or draw
+ contour lines using the [cmd: contour] command.
  * It is possible to just treat the columns as a series of matching
  numbers, one per row. In that case, using
  [column names](#row-and-column-names) can greatly help. The command
@@ -3461,6 +3462,42 @@ of the formula on the parameters is truly linear. If that is not the
 case, you will simply get nonsensical answers.
 
 {::comment} description-end: linear-least-squares {:/}
+
+{::comment} synopsis-start: contour {:/}
+
+### `contour` - Contours {#cmd-contour}
+
+`contour` _levels..._{:title="several floating-point numbers, separated by ,"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+
+  * _levels..._{:title="several floating-point numbers, separated by ,"}: levels at which to contour -- values: several floating-point numbers, separated by ,
+  * `/flags=`_flags_{:title="a comma-separated list of flags"}: Flags to set on the newly created datasets -- values: a comma-separated list of flags
+  * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created datasets -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
+
+{::comment} synopsis-end: contour {:/}
+{::comment} description-start: contour {:/}
+This command assumes that the dataset can be interpreted in the form
+of $$y = f(x,z)$$ data (see [there](#different-dataset-modes), which
+means that the [perpendicular coordinate](#meta-data) has been
+correctly setup.
+
+The command compute the contours for the listed values of $$y$$, and
+creates a new dataset for each contour found. There can be more than
+one contour for a single value of a level.
+
+For instance, try out:
+
+~~~
+QSoas> generate-dataset -2 2 /columns=400 /samples=400
+QSoas> transpose
+QSoas> apply-formula x=4*i/399.0-2
+QSoas> apply-formula /mode=xyz r=(x**2+z**2)**0.5;sin(PI*r)/r
+QSoas> contour 0
+~~~
+
+{::comment} description-end: contour {:/}
+
 
 
 
@@ -7199,6 +7236,24 @@ specific datasets using the [`/buffers=`](#dataset-lists) and
 [`/for-which=`](#for-which) options.
 
 {::comment} description-end: fit-set {:/}
+{::comment} synopsis-start: fit-set-from-dataset {:/}
+
+### `set-from-dataset` - Set parameter from dataset {#fit-cmd-set-from-dataset}
+
+`set-from-dataset` _parameter_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _source..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} **(fit command)**
+
+  * _parameter_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: the parameters of the fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _source..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: the source for the data -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+
+{::comment} synopsis-end: fit-set-from-dataset {:/}
+{::comment} description-start: fit-set-from-dataset {:/}
+Sets the value of the named parameter to the values deduced from the
+given dataset, matching the values corresponding to the closest
+perpendicular coordinate associated with the fitted datasets.
+{::comment} description-end: fit-set-from-dataset {:/}
+
+
+
 {::comment} synopsis-start: fit-local {:/}
 
 ### `local` - Local parameter {#fit-cmd-local}
@@ -8390,7 +8445,7 @@ It is possible to change how the script handles errors using the
 {::comment} synopsis-end: let {:/}
 {::comment} description-start: let {:/}
 `let` makes it possible to define "named parameters" that can be
-reused inside scripts (but **only** inside scripts). For instance:
+reused inside scripts. For instance:
 
 ~~~
 QSoas> let max 100
@@ -8400,6 +8455,8 @@ QSoas> generate-dataset 0 ${max}
 They can also be used in more elaborated fashions like the normal
 script parameters, see [there](#parameters-use).
 
+**Warning** parameter expansion only works inside scripts. Typing
+directly the above commands in the command prompt will yield an error.
 {::comment} description-end: let {:/}
 
 {::comment} synopsis-start: startup-files {:/}

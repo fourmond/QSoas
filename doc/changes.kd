@@ -1,5 +1,22 @@
 # What's new in version 3.0 ?
 
+Version 3.1 brings many improvements to the fit system, including more
+flexibility in loading parameters, processing fit trajectories (after
+parameter space exploration), and improvements in individual fits.
+
+It brings in also a series of new commands, to look at files and
+directories, to add noise and remove it, to run linear least squares
+minimisations and facilitate the handling of column and row names.
+
+It features also many other improvements, such as the possibility to
+define "virtual files" inside script files, to define reusable
+parameters, basic handling of complex numbers and many useability
+fixes. 
+
+See the full list of changes [below](#v3p1)
+
+# What's new in version 3.0 ?
+
 Version 3.0 brings an "expert" fit mode, with a fit command line that
 makes it possible to automate fitting or do parameter space
 exploration, running many fits with random initial starting positions

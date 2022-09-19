@@ -2917,7 +2917,23 @@ QSoas> record-meta /remove=true pH whatever experiment.dat another.dat
 
 
 {::comment} description-end: record-meta {:/}
+{::comment} synopsis-start: save-meta {:/}
 
+### `save-meta` - Save meta-data back to file {#cmd-save-meta}
+
+`save-meta` (`/file=`)_file_{:title="name of a file"}
+
+  * (`/file=`)_file_{:title="name of a file"} [(default option)](#default-option): save for this file -- values: name of a file
+
+{::comment} synopsis-end: save-meta {:/}
+{::comment} description-start: save-meta {:/}
+This command saves the meta-data of the current dataset, either to the
+"original file", that is the file the current dataset is derived from,
+or to the file given as the `/file` option.
+
+This command does not modify the actual data, just the `.qsm` file
+containing the meta-data.
+{::comment} description-end: save-meta {:/}
 
 {::comment} synopsis-start: set-perp {:/}
 
@@ -7591,6 +7607,20 @@ with initial and final parameters.
 {::comment} description-start: fit-list-trajectories {:/}
 Shows a list of all the trajectories in the terminal.
 {::comment} description-end: fit-list-trajectories {:/}
+{::comment} synopsis-start: fit-sort-trajectories {:/}
+
+### `sort-trajectories` - Sort trajectories {#fit-cmd-sort-trajectories}
+
+`sort-trajectories` `/by=`_choice_{:title="one of: `date`, `residuals`"} `/reverse=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} **(fit command)**
+
+  * `/by=`_choice_{:title="one of: `date`, `residuals`"}: The rules to sort -- values: one of: `date`, `residuals`
+  * `/reverse=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Reverses the sort order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+
+{::comment} synopsis-end: fit-sort-trajectories {:/}
+{::comment} description-start: fit-sort-trajectories {:/}
+Sorts the current list of trajectories, either by date or by
+residuals, depending on the choice to the option `/by`.
+{::comment} description-end: fit-sort-trajectories {:/}
 {::comment} synopsis-start: fit-drop-trajectories {:/}
 
 ### `drop-trajectories` - Drop trajectories {#fit-cmd-drop-trajectories}
@@ -8757,6 +8787,7 @@ listed here:
  * [`output`](#cmd-output)
  * [`overlay`](#cmd-overlay)
  * [`overlay-buffer`](#cmd-overlay-buffer)
+ * [`pause`](#cmd-pause)
  * [`points`](#cmd-points)
  * [`pop`](#cmd-pop)
  * [`print`](#cmd-print)
@@ -8776,6 +8807,7 @@ listed here:
  * [`save`](#cmd-save)
  * [`save-datasets`](#cmd-save-datasets)
  * [`save-history`](#cmd-save-history)
+ * [`save-meta`](#cmd-save-meta)
  * [`save-output`](#cmd-save-output)
  * [`save-stack`](#cmd-save-stack)
  * [`segments-chop`](#cmd-segments-chop)
@@ -8790,9 +8822,11 @@ listed here:
  * [`sim-arb`](#cmd-sim-arb)
  * [`sim-eci-wave`](#cmd-sim-eci-wave)
  * [`sim-ecr-wave`](#cmd-sim-ecr-wave)
+ * [`sim-ecro-wave`](#cmd-sim-ecro-wave)
  * [`sim-eeci-wave`](#cmd-sim-eeci-wave)
  * [`sim-eecr-relay-wave`](#cmd-sim-eecr-relay-wave)
  * [`sim-eecr-wave`](#cmd-sim-eecr-wave)
+ * [`sim-eecro-wave`](#cmd-sim-eecro-wave)
  * [`sim-exponential-decay`](#cmd-sim-exponential-decay)
  * [`sim-gaussian`](#cmd-sim-gaussian)
  * [`sim-implicit`](#cmd-sim-implicit)

@@ -1506,7 +1506,7 @@ ls("ls", // command name
 //////////////////////////////////////////////////////////////////////
 
 void pauseCommand(const QString &,
-                 const CommandOptions & opts)
+                  const CommandOptions & opts)
 {
   double time = -1;
   QString text = "Click OK to continue";

@@ -16,18 +16,6 @@ values, and the following columns are Y values. A dataset can have
 many columns. QSoas plots a dataset by showing the first `y` column as
 a function of the `x` column.
 
-
-The table cannot contain text. When QSoas reads a file and is not able
-to make a number from what it reads, it uses a special numeric value
-called `nan` (Not A Number). They can be useful, but they "pollute"
-numbers: any operation that involves a `nan` will also have `nan` as a
-result. To get rid of points that have either X or Y values that are
-`nan`, use the following:
-
-~~~
-QSoas> strip-if x.nan?||y.nan?
-~~~
-
 You can use the [cmd: edit] command to see and edit the contents of
 the table.
 
@@ -93,6 +81,28 @@ have to let it know which columns contain the row names by using the
 
 Learning to handle column names is particularly useful when working
 with exported fit parameters.
+
+
+## Not a number {#nan}
+
+The table cannot contain text. When QSoas reads a file and is not able
+to make a number from what it reads, it uses a special numeric value
+called `nan` (Not A Number). They can be useful, but they "pollute"
+numbers: any operation that involves a `nan` will also have `nan` as a
+result. This means in particular that it is not possible to fit a
+dataset that contains a `nan`, or determine an average value and so
+on...
+
+`nan` values are displayed as a big cross joining the two points
+between which they are located.
+
+
+To get rid of points that have either X or Y values that are
+`nan`, use the following:
+
+~~~
+QSoas> strip-if x.nan?||y.nan?
+~~~
 
 
 # Commands, arguments and options (how to read this document)
@@ -211,7 +221,7 @@ load inline:data.dat
 ~~~
 
 This is very useful in particular in combination with
-[cmd: run-for-each] or [cmd: run-for-dataset] to define "subroutines"
+[cmd: run-for-each] or [cmd: run-for-datasets] to define "subroutines"
 that are maintained in the same file as the main one.
 
 
@@ -408,6 +418,24 @@ session, to the given (text) file.
 This can be used for saving a series of command that should be applied
 repetitively as a [script](#scripting).
 {::comment} description-end: save-history {:/}
+{::comment} synopsis-start: files-browser {:/}
+
+### `files-browser` - Browse files {#cmd-files-browser}
+
+`files-browser` **(interactive)**
+
+
+{::comment} synopsis-end: files-browser {:/}
+{::comment} description-start: files-browser {:/}
+This command starts a file browser, which makes it easy to figure out
+what files are present, which are the meta-data associated to them,
+and what kind of backend will be used to load them.
+
+The browser makes it very easy to edit the values of the meta-data, as
+they are displayed each in their own column and are
+editable. Copy/paste from an external spreadsheet is supported.
+{::comment} description-end: files-browser {:/}
+
 
 {::comment} synopsis-start: cd {:/}
 
@@ -2889,7 +2917,23 @@ QSoas> record-meta /remove=true pH whatever experiment.dat another.dat
 
 
 {::comment} description-end: record-meta {:/}
+{::comment} synopsis-start: save-meta {:/}
 
+### `save-meta` - Save meta-data back to file {#cmd-save-meta}
+
+`save-meta` (`/file=`)_file_{:title="name of a file"}
+
+  * (`/file=`)_file_{:title="name of a file"} [(default option)](#default-option): save for this file -- values: name of a file
+
+{::comment} synopsis-end: save-meta {:/}
+{::comment} description-start: save-meta {:/}
+This command saves the meta-data of the current dataset, either to the
+"original file", that is the file the current dataset is derived from,
+or to the file given as the `/file` option.
+
+This command does not modify the actual data, just the `.qsm` file
+containing the meta-data.
+{::comment} description-end: save-meta {:/}
 
 {::comment} synopsis-start: set-perp {:/}
 
@@ -4479,6 +4523,19 @@ This creates a new fit named `my-exp` (hence it creates the commands
 `fit-my-exp`, `mfit-my-exp` and `sim-my-exp`), in which the parameter
 `tau_1` of the [fit: exponential-decay] fit has been replaced by `k_1`
 (its reciprocal).
+
+The `/conditions` option can be used to provide additional conditions
+on the parameters to be fitted:
+
+~~~
+QSoas> reparametrize-fit my-exp exponential-decay k_1 tau_1=1/k_1 /conditions=A_1>3
+~~~
+
+With this command, in addition to defining a new fit as before, it
+adds the condition that the parameter `A_1` must be greater than 3.
+
+By default, this command refuses to redefine an existing fit; use
+`/redefine=true` if that is what you want to do.
 {::comment} description-end: reparametrize-fit {:/}
 
 
@@ -4513,14 +4570,15 @@ There are several ways to fit exponentials to data. The simplest is
 {::comment} description-start: fit-exponential-decay {:/}
 Fits the formula below to the current dataset:
 
-$$ \left(A_\infty + \sum_{i=1}^n A_i \exp(-(x - x_0)/\tau_i) + b\,
+$$ f(x) = \left(A_\infty + \sum_{i=1}^n A_i \exp(-(x - x_0)/\tau_i) + b\,
 x\right) \exp (- k_{loss}(x - x_0))$$
 
-$$b\,x$$ is only present if the `/slow` option is on, and $$k_{loss}$$
-is not 0 only if `/loss` is on.  If `/relative` is on, the parameter
-of the fit is $$\alpha_i$$ (defined by $$A_i = \alpha_i A_\infty$$)
-rather than $$A_i$$. `/relative=true` should not be used to fit data
-that tend to 0.
+The term $$b\,x$$ is only present if the `/slow` option is on (it
+corresponds to the parameter named `slow`), and $$k_{loss}$$ is not 0
+only if `/loss` is on.  If `/relative` is on, the parameter of the fit
+is $$\alpha_i$$ (defined by $$A_i = \alpha_i A_\infty$$) rather than
+$$A_i$$. `/relative=true` should not be used to fit data that tend
+to 0.
 
 #### Subfunctions
 
@@ -7549,6 +7607,20 @@ with initial and final parameters.
 {::comment} description-start: fit-list-trajectories {:/}
 Shows a list of all the trajectories in the terminal.
 {::comment} description-end: fit-list-trajectories {:/}
+{::comment} synopsis-start: fit-sort-trajectories {:/}
+
+### `sort-trajectories` - Sort trajectories {#fit-cmd-sort-trajectories}
+
+`sort-trajectories` `/by=`_choice_{:title="one of: `date`, `residuals`"} `/reverse=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} **(fit command)**
+
+  * `/by=`_choice_{:title="one of: `date`, `residuals`"}: The rules to sort -- values: one of: `date`, `residuals`
+  * `/reverse=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Reverses the sort order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+
+{::comment} synopsis-end: fit-sort-trajectories {:/}
+{::comment} description-start: fit-sort-trajectories {:/}
+Sorts the current list of trajectories, either by date or by
+residuals, depending on the choice to the option `/by`.
+{::comment} description-end: fit-sort-trajectories {:/}
 {::comment} synopsis-start: fit-drop-trajectories {:/}
 
 ### `drop-trajectories` - Drop trajectories {#fit-cmd-drop-trajectories}
@@ -8634,6 +8706,7 @@ listed here:
  * [`1`](#cmd-1)
  * [`2`](#cmd-2)
  * [`add`](#cmd-add)
+ * [`add-noise`](#cmd-add-noise)
  * [`apply-formula`](#cmd-apply-formula)
  * [`auto-correlation`](#cmd-auto-correlation)
  * [`auto-filter-bs`](#cmd-auto-filter-bs)
@@ -8648,10 +8721,12 @@ listed here:
  * [`cd`](#cmd-cd)
  * [`chop`](#cmd-chop)
  * [`clear`](#cmd-clear)
+ * [`clear-segments`](#cmd-clear-segments)
  * [`clear-stack`](#cmd-clear-stack)
  * [`combine-fits`](#cmd-combine-fits)
  * [`commands`](#cmd-commands)
  * [`comment`](#cmd-comment)
+ * [`contour`](#cmd-contour)
  * [`contract`](#cmd-contract)
  * [`credits`](#cmd-credits)
  * [`custom-fit`](#cmd-custom-fit)
@@ -8682,13 +8757,17 @@ listed here:
  * [`flag`](#cmd-flag)
  * [`generate-dataset`](#cmd-generate-dataset)
  * [`graphics-settings`](#cmd-graphics-settings)
+ * [`head`](#cmd-head)
  * [`help`](#cmd-help)
  * [`hide-buffer`](#cmd-hide-buffer)
  * [`integrate`](#cmd-integrate)
  * [`integrate-formula`](#cmd-integrate-formula)
  * [`interpolate`](#cmd-interpolate)
+ * [`kernel-filter`](#cmd-kernel-filter)
  * [`kinetic-system`](#cmd-kinetic-system)
+ * [`let`](#cmd-let)
  * [`limits`](#cmd-limits)
+ * [`linear-least-squares`](#cmd-linear-least-squares)
  * [`load`](#cmd-load)
  * [`load-as-chi-txt`](#cmd-load-as-chi-txt)
  * [`load-as-csv`](#cmd-load-as-csv)
@@ -8697,6 +8776,7 @@ listed here:
  * [`load-as-text`](#cmd-load-as-text)
  * [`load-fits`](#cmd-load-fits)
  * [`load-stack`](#cmd-load-stack)
+ * [`ls`](#cmd-ls)
  * [`mem`](#cmd-mem)
  * [`merge`](#cmd-merge)
  * [`mintegrate-formula`](#cmd-mintegrate-formula)
@@ -8707,6 +8787,7 @@ listed here:
  * [`output`](#cmd-output)
  * [`overlay`](#cmd-overlay)
  * [`overlay-buffer`](#cmd-overlay-buffer)
+ * [`pause`](#cmd-pause)
  * [`points`](#cmd-points)
  * [`pop`](#cmd-pop)
  * [`print`](#cmd-print)
@@ -8718,6 +8799,7 @@ listed here:
  * [`rename`](#cmd-rename)
  * [`reparametrize-fit`](#cmd-reparametrize-fit)
  * [`reverse`](#cmd-reverse)
+ * [`rotate`](#cmd-rotate)
  * [`ruby-run`](#cmd-ruby-run)
  * [`run`](#cmd-run)
  * [`run-for-datasets`](#cmd-run-for-datasets)
@@ -8725,11 +8807,14 @@ listed here:
  * [`save`](#cmd-save)
  * [`save-datasets`](#cmd-save-datasets)
  * [`save-history`](#cmd-save-history)
+ * [`save-meta`](#cmd-save-meta)
  * [`save-output`](#cmd-save-output)
  * [`save-stack`](#cmd-save-stack)
  * [`segments-chop`](#cmd-segments-chop)
+ * [`set-column-names`](#cmd-set-column-names)
  * [`set-meta`](#cmd-set-meta)
  * [`set-perp`](#cmd-set-perp)
+ * [`set-row-names`](#cmd-set-row-names)
  * [`shiftx`](#cmd-shiftx)
  * [`show`](#cmd-show)
  * [`show-stack`](#cmd-show-stack)
@@ -8737,9 +8822,11 @@ listed here:
  * [`sim-arb`](#cmd-sim-arb)
  * [`sim-eci-wave`](#cmd-sim-eci-wave)
  * [`sim-ecr-wave`](#cmd-sim-ecr-wave)
+ * [`sim-ecro-wave`](#cmd-sim-ecro-wave)
  * [`sim-eeci-wave`](#cmd-sim-eeci-wave)
  * [`sim-eecr-relay-wave`](#cmd-sim-eecr-relay-wave)
  * [`sim-eecr-wave`](#cmd-sim-eecr-wave)
+ * [`sim-eecro-wave`](#cmd-sim-eecro-wave)
  * [`sim-exponential-decay`](#cmd-sim-exponential-decay)
  * [`sim-gaussian`](#cmd-sim-gaussian)
  * [`sim-implicit`](#cmd-sim-implicit)
@@ -8755,6 +8842,7 @@ listed here:
  * [`sim-slow-scan-lp`](#cmd-sim-slow-scan-lp)
  * [`solve`](#cmd-solve)
  * [`sort`](#cmd-sort)
+ * [`sort-datasets`](#cmd-sort-datasets)
  * [`split-monotonic`](#cmd-split-monotonic)
  * [`split-on-values`](#cmd-split-on-values)
  * [`splita`](#cmd-splita)

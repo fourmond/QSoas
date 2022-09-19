@@ -210,7 +210,7 @@ The second command makes sure that the new x values are spread evenly
 between -10 and 10. Don't forget that `i` represents the index of the
 current row [cmd: apply-formula] is working on. Then, for setting the
 values of all the columns, the simplest is to use the `/mode=xyz`
-option to [cld: apply-formula], which makes the y values of every y
+option to [cmd: apply-formula], which makes the y values of every y
 column a function of $$x$$ and of the perpendicular coordinate $$z$$:
 
 ~~~

@@ -4507,6 +4507,19 @@ This creates a new fit named `my-exp` (hence it creates the commands
 `fit-my-exp`, `mfit-my-exp` and `sim-my-exp`), in which the parameter
 `tau_1` of the [fit: exponential-decay] fit has been replaced by `k_1`
 (its reciprocal).
+
+The `/conditions` option can be used to provide additional conditions
+on the parameters to be fitted:
+
+~~~
+QSoas> reparametrize-fit my-exp exponential-decay k_1 tau_1=1/k_1 /conditions=A_1>3
+~~~
+
+With this command, in addition to defining a new fit as before, it
+adds the condition that the parameter `A_1` must be greater than 3.
+
+By default, this command refuses to redefine an existing fit; use
+`/redefine=true` if that is what you want to do.
 {::comment} description-end: reparametrize-fit {:/}
 
 

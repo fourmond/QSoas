@@ -205,6 +205,7 @@ private:
   friend class CombinedDerivativeFit;
   friend class CombinedFit;
   friend class ModifiedFit;
+  friend class IndexedFit;
   friend class DistribFit;
 
   /// @name Thread-related things

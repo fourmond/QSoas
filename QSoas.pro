@@ -387,7 +387,8 @@ SOURCES += src/qmain.cc \
         src/filebrowser.cc \
         src/contourlines.cc \
         src/settings-templates.cc \
-        src/linearfunctions.cc
+        src/linearfunctions.cc \
+        src/indexedfit.cc
 
 
 # Fit engines, grouped in an easy way to disable them:

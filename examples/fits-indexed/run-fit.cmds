@@ -1,0 +1,12 @@
+## INLINE: make-one
+generate-dataset 0 10 2*exp(-${1}*x)+${2}
+set-meta tst ${1}
+## INLINE END
+
+@ inline:make-one 1 2
+@ inline:make-one 1 5
+@ inline:make-one 3 6
+@ inline:make-one 3 7
+
+define-indexed-fit idx exponential-decay tst tau_1
+mfit-idx all

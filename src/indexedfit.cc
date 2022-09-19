@@ -1,6 +1,6 @@
 /*
-  indexedfit.cc: fit with redefinition of parameters
-  Copyright 2016 by CNRS/AMU
+  indexedfit.cc: fit with parameters indexed on meta-data
+  Copyright 2022 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by

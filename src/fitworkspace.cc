@@ -1753,6 +1753,7 @@ void FitWorkspace::startFit()
   prepareFit(fitEngineParameterValues.value(fitData->engineFactory, NULL));
   parametersBackup = saveParameterValues();
   shouldCancelFit = false;
+  freeParams = fitData->freeParameters();
 
   recompute(true);
   if(!std::isfinite(overallChiSquared))
@@ -1777,7 +1778,8 @@ void FitWorkspace::startFit()
       arg(freeParams).arg(glb).arg(loc/(1.0 * datasetNumber()));
   }
   
-  Terminal::out << "Starting fit '" << fitName() << "' with "
+  Terminal::out << "Starting fit '" << fitName() << "' on "
+                << fitData->datasets.size() << " datasets with "
                 << params << " free parameters"
                 << " using the '" << fitData->engineFactory->name
                 << "' fit engine; initial residuals: "

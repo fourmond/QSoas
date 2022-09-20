@@ -1118,7 +1118,7 @@ void FitData::dumpFitParameters(const double * params) const
 
 void FitData::dumpFitParameterStructure() const
 {
-  QString s("Parameters:\n");
+  QString s = QString("Parameters (%1 free):\n").arg(gslParameters);
   for(int i = 0; i < parameters.size(); i++) {
     s += QString(" * #%1 %2[%3]:\t%4\t%5\n").
       arg(parameters[i]->paramIndex).

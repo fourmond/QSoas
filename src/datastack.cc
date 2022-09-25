@@ -62,7 +62,7 @@ QSet<QString> DataStack::definedFlags() const
 QList<const DataSet *> DataStack::datasetsFromSpec(const QString & str) const
 {
   QList<const DataSet *> dsets;
-  QRegExp multi("^\\s*(-?[0-9]+)\\s*..\\s*(-?[0-9]+|end)\\s*(?::(\\d+)\\s*)?\\s*$");
+  QRegExp multi("^\\s*(-?[0-9]+)\\s*\\.\\.\\s*(-?[0-9]+|end)\\s*(?::(\\d+)\\s*)?\\s*$");
   QRegExp single("^\\s*-?[0-9]+\\s*$");
 
   QRegExp flgs("^\\s*(un)?flagged(-)?(:(.*))?\\s*$");

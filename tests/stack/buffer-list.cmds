@@ -1,0 +1,8 @@
+# To make sure a subtle bug stays fixed
+
+generate-dataset /number=1001 0 1
+eval $a=0
+eval $a+=1 /buffers=1000
+assert $a-1 0
+eval $a=$meta.generated_number /buffers=1000
+assert $a 0

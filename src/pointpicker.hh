@@ -72,7 +72,7 @@ class PointPicker {
     OffMethod = 102,
     NextDataset = 103,
     PrevDataset = 104,
-    ToogleTracking = 105,
+    ToggleTracking = 105,
     LocalMinMethod = 106,
     LocalMaxMethod = 107
   } Actions;

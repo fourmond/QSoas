@@ -110,17 +110,17 @@ void PointPicker::addToHandler(EventHandler & handler, bool noPick)
     handler.
       addKey('x', ExactMethod, "pick marker: exact").
       alsoKey('X').
-      addKey('o', OffMethod, "...off").
+      addKey('o', OffMethod, "... off").
       alsoKey('O').
-      addKey('s', SmoothMethod, "...smooth").
+      addKey('s', SmoothMethod, "... smooth").
       alsoKey('S').
-      addKey(Qt::CTRL + 'm', LocalMinMethod, "...min").
-      addKey(Qt::CTRL + Qt::SHIFT + 'm', LocalMaxMethod, "...max");
+      addKey(Qt::CTRL + 'm', LocalMinMethod, "... local minimum").
+      addKey(Qt::CTRL + Qt::SHIFT + 'm', LocalMaxMethod, "... local maximum");
   
   handler.
     addKey('n', NextDataset, "next dataset").
     addKey('N', PrevDataset, "previous dataset").
-    addKey(Qt::CTRL + 't', ToogleTracking, "toogle mouse tracking")
+    addKey(Qt::CTRL + 't', ToggleTracking, "toggle mouse tracking")
     ;
 }
 
@@ -266,7 +266,7 @@ bool PointPicker::processEvent(int action)
   case PrevDataset:
     nextDataSet(-1);
     break;
-  case ToogleTracking:
+  case ToggleTracking:
     marker->hidden = ! marker->hidden;
     break;
   default:

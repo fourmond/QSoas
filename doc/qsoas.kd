@@ -7573,7 +7573,7 @@ single line. It contains, among other things:
   * the "relative residuals" (`relative_res`) are the square root of
   the weighted average of the square of the difference between the
   fit and the data divided by the weighted average of the squares of
-  the data, so that they represent an "average" relative error;
+  the data, so that they represent an "average" relative deviation;
   * the weights of the buffers (`buffer_weight[...]`);
   * the `engine` used...
   

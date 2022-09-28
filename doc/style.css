@@ -18,6 +18,11 @@ pre {
 a.external {
     color: #080;
 }
+.expls {
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
 /* code { */
 /*     color: #555; */
 /* } */

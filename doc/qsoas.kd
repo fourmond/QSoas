@@ -315,11 +315,12 @@ Many commands in QSoas will produce several datasets, for instance
 parts. All these commands share a set of options:
 
  * `/style` that can be used to display all the curves with gradual
-   changes in color;
+   changes in color, use for instance `/style=red-to-blue` or
+   `/style=brown-green` (there is automatic completion on this);
  * `/flags`, that can be used to set flags to the newly generated
    datasets, see the [cmd: flag] command for more information.
  * `/set-meta`, that can be used to set meta-data to the newly
-   generated datasets, using a **key**`=`_value_ syntax (so you have
+   generated datasets, using a _key_`=`_value_ syntax (so you have
    two `=` signs in row). This option can be used several times to add
    several meta-data;
  * `/reversed`, which can be used to reverse the order in which the
@@ -1619,6 +1620,14 @@ directly on the command-line. There are two special values:
   * `*` means "auto", or in other words the maximum needed to see all
   the curves for that specific side (left, right, bottom or top)
   * `=` means "don't change"
+
+The limits also work in reverse, try out:
+
+~~~
+QSoas> generate-dataset 0 10 x**2
+QSoas> limits 10 0 * *
+~~~
+
 {::comment} description-end: limits {:/}
 
 
@@ -7564,7 +7573,7 @@ single line. It contains, among other things:
   * the "relative residuals" (`relative_res`) are the square root of
   the weighted average of the square of the difference between the
   fit and the data divided by the weighted average of the squares of
-  the data, so that they represent an "average" relative error;
+  the data, so that they represent an "average" relative deviation;
   * the weights of the buffers (`buffer_weight[...]`);
   * the `engine` used...
   

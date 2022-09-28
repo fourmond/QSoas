@@ -1,4 +1,4 @@
-# What's new in version 3.0 ?
+# What's new in version 3.1 ?
 
 Version 3.1 brings many improvements to the fit system, including more
 flexibility in loading parameters, processing fit trajectories (after
@@ -71,7 +71,7 @@ functions.
 See the full list of changes [below](#v2p0)
 
 
-# Changes in version 3.1 (xx.xx.2022) {#v3p1}
+# Changes in version 3.1 (28.09.2022) {#v3p1}
 
 ## Fits
 

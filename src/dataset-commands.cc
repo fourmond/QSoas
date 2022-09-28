@@ -764,29 +764,29 @@ namespace __cu {
   } CursorActions;
 
   static EventHandler cursorHandler = EventHandler("cursor").
-    addClick(Qt::LeftButton, PickPoint, "place cursor").
+    addClick(Qt::LeftButton, PickPoint, "place marker").
     addClick(Qt::RightButton, PickRef, "place reference").
     addKey(' ', WriteToOutput, "write to output").
-    addClick(Qt::MiddleButton, PickAndWrite, "place and write to output").
-    addKey('v', QuitDividing, "quit dividing by Y value").
+    addClick(Qt::MiddleButton, PickAndWrite, "place cursor and write to output").
+    addKey('v', QuitDividing, "quit dividing Y by ymarker").
     alsoKey('V').
-    addKey('u', QuitSubtracting, "quit subtracting Y value").
+    addKey('u', QuitSubtracting, "quit subtracting ymarker from Y").
     alsoKey('U').
-    addKey(Qt::CTRL + 's', QuitSubtractingX, "quit subtracting X value").
-    addKey(Qt::CTRL + 'u', QuitSubtractingRespRef, "subtract y - yref").
-    addKey(Qt::CTRL + 'v', QuitDividingRespRef, "divide by y/yref").
-    addKey(Qt::CTRL + 'x', ShiftX, "subtract x-xref from X of current and keep going").
-    addKey(Qt::CTRL + Qt::SHIFT + 'x', ScaleX, "divide X of current by x/xref and keep going").
-    addKey(Qt::CTRL + 'y', ShiftY, "subtract y-yref from Y of current and keep going").
-    addKey(Qt::CTRL + Qt::SHIFT + 'y', ScaleY, "divide X of current by y/yref and keep going").
-    addKey('a', VerticalSymmetry, "vertical symmetry around the current point").
-    addKey('A', HorizontalSymmetry, "horizontal symmetry around the current point").
-    addKey('c', CentralSymmetry, "central symmetry around the current point").
+    addKey(Qt::CTRL + 's', QuitSubtractingX, "quit subtracting xmarker from X").
+    addKey(Qt::CTRL + 'u', QuitSubtractingRespRef, "quit subtracting ymarker - yref from Y").
+    addKey(Qt::CTRL + 'v', QuitDividingRespRef, "quit dividing Y by ymarker/yref").
+    addKey(Qt::CTRL + 'x', ShiftX, "subtract xmarker-xref from X \n  of current dataset and keep going").
+    addKey(Qt::CTRL + Qt::SHIFT + 'x', ScaleX, "divide X of current dataset\n  by xmarker/xref and keep going").
+    addKey(Qt::CTRL + 'y', ShiftY, "subtract ymarker-yref from Y \n  of current dataset and keep going").
+    addKey(Qt::CTRL + Qt::SHIFT + 'y', ScaleY, "divide Y of current dataset\n  by ymarker/yref and keep going").
+    addKey('a', VerticalSymmetry, "vertical symmetry around ymarker\n  and keep going").
+    addKey('A', HorizontalSymmetry, "horizontal symmetry around xmarker\n  and keep going").
+    addKey('c', CentralSymmetry, "central symmetry around the marker\n  and keep going").
     alsoKey('C').
-    addKey('+', PlaceCross, "place cross at the latest cursor position").
+    addKey('+', PlaceCross, "place cross at the marker position").
     addKey('-', RemoveCross, "remove latest cross").
     addPointPicker().
-    addKey(Qt::Key_Escape, Abort, "abort").
+    addKey(Qt::Key_Escape, Abort, "abort\n   (drops all newly created datasets)").
     addKey('q', Quit, "quit").
     alsoKey('Q');
 

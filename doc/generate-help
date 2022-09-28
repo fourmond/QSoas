@@ -211,18 +211,21 @@ def examples_for(cmd_tag, short = nil)
     if hsh.size == 0
       return ""
     end
-    txt = "\n#### Examples\n\n"
+    txt = "\n<div class='expls'><h4>Examples</h4>\n<ul>"
     nb = 0
     for k in hsh.keys.sort
       ex = hsh[k]
       if !(ex['id'] == cmd_tag)
         # Only add the examples not found here !
-        txt << " * [#{ex['title']}](#{k})\n\n~~~\n#{ex['cmd']}\n~~~\n"
+        txt << " <li> <a href='#{k}'>#{ex['title']}</a>\n<pre>#{ex['cmd']}</pre></li>\n"
+        # txt << " * [#{ex['title']}](#{k})\n\n~~~\n#{ex['cmd']}\n~~~\n"
         nb += 1
       end
     end
+    txt << "</ul>\n</div>"
     if nb > 0
-      return "#{txt}\n"
+      return "#{txt}\n\n"
+#       return "{::options parse_block_html='true' /}\n\n<div class='examples'>\n\n#{txt}\n</div>\n"
     else
       return "\n"
     end

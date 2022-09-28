@@ -606,7 +606,7 @@ void FileBrowser::directorySelected(const QModelIndex &index)
 //////////////////////////////////////////////////////////////////////
 
 
-static void filesBrowserCommand(CurveEventLoop &, const QString &)
+static void filesBrowserCommand(const QString &)
 {
   FileBrowser browser;
   browser.exec();

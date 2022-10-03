@@ -23,7 +23,9 @@ Browse the [manual](http://qsoas.org/reference/) or take a look at the
 [tutorial](http://qsoas.org/tutorial/).
 
 There is also a series of articles about various features of QSoas
-[there](https://vince-debian.blogspot.com/search/label/qsoas).
+[there](https://vince-debian.blogspot.com/search/label/qsoas). Some of
+the examples rely on examples files that can be found in a specific
+[repository](https://github.com/fourmond/QSoasExampleFiles).
 
 ## Support
 
@@ -35,16 +37,20 @@ You can alternatively ask for help in the
 [Twitter](https://twitter.com/QSoasSoftware) or the
 [Facebook](https://www.facebook.com/QSoasSoftware/) pages. 
 
+## Ready-to-use executables
+
+Binary images for MacOS and Windows are freely available
+[there](https://bip.cnrs.fr/groups/bip06/software/downloads/). Just
+download the zip archive to find the installers:
+
+ * the `.pkg` for MacOS
+ * the two `.msi` for windows, be it 32 or 64 bits. 
+
+No binaries are available for Linux, you have to compile yourself (but
+it's not that hard).
+
+
 ## Compilation
 
 To compile, look at the [compilation notes](https://github.com/fourmond/QSoas/blob/release/compilation.md).
-
-## Ready-to-use executables
-
-You can buy the latest executables [there](https://evalorix.com/en/shop/science-and-engineering/qsoas-software/).
-
-Or you can try [version 1.0](http://bip.cnrs-mrs.fr/bip06/qsoas/downloads/QSoas-1.0.zip) for free !
-
-
-
 

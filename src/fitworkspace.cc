@@ -1774,13 +1774,13 @@ void FitWorkspace::startFit()
         ++loc;
     }
 
-    params = QString("%1 (%2 global, %3 local per dataset)").
+    params = QString("%1 free parameters (%2 global, %3 local per dataset)").
       arg(freeParams).arg(glb).arg(loc/(1.0 * datasetNumber()));
   }
   
   Terminal::out << "Starting fit '" << fitName() << "' on "
                 << fitData->datasets.size() << " datasets with "
-                << params << " free parameters"
+                << params 
                 << " using the '" << fitData->engineFactory->name
                 << "' fit engine; initial residuals: "
                 << overallPointResiduals

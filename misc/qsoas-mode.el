@@ -58,6 +58,10 @@
    '("\\${\\([[:alnum:]_:+-%#]+\\)}"
      1
      font-lock-variable-name-face t)
+   ;; Font lock for the inline file
+   '("\\(##[[:blank:]]+INLINE:\\)" 1 font-lock-warning-face t)
+   '("\\(##[[:blank:]]+INLINE[[:blank:]]+END\\)" 1 font-lock-warning-face t)
+   '("##[[:blank:]]+INLINE:[[:blank:]]+\\([[:alnum:]-]+\\)" 1 font-lock-preprocessor-face t)
    )
   )
 

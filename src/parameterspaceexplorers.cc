@@ -1778,6 +1778,159 @@ om("order-of-magnitude", "Order of magnitude",
      return new OrderClassifyExplorer(ws);
    });
 
+//////////////////////////////////////////////////////////////////////
+
+#include <gsl/gsl_permute.h>
+
+class PermutationExplorer : public ParameterSpaceExplorer {
+  int fitIterations;
+
+  /// List of the parameters that get permuted.w
+  ///
+  /// Only the parameter names in the end
+  QList<QList<int> > parameterSets;
+
+  QList<gsl_permutation*> permutations;
+
+  /// Saved initial parameters
+  Vector initialParameters;
+
+  int current;
+
+  int total;
+
+public:
+
+  static ArgumentList args;
+  static ArgumentList opts;
+
+  PermutationExplorer(FitWorkspace * ws) :
+    ParameterSpaceExplorer(ws)
+  {
+  };
+
+  virtual void setup(const CommandArguments & args,
+                     const CommandOptions & opts) override {
+
+    QStringList specs = args[0]->value<QStringList>();
+    updateFromOptions(opts, "fit-iterations", fitIterations);
+
+
+    initialParameters = workSpace->saveParameterValues();
+
+    total = 1;
+
+    for(const QString & s : specs) {
+      QStringList param = s.split(",");
+      if(param.size() == 1)
+        throw RuntimeError("Only one parameter in '%1'").arg(s);
+      QList<int> indx;
+      for(const QString & p: param) {
+        int idx = workSpace->parameterIndex(p);
+        if(idx < 0)
+          throw RuntimeError("Unkown parameter: '%1'").arg(p);
+        indx << idx;
+      }
+      parameterSets << indx;
+
+      gsl_permutation * p = gsl_permutation_alloc(indx.size());
+      gsl_permutation_init(p);
+
+      permutations << p;
+
+      int nb = indx.size();
+      while(nb > 1) {
+        total *= nb;
+        --nb;
+      }
+    }
+    // Ok now
+    Terminal::out << " -> " << total << " total iterations" << endl;
+
+  };
+
+  virtual bool iterate(bool justPick) override {
+    Vector nv = initialParameters;
+
+    int nb_per_ds = workSpace->data()->parametersPerDataset();
+    int nbds = workSpace->data()->datasets.size();
+
+    // First apply the permutations, then step them
+
+    for(int i = 0; i < parameterSets.size(); i++) {
+      for(int j = 0; j < nbds; j++) {
+        double prms[parameterSets[i].size()];
+        for(int k = 0; k < parameterSets[i].size(); k++) {
+          prms[k] = nv[j*nb_per_ds + parameterSets[i][k]];
+        }
+        // Hmmm. This isn't so nice in fact, that the API forces one
+        // to look into the details of the permutation.
+        // Or I should make a vetor view ?
+        gsl_permute(permutations[i]->data, prms, 1, parameterSets[i].size());
+        for(int k = 0; k < parameterSets[i].size(); k++) {
+          nv[j*nb_per_ds + parameterSets[i][k]] = prms[k];
+        }
+      }
+    }
+    workSpace->restoreParameterValues(nv);
+
+    /// @todo Shouldn't that be a common function ?
+    if(! runHooks())
+      return false;
+    if(! justPick) {
+      workSpace->runFit(fitIterations);
+    }
+
+    // bool found = false;
+    int k = parameterSets.size()-1;
+    while(k >= 0) {
+      int r = gsl_permutation_next(permutations[k]);
+      if(r == GSL_SUCCESS)
+        return true;
+      else {
+        gsl_permutation_init(permutations[k]);
+        --k;
+      }
+    }
+
+    
+    return false;
+  };
+
+  virtual QString progressText() const override {
+    return QString("%1/%2").arg(current).arg(total);
+  };
+
+  ~PermutationExplorer() {
+    for(gsl_permutation * p : permutations)
+      gsl_permutation_free(p);
+  };
+
+
+};
+
+ArgumentList
+PermutationExplorer::args(QList<Argument*>() 
+                          << new SeveralStringsArgument("parameters",
+                                                        "Parameters",
+                                                        "Parameter specification", true)
+                                 );
+ 
+ArgumentList
+PermutationExplorer::opts(QList<Argument*>() 
+                          << new IntegerArgument("fit-iterations",
+                                                 "Fit iterations",
+                                                 "Maximum number of fit iterations")
+                            );
+
+ParameterSpaceExplorerFactoryItem 
+perm("permutation", "Permutation",
+     PermutationExplorer::args,
+     PermutationExplorer::opts,
+     [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
+       return new PermutationExplorer(ws);
+     });
+
 
 
 

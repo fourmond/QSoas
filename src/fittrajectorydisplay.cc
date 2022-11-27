@@ -60,8 +60,11 @@ class TrajectoriesModel : public QAbstractTableModel {
     /// Index in the parameters vector
     int index;
 
-    Item(const QString & n,     std::function<QVariant (const FitTrajectory* trj, int role, bool final)> f, int ds = -1, int idx = -1) :
-      name(n), fcn(f), dataset(ds), index(idx) {;};
+    /// The parameter index -- not unique, unlike index.
+    int parameterIndex;
+
+    Item(const QString & n,     std::function<QVariant (const FitTrajectory* trj, int role, bool final)> f, int ds = -1, int idx = -1, int pidx = - 1) :
+      name(n), fcn(f), dataset(ds), index(idx), parameterIndex(pidx) {;};
   };
 
   
@@ -135,13 +138,6 @@ public:
                      }
                      return QVariant();
                    })
-           << Item("delta", [](const FitTrajectory* trj,
-                                   int role, bool final) -> QVariant {
-                     if(role == Qt::DisplayRole && final) {
-                       return trj->residualsDelta;
-                     }
-                     return QVariant();
-                   })
            << Item("flags", [](const FitTrajectory* trj,
                                int role, bool /*final*/) -> QVariant {
                      if(role == Qt::DisplayRole) {
@@ -191,7 +187,7 @@ public:
                             
                           }
                           return QVariant();
-                        }, i, col);
+                        }, i, col, j);
       }
       QString na = QString("point_residuals[%1]").arg(i);
       columns << Item(na, [i](const FitTrajectory* trj,
@@ -260,6 +256,13 @@ public:
                       }
                       return QVariant();
                     })
+           << Item("delta", [](const FitTrajectory* trj,
+                                   int role, bool final) -> QVariant {
+                     if(role == Qt::DisplayRole && final) {
+                       return trj->residualsDelta;
+                     }
+                     return QVariant();
+                   })
             << Item("evaluations", [](const FitTrajectory* trj,
                                       int role, bool final) -> QVariant {
                       if(role == Qt::DisplayRole && final) {
@@ -310,6 +313,12 @@ public:
     if(col < 0 || col >= columns.size())
       return -1;
     return columns[col].dataset;
+  };
+
+  int parameterIndex(int col) const {
+    if(col < 0 || col >= columns.size())
+      return -1;
+    return columns[col].parameterIndex;
   };
 
   bool isFixed(int col, const FitTrajectory * trj) const {
@@ -810,6 +819,11 @@ void FitTrajectoryDisplay::setupFrame()
 
   addCMAction("Hide fixed", this, SLOT(hideFixed()),
               QKeySequence(QString("Ctrl+H")));
+  addCMAction("Hide selected", this, SLOT(hideSelected()));
+  addCMAction("Hide unselected in this dataset",
+              this, SLOT(hideButSelected()));
+  addCMAction("Hide unselected everywhere",
+              this, SLOT(hideButSelectedEverywhere()));
   addCMAction("Show all", this, SLOT(showAll()),
               QKeySequence(QString("Ctrl+Shift+H")));
 
@@ -979,6 +993,78 @@ void FitTrajectoryDisplay::hideFixed()
       parametersDisplay->hideColumn(i);
   }
 }
+
+
+void FitTrajectoryDisplay::hideSelected()
+{
+  // Slightly different from others
+  QList<QModelIndex> selected = parametersDisplay->selectionModel()
+    ->selectedIndexes();
+  
+  for(const QModelIndex & idx : selected)
+    parametersDisplay->hideColumn(idx.column());
+
+}
+
+
+
+void FitTrajectoryDisplay::hideButSelected()
+{
+  // Hides all the parameters but the selected within the given
+  // dataset.
+
+  QList<QModelIndex> selected = parametersDisplay->selectionModel()
+    ->selectedIndexes();
+  QSet<int> parameters;
+  int ds = -1;
+  for(const QModelIndex & idx: selected) {
+    int pid = model->parameterIndex(idx.column());
+    if(pid >= 0)
+      parameters.insert(pid);
+    int d = model->dataset(idx.column());
+    if(d >= 0 && ds < 0)
+      ds = d;
+  }
+
+  if(ds < 0)
+    return;                     // Nothing to do
+
+  if(selected.size() == 0)
+    return;                     // nothing to do ?
+  int nbtot = model->columnCount(selected.first());
+  for(int i = 0; i < nbtot; i++) {
+    int pid = model->parameterIndex(i);
+    if(pid >= 0 && model->dataset(i) == ds
+       && (! parameters.contains(pid)))
+      parametersDisplay->hideColumn(i);
+  }
+}
+
+void FitTrajectoryDisplay::hideButSelectedEverywhere()
+{
+  // Hides all the parameters but the selected within the given
+  // dataset.
+
+  QList<QModelIndex> selected = parametersDisplay->selectionModel()
+    ->selectedIndexes();
+  QSet<int> parameters;
+  for(const QModelIndex & idx: selected) {
+    int pid = model->parameterIndex(idx.column());
+    if(pid >= 0)
+      parameters.insert(pid);
+  }
+
+  if(selected.size() == 0)
+    return;                     // nothing to do ?
+
+  int nbtot = model->columnCount(selected.first());
+  for(int i = 0; i < nbtot; i++) {
+    int pid = model->parameterIndex(i);
+    if(pid >= 0 && (! parameters.contains(model->parameterIndex(i))))
+      parametersDisplay->hideColumn(i);
+  }
+}
+
 
 void FitTrajectoryDisplay::showAll()
 {

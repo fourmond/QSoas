@@ -164,6 +164,19 @@ public slots:
   /// Hide columns that are fixed
   void hideFixed();
 
+  /// Hide selected
+  void hideSelected();
+
+  // /// Hide selected
+  // void hideSelectedEverywhere();
+
+  /// Hide all (from dataset) but selected
+  void hideButSelected();
+
+  /// Hide all (from dataset) but selected
+  void hideButSelectedEverywhere();
+
+  
   /// Show all columns
   void showAll();
 

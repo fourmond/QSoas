@@ -83,6 +83,14 @@ protected:
     nds->columnNames << cns;
     for(int k : pms.bufferNames.keys())
       nds->setRowName(k, pms.bufferNames[k]);
+
+    QRegExp resRE("^\\s*Final residuals:\\s+(\\S+)");
+    for(const QString & c : pms.comments) {
+      if(resRE.indexIn(c) == 0) {
+        nds->setMetaData("residuals", resRE.cap(1).toDouble());
+        break;
+      }
+    }
     
     setMetaDataForFile(nds, fileName);
     rv << nds;

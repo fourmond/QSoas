@@ -1805,7 +1805,8 @@ public:
   static ArgumentList opts;
 
   PermutationExplorer(FitWorkspace * ws) :
-    ParameterSpaceExplorer(ws)
+    ParameterSpaceExplorer(ws),
+    fitIterations(50)
   {
   };
 
@@ -1819,6 +1820,7 @@ public:
     initialParameters = workSpace->saveParameterValues();
 
     total = 1;
+    current = 1;
 
     for(const QString & s : specs) {
       QStringList param = s.split(",");
@@ -1892,6 +1894,8 @@ public:
         --k;
       }
     }
+
+    current += 1;
 
     
     return false;

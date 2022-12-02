@@ -1885,6 +1885,7 @@ public:
 
     // bool found = false;
     int k = parameterSets.size()-1;
+    current += 1;
     while(k >= 0) {
       int r = gsl_permutation_next(permutations[k]);
       if(r == GSL_SUCCESS)
@@ -1895,7 +1896,6 @@ public:
       }
     }
 
-    current += 1;
 
     
     return false;

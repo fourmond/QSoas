@@ -247,6 +247,17 @@ static void iterateExplorerCommand(const QString & /*name*/,
         arg(ws->trajectories.best().residuals).
         arg(ws->trajectories.best().endTime.toString());
       res = ws->trajectories.best().residuals;
+
+      // Adding some stats
+      int nb10 = 0, nb40 = 0;
+      for(const FitTrajectory & t : ws->trajectories) {
+        if(t.residuals <= 1.1 * res)
+          ++nb10;
+        if(t.residuals <= 1.4 * res)
+          ++nb40;
+      }
+      lr += QString(", %1 at less than 10%, %2 less than 40%").
+        arg(nb10).arg(nb40);
     }
     
     Terminal::out << "Explorer '" << explorer->createdFrom->name

@@ -338,7 +338,7 @@ protected:
     return system->hasReporters();
   };
 
-  virtual double reporterValue(FitData * data) const {
+  virtual double reporterValue(double t, FitData * data) const override {
     RubyODESolver * system = getSystem(data);
     Vector v = system->reporterValues();
     // Only returns the first reporter.

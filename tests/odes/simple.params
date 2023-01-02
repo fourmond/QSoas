@@ -1,0 +1,7 @@
+# The following information are comments, but Soas may make use of those if they are present
+# Fit used: ode ((system: ././simple.ode))
+# Command-line: fit-ode ./simple.ode
+y_si	1	!	1
+y_co	0	!	0
+w	2	!	1
+buffer_weight[#0]	1

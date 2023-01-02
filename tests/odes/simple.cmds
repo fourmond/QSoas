@@ -1,0 +1,12 @@
+generate-dataset 0 10
+sim-ode simple.ode simple.params 0
+apply-formula y-=sin(2*x)
+assert $stats.y_norm 1e-9
+
+sim-ode simple.ode simple.params 0 /prec-relative=1e-12
+apply-formula y-=sin(2*x)
+assert $stats.y_norm 5e-11
+
+sim-ode simple.ode simple.params 0 /prec-relative=1e-13
+apply-formula y-=sin(2*x)
+assert $stats.y_norm 5e-12

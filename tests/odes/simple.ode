@@ -1,0 +1,5 @@
+si = 0
+co = 1
+
+d_si = w*co
+d_co = -w*si

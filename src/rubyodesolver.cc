@@ -414,7 +414,7 @@ public:
 
     int nb = system->variables().size();
     if(! system->hasReporters()) {
-      // All currents to 0 but the first
+      // All proportionality to 0 but the first
       for(int i = 0; i < nb; i++)
         a[i + (s->voltammogram ? 2 : 0)] = (i == 0 ? y.max() : 0);
     }
@@ -423,11 +423,6 @@ public:
     if(s->hasOrigTime)
       b[-1] = x[0] - 20;
 
-    // All initial concentrations to 0 but the first
-    for(int i = 0; i < nb; i++)
-      b[i] = (i == 0 ? 1 : 0);
-    
-    // All rate constants and other to 1 ?
 
     // We can't use params->parameterDefinitions.size(), as this will
     // fail miserably in combined fits

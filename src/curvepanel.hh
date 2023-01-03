@@ -190,7 +190,7 @@ public:
   };
 
   /// Maps from widget coordinates to curve coordinates.
-  QPointF fromWidget(const QPoint & p) {
+  QPointF fromWidget(const QPoint & p) const {
     return reverseTransform.map(QPointF(p));
   };
 

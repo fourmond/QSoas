@@ -472,7 +472,7 @@ void CurveView::showContextMenu(const QPoint & pos)
     }
   }
 
-  menu.exec(pos);
+  menu.exec(mapToGlobal(pos));
 }
 
 

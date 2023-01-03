@@ -10,3 +10,7 @@ assert $stats.y_norm 5e-11
 sim-ode simple.ode simple.params 0 /prec-relative=1e-13
 apply-formula y-=sin(2*x)
 assert $stats.y_norm 5e-12
+
+sim-ode simple-with-reporter.ode simple.params 0 /prec-relative=1e-13
+apply-formula y-=1
+assert $stats.y_norm 2e-11

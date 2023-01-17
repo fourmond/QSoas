@@ -44,6 +44,15 @@
 #include <argumentsdialog.hh>
 
 
+QString ScriptContext::toString(int offset) const
+{
+  return QString("%1:%2").arg(scriptFile).arg(lineNumber+offset);
+}
+
+
+
+//////////////////////////////////////////////////////////////////////
+
 class SideBarLabel : public QScrollArea {
 protected:
 
@@ -696,7 +705,7 @@ CommandWidget::runCommandFile(QIODevice * source,
             paramValue = parameters[paramName];
         }
         else {
-          paramName = QString::number(argn);
+          paramName = QString::number(argn + 1);
           if(argn >= args.size()) {
             subsPresent = false;
           }
@@ -708,13 +717,6 @@ CommandWidget::runCommandFile(QIODevice * source,
         SubstitutionType type = Plain;
         QString oa = substitutionRE.cap(3);
         QString subst;
-
-        // if(argn < 0)
-        //   throw RuntimeError("Invalid argument substitution: '%1' of "
-        //                      "line '%2'").
-        //     arg(key).arg(line);
-         
-          
 
         if(w == "%%")
           type = RemoveSuffix;
@@ -728,16 +730,16 @@ CommandWidget::runCommandFile(QIODevice * source,
           type = TernaryValue;
         else if(w.size() > 0)
           throw RuntimeError("Invalid argument substitution: '%1' of "
-                             "line '%2'").
-            arg(key).arg(line);
+                             "line '%2' (%3)").
+            arg(key).arg(line).arg(contexts.last().toString());
 
         if(type != DefaultValue && type != AlternateValue && 
            type != TernaryValue) {
           if(! subsPresent) {
             throw RuntimeError("Missing parameter ${%1} "
-                               "while parsing argument '%4' of line '%3'").
+                               "while parsing argument '%4' of line '%3' (%5)").
               arg(paramName).
-              arg(line).arg(key);
+              arg(line).arg(key).arg(contexts.last().toString());
           }
         }
         switch(type) {

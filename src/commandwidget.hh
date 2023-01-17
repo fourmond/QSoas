@@ -38,6 +38,10 @@ public:
 
   /// The line number (or command number)
   int lineNumber = 0;
+
+  /// Converts the context to a proper location indication.
+  /// The offset gets added to the line number
+  QString toString(int offset = 1) const;
 };
 
 /// A widget that accepts commands, and display their result, a

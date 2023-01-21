@@ -907,8 +907,11 @@ static void linearLeastSquaresCommand(const QString &, QString formula,
 
 
   DataSetList buffers(opts);
+  QString mode = "compute-only";
+  updateFromOptions(opts, "mode", mode);
+  
 
-  // DataStackHelper pusher(opts);
+  DataStackHelper pusher(opts);
   for(const DataSet * ds : buffers) {
     DataSetExpression ex(ds);
 
@@ -927,6 +930,7 @@ static void linearLeastSquaresCommand(const QString &, QString formula,
 
     GSLVector res(fcn.parameters());
     GSLVector errs(fcn.parameters());
+    /// @todo Hmmm... Is really solve the best name for this ?
     double chisq = fcn.solve(ds->y(), res, errs);
     ValueHash results;
     for(int i = 0; i < fcn.parameters(); i++)
@@ -940,17 +944,31 @@ static void linearLeastSquaresCommand(const QString &, QString formula,
     
     Terminal::out << results.prettyPrint() << endl;
     results.handleOutput(ds, opts);
-    
-    // Display the results if the dataset is displayed.
-    QList<DataSet*> displayed = soas().view().displayedDataSets();
-    if(displayed.contains(const_cast<DataSet*>(ds))) {
-      CurveData * reg = new CurveData;
-      const GraphicsSettings & gs = soas().graphicsSettings();
-      reg->pen = gs.getPen(GraphicsSettings::ResultPen);
-      reg->xvalues = ds->x();
-      reg->yvalues = ds->x();
-      fcn.computeFunction(res, reg->yvalues);
-      soas().view().addItem(reg, true);
+
+    if(mode == "compute-only") {
+      // Display the results if the dataset is displayed.
+      QList<DataSet*> displayed = soas().view().displayedDataSets();
+      if(displayed.contains(const_cast<DataSet*>(ds))) {
+        CurveData * reg = new CurveData;
+        const GraphicsSettings & gs = soas().graphicsSettings();
+        reg->pen = gs.getPen(GraphicsSettings::ResultPen);
+        reg->xvalues = ds->x();
+        reg->yvalues = ds->x();
+        fcn.computeFunction(res, reg->yvalues);
+        soas().view().addItem(reg, true);
+      }
+    }
+    if(mode == "fits") {
+      DataSet * nds = ds->derivedDataSet("_lls_fits.dat");
+      fcn.computeFunction(res, nds->y().toGSLVector());
+      pusher << nds;
+    }
+    if(mode == "residuals") {
+      DataSet * nds = ds->derivedDataSet("_lls_res.dat");
+      fcn.computeFunction(res, nds->y().toGSLVector());
+      nds->y() -= ds->y();
+      nds->y() *= -1;
+      pusher << nds;
     }
   }
 }
@@ -971,10 +989,16 @@ llO(QList<Argument *>()
                         "if on (by default), you can use `$meta` to refer to "
                         "the dataset meta-data")
     << new BoolArgument("use-names", 
-                       "Use column names",
-                       "if on the columns will not be called x,y, and so on, but will take their name based on the column names")
+                        "Use column names",
+                        "if on the columns will not be called x,y, and so on, but will take their name based on the column names")
+    << new ChoiceArgument(QStringList() << "compute-only"
+                          << "residuals" << "fits",
+                          "mode",
+                          "Operation mode",
+                          "Whether to just compute the parameters or also push residuals or fits")
     << DataSetList::listOptions("Buffers to work on")
     << ValueHash::outputOptions()
+    << DataStackHelper::helperOptions()
     );
 
 

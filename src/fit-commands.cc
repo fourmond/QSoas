@@ -1611,6 +1611,72 @@ rtf("run-for-trajectories", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+static void pickFromTrajectoriesCommand(const QString &,
+                                        FitTrajectories trajs,
+                                        const CommandOptions &opts)
+{
+  bool final = true;
+  QString t;
+  updateFromOptions(opts, "parameters", t);
+  if(t == "initial")
+    final = false;
+
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+
+  if(trajs.size() == 0)
+    throw RuntimeError("No trajectories to work from");
+
+  Vector tgt = trajs[0].finalParameters;
+  int nbds = trajs[0].pointResiduals.size();
+
+  for(int i = 0; i < nbds; i++) {
+    int idx = 0;
+    double res = trajs[0].pointResiduals[i];
+    for(int j = 1; j < trajs.size(); j++) {
+      if(trajs[j].pointResiduals[i] < res) {
+        idx = j;
+        res = trajs[j].pointResiduals[i];
+      }
+    }
+    int nbp = tgt.size() / nbds;
+    for(int j = i * nbp; j  < (i+1) * nbp; j++)
+      tgt[j] = (final ? trajs[idx].finalParameters :
+                trajs[idx].initialParameters)[j];
+  }
+  ws->restoreParameterValues(tgt);
+}
+
+static ArgumentList
+pftOpts(QList<Argument *>() 
+        << new ChoiceArgument(QStringList()
+                              << "final" << "initial",
+                              "parameters", 
+                              "Parameters",
+                              "which parameters to use")
+        );
+
+static ArgumentList 
+pftArgs(QList<Argument *>() 
+        << new TrajectoriesArgument("trajectories", 
+                                    "Trajectories",
+                                    "trajectories to run", true)
+
+        );
+
+
+// The same, but for the fit context
+static Command 
+pft("pick-from-trajectories", // command name
+     effector(pickFromTrajectoriesCommand), // action
+     "fits",  // group name
+     &pftArgs, // arguments
+     &pftOpts, 
+     "Pick parameters from trajectories",
+     "Pick parameters dataset by dataset from trajectories",
+     NULL, CommandContext::fitContext());
+
+//////////////////////////////////////////////////////////////////////
+
 #include <commandwidget.hh>
 
 static void loadFromTrajectoryCommand(const QString &, int trajectory,

@@ -2984,3 +2984,38 @@ an("add-noise", // command name
    "Adds noise to the buffer");
 
 
+
+//////////////////////////////////////////////////////////////////////
+
+static void pickCommand(const QString &,
+                        QList<double> where,
+                        const CommandOptions &opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+
+  // Hmmm. How do we handle duplicates?.
+  QList<int> indices;
+  for(double xv : where) {
+    int point = ds->x().closestPoint(xv);
+    indices << point;
+  }
+  DataSet * nds = ds->derivedDataSet("_pick.dat");
+  nds->selectRows(indices);
+  soas().pushDataSet(nds);
+}
+
+static ArgumentList 
+piA(QList<Argument *>() 
+    << new SeveralNumbersArgument("where", 
+                                  "Where",
+                                  "Which values to pick")
+    );
+
+
+static Command 
+pk("pick", // command name
+   effector(pickCommand), // action
+   "buffer",  // group name
+   &piA, // arguments
+   NULL, // options
+   "Transpose");

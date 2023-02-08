@@ -1,7 +1,7 @@
 /**
    @file wave-fits.cc
    Fits for the "wave shape", based on the Fourmond JACS 2013 paper
-   Copyright 2013, 2014, 2015, 2016 by CNRS/AMU
+   Copyright 2013, 2014, 2015, 2016, 2023 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -1039,6 +1039,10 @@ public:
 
     // Now convert params if applicable
     if(s->usePotentials) {
+      // params 5 is either k1/km1 or Eoi
+      // RO <=>[k_m1][k_1] OI
+      // -> k_m1/k_1 is RO/OI = exp(E_oi - E_r)
+      // so the formula below appears to be correct
       params[5] = exp(f * (params[1] - params[5]));
       params[7] = exp(f * (params[1] - params[7]));
     }
@@ -1051,6 +1055,10 @@ public:
     if(params[8] > 0)
       throw RangeError("Positive reduction current");
 
+    if(params[9] < 0)
+      throw RangeError("Negative beta d0");
+
+    
     // We rename the parameters...
     //
     // Let's keep in mind that k2 is one.
@@ -1065,7 +1073,7 @@ public:
     const double beta_d0 = params[9];
     const double k_0m    = k_0M * exp(-beta_d0);
 
-
+    
     // We now precompute the  coefficients of all the A,B,C,D,E,F constants:
     // The number is the power of d.
     //
@@ -1096,49 +1104,54 @@ public:
     const double E_2 = 1;
     
     const double F_1 = k_2 + k_m2;
-     
 
+    const double pref = ilim * B_0/(A_0 * beta_d0);
 
-    // The prefactor, dependent on ilim but not only.
-    double pref = ilim * B_0/(A_0);
+    // QTextStream o(stdout);
+    
+
 
     for(int i = 0; i < xv.size(); i++) {
       const double x = xv[i];
       const double d = exp(0.5 * f * (x - params[1]));
+      const double d_2 = d*d;
+      const double d_3 = d_2 * d;
+      const double d_4 = d_2 * d_2;
+      const double d_5 = d_4 * d;
       
-      const double A = A_0 + A_4 * pow(d, 4);
-      const double B = B_0 + B_2 * pow(d, 2) + B_4 * pow(d, 4);
-      const double C = C_1 * d + C_3 * pow(d, 3) + C_5 * pow(d, 5);
-      const double D = D_2 * pow(d, 2) + D_4 * pow(d, 4);
-      const double E = E_0 + E_2 * pow(d, 2);
+      const double A = A_0 + A_4 * d_4;
+      const double B = B_0 + B_2 * d_2 + B_4 * d_4;
+      const double C = C_1 * d + C_3 * d_3 + C_5 * d_5;
+      const double D = D_2 * d_2 + D_4 * d_4;
+      const double E = E_0 + E_2 * d_2;
       const double F = F_1 * d;
 
-      const double Gamma1_M = B * k_0M*k_0M * E + k_0M * (B * F + C) + D;
-      const double Gamma1_m = B * k_0m*k_0m * E  + k_0m * (B * F + C) + D;
-      const double g2       = B*B*F*F + 2 * B*F*C + C*C - 4*D*B*E;
-      const double Gamma2   = sqrt(fabs(g2));
-      const double Gamma3_M = 2 * B * E * k_0M + B*F + C;
-      const double Gamma3_m = 2 * B * E * k_0m + B*F + C;
 
+      const double Gamma2_M = 2 * B * E * k_0M + B*F + C;
+      const double Gamma2_m = 2 * B * E * k_0m + B*F + C;
 
+      const double Gamma1_M = k_0M * (B * E * k_0M + B*F + C) + D;
+      const double Gamma1_m = k_0m * (B * E * k_0m + B*F + C) + D;
 
-      double delta;
-      // the argument of arctan(h)?
-      const double arg = Gamma2 * (Gamma3_M - Gamma3_m)/
-        (g2 - Gamma3_M * Gamma3_m);
-      if(g2 > 0)
-        delta = atanh(arg);
-      else 
-        delta = atan(arg);
+      const double alpha = 4 * D * B * E - pow(B*F + C, 2);
+      const double o_ov_salpha = 1/sqrt(fabs(alpha));
+
 
       const double rest = log(Gamma1_M/Gamma1_m);
 
-      // if(fabs(g2) < 1e2)
-      //   fprintf(stderr, "Values x=%g\tg2=%g\tdelta=%g\trest=%g\tfact=%g"
-      //           "\td/g2=%g\n", 
-      //           x, g2, delta, rest, (B*F - C)/Gamma2, delta/Gamma2);
 
-      const double par =  rest + (B*F - C)/Gamma2 * 2 * delta;
+      double delta;
+      if(alpha > 0)
+        delta = atan(Gamma2_M * o_ov_salpha) -
+          atan(Gamma2_m * o_ov_salpha);
+      else
+        delta = -0.5 * log((1 + Gamma2_M * o_ov_salpha) *
+                           (1 - Gamma2_m * o_ov_salpha) /
+                           (1 - Gamma2_M * o_ov_salpha) /
+                           (1 + Gamma2_m * o_ov_salpha));
+
+      double fct = (B*F - C) * o_ov_salpha * 2 * delta;
+      const double par =  rest + fct;
       gsl_vector_set(target, i, pref * A/(2 * B) * par);
     }
   };

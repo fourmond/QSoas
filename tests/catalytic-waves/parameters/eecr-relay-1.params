@@ -10,7 +10,7 @@ Eir	-0.1	!	0
 kp1/k2	1e+9	!	0
 Eoi	0.2	!	0
 ilim	-1e7	!	1
-betad0	1e-7	!	0
+betad0	1e-9	!	0
 # The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas
 # Residuals: 0.00913772
 # Global parameters: 

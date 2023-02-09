@@ -138,7 +138,7 @@ public:
     return var;
   };
 
-  virtual QString description() const {
+  virtual QString description() const override {
     QString pref = name;
     if(! isGlobal) {
       if(needX)
@@ -198,7 +198,7 @@ public:
     return function(ds, col);
   };
 
-  virtual QString description() const {
+  virtual QString description() const override {
     QStringList prefs;
     for(QString pref : names) {
       if(! isGlobal) {

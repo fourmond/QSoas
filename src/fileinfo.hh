@@ -57,7 +57,7 @@ class FileInfo {
   friend class File;
 public:
 
-  FileInfo(const QString & file);
+  explicit FileInfo(const QString & file);
 
   /// Returns the last modification time
   QDateTime lastModified() const;

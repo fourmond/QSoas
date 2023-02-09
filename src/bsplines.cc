@@ -30,12 +30,22 @@
 
 BSplines::BSplines(const Vector & xvalues, 
                    const Vector & yvalues, int o, int mo) :
-  splinesWS(NULL), order(o), maxOrder(mo), x(xvalues), y(yvalues)
+  splinesWS(NULL),
+#if GSL_MAJOR_VERSION <  2
+  derivWS(NULL),
+#endif
+  fitWS(NULL), coeffs(NULL), storage(NULL), cov(NULL), nbCoeffs(-1), nb(-1),
+  order(o), maxOrder(mo), x(xvalues), y(yvalues)
 {
 }
 
 BSplines::BSplines(const DataSet * ds, int o, int mo) :
-  splinesWS(NULL), order(o), maxOrder(mo), x(ds->x()), y(ds->y())
+  splinesWS(NULL),
+#if GSL_MAJOR_VERSION <  2
+  derivWS(NULL),
+#endif
+  fitWS(NULL), coeffs(NULL), storage(NULL), cov(NULL), nbCoeffs(-1), nb(-1),
+  order(o), maxOrder(mo), x(ds->x()), y(ds->y())
 {
 }
 

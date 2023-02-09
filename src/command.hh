@@ -65,6 +65,9 @@ protected:
   void registerMe();
 
   friend class CommandContext;
+private:
+  // Disable copy constructor
+  Command(const Command & cmd) = delete;
 
 public:
 

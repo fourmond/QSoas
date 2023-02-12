@@ -323,6 +323,9 @@ public:
   /// With *any* Bijection, for that matter ?
   static Vector uniformlySpaced(double min, double max, int nb);
 
+  /// Returns a vector containing the indices, from 0 to nb-1.
+  static Vector indexVector(int nb);
+
   /// Returns a vector with nb values spaced logarithmically on the
   /// [min:max] segment.
   static Vector logarithmicallySpaced(double min, double max, int nb);

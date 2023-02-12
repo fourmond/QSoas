@@ -630,13 +630,14 @@ public:
 
 };
 
+class Vector;
 /// This class simply wraps a column specification until the moment it
 /// is actually used on a DataSet. It is essentially just a wrapped
 /// QString
 ///
 /// Known formats:
 ///
-/// @li just a number: 1-based index (1 = X, 2 = Y, etc...)
+/// @li just a number: 1-based index (1 = X, 2 = Y, etc...), 0 is index when applicable
 /// @li negative numbers: -1 is the last one, -2, the one before last...
 /// @li #number: 0-based index
 /// @li x, y, z, y2...yN
@@ -648,15 +649,25 @@ class ColumnSpecification {
   QString spec;
 
   bool acceptNone;
+
+  bool acceptIndex;
 public:
-  explicit ColumnSpecification(const QString & str, bool acceptNone = false);
+  explicit ColumnSpecification(const QString & str,
+                               bool acceptNone = false,
+                               bool acceptIndex = false);
   /// This creates an invalid one, to be used in ranges.
   ColumnSpecification();
 
   /// Returns the value, for the specific dataset.
   ///
   /// If no specification is given, returns def
-  int getValue(const DataSet * ds, int def = -1) const;
+  ///
+  /// Will return -1 for the index column when applicable.
+  int getValue(const DataSet * ds, int def = -2) const;
+
+  /// Returns the actual column for the given dataset.
+  /// Returns an empty vector on invalid
+  Vector getColumn(const DataSet * ds) const;
 
   /// Returns true if the string isn't empty
   bool isValid() const;
@@ -678,13 +689,16 @@ public:
 class ColumnArgument : public Argument {
 
   bool acceptNone;
+
+  bool acceptIndex;
 public:
 
 
   ColumnArgument(const char * cn, const char * pn,
                  const char * d = "", bool def = false,
-                 bool _acceptNone = false) : 
-    Argument(cn, pn, d, false, def), acceptNone(_acceptNone) {
+                 bool _acceptNone = false, bool ai = false) : 
+    Argument(cn, pn, d, false, def),
+    acceptNone(_acceptNone), acceptIndex(ai) {
   }; 
   
   /// Returns a wrapped int

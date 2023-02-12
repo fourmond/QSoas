@@ -799,6 +799,14 @@ Vector Vector::uniformlySpaced(double min, double max, int nb)
   return r;
 }
 
+Vector Vector::indexVector(int nb)
+{
+  Vector r(nb, 0);
+  for(int i = 0; i < nb; i++)
+    r[i] = i;
+  return r;
+}
+
 
 Vector Vector::logarithmicallySpaced(double min, double max, int nb)
 {

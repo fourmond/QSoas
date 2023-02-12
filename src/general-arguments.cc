@@ -1046,12 +1046,14 @@ void RegexArgument::setEditorValue(QWidget * editor,
 
 //////////////////////////////////////////////////////////////////////
 
-ColumnSpecification::ColumnSpecification()
+ColumnSpecification::ColumnSpecification() :
+  acceptNone(false), acceptIndex(false)
 {
 }
 
-ColumnSpecification::ColumnSpecification(const QString & s, bool an) :
-  spec(s), acceptNone(an)
+ColumnSpecification::ColumnSpecification(const QString & s,
+                                         bool an, bool ai) :
+  spec(s), acceptNone(an), acceptIndex(ai)
 {
 }
 
@@ -1067,14 +1069,14 @@ int ColumnSpecification::getValue(const DataSet * ds, int def) const
   QRegExp num1("^\\s*-?\\d+\\s*$");
   QRegExp num2("^\\s*#(\\d+)\\s*$");
 
-  QRegExp name("^\\s*((x)|(y)|(z)|(y(\\d+))|(non?e?))\\s*$", Qt::CaseInsensitive);
+  QRegExp name("^\\s*((x)|(y)|(z)|(y(\\d+))|(non?e?)|(i))\\s*$", Qt::CaseInsensitive);
   QRegExp named("^\\s*(?:named:|\\$c.)(\\S+)\\s*$", Qt::CaseInsensitive);
 
   if(spec == "last")            // Identical to -1
     return ds->nbColumns()-1;
   if(spec == "none") {
     if(acceptNone)
-      return -1;
+      return def;
     else
       throw RuntimeError("Invalid column specification: %1").arg(spec);
   }
@@ -1085,6 +1087,12 @@ int ColumnSpecification::getValue(const DataSet * ds, int def) const
       return nb-1;
     if(nb < 0)
       return ds->nbColumns()+nb;
+    if(nb == 0) {
+      if(acceptIndex)
+        return -1;
+      else
+        throw RuntimeError("Invalid column specification: %1").arg(spec);
+    }
   }
   if(num2.indexIn(spec, 0) >= 0) {
     return num2.cap(1).toInt();
@@ -1101,6 +1109,12 @@ int ColumnSpecification::getValue(const DataSet * ds, int def) const
       return name.cap(6).toInt();                 // Yn
     else if(! name.cap(7).isEmpty()) { // none again
       if(acceptNone)
+        return def;
+      else
+        throw RuntimeError("Invalid column specification: %1").arg(spec);
+    }
+    else if(! name.cap(8).isEmpty()) {
+      if(acceptIndex)
         return -1;
       else
         throw RuntimeError("Invalid column specification: %1").arg(spec);
@@ -1119,6 +1133,21 @@ int ColumnSpecification::getValue(const DataSet * ds, int def) const
     }
   }
   throw RuntimeError("Invalid dataset column specification '%1'").arg(spec);
+}
+
+Vector ColumnSpecification::getColumn(const DataSet * ds) const
+{
+  int val = getValue(ds, -2);
+  if(val == -2) {
+    if(acceptNone)
+      return Vector();
+    else
+      throw RuntimeError("Not column '%1' in dataset '%2'").arg(spec).
+        arg(ds->name);
+  }
+  if(val == -1)
+    return Vector::indexVector(ds->nbRows());
+  return ds->column(val);
 }
 
 
@@ -1173,7 +1202,7 @@ QStringList ColumnArgument::proposeCompletion(const QString & starter) const
 
 ArgumentMarshaller * ColumnArgument::fromString(const QString & str) const
 {
-  return new ArgumentMarshallerChild<ColumnSpecification>(ColumnSpecification(str, acceptNone));
+  return new ArgumentMarshallerChild<ColumnSpecification>(ColumnSpecification(str, acceptNone, acceptIndex));
 }
 
 QStringList ColumnArgument::toString(const ArgumentMarshaller * arg) const

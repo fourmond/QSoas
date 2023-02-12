@@ -1268,13 +1268,10 @@ namespace __bs {
     splines.autoBreakPoints(nbSegments-1);
 
     {
-      int weights = -1;
       ColumnSpecification cl;
       updateFromOptions(opts, "weight-column", cl);
-      if(cl.isValid()) {
-        weights = cl.getValue(ds);
-        splines.setWeights(ds->column(weights));
-      }
+      if(cl.isValid())
+        splines.setWeights(cl.getColumn(ds));
     }
     x = splines.getBreakPoints();
 
@@ -1424,7 +1421,8 @@ namespace __bs {
   bsOpts(QList<Argument *>() 
       << new ColumnArgument("weight-column", 
                             "Weights",
-                            "Use the weights in the given column")
+                            "Use the weights in the given column",
+                            false, true)
         );
 
   static Command 
@@ -1750,7 +1748,6 @@ static void autoFilterBSCommand(const QString &, const CommandOptions & opts)
   int nb = 12;
   int order = 4;
   int derivatives = 0;
-  int weights = -1;
   int optimize = 15;
 
 
@@ -1768,17 +1765,15 @@ static void autoFilterBSCommand(const QString &, const CommandOptions & opts)
   DataStackHelper pusher(opts);
 
   for(const DataSet * ds : buffers) {
-
+    Vector weights;
     if(cl.isValid())
-      weights = cl.getValue(ds);
-    else
-      weights = -1;
+      weights = cl.getColumn(ds);
 
   BSplines splines(ds, order, derivatives);
   splines.autoBreakPoints(nb);
-  if(weights >= 0) {
-    splines.setWeights(ds->column(weights));
-  }
+  if(! weights.isEmpty())
+    splines.setWeights(weights);
+
   if(optimize > 0)
     splines.optimize(optimize, false);
   double value = splines.computeCoefficients();
@@ -1805,7 +1800,8 @@ afbsOps(QList<Argument *>()
                                "number of iterations to optimize the position of the nodes (defaults to 15, set to 0 or less to disable)")
         << new ColumnArgument("weight-column", 
                               "Weights",
-                              "uses the weights in the given column")
+                              "uses the weights in the given column",
+                              false, true)
         << new IntegerArgument("derivatives", 
                                "Derivative order",
                                "computes derivatives up to this number")

@@ -3474,15 +3474,20 @@ parameter.
 
 ### `linear-least-squares` - Linear least squares {#cmd-linear-least-squares}
 
-`linear-least-squares` _formula_{:title="a piece of [Ruby code](#ruby)"} (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/accumulate=`_meta-data_{:title="comma separated list of names of meta-data to accumulate, see [here](#output-accumulate)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="comma separated list of names of meta-data, or `a->b` specifications, see [here](#output-set-meta)"} `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-names=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`linear-least-squares` _formula_{:title="a piece of [Ruby code](#ruby)"} (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/accumulate=`_value-names_{:title="comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"} `/mode=`_choice_{:title="one of: `compute-only`, `fits`, `residuals`"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-global=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-names=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _formula_{:title="a piece of [Ruby code](#ruby)"}: formula -- values: a piece of [Ruby code](#ruby)
   * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): Buffers to work on -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
-  * `/accumulate=`_meta-data_{:title="comma separated list of names of meta-data to accumulate, see [here](#output-accumulate)"}: accumulate the given data into a dataset -- values: comma separated list of names of meta-data to accumulate, see [here](#output-accumulate)
+  * `/accumulate=`_value-names_{:title="comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)"}: accumulate the given data into a dataset -- values: comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)
+  * `/flags=`_flags_{:title="a comma-separated list of flags"}: Flags to set on the newly created datasets -- values: a comma-separated list of flags
   * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"}: when writing to output file, also prints the listed meta-data -- values: comma-separated list of names of meta-data
+  * `/mode=`_choice_{:title="one of: `compute-only`, `fits`, `residuals`"}: Whether to just compute the parameters or also push residuals or fits -- values: one of: `compute-only`, `fits`, `residuals`
   * `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to write data to output file (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/set-meta=`_meta-data_{:title="comma separated list of names of meta-data, or `a->b` specifications, see [here](#output-set-meta)"}: saves the results of the command as meta-data rather than/in addition to saving to the output file -- values: comma separated list of names of meta-data, or `a->b` specifications, see [here](#output-set-meta)
+  * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/set-global=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)"}: saves the results of the command into the $values global variable -- values: comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created datasets -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on (by default), you can use `$meta` to refer to the dataset meta-data -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/use-names=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on the columns will not be called x,y, and so on, but will take their name based on the column names -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on (by default), you can use `$stats` to refer to statistics (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -3509,6 +3514,11 @@ QSoas> linear-least-squares a*x**2+b*x+c
 The results of the operation are the values of the parameters, which
 can be sent to the output file, to meta-data or to the accumulator,
 see [there](#data-output) for more details.
+
+It is possible also to generate the datasets corresponding either to
+the computed fits using `/mode=fits` or the residuals using
+`/mode=residuals`.
+
 
 **Important warning** QSoas does not try to check that the dependency
 of the formula on the parameters is truly linear. If that is not the
@@ -3905,6 +3915,21 @@ this time under the name `my_interesting_meta`.
 
 You can save all the data in one go under their original name using
 `/set-meta=*`.
+
+### Saving as global variable {#output-set-global}
+
+In a similar fashion, it is possible to set the global ruby variable
+`$values` to the results of the command using the `/set-global=`
+option, which works in the same way as `/set-meta` for selecting (and
+renaming) the relevant values:
+
+~~~
+QSoas> generate-dataset 0 10 x**2
+QSoas> stats /set-global=y_max,x_max
+QSoas> eval $values
+Evaluating with dataset: generated.dat
+=> {"y_max"=>100, "x_max"=>10}
+~~~
 
 ### Combining `/accumulate=` and `pop` to create new datasets on the fly {#output-accumulate}
 

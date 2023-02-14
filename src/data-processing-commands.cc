@@ -1422,7 +1422,7 @@ namespace __bs {
       << new ColumnArgument("weight-column", 
                             "Weights",
                             "Use the weights in the given column",
-                            false, true)
+                            false, false, true)
         );
 
   static Command 
@@ -1801,7 +1801,7 @@ afbsOps(QList<Argument *>()
         << new ColumnArgument("weight-column", 
                               "Weights",
                               "uses the weights in the given column",
-                              false, true)
+                              false, false, true)
         << new IntegerArgument("derivatives", 
                                "Derivative order",
                                "computes derivatives up to this number")

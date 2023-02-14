@@ -2993,10 +2993,14 @@ static void pickCommand(const QString &,
 {
   const DataSet * ds = soas().currentDataSet();
 
+  ColumnSpecification col("x");
+  updateFromOptions(opts, "column", col);
+  Vector v = col.getColumn(ds);
+
   // Hmmm. How do we handle duplicates?.
   QList<int> indices;
   for(double xv : where) {
-    int point = ds->x().closestPoint(xv);
+    int point = v.closestPoint(xv);
     indices << point;
   }
   DataSet * nds = ds->derivedDataSet("_pick.dat");
@@ -3011,11 +3015,19 @@ piA(QList<Argument *>()
                                   "Which values to pick")
     );
 
+static ArgumentList 
+piO(QList<Argument *>() 
+    << new ColumnArgument("column", 
+                          "Column",
+                          "Which column contains the values",
+                          false, false, true)
+    );
+
 
 static Command 
 pk("pick", // command name
    effector(pickCommand), // action
    "buffer",  // group name
    &piA, // arguments
-   NULL, // options
-   "Transpose");
+   &piO, // options
+   "Pick rows");

@@ -863,12 +863,12 @@ static void runForValuesCommand(const QString &,
 
   const DataSet * ds = soas().currentDataSet();
 
-  QList<int> cols = columns.getValues(ds);
+  QList<Vector> cols = columns.getColumns(ds);
 
   for(int i = 0; i < ds->nbRows(); i++) {
     QStringList a;
-    for(int c : cols)
-      a << QString::number(ds->column(c)[i]);
+    for(const Vector & v : cols)
+      a << QString::number(v[i]);
     soas().prompt().runCommandFile(script, a, addToHistory, mode);
   }
 }
@@ -880,7 +880,7 @@ rfvArgs(QList<Argument *>()
                             "The script file")
         << new SeveralColumnsArgument("columns",
                                       "Columns",
-                                      "The columns to use as arguments for the script")
+                                      "The columns to use as arguments for the script", true, false, true)
         );
 
 static ArgumentList 

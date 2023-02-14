@@ -1151,7 +1151,8 @@ Vector ColumnSpecification::getColumn(const DataSet * ds) const
 }
 
 
-QStringList ColumnSpecification::validNames(const DataSet * ds, bool acceptNone)
+QStringList ColumnSpecification::validNames(const DataSet * ds,
+                                            bool acceptNone, bool acceptIndex)
 {
   QStringList rv;
   if(ds) {
@@ -1169,6 +1170,8 @@ QStringList ColumnSpecification::validNames(const DataSet * ds, bool acceptNone)
   }
   if(acceptNone)
     rv << "none";
+  if(acceptIndex)
+    rv << "0" << "i";
   return rv;
 }
 
@@ -1194,7 +1197,7 @@ QStringList ColumnArgument::proposeCompletion(const QString & starter) const
   QStringList cn =
     ColumnSpecification::validNames(soas().stack().
                                     currentDataSet(false),
-                                    acceptNone);
+                                    acceptNone, acceptIndex);
   return Utils::stringsStartingWith(cn, starter);
 }
 
@@ -1212,12 +1215,21 @@ QStringList ColumnArgument::toString(const ArgumentMarshaller * arg) const
   return rv;
 }
 
-QString ColumnArgument::typeDescription() const
+QString ColumnArgument::typeName() const
 {
   if(acceptNone)
-    return "The [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'";
-  else
-    return "The [number/name of a column](#column-names) in a dataset";
+    return "column-or-none";
+  return "column";
+};
+
+QString ColumnArgument::typeDescription() const
+{
+  QString s = "The [number/name of a column](#column-names) in a dataset";
+  if(acceptIndex)
+    s += " (including the index column i)";
+  if(acceptNone)
+    s += ", or 'none' to mean 'no column'";
+  return s;
 }
 
 ArgumentMarshaller * ColumnArgument::fromRuby(mrb_value value) const
@@ -1256,6 +1268,38 @@ QList<int> ColumnListSpecification::getValues(const DataSet * ds) const
   return cols;
 }
 
+QList<Vector> ColumnListSpecification::getColumns(const DataSet * ds) const
+{
+  QList<Vector> cols;
+  auto getColumn = [this, ds](int idx) -> Vector {
+    if(idx == -1) {
+      if(acceptIndex)
+        return Vector::indexVector(ds->nbRows());
+      else
+        throw RuntimeError("Cannot use index columns");
+    }
+    return ds->column(idx);
+  };
+  for(const QPair<ColumnSpecification, ColumnSpecification> & p : columns) {
+    int first = p.first.getValue(ds, -2);
+    if(first == -2)
+      throw RuntimeError("Invalid column: '%1'").arg(p.first.specification());
+    if(p.second.isValid()) {
+      int second = p.second.getValue(ds, -2);
+      if(second == -2)
+        throw RuntimeError("Invalid column: '%1'").
+          arg(p.second.specification());
+      while(first <= second) {
+        cols << getColumn(first);
+        ++first;
+      }
+    }
+    else
+      cols << getColumn(first);
+  }
+  return cols;
+}
+
 //////////////////////////////////////////////////////////////////////
 
 ArgumentMarshaller * SeveralColumnsArgument::fromString(const QString & str) const
@@ -1264,16 +1308,16 @@ ArgumentMarshaller * SeveralColumnsArgument::fromString(const QString & str) con
 
   QRegExp range("(.*)\\.\\.(.*)");
 
-  ColumnListSpecification rv;
+  ColumnListSpecification rv(acceptIndex);
   for(int i = 0; i < elems.size(); i++) {
     const QString & s = elems[i];
     QPair<ColumnSpecification, ColumnSpecification> spc;
     if(range.indexIn(s, 0) >= 0) {
-      spc.first = ColumnSpecification(range.cap(1));
-      spc.second = ColumnSpecification(range.cap(2));
+      spc.first = ColumnSpecification(range.cap(1), false, acceptIndex);
+      spc.second = ColumnSpecification(range.cap(2), false, acceptIndex);
     }
     else
-      spc.first = ColumnSpecification(s);
+      spc.first = ColumnSpecification(s, false, acceptIndex);
     rv.columns << spc;
   }
 
@@ -1303,7 +1347,11 @@ void SeveralColumnsArgument::concatenateArguments(ArgumentMarshaller * a,
 
 QString SeveralColumnsArgument::typeDescription() const
 {
-  return "A comma-separated list of [columns names](#column-names)";
+  if(acceptIndex)
+    return "A comma-separated list of [columns names](#column-names), including the index column";
+  else
+    return "A comma-separated list of [columns names](#column-names)";
+
 }
 
 ArgumentMarshaller * SeveralColumnsArgument::fromRuby(mrb_value value) const
@@ -1330,7 +1378,7 @@ QStringList SeveralColumnsArgument::proposeCompletion(const QString & starter) c
 {
   QStringList cn =
     ColumnSpecification::validNames(soas().stack().
-                                    currentDataSet(false), false);
+                                    currentDataSet(false), false, acceptIndex);
   // OK, so now a bit of fun.
   QRegExp ign("^(.*(\\.\\.|,))?(.*)");
   ign.indexIn(starter);

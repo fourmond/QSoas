@@ -676,7 +676,8 @@ public:
   QString specification() const;
 
   /// Returns all the valid column names for the given dataset.
-  static QStringList validNames(const DataSet * ds, bool acceptNone);
+  static QStringList validNames(const DataSet * ds, bool acceptNone,
+                                bool acceptIndex);
 
   /// Updates the target integer to be the givne option
   static void updateFromOptions(const CommandOptions & opts,
@@ -705,10 +706,7 @@ public:
   virtual ArgumentMarshaller * fromString(const QString & str) const override;
   QStringList toString(const ArgumentMarshaller * arg) const override;
 
-  virtual QString typeName() const override {
-    return "column";
-  };
-
+  virtual QString typeName() const override;
   virtual QString typeDescription() const override;
 
   virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
@@ -724,21 +722,33 @@ public:
 
 /// A list of columns
 class ColumnListSpecification {
+  bool acceptIndex;
 public:
+
+  explicit ColumnListSpecification(bool ai = false) :
+    acceptIndex(ai) {;};
+  
   QList<QPair<ColumnSpecification, ColumnSpecification> > columns;
 
   /// Returns the value, for the specific dataset.
   QList<int> getValues(const DataSet * ds) const;
+
+  /// Returns the vectors, for the given dataset
+  QList<Vector> getColumns(const DataSet * ds) const;
 };
 
 /// Several integers
 class SeveralColumnsArgument : public Argument {
+
+  bool acceptIndex;
 public:
 
   SeveralColumnsArgument(const char * cn, const char * pn,
-                          const char * d = "", bool sl = true, 
-                          bool def = false) : 
-    Argument(cn, pn, d, sl, def) {
+                         const char * d = "", bool sl = true, 
+                         bool def = false, bool _acceptIndex = false) : 
+    Argument(cn, pn, d, sl, def),
+    acceptIndex(_acceptIndex)
+  {
   }; 
   
   /// Returns a wrapped QList<int>

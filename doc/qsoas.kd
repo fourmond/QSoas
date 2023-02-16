@@ -423,7 +423,7 @@ repetitively as a [script](#scripting).
 
 ### `files-browser` - Browse files {#cmd-files-browser}
 
-`files-browser` **(interactive)**
+`files-browser` 
 
 
 {::comment} synopsis-end: files-browser {:/}
@@ -3980,15 +3980,16 @@ hidden dataset.
 
 ### `find-peaks` - Find peaks {#cmd-find-peaks}
 
-`find-peaks` `/accumulate=`_meta-data_{:title="comma separated list of names of meta-data to accumulate, see [here](#output-accumulate)"} `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/peaks=`_integer_{:title="an integer"} `/save-parameters=`_file_{:title="name of a file"} `/set-meta=`_meta-data_{:title="comma separated list of names of meta-data, or `a->b` specifications, see [here](#output-set-meta)"} `/threshold=`_number_{:title="a floating-point number"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"} `/window=`_integer_{:title="an integer"}
+`find-peaks` `/accumulate=`_value-names_{:title="comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)"} `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/peaks=`_integer_{:title="an integer"} `/save-parameters=`_file_{:title="name of a file"} `/set-global=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)"} `/set-meta=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-meta)"} `/threshold=`_number_{:title="a floating-point number"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"} `/window=`_integer_{:title="an integer"}
 
-  * `/accumulate=`_meta-data_{:title="comma separated list of names of meta-data to accumulate, see [here](#output-accumulate)"}: accumulate the given data into a dataset -- values: comma separated list of names of meta-data to accumulate, see [here](#output-accumulate)
+  * `/accumulate=`_value-names_{:title="comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)"}: accumulate the given data into a dataset -- values: comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)
   * `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to include borders -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"}: when writing to output file, also prints the listed meta-data -- values: comma-separated list of names of meta-data
   * `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to write data to output file (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/peaks=`_integer_{:title="an integer"}: Display only that many peaks (by order of intensity) -- values: an integer
   * `/save-parameters=`_file_{:title="name of a file"}: a file in which to save the peak parameters as fit parameters -- values: name of a file
-  * `/set-meta=`_meta-data_{:title="comma separated list of names of meta-data, or `a->b` specifications, see [here](#output-set-meta)"}: saves the results of the command as meta-data rather than/in addition to saving to the output file -- values: comma separated list of names of meta-data, or `a->b` specifications, see [here](#output-set-meta)
+  * `/set-global=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)"}: saves the results of the command into the $values global variable -- values: comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)
+  * `/set-meta=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-meta)"}: saves the results of the command as meta-data rather than/in addition to saving to the output file -- values: comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-meta)
   * `/threshold=`_number_{:title="a floating-point number"}: threshold for the peak Y value -- values: a floating-point number
   * `/which=`_choice_{:title="one of: `both`, `max`, `min`"}: selects which of minima and/or maxima to find -- values: one of: `both`, `max`, `min`
   * `/window=`_integer_{:title="an integer"}: width of the window -- values: an integer
@@ -4022,15 +4023,16 @@ to the ones of the fit.
 
 ### `echem-peaks` - Find peaks pairs {#cmd-echem-peaks}
 
-`echem-peaks` `/accumulate=`_meta-data_{:title="comma separated list of names of meta-data to accumulate, see [here](#output-accumulate)"} `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/pairs=`_integer_{:title="an integer"} `/save-parameters=`_file_{:title="name of a file"} `/set-meta=`_meta-data_{:title="comma separated list of names of meta-data, or `a->b` specifications, see [here](#output-set-meta)"} `/threshold=`_number_{:title="a floating-point number"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"} `/window=`_integer_{:title="an integer"}
+`echem-peaks` `/accumulate=`_value-names_{:title="comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)"} `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/pairs=`_integer_{:title="an integer"} `/save-parameters=`_file_{:title="name of a file"} `/set-global=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)"} `/set-meta=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-meta)"} `/threshold=`_number_{:title="a floating-point number"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"} `/window=`_integer_{:title="an integer"}
 
-  * `/accumulate=`_meta-data_{:title="comma separated list of names of meta-data to accumulate, see [here](#output-accumulate)"}: accumulate the given data into a dataset -- values: comma separated list of names of meta-data to accumulate, see [here](#output-accumulate)
+  * `/accumulate=`_value-names_{:title="comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)"}: accumulate the given data into a dataset -- values: comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)
   * `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to include borders -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"}: when writing to output file, also prints the listed meta-data -- values: comma-separated list of names of meta-data
   * `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to write data to output file (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/pairs=`_integer_{:title="an integer"}: Display (and output) only that many peak pairs (by order of intensity) -- values: an integer
   * `/save-parameters=`_file_{:title="name of a file"}: a file in which to save the peak parameters as fit parameters -- values: name of a file
-  * `/set-meta=`_meta-data_{:title="comma separated list of names of meta-data, or `a->b` specifications, see [here](#output-set-meta)"}: saves the results of the command as meta-data rather than/in addition to saving to the output file -- values: comma separated list of names of meta-data, or `a->b` specifications, see [here](#output-set-meta)
+  * `/set-global=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)"}: saves the results of the command into the $values global variable -- values: comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)
+  * `/set-meta=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-meta)"}: saves the results of the command as meta-data rather than/in addition to saving to the output file -- values: comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-meta)
   * `/threshold=`_number_{:title="a floating-point number"}: threshold for the peak Y value -- values: a floating-point number
   * `/which=`_choice_{:title="one of: `both`, `max`, `min`"}: selects which of minima and/or maxima to find -- values: one of: `both`, `max`, `min`
   * `/window=`_integer_{:title="an integer"}: width of the window -- values: an integer
@@ -4046,14 +4048,15 @@ about those.
 
 ### `1` - Find peak {#cmd-1}
 
-`1` `/accumulate=`_meta-data_{:title="comma separated list of names of meta-data to accumulate, see [here](#output-accumulate)"} `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/save-parameters=`_file_{:title="name of a file"} `/set-meta=`_meta-data_{:title="comma separated list of names of meta-data, or `a->b` specifications, see [here](#output-set-meta)"} `/threshold=`_number_{:title="a floating-point number"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"} `/window=`_integer_{:title="an integer"}
+`1` `/accumulate=`_value-names_{:title="comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)"} `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/save-parameters=`_file_{:title="name of a file"} `/set-global=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)"} `/set-meta=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-meta)"} `/threshold=`_number_{:title="a floating-point number"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"} `/window=`_integer_{:title="an integer"}
 
-  * `/accumulate=`_meta-data_{:title="comma separated list of names of meta-data to accumulate, see [here](#output-accumulate)"}: accumulate the given data into a dataset -- values: comma separated list of names of meta-data to accumulate, see [here](#output-accumulate)
+  * `/accumulate=`_value-names_{:title="comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)"}: accumulate the given data into a dataset -- values: comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)
   * `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to include borders -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"}: when writing to output file, also prints the listed meta-data -- values: comma-separated list of names of meta-data
   * `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to write data to output file (defaults to true) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/save-parameters=`_file_{:title="name of a file"}: a file in which to save the peak parameters as fit parameters -- values: name of a file
-  * `/set-meta=`_meta-data_{:title="comma separated list of names of meta-data, or `a->b` specifications, see [here](#output-set-meta)"}: saves the results of the command as meta-data rather than/in addition to saving to the output file -- values: comma separated list of names of meta-data, or `a->b` specifications, see [here](#output-set-meta)
+  * `/set-global=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)"}: saves the results of the command into the $values global variable -- values: comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)
+  * `/set-meta=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-meta)"}: saves the results of the command as meta-data rather than/in addition to saving to the output file -- values: comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-meta)
   * `/threshold=`_number_{:title="a floating-point number"}: threshold for the peak Y value -- values: a floating-point number
   * `/which=`_choice_{:title="one of: `both`, `max`, `min`"}: selects which of minima and/or maxima to find -- values: one of: `both`, `max`, `min`
   * `/window=`_integer_{:title="an integer"}: width of the window -- values: an integer
@@ -4071,14 +4074,15 @@ QSoas> find-peaks /peaks=1 /output=true
 
 ### `2` - Find two peaks {#cmd-2}
 
-`2` `/accumulate=`_meta-data_{:title="comma separated list of names of meta-data to accumulate, see [here](#output-accumulate)"} `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/save-parameters=`_file_{:title="name of a file"} `/set-meta=`_meta-data_{:title="comma separated list of names of meta-data, or `a->b` specifications, see [here](#output-set-meta)"} `/threshold=`_number_{:title="a floating-point number"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"} `/window=`_integer_{:title="an integer"}
+`2` `/accumulate=`_value-names_{:title="comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)"} `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/save-parameters=`_file_{:title="name of a file"} `/set-global=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)"} `/set-meta=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-meta)"} `/threshold=`_number_{:title="a floating-point number"} `/which=`_choice_{:title="one of: `both`, `max`, `min`"} `/window=`_integer_{:title="an integer"}
 
-  * `/accumulate=`_meta-data_{:title="comma separated list of names of meta-data to accumulate, see [here](#output-accumulate)"}: accumulate the given data into a dataset -- values: comma separated list of names of meta-data to accumulate, see [here](#output-accumulate)
+  * `/accumulate=`_value-names_{:title="comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)"}: accumulate the given data into a dataset -- values: comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)
   * `/include-borders=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to include borders -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"}: when writing to output file, also prints the listed meta-data -- values: comma-separated list of names of meta-data
   * `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to write data to output file (defaults to true) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/save-parameters=`_file_{:title="name of a file"}: a file in which to save the peak parameters as fit parameters -- values: name of a file
-  * `/set-meta=`_meta-data_{:title="comma separated list of names of meta-data, or `a->b` specifications, see [here](#output-set-meta)"}: saves the results of the command as meta-data rather than/in addition to saving to the output file -- values: comma separated list of names of meta-data, or `a->b` specifications, see [here](#output-set-meta)
+  * `/set-global=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)"}: saves the results of the command into the $values global variable -- values: comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)
+  * `/set-meta=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-meta)"}: saves the results of the command as meta-data rather than/in addition to saving to the output file -- values: comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-meta)
   * `/threshold=`_number_{:title="a floating-point number"}: threshold for the peak Y value -- values: a floating-point number
   * `/which=`_choice_{:title="one of: `both`, `max`, `min`"}: selects which of minima and/or maxima to find -- values: one of: `both`, `max`, `min`
   * `/window=`_integer_{:title="an integer"}: width of the window -- values: an integer
@@ -4097,14 +4101,15 @@ QSoas> find-peaks /peaks=2 /output=true
 
 ### `stats` - Statistics {#cmd-stats}
 
-`stats` (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/accumulate=`_meta-data_{:title="comma separated list of names of meta-data to accumulate, see [here](#output-accumulate)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="comma separated list of names of meta-data, or `a->b` specifications, see [here](#output-set-meta)"} `/stats=`_stats-names_{:title="one or more name of statistics (as displayed by stats), separated by `,`."} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`stats` (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/accumulate=`_value-names_{:title="comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-global=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)"} `/set-meta=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-meta)"} `/stats=`_stats-names_{:title="one or more name of statistics (as displayed by stats), separated by `,`."} `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): datasets to work on -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
-  * `/accumulate=`_meta-data_{:title="comma separated list of names of meta-data to accumulate, see [here](#output-accumulate)"}: accumulate the given data into a dataset -- values: comma separated list of names of meta-data to accumulate, see [here](#output-accumulate)
+  * `/accumulate=`_value-names_{:title="comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)"}: accumulate the given data into a dataset -- values: comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)
   * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"}: when writing to output file, also prints the listed meta-data -- values: comma-separated list of names of meta-data
   * `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to write data to output file (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/set-meta=`_meta-data_{:title="comma separated list of names of meta-data, or `a->b` specifications, see [here](#output-set-meta)"}: saves the results of the command as meta-data rather than/in addition to saving to the output file -- values: comma separated list of names of meta-data, or `a->b` specifications, see [here](#output-set-meta)
+  * `/set-global=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)"}: saves the results of the command into the $values global variable -- values: comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)
+  * `/set-meta=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-meta)"}: saves the results of the command as meta-data rather than/in addition to saving to the output file -- values: comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-meta)
   * `/stats=`_stats-names_{:title="one or more name of statistics (as displayed by stats), separated by `,`."}: writes only the given stats -- values: one or more name of statistics (as displayed by stats), separated by `,`.
   * `/use-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: makes statistics segment by segment (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
@@ -7997,11 +8002,12 @@ correlated). Adding `,log` switches to an exponential progression.
 
 ### `iterate-explorer` - Iterate explorer {#fit-cmd-iterate-explorer}
 
-`iterate-explorer` (`/script=`)_file_{:title="name of a file"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/improved-script=`_file_{:title="name of a file"} `/just-pick=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/linear-prefit=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/pre-script=`_file_{:title="name of a file"} **(fit command)**
+`iterate-explorer` (`/script=`)_file_{:title="name of a file"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/disable-auto-save=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/improved-script=`_file_{:title="name of a file"} `/just-pick=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/linear-prefit=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/pre-script=`_file_{:title="name of a file"} **(fit command)**
 
   * (`/script=`)_file_{:title="name of a file"} [(default option)](#default-option): script file run after the iteration -- values: name of a file
   * `/arg1=`_file_{:title="name of a file"}: First argument to the scripts -- values: name of a file
   * `/arg2=`_file_{:title="name of a file"}: Second argument to the scripts -- values: name of a file
+  * `/disable-auto-save=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true, the trajectories are not automatically saved at each iteration (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/improved-script=`_file_{:title="name of a file"}: script file run whenever the best residuals have improved -- values: name of a file
   * `/just-pick=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true, then just picks the next initial parameters, don't fit, don't iterate -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/linear-prefit=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true, runs a linear pre-fit on before running the real fit -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -8040,18 +8046,19 @@ mathematical operations.
 
 ### `eval` - Ruby eval {#cmd-eval}
 
-`eval` _codes..._{:title="several pieces of [Ruby code](#ruby)"} (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/accumulate=`_meta-data_{:title="comma separated list of names of meta-data to accumulate, see [here](#output-accumulate)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"} `/modify-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="comma separated list of names of meta-data, or `a->b` specifications, see [here](#output-set-meta)"} `/use-dataset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`eval` _codes..._{:title="several pieces of [Ruby code](#ruby)"} (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/accumulate=`_value-names_{:title="comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"} `/modify-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-global=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)"} `/set-meta=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-meta)"} `/use-dataset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
 Other name: `eval-cmd`
 
   * _codes..._{:title="several pieces of [Ruby code](#ruby)"}: Any ruby code -- values: several pieces of [Ruby code](#ruby)
   * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): Datasets to run eval on -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
-  * `/accumulate=`_meta-data_{:title="comma separated list of names of meta-data to accumulate, see [here](#output-accumulate)"}: accumulate the given data into a dataset -- values: comma separated list of names of meta-data to accumulate, see [here](#output-accumulate)
+  * `/accumulate=`_value-names_{:title="comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)"}: accumulate the given data into a dataset -- values: comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)
   * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"}: when writing to output file, also prints the listed meta-data -- values: comma-separated list of names of meta-data
   * `/modify-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Reads backs the modifications made to the $meta hash (implies /use-dataset=true) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to write data to output file (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/set-meta=`_meta-data_{:title="comma separated list of names of meta-data, or `a->b` specifications, see [here](#output-set-meta)"}: saves the results of the command as meta-data rather than/in addition to saving to the output file -- values: comma separated list of names of meta-data, or `a->b` specifications, see [here](#output-set-meta)
+  * `/set-global=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)"}: saves the results of the command into the $values global variable -- values: comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)
+  * `/set-meta=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-meta)"}: saves the results of the command as meta-data rather than/in addition to saving to the output file -- values: comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-meta)
   * `/use-dataset=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on (the default) and if there is a current dataset, the $meta and $stats hashes are available -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: eval {:/}
@@ -8692,10 +8699,53 @@ The `/error=` option controls how the scripts handle errors. See
 Runs the given script file for each of the datasets given. Before each
 invocation of the script, the dataset is pushed back to the top of the
 stack, as if by [cmd: fetch].
+**Note:** watch out whenever you use flags in combination with `run-for-datasets`, because the datasets pushed onto the stack also have the same flags, which means you are doubling the number of datasets flagged with a given flag, unless you take special precautions to either remove the flag or even [cmd: drop] the fetched dataset once it has been modified.
 
 The `/error=` option controls how the scripts handle errors. See
 [cmd: run] for more information.
 {::comment} description-end: run-for-datasets {:/}
+{::comment} synopsis-start: run-for-values {:/}
+
+### `run-for-values` - Runs a script with each row of a dataset {#cmd-run-for-values}
+
+`run-for-values` _script_{:title="name of a file"} _columns..._{:title="a comma-separated list of [columns names](#column-names)"} `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"} `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+
+  * _script_{:title="name of a file"}: The script file -- values: name of a file
+  * _columns..._{:title="a comma-separated list of [columns names](#column-names)"}: The columns to use as arguments for the script -- values: a comma-separated list of [columns names](#column-names)
+  * `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the commands run are added to the history (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"}: Behaviour to adopt on error -- values: one of: `abort`, `delete`, `except`, `ignore`
+  * `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to switch off display updates during the script (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+
+{::comment} synopsis-end: run-for-values {:/}
+{::comment} description-start: run-for-values {:/}
+This command runs a script once per row of the current dataset, using as parameters for the script the values contained in the columns given as the _columns_ argument. So for instance, if you have a dataset containing the following values:
+
+~~~
+1 2
+4 5
+~~~
+
+running the command:
+
+~~~
+QSoas> run-for-values script.cmds x y
+~~~
+
+is equivalent to running
+
+~~~
+QSoas> @ script.cmds 1 2
+QSoas> @ script.cmds 4 5
+~~~
+
+The `/error=`, `/silent=` and `/add-to-history=` options have the
+sames meanings as in the case of the command [cmd: run], see there for
+more information.
+
+
+
+{::comment} description-end: run-for-values {:/}
+
 {::comment} synopsis-start: noop {:/}
 
 ### `noop` - No op {#cmd-noop}

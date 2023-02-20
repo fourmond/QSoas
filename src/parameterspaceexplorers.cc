@@ -1915,9 +1915,9 @@ public:
 
 ArgumentList
 PermutationExplorer::args(QList<Argument*>() 
-                          << new SeveralStringsArgument("parameters",
+                          << (new SeveralStringsArgument("parameters",
                                                         "Parameters",
-                                                        "Parameter specification", true)
+                                                         "Parameter specification", true))->describe("A set of parameters to permute, separated by ','; use several times to specify several sets", "parameter-names")
                                  );
  
 ArgumentList

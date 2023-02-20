@@ -6119,6 +6119,10 @@ formula can contain any arbitrary function, just like the arbitrary
 fits, and can contain new parameters, and refer to the time `t` and to
 any of the concentrations.
 
+**Note**
+To define a new fit you could combine with others using 
+[cmd: combine-fits], use [cmd: define-kinetic-system-fit].
+
 ### Redox reactions
 
 
@@ -6145,15 +6149,20 @@ computation of Marcus rate is using a fast algorithm (see
 *2020*](http://dx.doi.org/10.1016/j.jelechem.2020.114762)).
 
 
-The parameter used for the electrode potential is called `e`. It is
-automatically taken from the data when you use the
-`/voltammogram=true` opion to [cmd: fit-ode] or
-[cmd: fit-kinetic-system], but you could maintain it constant or set
-it using [time dependent parameters](#time-dependent-parameters).
+The parameter used for the electrode potential is called `e` (note the
+**lowercase**). It is automatically taken from the data when you use
+the `/voltammogram=true` opion to [cmd: fit-ode] or
+[cmd: fit-kinetic-system], but you could maintain it constant or make
+it vary using [time dependent parameters](#time-dependent-parameters).
+
+If there are any redox reactions, a `j_elec` variable is available to
+use in the reporter expressions (i.e. using `y = `*something*), which
+corresponds to the "electrochemical current", i.e. the rate at which
+electrons are transferred according to the redox reactions in the
+kinetic system.
 
 
-To define a new fit you could combine with others using 
-[cmd: combine-fits], use [cmd: define-kinetic-system-fit].
+
 
 
 {::comment} synopsis-start: fit-kinetic-system {:/}
@@ -7870,6 +7879,21 @@ With `/just-look=true`, this command doesn't modify the fit
 parameters, but just displays in the terminal which parameters were
 found to be linear.
 {::comment} description-end: fit-linear-prefit {:/}
+{::comment} synopsis-start: fit-compute {:/}
+
+### `compute` - Compute {#fit-cmd-compute}
+
+`compute` **(fit command)**
+
+
+{::comment} synopsis-end: fit-compute {:/}
+{::comment} description-start: fit-compute {:/}
+Recomputes the function of the fit, as if clicking on the "Update"
+button. Useful after, i.e. [fit-cmd: linear-prefit], or any other
+function that changes the parameters without triggering a
+recomputation of the functions.
+
+{::comment} description-end: fit-compute {:/}
 
 
 
@@ -7899,6 +7923,23 @@ from within the fit prompt.
 {::comment} description-start: fit-system {:/}
 Like the other [cmd: system] command, runs an external program.
 {::comment} description-end: fit-system {:/}
+{::comment} synopsis-start: fit-head {:/}
+
+### `head` - Head {#fit-cmd-head}
+
+`head` _file_{:title="name of a file"} `/number=`_integer_{:title="an integer"} `/skip=`_integer_{:title="an integer"} **(fit command)**
+
+  * _file_{:title="name of a file"}: name of the file to show -- values: name of a file
+  * `/number=`_integer_{:title="an integer"}: number of lines to show -- values: an integer
+  * `/skip=`_integer_{:title="an integer"}: number of lines to skip -- values: an integer
+
+{::comment} synopsis-end: fit-head {:/}
+{::comment} description-start: fit-head {:/}
+Like the other [cmd: head] command, shows the beginning of a file in
+the terminal.
+{::comment} description-end: fit-head {:/}
+
+
 {::comment} synopsis-start: fit-push {:/}
 
 ### `push` - Push to stack {#fit-cmd-push}
@@ -7997,6 +8038,47 @@ ranging from -10 to +10. You can specify several parameters this way,
 they will be varied simultaneously (i.e. they will be linearly
 correlated). Adding `,log` switches to an exponential progression.
 {::comment} description-end: fit-linear-explorer {:/}
+{::comment} synopsis-start: fit-permutation-explorer {:/}
+
+### `permutation-explorer` - Permutation {#fit-cmd-permutation-explorer}
+
+`permutation-explorer` _parameters..._{:title="a set of parameters to permute, separated by ','; use several times to specify several sets"} `/fit-iterations=`_integer_{:title="an integer"} **(fit command)**
+
+  * _parameters..._{:title="a set of parameters to permute, separated by ','; use several times to specify several sets"}: Parameter specification -- values: a set of parameters to permute, separated by ','; use several times to specify several sets
+  * `/fit-iterations=`_integer_{:title="an integer"}: Maximum number of fit iterations -- values: an integer
+
+{::comment} synopsis-end: fit-permutation-explorer {:/}
+{::comment} description-start: fit-permutation-explorer {:/}
+This parameter space explorer tries all the permutation possible of
+the original parameters listed on the command-line. Sets of parameters
+are separated by commas. A new argument starts another set that
+permutes independently.
+
+For instance:
+
+~~~
+QSoas.fit> permutation-explorer k_a,k_b,k_c
+~~~
+
+will try all the permutations of the parameters `k_a`, `k_b` and `k_c`
+(so 6 parameters). The following:
+
+~~~
+QSoas.fit> permutation-explorer k_a,k_b,k_c k_e,k_f
+~~~
+
+tries all the permutations of `k_a`, `k_b` and `k_c` **in
+combination** with all the permutations of `k_e` and `k_f`, so 6 times
+2 iterations in total. On the other hand,
+
+~~~
+QSoas.fit> permutation-explorer k_a,k_b,k_c,k_e,k_f
+~~~
+
+tries all the permutations of `k_a`, `k_b`, `k_c`, `k_e` and `k_f`, so
+a total of 120 iterations.
+{::comment} description-end: fit-permutation-explorer {:/}
+
 
 {::comment} synopsis-start: fit-iterate-explorer {:/}
 

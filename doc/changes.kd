@@ -70,6 +70,45 @@ functions.
 
 See the full list of changes [below](#v2p0)
 
+# Changes in version 3.2 (28.02.2023) {#v3p2}
+
+## Fits
+
+ * **important** the [fit: eecr-relay-wave] fits were using a false
+   formula, leading to wrong fits. This version provides a corrected
+   and validated formula;
+ * the [cmd: defined-indexed-fit] makes it possible to define fits in
+   which a parameter is indexed on a meta-data, to make fits with
+   "partially global" parameters;
+ * parameter space explorers now save the trajectories on each
+   iteration;
+ * a [fit-cmd: compute] command to recompute the fit;
+ * a [fit-cmd: pick-from-trajectories] to pick the best parameters,
+   dataset-by-dataset from a list of trajectories;
+ * a [fit-cmd: permutation] explorer that allows one to try all the
+   possible permutations of one or several sets of parameters;
+ * enable the use of reporters in plain ODE fits;
+ * improvements of the trajectory displays, with better ways to hide
+   parameters and a new tab showing the parameters as a function of
+   perpendicular coordinates.
+
+## New command
+
+ * a [cmd: run-for-values] command to run scripts passing as arguments
+   the contents of a dataset, row by row.
+
+## Improvements of previous commands
+
+ * all the commands generating values (like [cmd: stats], etc...) can
+   now also save their results into the global ruby variable `$values`
+   using the `/set-global` option;
+ * the [cmd: linear-least-squares] command can now optionally generate
+   datasets with the fits or the residuals.
+
+## Other improvements
+
+ * better loading of fit parameter files as datasets;
+ * several bug fixes/small improvements.
 
 # Changes in version 3.1 (28.09.2022) {#v3p1}
 

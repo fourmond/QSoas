@@ -1,2 +1,4 @@
 @ globs.cmds
-@ zip.cmds
+
+# Not necessary for now
+# @ zip.cmds

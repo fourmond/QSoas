@@ -180,16 +180,9 @@ mrb_value MRuby::protect(const std::function<mrb_value ()> &function)
 
 void MRuby::throwIfException(mrb_value obj)
 {
-  // printf("except: %p\n", mrb->eException_class);
-#if MRUBY_RELEASE_MAJOR == 1
   if(mrb_obj_is_kind_of(mrb, obj, mrb->eException_class)) {
     throw RuntimeError("A ruby exception occurred: %1").arg(inspect(obj));
   }
-#elif MRUBY_RELEASE_MAJOR == 2
-  if(mrb_class(mrb, obj)->tt == MRB_TT_EXCEPTION) {
-    throw RuntimeError("A ruby exception occurred: %1").arg(inspect(obj));
-  }
-#endif
 }
 
 

@@ -229,10 +229,17 @@ win32 {
   system($$RUBY prepare-wix-input.rb $$FULL_VERSION $$VERSION)
   LIBS += -lpsapi
 }
-                 
+
+SOURCES += src/qmain.cc
+
+# mruby
+HEADERS += src/mruby.hh
+SOURCES += src/mruby.cc \
+           src/ruby-regexp.cc
+
 
 # Input files
-SOURCES += src/qmain.cc \
+SOURCES += \
         src/mainwin.cc \
         src/command.cc \
         src/group.cc \
@@ -540,11 +547,6 @@ HEADERS += src/headers.hh \
         src/contourlines.hh \
         src/filebrowser.hh \
         src/linearfunctions.hh
-
-# mruby
-HEADERS += src/mruby.hh
-SOURCES += src/mruby.cc \
-           src/ruby-regexp.cc
 
 
 # complex numbers

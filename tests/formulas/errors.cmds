@@ -1,0 +1,9 @@
+generate-dataset 0 10 /samples=11
+apply-formula y=sqrt(7-x)
+assert $stats.x_max-7 0
+
+generate-dataset 0 10 /samples=11
+apply-formula y=sqrt(7-x) /keep-on-error=true
+assert $stats.x_max-10 0
+strip-if y.nan?
+assert $stats.x_max-7 0

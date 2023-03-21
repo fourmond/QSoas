@@ -109,6 +109,7 @@ See the full list of changes [below](#v2p0)
 
  * better loading of fit parameter files as datasets;
  * several bug fixes/small improvements.
+ * better handling of mruby 2.1, mruby 3 is currently not supported
 
 # Changes in version 3.1 (28.09.2022) {#v3p1}
 

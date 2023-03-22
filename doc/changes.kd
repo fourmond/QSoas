@@ -1,3 +1,23 @@
+# What's new in version 3.2 ?
+
+Version 3.2 is mostly a bug-fix release, fixing a mistake in the EEC
+reversible with relay fits, see
+[the correction](https://pubs.acs.org/doi/10.1021/jacs.3c01652) of the
+original article. All users of the [fit: eecr-relay-wave] fit are
+strongly encouraged to rerun their fits with the new version.
+
+In addition to this important fix, new possibilities have been added,
+including a way to make fits with "partially global" parameters, to
+pick the best parameters dataset-by-dataset within fit trajectories,
+a parameter space explorer trying all possible permutations of a set
+of parameters, and the possibility to save the results of a command to
+a global ruby variable.
+
+It also includes a series of improvements of already existing commands.
+
+See the full list of changes [below](#v3p2)
+
+
 # What's new in version 3.1 ?
 
 Version 3.1 brings many improvements to the fit system, including more
@@ -70,14 +90,14 @@ functions.
 
 See the full list of changes [below](#v2p0)
 
-# Changes in version 3.2 (28.02.2023) {#v3p2}
+# Changes in version 3.2 (22.03.2023) {#v3p2}
 
 ## Fits
 
  * **important** the [fit: eecr-relay-wave] fits were using a false
    formula, leading to wrong fits. This version provides a corrected
-   and validated formula;
- * the [cmd: defined-indexed-fit] makes it possible to define fits in
+   and validated formula (see [the correction](https://pubs.acs.org/doi/10.1021/jacs.3c01652));
+ * the [cmd: define-indexed-fit] command makes it possible to define fits in
    which a parameter is indexed on a meta-data, to make fits with
    "partially global" parameters;
  * parameter space explorers now save the trajectories on each
@@ -85,7 +105,7 @@ See the full list of changes [below](#v2p0)
  * a [fit-cmd: compute] command to recompute the fit;
  * a [fit-cmd: pick-from-trajectories] to pick the best parameters,
    dataset-by-dataset from a list of trajectories;
- * a [fit-cmd: permutation] explorer that allows one to try all the
+ * a [fit-cmd: permutation-explorer] explorer that allows one to try all the
    possible permutations of one or several sets of parameters;
  * enable the use of reporters in plain ODE fits;
  * improvements of the trajectory displays, with better ways to hide
@@ -109,6 +129,7 @@ See the full list of changes [below](#v2p0)
 
  * better loading of fit parameter files as datasets;
  * several bug fixes/small improvements.
+ * better handling of mruby 2.1, mruby 3 is currently not supported
 
 # Changes in version 3.1 (28.09.2022) {#v3p1}
 

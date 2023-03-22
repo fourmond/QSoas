@@ -4577,6 +4577,40 @@ By default, this command refuses to redefine an existing fit; use
 `/redefine=true` if that is what you want to do.
 {::comment} description-end: reparametrize-fit {:/}
 
+{::comment} synopsis-start: define-indexed-fit {:/}
+
+### `define-indexed-fit` - Define an indexed fit {#cmd-define-indexed-fit}
+
+`define-indexed-fit` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _fit_{:title="the name of a fit (without the fit- prefix)"} _meta_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _parameters..._{:title="several words, separated by ','"} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+
+  * _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: name of the new fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _fit_{:title="the name of a fit (without the fit- prefix)"}: the fit to modify -- values: the name of a fit (without the fit- prefix)
+  * _meta_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Meta-data to index on -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _parameters..._{:title="several words, separated by ','"}: a comma-separated list of parameters to index -- values: several words, separated by ','
+  * `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If the new fit already exists, redefines it -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+
+{::comment} synopsis-end: define-indexed-fit {:/}
+{::comment} description-start: define-indexed-fit {:/}
+Creates a new fit called _name_ based on the existing fit _fit_, in
+which the parameters listed on the command line are now indexed on the
+meta named _meta_. For instance, running this command
+
+~~~
+QSoas> define-indexed-fit ex exponential-decay a A_1
+~~~
+
+and then running the `ex` fit on a series of datasets that have either
+`1` or `2` as value of the meta-data `a` will yield a fit in which the
+parameter `A_1` is replaced by `A_1_1` and `A_1_2`, each of these
+parameters applying only to the datasets with the corresponding value
+of `a`.
+
+The purpose of this command is to create fits with "semi-global"
+parameters that are common to only a subset of the datasets that share
+the sames values of a given meta-data.
+{::comment} description-end: define-indexed-fit {:/}
+
+
 
 ## Exponential fits
 
@@ -7524,6 +7558,34 @@ of x, the residuals (including the global residuals for a multifit)
 and finally the dataset weight.
 
 {::comment} description-end: fit-export {:/}
+{::comment} synopsis-start: fit-push-parameters {:/}
+
+### `push-parameters` - Push parameters {#fit-cmd-push-parameters}
+
+`push-parameters` **(fit command)**
+
+
+{::comment} synopsis-end: fit-push-parameters {:/}
+{::comment} description-start: fit-push-parameters {:/}
+Pushes the current parameters to the stack as if using the
+"Parameters/Push with errors" menu item.
+{::comment} description-end: fit-push-parameters {:/}
+{::comment} synopsis-start: fit-output {:/}
+
+### `output` - Change output file {#fit-cmd-output}
+
+`output` (`/file=`)_file_{:title="name of a file"} `/meta=`_words_{:title="several words, separated by ','"} `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reopen=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} **(fit command)**
+
+  * (`/file=`)_file_{:title="name of a file"} [(default option)](#default-option): name of the new output file -- values: name of a file
+  * `/meta=`_words_{:title="several words, separated by ','"}: when writing to output file, also prints the listed meta-data -- values: several words, separated by ','
+  * `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, overwrites the file instead of appending (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/reopen=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, forces reopening the file (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+
+{::comment} synopsis-end: fit-output {:/}
+{::comment} description-start: fit-output {:/}
+Same as the regular [cmd: output] command.
+{::comment} description-end: fit-output {:/}
+
 {::comment} synopsis-start: fit-reset {:/}
 
 ### `reset` - Reset {#fit-cmd-reset}
@@ -7706,6 +7768,20 @@ options.
 If `/sort` is given, the trajectories will first be sorted according to
 the criteria (`date` or `residuals`) before running the script.
 {::comment} description-end: fit-run-for-trajectories {:/}
+{::comment} synopsis-start: fit-pick-from-trajectories {:/}
+
+### `pick-from-trajectories` - Pick parameters from trajectories {#fit-cmd-pick-from-trajectories}
+
+`pick-from-trajectories` _trajectories_{:title="fit Trajectories"} `/parameters=`_choice_{:title="one of: `final`, `initial`"} **(fit command)**
+
+  * _trajectories_{:title="fit Trajectories"}: trajectories to run -- values: fit Trajectories
+  * `/parameters=`_choice_{:title="one of: `final`, `initial`"}: which parameters to use -- values: one of: `final`, `initial`
+
+{::comment} synopsis-end: fit-pick-from-trajectories {:/}
+{::comment} description-start: fit-pick-from-trajectories {:/}
+For each dataset, picks the parameters according to the trajectory
+giving the best residuals **for this dataset**.
+{::comment} description-end: fit-pick-from-trajectories {:/}
 
 
 ## Miscellaneous commands
@@ -7832,6 +7908,22 @@ command.
 Like the other [cmd: run-for-each], runs a script for several values
 of its first parameter.
 {::comment} description-end: fit-run-for-each {:/}
+{::comment} synopsis-start: fit-let {:/}
+
+### `let` - Define a named parameter {#fit-cmd-let}
+
+`let` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _value_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(fit command)**
+
+  * _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: the name of the parameter -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _value_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: the value of the parameter -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+
+{::comment} synopsis-end: fit-let {:/}
+{::comment} description-start: fit-let {:/}
+Like the other [cmd: let] command, this command lets you define named
+parameters from within scripts.
+{::comment} description-end: fit-let {:/}
+
+
 {::comment} synopsis-start: fit-verify {:/}
 
 ### `verify` - Verify {#fit-cmd-verify}
@@ -8903,6 +8995,7 @@ listed here:
  * [`define-distribution`](#cmd-define-distribution)
  * [`define-distribution-fit`](#cmd-define-distribution-fit)
  * [`define-implicit-fit`](#cmd-define-implicit-fit)
+ * [`define-indexed-fit`](#cmd-define-indexed-fit)
  * [`define-kinetic-system-fit`](#cmd-define-kinetic-system-fit)
  * [`diff`](#cmd-diff)
  * [`diff2`](#cmd-diff2)
@@ -8917,6 +9010,7 @@ listed here:
  * [`eval`](#cmd-eval)
  * [`expand`](#cmd-expand)
  * [`fetch`](#cmd-fetch)
+ * [`files-browser`](#cmd-files-browser)
  * [`find-peaks`](#cmd-find-peaks)
  * [`find-root`](#cmd-find-root)
  * [`find-steps`](#cmd-find-steps)
@@ -8970,6 +9064,7 @@ listed here:
  * [`run`](#cmd-run)
  * [`run-for-datasets`](#cmd-run-for-datasets)
  * [`run-for-each`](#cmd-run-for-each)
+ * [`run-for-values`](#cmd-run-for-values)
  * [`save`](#cmd-save)
  * [`save-datasets`](#cmd-save-datasets)
  * [`save-history`](#cmd-save-history)

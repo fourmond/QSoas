@@ -90,14 +90,14 @@ functions.
 
 See the full list of changes [below](#v2p0)
 
-# Changes in version 3.2 (28.02.2023) {#v3p2}
+# Changes in version 3.2 (22.03.2023) {#v3p2}
 
 ## Fits
 
  * **important** the [fit: eecr-relay-wave] fits were using a false
    formula, leading to wrong fits. This version provides a corrected
    and validated formula (see [the correction](https://pubs.acs.org/doi/10.1021/jacs.3c01652));
- * the [cmd: defined-indexed-fit] makes it possible to define fits in
+ * the [cmd: define-indexed-fit] command makes it possible to define fits in
    which a parameter is indexed on a meta-data, to make fits with
    "partially global" parameters;
  * parameter space explorers now save the trajectories on each

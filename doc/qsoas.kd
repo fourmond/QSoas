@@ -7772,10 +7772,10 @@ the criteria (`date` or `residuals`) before running the script.
 
 ### `pick-from-trajectories` - Pick parameters from trajectories {#fit-cmd-pick-from-trajectories}
 
-`pick-from-trajectories` _trajectories_{:title="fit Trajectories"} `/parameters=`_choice_{:title="one of: `fi$
+`pick-from-trajectories` _trajectories_{:title="fit Trajectories"} `/parameters=`_choice_{:title="one of: `final`, `initial`"} **(fit command)**
 
   * _trajectories_{:title="fit Trajectories"}: trajectories to run -- values: fit Trajectories
-  * `/parameters=`_choice_{:title="one of: `final`, `initial`"}: which parameters to use -- values: one of: `$
+  * `/parameters=`_choice_{:title="one of: `final`, `initial`"}: which parameters to use -- values: one of: `final`, `initial`
 
 {::comment} synopsis-end: fit-pick-from-trajectories {:/}
 {::comment} description-start: fit-pick-from-trajectories {:/}
@@ -7908,6 +7908,22 @@ command.
 Like the other [cmd: run-for-each], runs a script for several values
 of its first parameter.
 {::comment} description-end: fit-run-for-each {:/}
+{::comment} synopsis-start: fit-let {:/}
+
+### `let` - Define a named parameter {#fit-cmd-let}
+
+`let` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _value_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(fit command)**
+
+  * _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: the name of the parameter -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _value_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: the value of the parameter -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+
+{::comment} synopsis-end: fit-let {:/}
+{::comment} description-start: fit-let {:/}
+Like the other [cmd: let] command, this command lets you define named
+parameters from within scripts.
+{::comment} description-end: fit-let {:/}
+
+
 {::comment} synopsis-start: fit-verify {:/}
 
 ### `verify` - Verify {#fit-cmd-verify}

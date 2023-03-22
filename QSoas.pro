@@ -39,7 +39,7 @@ CONFIG -= console
 
 # The version should be provided on the command-line.
 isEmpty(VERSION) {
-  VERSION = 3.1
+  VERSION = 3.2
 }
 
 # We attempt to make a universal binary on mac

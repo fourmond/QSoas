@@ -3,4 +3,8 @@
 @ ruby-functions.cmds
 @ nesting.cmds
 @ evals.cmds
+
+@ detection.cmds
+
 @ linear-solve.cmds
+

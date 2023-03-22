@@ -148,7 +148,25 @@ public:
   void defineModuleFunction(struct RClass* cls, const char* name,
                             mrb_func_t func, mrb_aspec aspec);
 
-  /// Detects the "external parameters" for the given code.
+
+
+
+
+  /// Detects the "external parameters" for the given code, using a
+  /// native detection mode, i.e. asking mruby what it thinks the
+  /// parameters are.
+  QStringList detectParametersNative(const QByteArray & code,
+                                     QStringList * localVariables = NULL);
+
+  /// Detects the "external parameters" for the given code.  Unlike
+  /// the detectParameters, this does not rely on a deep understanding
+  /// of the code, but rather a rough parsing of it. It seems good
+  /// enough in fact.
+  static QStringList detectParametersApprox(const QByteArray & code,
+                                            QStringList * localVariables = NULL);
+
+  /// Detects the "external parameters" for the given code. This may
+  /// either be detectParametersNative or detectParametersApprox
   QStringList detectParameters(const QByteArray & code,
                                QStringList * localVariables = NULL);
 
@@ -187,6 +205,9 @@ public:
   /// Iterates over the array, running the function.
   void arrayIterate(mrb_value array,
                     const std::function <void (mrb_value)> & func);
+
+  /// Creates an array of strings from a Qt string list.
+  mrb_value arrayFromStringList(const QStringList & lst);
 
   /// @}
 

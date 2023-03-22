@@ -286,11 +286,67 @@ mrb_value MRuby::eval(QIODevice * device)
 }
 
 
+QStringList MRuby::detectParametersApprox(const QByteArray & code,
+                                          QStringList * locals)
+{
+
+  // OK. We look for every word in the text.
+  // Starting with a lowercase
+  // If it is preceded by $, drop it.
+  // If it is preceded by a ., even long before, drop it too.
+  // If it is followed by a (, drop it
+  // If it is followed by an alnum number, it's likely a funcall
+  // If it is followed by a =, that's a local.
+  // Else, that's a parameter.
+
+  QString s(code);
+  QRegExp re("\\b([a-z_]\\w*)\\b");
+  int idx = 0;
+  int base = 0;
+  QSet<QString> vars;
+  QSet<QString> lcls;
+  while(true) {
+    idx = re.indexIn(s, base);
+    if(idx < 0)
+      break;
+    QString v = re.cap(1);
+    base = idx + v.size();
+    if(idx > 0 && s[idx-1] == '$')
+      continue;                 // global variable
+
+    int i = idx-1;
+    while(i >= 0 && s[i].isSpace())
+      i--;
+    if(i >= 0 && s[i] == '.')
+      continue;                 // A call to member
+
+    i = base;
+    while(i < s.size() && s[i].isSpace())
+      i++;
+    if(i < s.size() && s[i] == '(')
+      continue;                 // A funcall
+    if(i < s.size() && (s[i].isLetterOrNumber() || s[i] == '_'))
+      continue;                 // A funcall
+    if(i < s.size()-1 && s[i] == '=' && s[i+1] != '=')
+      lcls.insert(v);
+    vars.insert(v);
+  }
+
+  for(const QString & s : lcls)
+    vars.remove(s);
+  if(locals)
+    *locals = lcls.toList();
+
+  return vars.toList();
+}
+  
+
+
 #if MRUBY_RELEASE_MAJOR == 1
 
 
-QStringList MRuby::detectParameters(const QByteArray & code,
-                                    QStringList * locals)
+QStringList MRuby::detectParametersNative(const QByteArray & code,
+                                          QStringList * locals)
 {
   STACK_DUMP;
   MRubyArenaContext c(this);
@@ -338,8 +394,8 @@ QStringList MRuby::detectParameters(const QByteArray & code,
 
 #define CASE(insn,ops) case insn: FETCH_ ## ops (); L_ ## insn
 
-QStringList MRuby::detectParameters(const QByteArray & code,
-                                    QStringList * locals)
+QStringList MRuby::detectParametersNative(const QByteArray & code,
+                                          QStringList * locals)
 {
   STACK_DUMP;
   MRubyArenaContext c(this);
@@ -515,7 +571,29 @@ QStringList MRuby::detectParameters(const QByteArray & code,
   return l;
 }
 
+#else
+
+QStringList MRuby::detectParametersNative(const QByteArray & code,
+                                          QStringList * locals)
+{
+  if(*locals)
+    *locals = QStringList();
+  return QStringList();
+}
+
 #endif
+
+
+QStringList MRuby::detectParameters(const QByteArray & code,
+                                    QStringList * locals)
+{
+
+#if MRUBY_RELEASE_MAJOR == 1
+  return detectParametersNative(code, locals);
+#else
+  return detectParametersApprox(code, locals);
+#endif
+}
 
 struct RClass * MRuby::defineModule(const char * name)
 {
@@ -675,6 +753,13 @@ void MRuby::arrayIterate(mrb_value array,
   }
 }
 
+mrb_value MRuby::arrayFromStringList(const QStringList & lst)
+{
+  mrb_value v = newArray();
+  for(const QString & s : lst)
+    arrayPush(v, fromQString(s));
+  return v;
+}
 
 void MRuby::setGlobal(const char * name, mrb_value val)
 {
@@ -834,13 +919,30 @@ bool MRuby::isInferior(mrb_value a, mrb_value b)
 
 
 static void mRubyArgs(const QString &, QString code,
-                      const CommandOptions & )
+                      const CommandOptions & opts)
 {
   MRuby * r = MRuby::ruby();
+  bool native = true;
+  updateFromOptions(opts, "native", native);
+
+  bool setGlobals = false;
+  updateFromOptions(opts, "set-globals", setGlobals);
   QStringList locals;
-  QStringList vars = r->detectParameters(code.toLocal8Bit(), &locals);
+  QStringList vars =
+    native ? r->detectParametersNative(code.toLocal8Bit(), &locals) :
+    MRuby::detectParametersApprox(code.toLocal8Bit(), &locals);
+  std::sort(locals.begin(), locals.end());
+  std::sort(vars.begin(), vars.end());
   Terminal::out << " => " << vars.join(", ") << endl;
   Terminal::out << "Local variables: " << locals.join(", ") << endl;
+
+  if(setGlobals) {
+    Terminal::out << "Setting global variables" << endl;
+    mrb_value v = r->arrayFromStringList(vars);
+    r->setGlobal("$params", v);
+    v = r->arrayFromStringList(locals);
+    r->setGlobal("$locals", v);
+  }
 }
 
 static ArgumentList 
@@ -849,11 +951,21 @@ eA(QList<Argument *>()
                          "Code",
                          "Ruby code"));
 
+static ArgumentList 
+eO(QList<Argument *>() 
+   << new BoolArgument("native", 
+                       "Native",
+                       "Use 'native' detection")
+   << new BoolArgument("set-globals", 
+                       "Set globals",
+                       "Set globals ")
+   );
+
 static Command 
 ar("mruby-detect-args", // command name
    effector(mRubyArgs), // action
    "file",  // group name
    &eA, // arguments
-   NULL,
+   &eO,
    "Ruby args",
    "Detects the arguments within a Ruby expression", "");

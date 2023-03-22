@@ -1,0 +1,44 @@
+# This file tests for parameter detection
+
+
+# Watch out, the names are sorted alphabetically 
+mruby-detect-args /set-globals=true a*x+b
+assert '$params[0]=="a"'
+assert '$params[1]=="b"'
+assert '$params[2]=="x"'
+
+mruby-detect-args /set-globals=true sin(a)*x+b
+assert '$params[0]=="a"'
+assert '$params[1]=="b"'
+assert '$params[2]=="x"'
+
+
+mruby-detect-args /set-globals=true y=a**b;a*x+c
+assert '$params[0]=="a"'
+assert '$params[1]=="b"'
+assert '$params[2]=="c"'
+assert '$params[3]=="x"'
+assert '$locals[0]=="y"'
+
+mruby-detect-args /set-globals=true y=$c.my_a**b
+assert '$params[0]=="b"'
+assert '$locals[0]=="y"'
+
+
+# Now, a series of comparisons native vs mine
+## INLINE: cmp
+mruby-detect-args /set-globals=true /native=true "${1}"
+eval $p1=$params;$l1=$locals
+mruby-detect-args /set-globals=true /native=false "${1}"
+assert $p1==$params
+assert $l1==$locals
+## INLINE END
+
+@ inline:cmp a*x+b
+@ inline:cmp sin(a)**x+b
+@ inline:cmp y=a**x;sin(a)**x+b
+@ inline:cmp y=a**x;sin(a)**x+b*$c.stuff
+# Hmmm. Here is where my heuristic is actually better.
+# @ inline:cmp y=a**x;w+=2;sin(a)**x+b
+
+@ inline:cmp sin(a,x,y,2.0,v_dd,dd)

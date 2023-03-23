@@ -286,6 +286,10 @@ mrb_value MRuby::eval(QIODevice * device)
 }
 
 
+// OK, this really doesn't work because it neglects completely quotes.
+// To make this useful, one needs to remove quoted text, but keep the
+// #{ } expansions.
+// Hmm.
 QStringList MRuby::detectParametersApprox(const QByteArray & code,
                                           QStringList * locals)
 {
@@ -319,6 +323,8 @@ QStringList MRuby::detectParametersApprox(const QByteArray & code,
       i--;
     if(i >= 0 && s[i] == '.')
       continue;                 // A call to member
+    if(i >= 0 && s[i] == ':')
+      continue;                 // A symbol
 
     i = base;
     while(i < s.size() && s[i].isSpace())
@@ -589,6 +595,8 @@ QStringList MRuby::detectParameters(const QByteArray & code,
 {
 
 #if MRUBY_RELEASE_MAJOR == 1
+  return detectParametersNative(code, locals);
+#elif MRUBY_RELEASE_MAJOR == 2
   return detectParametersNative(code, locals);
 #else
   return detectParametersApprox(code, locals);

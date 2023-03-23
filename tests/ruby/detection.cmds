@@ -42,3 +42,6 @@ assert $l1==$locals
 # @ inline:cmp y=a**x;w+=2;sin(a)**x+b
 
 @ inline:cmp sin(a,x,y,2.0,v_dd,dd)
+
+# Quoting, argh !
+@ inline:cmp "a+$stats['stuff']"

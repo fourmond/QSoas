@@ -14,6 +14,9 @@
 # (version)+(date)-name-+r(rev)+...
 
 version = ARGV[0]
+# Remove the -win64 suffix, useless
+version.sub!(/-win64$/,'')
+
 if version =~ /(.*)\+.*\+r(\d+)/
   pre = $1
   rev = $2.to_i

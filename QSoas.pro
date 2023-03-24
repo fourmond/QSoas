@@ -203,12 +203,19 @@ LIBS += -lgsl -lgslcblas -lm
 ! isEmpty(MRUBY_DIR) {
   # We add the directory to both the include path and the lib path:
   message("Building against MRUBY in directory: $$MRUBY_DIR")
-  exists($${MRUBY_DIR}/build/host-debug/lib) {
-    LIBS += -L$$MRUBY_DIR/build/host-debug/lib
-  } else {
-    LIBS += -L$$MRUBY_DIR/lib
+  exists($${MRUBY_DIR}/bin/mruby-config) {
+    QMAKE_CXXFLAGS += $$system($${MRUBY_DIR}/bin/mruby-config --cflags)
+    LIBS += $$system($${MRUBY_DIR}/bin/mruby-config --ldflags)
+    LIBS += $$system($${MRUBY_DIR}/bin/mruby-config --libs)
   }
-  INCLUDEPATH += $$MRUBY_DIR/include
+  else {
+    exists($${MRUBY_DIR}/build/host-debug/lib) {
+      LIBS += -L$$MRUBY_DIR/build/host-debug/lib
+    } else {
+      LIBS += -L$$MRUBY_DIR/lib
+    }
+    INCLUDEPATH += $$MRUBY_DIR/include
+  }
 
 # IMPORTANT NOTE: we need a recent version on mruby,
 # https://github.com/mruby/mruby/commit/7450a774a5f796f7e9d312ba9c9690097f4aa309,
@@ -216,6 +223,8 @@ LIBS += -lgsl -lgslcblas -lm
 }
 
 LIBS += -lmruby
+
+
 ######################################################################
 
 

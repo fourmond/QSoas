@@ -258,6 +258,8 @@ mrb_value MRuby::eval(const QByteArray & code,
                       const QString & fileName, int line)
 {
   STACK_DUMP;
+  // QTextStream o(stdout);
+  // o << "Eval: " << code << endl;
   MRubyArenaContext c(this);
   RProc * proc = generateCode(code, fileName, line);
   return protect([this, proc]() -> mrb_value {
@@ -286,11 +288,98 @@ mrb_value MRuby::eval(QIODevice * device)
 }
 
 
+QByteArray MRuby::annotateQuotes(const QString & code)
+{
+  unsigned nesting = 0;
+  unsigned quote = 0;
+  int next = -1;
+  // 0 = unquoted, 1 = single, 2 = double
+  bool esc = false;
+  bool hash = false;
+  QByteArray rv;
+  // QTextStream o(stdout);
+  // o << "Code:" << code << endl;
+  for(QChar c : code) {
+    if(next >= 0)
+      quote = next;
+    next = -1;
+    switch(c.toLatin1()) {
+    case '\'':
+      if(esc) {
+        esc = false;
+      }
+      else {
+        if(quote == 1)
+          next = 0;
+        else if(quote == 0)
+          quote = 1;
+      }
+      break;
+    case '"':
+      if(esc) {
+        esc = false;
+      }
+      else {
+        if(quote == 2)
+          next = 0;
+        else if(quote == 0)
+          quote = 2;
+      }
+      break;
+    case '\\':
+      esc = !esc;
+      break;
+    case '#':
+      hash = true;
+      break;
+    case '{':
+      if(esc)
+        esc = false;
+      else {
+        if(quote == 2 && hash) {
+          // nesting
+          nesting += 1;
+          quote = 0;
+        }
+      }
+      break;
+    case '}':
+      if(esc)
+        esc = false;
+      else {
+        if(quote == 0 && nesting > 0) {
+          --nesting;
+          next = 2;
+        }
+      }
+      break;
+    default:
+      if(esc)
+        esc = false;
+    }
+    // o << "c: " << c << " q: " << quote << endl;
+    unsigned val = nesting << 2;
+    val |= quote;
+    // o << " -> val: " << val;
+    rv.append(val);
+  }
+  return rv;
+}
+
+
+QStringList MRuby::detectParametersApprox(const QByteArray & code,
+                                          QStringList * locals)
+{
+  QString c = code;
+  return detectParametersApprox(c, locals);
+}
+
+
 // OK, this really doesn't work because it neglects completely quotes.
 // To make this useful, one needs to remove quoted text, but keep the
 // #{ } expansions.
 // Hmm.
-QStringList MRuby::detectParametersApprox(const QByteArray & code,
+QStringList MRuby::detectParametersApprox(const QString & code,
                                           QStringList * locals)
 {
 
@@ -303,7 +392,14 @@ QStringList MRuby::detectParametersApprox(const QByteArray & code,
   // If it is followed by a =, that's a local.
   // Else, that's a parameter.
 
-  QString s(code);
+  QString s = code;
+  QByteArray qts = annotateQuotes(code);
+  for(int i = 0; i < code.size(); i++) {
+    if(qts[i] & 0x03 > 0)       // Replace quoted stuff by spaces.
+                                // Should work fine.
+      s[i] = ' ';
+  }
+
   QRegExp re("\\b([a-z_]\\w*)\\b");
   int idx = 0;
   int base = 0;
@@ -319,7 +415,7 @@ QStringList MRuby::detectParametersApprox(const QByteArray & code,
       continue;                 // global variable
 
     int i = idx-1;
-    while(i >= 0 && s[i].isSpace())
+    while(i >= 0 && (s[i].isSpace() && s[i] != '\n'))
       i--;
     if(i >= 0 && s[i] == '.')
       continue;                 // A call to member
@@ -327,21 +423,39 @@ QStringList MRuby::detectParametersApprox(const QByteArray & code,
       continue;                 // A symbol
 
     i = base;
-    while(i < s.size() && s[i].isSpace())
+    while(i < s.size() && (s[i].isSpace() && s[i] != '\n'))
       i++;
     if(i < s.size() && s[i] == '(')
       continue;                 // A funcall
     if(i < s.size() && (s[i].isLetterOrNumber() || s[i] == '_'))
       continue;                 // A funcall
-    if(i < s.size()-1 && s[i] == '=' && s[i+1] != '=')
+    if(i < s.size() - 1 && s[i] == '=' && s[i+1] != '=')
       lcls.insert(v);
+    // Detection of locals still
+    if(i < s.size() - 1 && s[i+1] == '=') {
+      if(s[i] == '*' ||
+         s[i] == '+' ||
+         s[i] == '-' ||
+         s[i] == '/' ||
+         s[i] == '~') {
+        lcls.insert(v);
+      }
+    }
+    if(i < s.size() - 2 && s[i+2] == '=') {
+      QString op;
+      op.append(s[i]);
+      op.append(s[i+1]);
+      if(op == "**" || op == "||" || op == ">>" || op == "<<")
+        lcls.insert(v);
+    }
     vars.insert(v);
   }
 
-  for(const QString & s : lcls)
-    vars.remove(s);
-  if(locals)
+  if(locals) {
     *locals = lcls.toList();
+    for(const QString & s : lcls)
+      vars.remove(s);
+  }
 
   return vars.toList();
 }
@@ -582,7 +696,7 @@ QStringList MRuby::detectParametersNative(const QByteArray & code,
 QStringList MRuby::detectParametersNative(const QByteArray & code,
                                           QStringList * locals)
 {
-  if(*locals)
+  if(locals)
     *locals = QStringList();
   return QStringList();
 }
@@ -590,14 +704,17 @@ QStringList MRuby::detectParametersNative(const QByteArray & code,
 #endif
 
 
+
+
 QStringList MRuby::detectParameters(const QByteArray & code,
                                     QStringList * locals)
 {
-
+  // QTextStream o(stdout);
+  // o << "Detect: '" << code << "' -- " << locals << endl;
 #if MRUBY_RELEASE_MAJOR == 1
   return detectParametersNative(code, locals);
-#elif MRUBY_RELEASE_MAJOR == 2
-  return detectParametersNative(code, locals);
+// #elif MRUBY_RELEASE_MAJOR == 2
+//   return detectParametersNative(code, locals);
 #else
   return detectParametersApprox(code, locals);
 #endif
@@ -944,12 +1061,21 @@ static void mRubyArgs(const QString &, QString code,
   Terminal::out << " => " << vars.join(", ") << endl;
   Terminal::out << "Local variables: " << locals.join(", ") << endl;
 
+  QStringList v2 =
+    native ? r->detectParametersNative(code.toLocal8Bit()) :
+    MRuby::detectParametersApprox(code.toLocal8Bit());
+  std::sort(locals.begin(), locals.end());
+  std::sort(vars.begin(), vars.end());
+  Terminal::out << "Other vars: " << vars.join(", ") << endl;
+
   if(setGlobals) {
     Terminal::out << "Setting global variables" << endl;
     mrb_value v = r->arrayFromStringList(vars);
     r->setGlobal("$params", v);
     v = r->arrayFromStringList(locals);
     r->setGlobal("$locals", v);
+    v = r->arrayFromStringList(v2);
+    r->setGlobal("$ap", v);
   }
 }
 
@@ -975,5 +1101,27 @@ ar("mruby-detect-args", // command name
    "file",  // group name
    &eA, // arguments
    &eO,
+   "Ruby args",
+   "Detects the arguments within a Ruby expression", "");
+
+
+static void annotateQuotes(const QString &, QString code,
+                          const CommandOptions & )
+{
+  QByteArray ann = MRuby::annotateQuotes(code);
+  QString ann1;
+  for(char c : ann)
+    ann1 += QString::number((unsigned)(c & 0x03));
+  
+  Terminal::out << "Code : '" << code << "'\n"
+                << "        " << ann1 << endl;
+}
+
+static Command 
+ac("annotate-quotes", // command name
+   effector(annotateQuotes), // action
+   "file",  // group name
+   &eA, // arguments
+   NULL,
    "Ruby args",
    "Detects the arguments within a Ruby expression", "");

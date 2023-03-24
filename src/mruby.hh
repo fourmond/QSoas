@@ -165,6 +165,15 @@ public:
   static QStringList detectParametersApprox(const QByteArray & code,
                                             QStringList * localVariables = NULL);
 
+  static QStringList detectParametersApprox(const QString & code,
+                                            QStringList * localVariables = NULL);
+
+  /// Returns a QByteArray with a size matching that of code, with the
+  /// "quoting status" of each character in the return value.
+  ///  status & 0x03 is 0 for unquoted, 1 for single and 2 for double
+  ///  status >> 2 is the level of nesting.
+  static QByteArray annotateQuotes(const QString & code);
+
   /// Detects the "external parameters" for the given code. This may
   /// either be detectParametersNative or detectParametersApprox
   QStringList detectParameters(const QByteArray & code,

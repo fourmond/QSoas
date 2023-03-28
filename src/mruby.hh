@@ -38,6 +38,9 @@ class MRuby {
   struct RClass * cQSoasInterface;
 
 
+  /// The base class of exceptions.
+  struct RClass * cException;
+
   mrb_value soasInstance;
 
 public:

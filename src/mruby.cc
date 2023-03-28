@@ -91,6 +91,16 @@ MRuby::MRuby()
   sNew = mrb_intern_lit(mrb, "new");
   sToS = mrb_intern_lit(mrb, "to_s");
   sBrackets = mrb_intern_lit(mrb, "[]");
+
+  // Getting the exception class, seems dependent on
+
+#if MRUBY_RELEASE_MAJOR == 3
+  mrb_value v = eval("Exception");
+  cException = mrb_class_ptr(v);
+#else
+  cException = mrb->eException_class;
+#endif
+  
 }
 
 MRuby::~MRuby()
@@ -180,7 +190,7 @@ mrb_value MRuby::protect(const std::function<mrb_value ()> &function)
 
 void MRuby::throwIfException(mrb_value obj)
 {
-  if(mrb_obj_is_kind_of(mrb, obj, mrb->eException_class)) {
+  if(mrb_obj_is_kind_of(mrb, obj, mrb_class_real(cException))) {
     throw RuntimeError("A ruby exception occurred: %1").arg(inspect(obj));
   }
 }

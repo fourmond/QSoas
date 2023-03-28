@@ -704,6 +704,186 @@ QStringList MRuby::detectParametersNative(const QByteArray & code,
   return l;
 }
 
+#elif MRUBY_RELEASE_MAJOR == 3
+
+// The following code is based on the following command:
+// grep CASE src/codedump.c | sed s/'$/ break;/'
+
+#define CASE(insn,ops) case insn: FETCH_ ## ops (); L_ ## insn
+
+QStringList MRuby::detectParametersNative(const QByteArray & code,
+                                          QStringList * locals)
+{
+  STACK_DUMP;
+  MRubyArenaContext c(this);
+
+  // QTextStream o(stdout);
+  // o << "Detecting parameters for : '" << code << "'" << endl;
+  
+  RProc * proc = generateCode(code);
+  const struct mrb_irep * irep = proc->body.irep;
+
+  // The idea is just to scan the code and detect funcalls of single
+  // arguments from what seems to be top level self.
+  int cur_top_self = -1;
+  QSet<QString> rv;
+
+    // Detect local variables first:
+  if(locals) {
+    // Same as in mruby 1
+    // By why nlocals-1 ? Mystery.
+    for(int i = 0; i < irep->nlocals - 1; i++)
+      *locals << mrb_sym2name(mrb,irep->lv[i]);
+  }
+
+
+  const mrb_code *pc, *pcend;
+  mrb_code ins;
+  int ai;
+
+  pc = irep->iseq;
+  pcend = pc + irep->ilen;
+  while (pc < pcend) {
+    ptrdiff_t i;
+    uint32_t a;
+    uint16_t b;
+    uint8_t c;
+
+    ai = mrb_gc_arena_save(mrb);
+
+    i = pc - irep->iseq;
+
+    ins = READ_B();
+    // We unfortunately need the full case from mruby/src/codedump.c,
+    // since the opcodes now have variable lengths
+    switch (ins) {
+      CASE(OP_NOP, Z): break;
+      CASE(OP_MOVE, BB): break;
+      CASE(OP_LOADL, BB): break;
+      CASE(OP_LOADI, BB): break;
+      CASE(OP_LOADINEG, BB): break;
+      CASE(OP_LOADI16, BS): break;
+      CASE(OP_LOADI32, BSS): break;
+      CASE(OP_LOADI__1, B): break;
+      CASE(OP_LOADI_0, B):  break;
+      CASE(OP_LOADI_1, B):  break;
+      CASE(OP_LOADI_2, B):  break;
+      CASE(OP_LOADI_3, B):  break;
+      CASE(OP_LOADI_4, B):  break;
+      CASE(OP_LOADI_5, B):  break;
+      CASE(OP_LOADI_6, B):  break;
+      CASE(OP_LOADI_7, B): break;
+      CASE(OP_LOADSYM, BB): break;
+      CASE(OP_LOADNIL, B): break;
+      CASE(OP_LOADSELF, B): break;
+      CASE(OP_LOADT, B): break;
+      CASE(OP_LOADF, B): break;
+      CASE(OP_GETGV, BB): break;
+      CASE(OP_SETGV, BB): break;
+      CASE(OP_GETSV, BB): break;
+      CASE(OP_SETSV, BB): break;
+      CASE(OP_GETCONST, BB): break;
+      CASE(OP_SETCONST, BB): break;
+      CASE(OP_GETMCNST, BB): break;
+      CASE(OP_SETMCNST, BB): break;
+      CASE(OP_GETIV, BB): break;
+      CASE(OP_SETIV, BB): break;
+      CASE(OP_GETUPVAR, BBB): break;
+      CASE(OP_SETUPVAR, BBB): break;
+      CASE(OP_GETCV, BB): break;
+      CASE(OP_SETCV, BB): break;
+      CASE(OP_GETIDX, B): break;
+      CASE(OP_SETIDX, B): break;
+      CASE(OP_JMP, S): break;
+      CASE(OP_JMPUW, S): break;
+      CASE(OP_JMPIF, BS): break;
+      CASE(OP_JMPNOT, BS): break;
+      CASE(OP_JMPNIL, BS): break;
+      CASE(OP_SSEND, BBB):
+        if(c == 0)
+          rv.insert(mrb_sym2name(mrb, irep->syms[b]));
+        break;
+      CASE(OP_SSENDB, BBB):
+        if(c == 0)
+          rv.insert(mrb_sym2name(mrb, irep->syms[b]));
+        break;
+      CASE(OP_SEND, BBB): break;
+      CASE(OP_SENDB, BBB): break;
+      CASE(OP_CALL, Z): break;
+      CASE(OP_SUPER, BB): break;
+      CASE(OP_ARGARY, BS): break;
+      CASE(OP_ENTER, W): break;
+      CASE(OP_KEY_P, BB): break;
+      CASE(OP_KEYEND, Z): break;
+      CASE(OP_KARG, BB): break;
+      CASE(OP_RETURN, B): break;
+      CASE(OP_RETURN_BLK, B): break;
+      CASE(OP_BREAK, B): break;
+      CASE(OP_BLKPUSH, BS): break;
+      CASE(OP_LAMBDA, BB): break;
+      CASE(OP_BLOCK, BB): break;
+      CASE(OP_METHOD, BB): break;
+      CASE(OP_RANGE_INC, B): break;
+      CASE(OP_RANGE_EXC, B): break;
+      CASE(OP_DEF, BB): break;
+      CASE(OP_UNDEF, B): break;
+      CASE(OP_ALIAS, BB): break;
+      CASE(OP_ADD, B): break;
+      CASE(OP_ADDI, BB): break;
+      CASE(OP_SUB, B): break;
+      CASE(OP_SUBI, BB): break;
+      CASE(OP_MUL, B): break;
+      CASE(OP_DIV, B): break;
+      CASE(OP_LT, B): break;
+      CASE(OP_LE, B): break;
+      CASE(OP_GT, B): break;
+      CASE(OP_GE, B): break;
+      CASE(OP_EQ, B): break;
+      CASE(OP_ARRAY, BB): break;
+      CASE(OP_ARRAY2, BBB): break;
+      CASE(OP_ARYCAT, B): break;
+      CASE(OP_ARYPUSH, BB): break;
+      CASE(OP_ARYDUP, B): break;
+      CASE(OP_AREF, BBB): break;
+      CASE(OP_ASET, BBB): break;
+      CASE(OP_APOST, BBB): break;
+      CASE(OP_INTERN, B): break;
+      CASE(OP_SYMBOL, BB): break;
+      CASE(OP_STRING, BB): break;
+      CASE(OP_STRCAT, B): break;
+      CASE(OP_HASH, BB): break;
+      CASE(OP_HASHADD, BB): break;
+      CASE(OP_HASHCAT, B): break;
+      CASE(OP_OCLASS, B): break;
+      CASE(OP_CLASS, BB): break;
+      CASE(OP_MODULE, BB): break;
+      CASE(OP_EXEC, BB): break;
+      CASE(OP_SCLASS, B): break;
+      CASE(OP_TCLASS, B): break;
+      CASE(OP_ERR, B): break;
+      CASE(OP_EXCEPT, B): break;
+      CASE(OP_RESCUE, BB): break;
+      CASE(OP_RAISEIF, B): break;
+      CASE(OP_DEBUG, BBB): break;
+      CASE(OP_STOP, Z): break;
+      CASE(OP_EXT1, Z): break;
+      CASE(OP_EXT2, Z): break;
+      CASE(OP_EXT3, Z): break;
+      
+      mrb_gc_arena_restore(mrb, ai);
+    }
+  }
+  QStringList l;
+  QRegExp re("^\\w+$");
+  for(const QString & n : rv) {
+    if(re.indexIn(n,0) == 0)    // avoid unary operator names
+      l << n;
+  }
+  // o << " -> " << l.join(", ") << endl;
+  return l;
+}
+
+
 #else
 
 QStringList MRuby::detectParametersNative(const QByteArray & code,
@@ -724,9 +904,14 @@ QStringList MRuby::detectParameters(const QByteArray & code,
 {
   // QTextStream o(stdout);
   // o << "Detect: '" << code << "' -- " << locals << endl;
+  
+  // OK, the case in which almsot all the possibilities are identical
+  // might seem weird, but I want to spell them out.
 #if MRUBY_RELEASE_MAJOR == 1
   return detectParametersNative(code, locals);
 #elif MRUBY_RELEASE_MAJOR == 2
+  return detectParametersNative(code, locals);
+#elif MRUBY_RELEASE_MAJOR == 3
   return detectParametersNative(code, locals);
 #else
   return detectParametersApprox(code, locals);

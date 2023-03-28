@@ -581,7 +581,10 @@ QStringList MRuby::detectParametersNative(const QByteArray & code,
       break;
       CASE(OP_LOADT, B): break;
       CASE(OP_LOADF, B): break;
-      CASE(OP_GETGV, BB): break;
+      CASE(OP_GETGV, BB):
+        cur_top_self = 0xeeff;
+      break;
+
       CASE(OP_SETGV, BB): break;
       CASE(OP_GETSV, BB): break;
       CASE(OP_SETSV, BB): break;
@@ -713,8 +716,8 @@ QStringList MRuby::detectParameters(const QByteArray & code,
   // o << "Detect: '" << code << "' -- " << locals << endl;
 #if MRUBY_RELEASE_MAJOR == 1
   return detectParametersNative(code, locals);
-// #elif MRUBY_RELEASE_MAJOR == 2
-//   return detectParametersNative(code, locals);
+#elif MRUBY_RELEASE_MAJOR == 2
+  return detectParametersNative(code, locals);
 #else
   return detectParametersApprox(code, locals);
 #endif

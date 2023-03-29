@@ -185,6 +185,9 @@ public:
   /// Defines a module function
   void defineGlobalConstant(const char *name, mrb_value val);
 
+  /// Gets the value of a constant
+  mrb_value getConstant(const char *name);
+
   /// Returns the symbol for the given name
   mrb_sym intern(const char * symbol);
 

@@ -87,7 +87,7 @@ MRuby::MRuby()
   mrb = mrb_open();
   cQSoasInterface = NULL;
   cFancyHash = mrb_nil_value();
-  cTime = mrb_vm_const_get(mrb, mrb_intern_lit(mrb, "Time"));
+  cTime = getConstant("Time");
   sNew = mrb_intern_lit(mrb, "new");
   sToS = mrb_intern_lit(mrb, "to_s");
   sBrackets = mrb_intern_lit(mrb, "[]");
@@ -95,7 +95,7 @@ MRuby::MRuby()
   // Getting the exception class, seems dependent on
 
 #if MRUBY_RELEASE_MAJOR == 3
-  mrb_value v = eval("Exception");
+  mrb_value v = getConstant("Exception");
   cException = mrb_class_ptr(v);
 #else
   cException = mrb->eException_class;
@@ -106,6 +106,13 @@ MRuby::MRuby()
 MRuby::~MRuby()
 {
   mrb_close(mrb);
+}
+
+mrb_value MRuby::getConstant(const char *name)
+{
+  // return mrb_const_get(mrb, mrb_top_self(mrb),
+  //                      mrb_intern_cstr(mrb, name));
+  return eval(name);
 }
 
 
@@ -134,8 +141,7 @@ MRuby * MRuby::ruby()
     globalInterpreter->eval(&f);
 
     globalInterpreter->cFancyHash =
-      mrb_vm_const_get(globalInterpreter->mrb,
-                       mrb_intern_lit(globalInterpreter->mrb, "FancyHash"));
+      globalInterpreter->getConstant("FancyHash");
 
     globalInterpreter->initializeInterface();
     globalInterpreter->initializeRegexp();
@@ -843,7 +849,11 @@ QStringList MRuby::detectParametersNative(const QByteArray & code,
       CASE(OP_ARRAY2, BBB): break;
       CASE(OP_ARYCAT, B): break;
       CASE(OP_ARYPUSH, BB): break;
+#if MRUBY_RELEASE_MINOR >= 2
+      CASE(OP_ARYSPLAT, B): break;
+#else
       CASE(OP_ARYDUP, B): break;
+#endif
       CASE(OP_AREF, BBB): break;
       CASE(OP_ASET, BBB): break;
       CASE(OP_APOST, BBB): break;
@@ -1022,7 +1032,12 @@ double MRuby::floatValue(mrb_value value)
 
 double MRuby::floatValue_up(mrb_value value)
 {
+#if MRUBY_RELEASE_MAJOR == 3
+  mrb_value v = mrb_ensure_float_type(mrb, value);
+  return mrb_float(v);
+#else
   return mrb_to_flo(mrb, value);
+#endif
 }
 
 

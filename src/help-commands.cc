@@ -118,7 +118,7 @@ static void helpCommand(const QString & /*name*/,
   updateFromOptions(opts, "synopsis", showSyn);
 
   if(! showSyn) {
-    if(Soas::versionString().contains("+"))
+    if(QString(SOAS_VERSION).contains("+"))
       Terminal::out << Terminal::bold << "Warning:" << flush
                     << " this is a development version, the help may be outdated, if you want to see the options effectively available, please run the command:\n"
                     << "  help /synopsis=true " << cmd->commandName() << endl;

@@ -1083,32 +1083,35 @@ void timerCommand(const QString &, const CommandOptions & opts)
 {
   static QDateTime time;
   static long kTime, uTime;
+  static long vCS, iCS;
   QString name;
   updateFromOptions(opts, "name", name);
   if(time.isValid()) {
     qint64 dt = time.msecsTo(QDateTime::currentDateTime());
     time = QDateTime();
 
-    long ut, kt;
-    Utils::processorUsed(&ut, &kt);
+    long ut, kt, vcs, ics;
+    Utils::processorUsed(&ut, &kt, &vcs, &ics);
 
     
 
     QString message;
     if(! name.isEmpty())
-      message = name + ": %1 tot, %2 proc, %3 us, %4 sys";
+      message = name + ": %1 tot, %2 proc, %3 us, %4 sys, %5 vcs, %6 ics";
     else
-      message = "%1 seconds elapsed since timer start, (%2 total processor time, %3 user, %4 system)";
+      message = "%1 seconds elapsed since timer start, (%2 total processor time, %3 user, %4 system, %5 voluntary CS, %6 involuntary CS)";
     message = message.
       arg(dt*0.001).arg((ut-uTime + kt - kTime)*0.001).
       arg((ut-uTime)*0.001).
-      arg((kt - kTime)*0.001);
+      arg((kt - kTime)*0.001).
+      arg(vcs - vCS).
+      arg(ics - iCS);
     Terminal::out << message << endl;
     Debug::debug() << message << endl;
   }
   else {
     time = QDateTime::currentDateTime();
-    Utils::processorUsed(&uTime, &kTime);
+    Utils::processorUsed(&uTime, &kTime, &vCS, &iCS);
     Terminal::out << "Starting timer " << name <<  endl;
     if(name.isEmpty())
       Debug::debug() << "Starting timer" << endl;

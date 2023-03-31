@@ -69,7 +69,8 @@ int Utils::memoryUsed()
   return 0;
 }
 
-void Utils::processorUsed(long * user, long * system)
+void Utils::processorUsed(long * user, long * system,
+                          long * vCS, long * iCS)
 {
   *user = 0;
   *system = 0;
@@ -80,6 +81,10 @@ void Utils::processorUsed(long * user, long * system)
       r.ru_utime.tv_usec / 1000;
     *system = r.ru_stime.tv_sec * 1000 +
       r.ru_stime.tv_usec / 1000;
+    if(vCS)
+      *vCS = r.ru_nvcsw;
+    if(iCS)
+      *iCS = r.ru_nivcsw;
   }
 #endif
 #ifdef Q_OS_WIN32
@@ -92,6 +97,12 @@ void Utils::processorUsed(long * user, long * system)
     tmp.u.LowPart = ut.dwLowDateTime;
     tmp.u.HighPart = ut.dwHighDateTime;
     *user = tmp.QuadPart/10000;
+
+    // Unsupported for now
+    if(vCS)
+      *vCS = 0;
+    if(iCS)
+      *iCS = 0;
   }
 #endif
 }

@@ -15,11 +15,13 @@ installing, just extract the archive, and double click on the relevant
 package. As of now, the binaries are not signed, which means you have
 to authorize _unsafe installations_ to get QSoas to install properly.
 
+- Version 3.2 [`QSoas-3.2.zip`](https://bip.cnrs.fr/wp-content/uploads/qsoas/QSoas-3.2.zip) (2023.03.27)
 - Version 3.1 [`QSoas-3.1.zip`](https://bip.cnrs.fr/wp-content/uploads/qsoas/QSoas-3.1.zip) (2022.09.28)
 
 
 ## Source code {#source-code}
 
+- Version 3.2 [`qsoas-3.2.tar.gz`](https://bip.cnrs.fr/wp-content/uploads/qsoas/qsoas-3.2.tar.gz) (2023.03.27)
 - Version 3.1 [`qsoas-3.1.tar.gz`](https://bip.cnrs.fr/wp-content/uploads/qsoas/qsoas-3.1.tar.gz) (2022.09.28)
 - Version 3.0 [`qsoas-3.0.tar.gz`](https://bip.cnrs.fr/wp-content/uploads/qsoas/qsoas-3.0.tar.gz) (2020.12.03)
 - Version 2.2.0 [`qsoas-2.2.0.tar.gz`](https://bip.cnrs.fr/wp-content/uploads/qsoas/qsoas-2.2.0.tar.gz) (2018.03.27, fixes compilation problems with 2.2)
@@ -31,15 +33,15 @@ to authorize _unsafe installations_ to get QSoas to install properly.
 ## Compiling from source {#compilation}
 
 
-Version `3.1` of QSoas requires the following software packages to
+Version `3.2` of QSoas requires the following software packages to
 compile:
 
 -   Qt version 5, from [the Qt archive](http://download.qt.io/archive/qt/).
 -   [Ruby](https://www.ruby-lang.org/en/downloads/), which is only
     necessary for compilation, but not necessary afterwards.
--   [mruby](https://mruby.org/), version `1.4.0` or after `2.1.0`
+-   [mruby](https://mruby.org/), version `1.4.0` or `2.1.0`
     (included). The versions inbetween have issues that make QSoas
-    crash.
+    crash, and the versions `3.0` and later are not yet supported.
 -   The [GNU Scientific
     Library](http://www.gnu.org/software/gsl/)
 

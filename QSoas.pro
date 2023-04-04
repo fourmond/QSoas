@@ -204,19 +204,33 @@ LIBS += -lgsl -lgslcblas -lm
   # We add the directory to both the include path and the lib path:
   message("Building against MRUBY in directory: $$MRUBY_DIR")
   exists($${MRUBY_DIR}/bin/mruby-config) {
+    message("Found mruby-config")
+    message("CFLAGS:  $$system($${MRUBY_DIR}/bin/mruby-config --cflags)")
     QMAKE_CXXFLAGS += $$system($${MRUBY_DIR}/bin/mruby-config --cflags)
+    message("LDFLAGS: $$system($${MRUBY_DIR}/bin/mruby-config --ldflags)")
     LIBS += $$system($${MRUBY_DIR}/bin/mruby-config --ldflags)
+    message("LIBS: $$system($${MRUBY_DIR}/bin/mruby-config --libs)")
     LIBS += $$system($${MRUBY_DIR}/bin/mruby-config --libs)
   }
   else {
-    exists($${MRUBY_DIR}/build/host-debug/lib) {
-      LIBS += -L$$MRUBY_DIR/build/host-debug/lib
+      exists($${MRUBY_DIR}\bin\mruby-config.bat) {
+        message("Found mruby-config.bat")
+        message("CFLAGS:  $$system($${MRUBY_DIR}\bin\mruby-config.bat --cflags)")
+        QMAKE_CXXFLAGS += $$system($${MRUBY_DIR}\bin\mruby-config.bat --cflags)
+        message("LDFLAGS: $$system($${MRUBY_DIR}\bin\mruby-config.bat --ldflags)")
+        LIBS += $$system($${MRUBY_DIR}\bin\mruby-config.bat --ldflags)
+        message("LIBS: $$system($${MRUBY_DIR}\bin\mruby-config.bat --libs)")
+        LIBS += $$system($${MRUBY_DIR}\bin\mruby-config.bat --libs)
     } else {
-      LIBS += -L$$MRUBY_DIR/lib
+      message("Did not find mruby-config")
+      exists($${MRUBY_DIR}/build/host-debug/lib) {
+        LIBS += -L$$MRUBY_DIR/build/host-debug/lib
+      } else {
+        LIBS += -L$$MRUBY_DIR/lib
+      }
+      INCLUDEPATH += $$MRUBY_DIR/include
     }
-    INCLUDEPATH += $$MRUBY_DIR/include
   }
-
 # IMPORTANT NOTE: we need a recent version on mruby,
 # https://github.com/mruby/mruby/commit/7450a774a5f796f7e9d312ba9c9690097f4aa309,
 # seems to do the trick.

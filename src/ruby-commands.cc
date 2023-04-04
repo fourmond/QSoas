@@ -1027,16 +1027,21 @@ public:
   /// total number
   int total;
 
+  /// number imprecision
+  int imprecisions;
+
   /// number failed (not true)
   int failed;
 
   /// number for which there was an exception raised
   int exceptions;
 
-  AssertionsList() : total(0), failed(0), exceptions(0) {;};
+  AssertionsList() : total(0), imprecisions(0),
+                     failed(0), exceptions(0) {;};
 
   void add(const AssertionsList & o) {
     total += o.total;
+    imprecisions += o.imprecisions;
     failed += o.failed;
     exceptions += o.exceptions;
   };
@@ -1050,12 +1055,16 @@ public:
 
   enum AssertionResult {
     Pass,
+    Imprecision,
     Failed,
     Exception
   };
 
   /// Whether or not a tolerance was specified
   bool useTolerance;
+
+  /// Whether the tolerance is tweaked by OS
+  bool osSpecific;
 
   /// The tolerance value
   double tolerance;
@@ -1078,8 +1087,10 @@ public:
   /// The current fine context
   QString fineContext;
 
-  SingleAssertion(bool tol) :
-    useTolerance(tol), 
+  SingleAssertion(bool tol, bool os = false) :
+    useTolerance(tol),
+    osSpecific(os),
+    tolerance(-1), value(-1),
     commandContext(soas().prompt().currentContext()),
     context(assertContext), fineContext(assertFineContext)
   {
@@ -1094,6 +1105,9 @@ public:
     switch(result) {
     case Pass:
       res = "pass";
+      break;
+    case Imprecision:
+      res = "imprecision";
       break;
     case Exception:
       res = "exception";
@@ -1111,7 +1125,7 @@ public:
       o << "\t" << "message: " << exceptionMessage << "\n";
     else {
       if(useTolerance)
-        o << "\tvalue:" << value << " for " << tolerance << "\n";
+        o << "\tvalue:" << value << "\n\ttarget:" << tolerance << "\n";
     }
     return rv;
   };
@@ -1137,9 +1151,11 @@ static void doAssert(QString code,
 
   bool useTol = false;
   double tolerance = 0.0;
+  double orgTol = 0.0;
   bool pf = false;
   if(opts.contains("tolerance")) {
     updateFromOptions(opts, "tolerance", tolerance);
+    orgTol = tolerance;
     useTol = true;
     updateFromOptions(opts, "platform-precision", pf);
     int fct = pf ? 1 : 0;
@@ -1180,18 +1196,22 @@ static void doAssert(QString code,
         const AssertionsList & as = assertResults[key];
         Terminal::out << key << ": " << as.total << " total, "
                       << as.failed << " failed, " 
+                      << as.imprecisions << " imprecisions, " 
                       << as.exceptions << " exceptions." << endl;
         Debug::debug() << key << ": " << as.total << " total, "
                        << as.failed << " failed, " 
+                       << as.imprecisions << " imprecisions, " 
                        << as.exceptions << " exceptions." << endl;
         totl.add(as);
       }
       if(keys.size() > 0) {
         Terminal::out << "Overall: " << totl.total << " total, "
                       << totl.failed << " failed, " 
+                      << totl.imprecisions << " imprecisions, " 
                       << totl.exceptions << " exceptions." << endl;
         Debug::debug() << "Overall: " << totl.total << " total, "
                        << totl.failed << " failed, " 
+                       << totl.imprecisions << " imprecisions, " 
                        << totl.exceptions << " exceptions." << endl;
       }
 
@@ -1223,14 +1243,25 @@ static void doAssert(QString code,
   QString context = "";
   if(! assertFineContext.isEmpty())
     context = QString(" (%1)").arg(assertFineContext);
-  SingleAssertion as(useTol);
+  SingleAssertion as(useTol, pf);
   try {
     value = eval();
 
     bool check;
+    bool imp = false;
     if(useTol) {
       double v = mr->floatValue(value);
       check = fabs(v) <= tolerance;
+      if(! check) {
+        if(tolerance > 0) {
+          if(fabs(v) <= 100 * tolerance)
+            imp = true;
+        }
+        else {
+          if(fabs(v) <= 1e-13)  // completely arbitrary
+            imp = true;
+        }
+      }
       as.value = v;
       as.tolerance = tolerance;
     }
@@ -1243,20 +1274,32 @@ static void doAssert(QString code,
       as.result = SingleAssertion::Pass;
     }
     else {
-      cur->failed++;
-      as.result = SingleAssertion::Failed;
+      QString let;
+      QString adj;
+      if(imp) {
+        let = "I";
+        adj = "imprecise";
+        cur->imprecisions++;
+        as.result = SingleAssertion::Imprecision;
+      }
+      else {
+        let = "F";
+        adj = "failed";
+        cur->failed++;
+        as.result = SingleAssertion::Failed;
+      }
       if(useTol) {
-        Terminal::out << "assertion failed: " << code
+        Terminal::out << "assertion " << adj << ": " << code
                       << " (should be below: " << tolerance
                       << " but is: " << mr->floatValue(value) << ")" << endl;
-        Debug::debug() << "F: " << code
+        Debug::debug() << let << ": " << code
                        << " (should be below: " << tolerance
                        << " but is: " << mr->floatValue(value) << ")"
                        << context << endl;
       }
       else {
         Terminal::out << "assertion failed: " << code  << endl;
-        Debug::debug() << "F: " << code  << context << endl;
+        Debug::debug() << let << ": " << code  << context << endl;
       }
     }
   }

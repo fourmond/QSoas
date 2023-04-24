@@ -43,8 +43,8 @@ public:
   /// the same time.
   bool canBeBufferSpecific;
 
-  ParameterDefinition(const QString & n, bool fixed = false,
-                      bool cbs = true) :
+  explicit ParameterDefinition(const QString & n, bool fixed = false,
+                               bool cbs = true) :
     name(n), defaultsToFixed(fixed), canBeBufferSpecific(cbs)
   {
   };

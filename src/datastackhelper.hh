@@ -77,8 +77,8 @@ class DataStackHelper {
 
   
 public:
-  DataStackHelper(const CommandOptions & opts, bool update = false,
-                  bool deferred = true);
+  explicit DataStackHelper(const CommandOptions & opts, bool update = false,
+                           bool deferred = true);
   ~DataStackHelper();
 
   /// Invalidate the helper. It still accepts datasets, but will

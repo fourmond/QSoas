@@ -146,12 +146,13 @@ public:
   };
 };
 
+/*
 class TemporarilyDisableWidget {
   QWidget * target;
 
   bool initialState;
 public:
-  TemporarilyDisableWidget(QWidget * tg, bool enable = false) :
+  explicit TemporarilyDisableWidget(QWidget * tg, bool enable = false) :
     target(tg) {
     initialState = target->isEnabled();
     target->setEnabled(enable);
@@ -161,7 +162,7 @@ public:
     target->setEnabled(initialState);
   };
 };
-                              
+*/                              
 
 
 #endif

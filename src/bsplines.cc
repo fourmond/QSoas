@@ -232,7 +232,7 @@ Vector BSplines::computeValues(const Vector & x, int order) const
 
 static int f(const gsl_vector * x, void * data, gsl_vector * f)
 {
-  BSplines * bs = (BSplines*) data;
+  BSplines * bs = static_cast<BSplines*>(data);
   Vector bps = bs->getBreakPoints();
   gsl_vector_view v = gsl_vector_view_array(bps.data() + 1, x->size);
   gsl_vector_memcpy(&v.vector, x);
@@ -250,7 +250,7 @@ static int f(const gsl_vector * x, void * data, gsl_vector * f)
 
 static int df(const gsl_vector * x, void * data, gsl_matrix * J)
 {
-  BSplines * bs = (BSplines*) data;
+  BSplines * bs = static_cast<BSplines*>(data);
   // I need a temporary storage vector
   gsl_vector * tmpStorage = gsl_vector_alloc(bs->yData().size());
 

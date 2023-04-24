@@ -112,7 +112,7 @@ public:
 
   ~PossessiveHash() {
     for(typename Hash::iterator i = values.begin();
-        i != values.end(); i++)
+        i != values.end(); ++i)
       delete i.value();
   };
 

@@ -145,7 +145,7 @@ protected:
 
   ArgumentsWidget * widget;
 public:
-  ScrolledOptions(ArgumentsWidget * w, QWidget * parent = NULL) :
+  explicit ScrolledOptions(ArgumentsWidget * w, QWidget * parent = NULL) :
     QScrollArea(parent), widget(w)
   {
     setWidget(widget);
@@ -160,7 +160,7 @@ public:
   }
 
   void resizeEvent(QResizeEvent *event) override {
-    QSize sz = QScrollArea::sizeHint();
+    // QSize sz = QScrollArea::sizeHint();
     QSize sz2 = widget->sizeHint();
     QSize sz3 = verticalScrollBar()->sizeHint();
     sz2.setWidth(event->size().width() - sz3.width());

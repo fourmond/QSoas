@@ -31,6 +31,7 @@ class CommandContext;
 
 /// The class representing a command.
 class Command {
+  Command & operator=(const Command & cmd) = delete;
 protected:
 
   QString cmdName;

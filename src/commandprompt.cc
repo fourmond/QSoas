@@ -123,11 +123,11 @@ void CommandPrompt::keyPressEvent(QKeyEvent * event)
     break;
   case Qt::Key_PageUp:
     event->accept();
-    emit(scrollRequested(event->modifiers() & Qt::ControlModifier ? -8 : -1));
+    emit(scrollRequested((event->modifiers() & Qt::ControlModifier) ? -8 : -1));
     break;
   case Qt::Key_PageDown:
     event->accept();
-    emit(scrollRequested(event->modifiers() & Qt::ControlModifier ? 8 : 1));
+    emit(scrollRequested((event->modifiers() & Qt::ControlModifier) ? 8 : 1));
     break;
   case Qt::Key_C: {
     // redirect Ctrl+C

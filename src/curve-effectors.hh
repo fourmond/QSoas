@@ -33,13 +33,15 @@ class CEHideAll {
   /// The target panel
   CurvePanel * target;
 public:
-  CEHideAll(CurvePanel * tg, bool doHide = true);
+  explicit CEHideAll(CurvePanel * tg, bool doHide = true);
   ~CEHideAll();
 };
 
 
 /// Disables (or enables) the updates on the target widget. Restores the
 /// previous state when the object goes out of scope.
+///
+/// @todo Merge with TemporarilyDisableWidget
 class WDisableUpdates {
   QWidget * target;
 

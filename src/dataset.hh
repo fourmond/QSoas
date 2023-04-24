@@ -326,7 +326,7 @@ public:
   /// @}
 
   DataSet() {;};
-  DataSet(const QList<Vector> & cols) : columns(cols) {;};
+  explicit DataSet(const QList<Vector> & cols) : columns(cols) {;};
   DataSet(const Vector & x, const Vector & y) {
     columns << x << y;
   };

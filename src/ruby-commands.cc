@@ -157,7 +157,7 @@ static void applyFormulaCommand(const QString &, QString formula,
             
           }
           catch (const RuntimeError & er) {
-            if(er.message().contains("LocalJumpError:") &&
+            if(er.message().contains("LocalJumpError") &&
                er.message().contains("break")) {
               Terminal::out << "Found break at X = " << ds->x()[idx]
                             << " (#" << idx << "): " << endl;
@@ -224,7 +224,7 @@ static void applyFormulaCommand(const QString &, QString formula,
               evaluateNoLock(args.data());
           }
           catch (const RuntimeError & er) {
-            if(er.message().contains("LocalJumpError:") &&
+            if(er.message().contains("LocalJumpError") &&
                er.message().contains("break")) {
               Terminal::out << "Found break at X = " << ds->x()[idx]
                             << " (#" << idx << "): " << endl;

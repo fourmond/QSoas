@@ -360,6 +360,7 @@ bool CommandWidget::runCommand(const QStringList & raw, bool doFullPrompt)
       Debug::debug() << "Error: " << error.message() << endl
                      << "\nBacktrace:\n\t"
                      << error.exceptionBacktrace().join("\n\t") << endl;
+    ++(soas().runtimeErrors);
   }
   catch(const InternalError & error) {
     Terminal::out << "Internal error: "
@@ -370,6 +371,7 @@ bool CommandWidget::runCommand(const QStringList & raw, bool doFullPrompt)
     if(Debug::debugLevel() > 0)
       Debug::debug() << "Internal error: "
                      << error.message() << endl;
+    ++(soas().internalErrors);
   }
   catch(const ControlFlowException & flow) {
     /// @todo This should be implemented as an idiom when clang
@@ -380,6 +382,7 @@ bool CommandWidget::runCommand(const QStringList & raw, bool doFullPrompt)
   catch(HeadlessError he) {
     he.appendMessage(QString("\nCommand stack: %1").
                      arg(raw.join(" ")));
+    ++(soas().headlessErrors);
     throw he;
   }
   catch(const std::bad_alloc & alc) {

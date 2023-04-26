@@ -73,6 +73,8 @@ Soas::Soas() :
 
 Soas::~Soas()
 {
+  QTextStream o(stdout);
+  o << errorReport() << endl;
   theSoasInstance = NULL;
   delete ds;
   delete gs;
@@ -135,6 +137,12 @@ bool Soas::isHeadless() const
 void Soas::setHeadless(bool hl) 
 {
   headless = hl;
+}
+
+QString Soas::errorReport() const
+{
+  return QString("Errors: %1 runtime, %2 internal, %3 headless").
+    arg(runtimeErrors).arg(internalErrors).arg(headlessErrors);
 }
 
 void Soas::writeSpecFile(QTextStream & out, bool full)

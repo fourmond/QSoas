@@ -24,6 +24,10 @@ mruby-detect-args /set-globals=true y=$c.my_a**b
 assert '$params[0]=="b"'
 assert '$locals[0]=="y"'
 
+mruby-detect-args /set-globals=true a.to_i
+assert '$params[0]=="a"'
+assert '$params.size == 1'
+
 
 # Now, a series of comparisons native vs mine
 ## INLINE: cmp

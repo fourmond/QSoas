@@ -528,7 +528,7 @@ QStringList MRuby::detectParametersNative(const QByteArray & code,
 #elif MRUBY_RELEASE_MAJOR == 2
 
 
-#define CASE(insn,ops) case insn: FETCH_ ## ops (); L_ ## insn
+#define CASE(insn,ops) case insn: FETCH_ ## ops (); /*o << "Got: " << #insn << endl; */L_ ## insn
 
 QStringList MRuby::detectParametersNative(const QByteArray & code,
                                           QStringList * locals)
@@ -571,28 +571,36 @@ QStringList MRuby::detectParametersNative(const QByteArray & code,
     ai = mrb_gc_arena_save(mrb);
 
     i = pc - irep->iseq;
+    auto cancel_cts = [&cur_top_self, a/*, &o*/] ()  {
+      // o << "Cancel: " << a << "/" << cur_top_self << endl;
+      if(cur_top_self == a)
+        cur_top_self = -1;
+    };
 
     ins = READ_B();
     // We unfortunately need the full case from mruby/src/codedump.c,
     // since the opcodes now have variable lengths
     switch (ins) {
       CASE(OP_NOP, Z): break;
-      CASE(OP_MOVE, BB): break;
-      CASE(OP_LOADL, BB): break;
-      CASE(OP_LOADI, BB): break;
-      CASE(OP_LOADINEG, BB): break;
-      CASE(OP_LOADI__1, B): break;
-      CASE(OP_LOADI_0, B): break;
-      CASE(OP_LOADI_1, B): break;
-      CASE(OP_LOADI_2, B): break;
-      CASE(OP_LOADI_3, B): break;
-      CASE(OP_LOADI_4, B): break;
-      CASE(OP_LOADI_5, B): break;
-      CASE(OP_LOADI_6, B): break;
-      CASE(OP_LOADI_7, B): break;
-      CASE(OP_LOADSYM, BB): break;
-      CASE(OP_LOADNIL, B): break;
-      CASE(OP_LOADSELF, B):
+
+      // All these change some 
+      CASE(OP_MOVE, BB): cancel_cts(); break;
+      CASE(OP_LOADL, BB): cancel_cts(); break;
+      CASE(OP_LOADI, BB): cancel_cts(); break;
+      CASE(OP_LOADINEG, BB): cancel_cts(); break;
+      CASE(OP_LOADI__1, B): cancel_cts(); break;
+      CASE(OP_LOADI_0, B): cancel_cts(); break;
+      CASE(OP_LOADI_1, B): cancel_cts(); break;
+      CASE(OP_LOADI_2, B): cancel_cts(); break;
+      CASE(OP_LOADI_3, B): cancel_cts(); break;
+      CASE(OP_LOADI_4, B): cancel_cts(); break;
+      CASE(OP_LOADI_5, B): cancel_cts(); break;
+      CASE(OP_LOADI_6, B): cancel_cts(); break;
+      CASE(OP_LOADI_7, B): cancel_cts(); break;
+      CASE(OP_LOADSYM, BB): cancel_cts(); break;
+      CASE(OP_LOADNIL, B): cancel_cts(); break;
+      // This changes to self
+      CASE(OP_LOADSELF, B): 
         cur_top_self = a;
       break;
       CASE(OP_LOADT, B): break;
@@ -621,18 +629,22 @@ QStringList MRuby::detectParametersNative(const QByteArray & code,
       CASE(OP_SENDV, BB):
         if(cur_top_self == a && c == 0)
           rv.insert(mrb_sym2name(mrb, irep->syms[b]));
+      cancel_cts();
       break;
       CASE(OP_SENDVB, BB):
         if(cur_top_self == a && c == 0)
           rv.insert(mrb_sym2name(mrb, irep->syms[b]));
+      cancel_cts();
       break;
       CASE(OP_SEND, BBB):
         if(cur_top_self == a && c == 0)
           rv.insert(mrb_sym2name(mrb, irep->syms[b]));
+      cancel_cts();
       break;
       CASE(OP_SENDB, BBB):
         if(cur_top_self == a && c == 0)
           rv.insert(mrb_sym2name(mrb, irep->syms[b]));
+      cancel_cts();
       break;
       CASE(OP_CALL, Z): break;
       CASE(OP_SUPER, BB): break;

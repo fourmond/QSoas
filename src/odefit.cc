@@ -281,6 +281,7 @@ void ODEFit::compute(const double * a, FitData * data,
   if(s->reporterIndex >= 0 && data->datasets.size() > 1) {
     // o << "Setting up cache" << endl;
     s->cachedX = ds->x();
+    s->cachedValues.clear();
     for(int i = 0; i < slv->dimension(); i++)
       s->cachedValues << s->cachedX;
     s->cachedParameters = prepareParameters();

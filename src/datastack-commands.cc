@@ -440,6 +440,8 @@ static void loadStackCommand(const QString &, QString fileName,
   bool merge = false;
   updateFromOptions(opts, "merge", merge);
 
+  Terminal::out << "Loading stack file: " << fileName << endl;
+
   QDataStream in(file);
   if(merge) {
     DataStack s(true);

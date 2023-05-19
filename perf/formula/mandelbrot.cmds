@@ -1,0 +1,6 @@
+# Generate a mandelbrot set 
+generate-dataset /samples=501 /columns=501 -2 2
+transpose
+ruby-run mandelbrot.rb
+apply-formula x=-2+4*i/($stats.rows-1)
+apply-formula /mode=xyz mandelbrot(x,z)

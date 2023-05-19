@@ -912,6 +912,9 @@ static void linearLeastSquaresCommand(const QString &, QString formula,
   
 
   DataStackHelper pusher(opts);
+  ColumnSpecification col("y");
+  updateFromOptions(opts, "column", col);
+  
   for(const DataSet * ds : buffers) {
     DataSetExpression ex(ds);
 
@@ -931,7 +934,8 @@ static void linearLeastSquaresCommand(const QString &, QString formula,
     GSLVector res(fcn.parameters());
     GSLVector errs(fcn.parameters());
     /// @todo Hmmm... Is really solve the best name for this ?
-    double chisq = fcn.solve(ds->y(), res, errs);
+    Vector v = col.getColumn(ds);
+    double chisq = fcn.solve(v, res, errs);
     ValueHash results;
     for(int i = 0; i < fcn.parameters(); i++)
         results << fcn.parameterNames()[i] << res[i]
@@ -960,14 +964,18 @@ static void linearLeastSquaresCommand(const QString &, QString formula,
     }
     if(mode == "fits") {
       DataSet * nds = ds->derivedDataSet("_lls_fits.dat");
-      fcn.computeFunction(res, nds->y().toGSLVector());
+      fcn.computeFunction(res, v.toGSLVector());
       pusher << nds;
     }
     if(mode == "residuals") {
       DataSet * nds = ds->derivedDataSet("_lls_res.dat");
-      fcn.computeFunction(res, nds->y().toGSLVector());
-      nds->y() -= ds->y();
-      nds->y() *= -1;
+      fcn.computeFunction(res, v.toGSLVector());
+      int idx = col.getValue(ds);
+      if(idx < 0)
+        throw RuntimeError("Could not set the target column: '%1'").
+          arg(col.specification());
+      nds->column(idx) -= v;
+      nds->column(idx) *= -1;
       pusher << nds;
     }
   }
@@ -996,6 +1004,9 @@ llO(QList<Argument *>()
                           "mode",
                           "Operation mode",
                           "Whether to just compute the parameters or also push residuals or fits")
+    << new ColumnArgument("column", 
+                          "Y column",
+                          "the column to run the regression against (defaults to Y)")
     << DataSetList::listOptions("Buffers to work on")
     << ValueHash::outputOptions()
     << DataStackHelper::helperOptions()

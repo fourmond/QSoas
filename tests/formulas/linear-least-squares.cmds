@@ -5,3 +5,29 @@ pop
 assert $stats.x_max-2.5 2.2e-13
 assert $stats.y_max-3 1e-13
 assert $stats.y2_max+12 1e-12
+
+# Computation of the residuals:
+
+generate-dataset 0 10 2.5*x+3*x**2-12
+linear-least-squares a*x+b*x**2+c /mode=residuals
+assert $stats.y_norm 1e-11
+
+# Same thing with the second column
+
+generate-dataset 0 10 1-x 2.5*x+3*x**2-12
+linear-least-squares a*x+b*x**2+c /column=y2 /accumulate=a,b,c
+pop
+assert $stats.x_max-2.5 2.2e-13
+assert $stats.y_max-3 1e-13
+assert $stats.y2_max+12 1e-12
+
+generate-dataset 0 10 1-x 2.5*x+3*x**2-12
+linear-least-squares a*x+b*x**2+c /mode=residuals /column=y2
+assert $stats.y2_norm 1e-11
+
+apply-formula y-=(1-x)
+assert $stats.y_norm 1e-16
+
+
+
+# Testing various aspects 

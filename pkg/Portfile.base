@@ -13,9 +13,9 @@ long_description    QSoas
 homepage            http://qsoas.org
 master_sites        http://10.234.32.140/soas/
 
-depends_lib         port:qt58-qtbase \
-                    port:qt58-qtsvg \
-                    port:qt58-qt3d \
+depends_lib         port:qt511-qtbase \
+                    port:qt511-qtsvg \
+                    port:qt511-qt3d \
                     port:ruby19 \
                     port:gsl
 

@@ -5,7 +5,7 @@
 # on.
 
 # Handling the two ways to export from inkscape
-if inkscape --version | grep 0.92; then
+if inkscape --version | grep -F 0.92; then
     opt='-e'
 else
     opt='-o'

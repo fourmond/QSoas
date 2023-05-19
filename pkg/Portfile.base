@@ -16,6 +16,7 @@ master_sites        http://10.234.32.140/soas/
 depends_lib         port:qt511-qtbase \
                     port:qt511-qtsvg \
                     port:qt511-qt3d \
+                    port:qt511-qttools \
                     port:ruby19 \
                     port:gsl
 

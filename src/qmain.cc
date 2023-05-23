@@ -72,7 +72,22 @@ public:
   };
 };
 
+#ifdef Q_OS_MAC
 
+#include <CoreFoundation/CoreFoundation.h>
+
+// A function to locate the application bundle on MacOS
+QString findApplicationPath()
+{
+  QString s;
+  CFURLRef appUrlRef = CFBundleCopyExecutableURL(CFBundleGetMainBundle());
+  CFStringRef macPath = CFURLCopyFileSystemPath(appUrlRef, kCFURLPOSIXPathStyle);
+  const char *pathPtr = CFStringGetCStringPtr(macPath, kCFStringEncodingUTF8);
+
+  return pathPtr;
+}
+
+#endif 
 int main(int argc, char ** argv)
 {
   const char * qsdebug = getenv("QSOAS_DEBUG");
@@ -84,13 +99,25 @@ int main(int argc, char ** argv)
   DataBackend::registerBackendCommands();
   CommandContext::crosslinkAllCommands();
 
-#ifndef Q_OS_LINUX
-  // On any platform other than Linux, we want the libraries supplied by the
-  // binaries to be the first ones that are found
-  QCoreAppplication::addLibraryPath(QCoreApplication::applicationDirPath());
+  // OK, this is ugly, we need to make sure the directory containing
+  // the bundle on mac is loaded as priority, but unfortunately, we can't use
+  // QCoreApplication::applicationDirPath() because that only works
+  // *after* the QCoreApplication object is created...
+  //
+  // ... which is way too late...
+#ifdef Q_OS_MAC
+  { 
+    QString path(::findApplicationPath());
+    QTextStream o(stdout);
+    o << "Found EXE path: " << path << endl;
+    QFileInfo info(path);
+    QCoreApplication::addLibraryPath(info.absoluteDir().path());
+    o << "Set library paths:\n - " << QCoreApplication::libraryPaths().join("\n - ") << endl;
+  }
 #endif
-  
+
   QSoasApplication main(argc, argv);
+  
   main.setApplicationName("QSoas");
 
   

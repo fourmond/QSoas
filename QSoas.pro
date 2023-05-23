@@ -153,6 +153,10 @@ gc {
   TARGET = $$join(TARGET,,,-gc)
 }
 
+# Linking against CoreFoundation on macos:
+macx {
+  LIBS += -framework CoreFoundation
+}
 
 
 

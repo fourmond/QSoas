@@ -83,6 +83,13 @@ int main(int argc, char ** argv)
   }
   DataBackend::registerBackendCommands();
   CommandContext::crosslinkAllCommands();
+
+#ifndef Q_OS_LINUX
+  // On any platform other than Linux, we want the libraries supplied by the
+  // binaries to be the first ones that are found
+  QCoreAppplication::addLibraryPath(QCoreApplication::applicationDirPath());
+#endif
+  
   QSoasApplication main(argc, argv);
   main.setApplicationName("QSoas");
 

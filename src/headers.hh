@@ -159,6 +159,7 @@
 
 // Plugins
 #include <QLibrary>
+#include <QLibraryInfo>
 
 // Networking ?
 #include <QTcpSocket>

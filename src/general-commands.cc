@@ -1295,6 +1295,8 @@ void versionCommand(const QString &, const CommandOptions & opts)
        << QCoreApplication::applicationDirPath()
        << "\n * application path: "
        << QCoreApplication::applicationFilePath()
+       << "\n * libraryinfo library path: "
+       << QLibraryInfo::location(QLibraryInfo::LibrariesPath)
        << "\n * library paths: ";
     for(const QString & p: QCoreApplication::libraryPaths())
       o << "\n    - " << p;

@@ -1898,6 +1898,7 @@ ave("average", // command name
 static void catCommand(const QString &, QList<const DataSet *> b, const CommandOptions & opts)
 {
   bool setSegs = true;
+  DataSetList buffers(opts, b);
   updateFromOptions(opts, "add-segments", setSegs);
   handleMissingDS(&b);
 
@@ -1905,12 +1906,12 @@ static void catCommand(const QString &, QList<const DataSet *> b, const CommandO
   updateFromOptions(opts, "contract-meta", meta);
 
   if(b.size() > 0) {
-    std::unique_ptr<DataSet> ds(DataSet::concatenateDataSets(b, setSegs));
-    ds->contractMeta(meta, b);
+    std::unique_ptr<DataSet> ds(DataSet::concatenateDataSets(buffers, setSegs));
+    ds->contractMeta(meta, buffers);
     soas().pushDataSet(ds.release());
   }
   else
-    throw RuntimeError("No dataets to concatenate");
+    throw RuntimeError("No datasets to concatenate");
 }
 
 static ArgumentList 
@@ -1926,6 +1927,7 @@ catOpts(QList<Argument *>()
                             "Add segments",
                             "If on (default) segments are added between "
                             "the old datasets")
+        << DataSetList::listOptions("...", false, true)
         << (new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                        "contract-meta",
                                        "Contract meta data",

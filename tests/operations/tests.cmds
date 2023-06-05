@@ -4,6 +4,10 @@
 @ add.cmds
 @ mul.cmds
 @ merge.cmds
+@ cat.cmds
+
+
+
 @ crashes.cmds
 
 @ modes.cmds

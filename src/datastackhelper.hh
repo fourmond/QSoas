@@ -77,8 +77,23 @@ class DataStackHelper {
 
   
 public:
+
+  enum HelperFeature {
+    SetMeta = 0x01,
+    Flags = 0x02,
+    Style = 0x04,
+    Reversed = 0x08,
+    /// Combined
+    None = 0x00,
+    All =  SetMeta|Flags|Style|Reversed
+  };
+
+  Q_DECLARE_FLAGS(HelperFeatures,HelperFeature);
+
+
+  
   explicit DataStackHelper(const CommandOptions & opts, bool update = false,
-                           bool deferred = true);
+                           bool deferred = true, HelperFeatures features = All);
   ~DataStackHelper();
 
   /// Invalidate the helper. It still accepts datasets, but will
@@ -106,7 +121,7 @@ public:
   void flush();
 
   /// Returns the static list of options
-  static QList<Argument *> helperOptions();
+  static QList<Argument *> helperOptions(HelperFeatures features = All);
 };
 
 

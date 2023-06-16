@@ -911,7 +911,9 @@ static void linearLeastSquaresCommand(const QString &, QString formula,
   updateFromOptions(opts, "mode", mode);
   
 
-  DataStackHelper pusher(opts);
+  DataStackHelper pusher(opts, false, true,
+                         DataStackHelper::HelperFeatures(DataStackHelper::All^
+                                                         DataStackHelper::SetMeta));
   ColumnSpecification col("y");
   updateFromOptions(opts, "column", col);
   
@@ -1009,7 +1011,7 @@ llO(QList<Argument *>()
                           "the column to run the regression against (defaults to Y)")
     << DataSetList::listOptions("Buffers to work on")
     << ValueHash::outputOptions()
-    << DataStackHelper::helperOptions()
+    << DataStackHelper::helperOptions(DataStackHelper::HelperFeatures(DataStackHelper::All^DataStackHelper::SetMeta))
     );
 
 

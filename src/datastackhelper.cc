@@ -27,13 +27,17 @@
 #include <general-arguments.hh>
 
 DataStackHelper::DataStackHelper(const CommandOptions & opts,
-                                 bool upt, bool def) :
+                                 bool upt, bool def, HelperFeatures features) :
   deferred(def), update(upt), reversed(false), valid(true)
 {
-  updateFromOptions(opts, "flags", flags);
-  updateFromOptions(opts, "style", style);
-  updateFromOptions(opts, "set-meta", meta);
-  updateFromOptions(opts, "reversed", reversed);
+  if(features & Flags)
+    updateFromOptions(opts, "flags", flags);
+  if(features & Style)
+    updateFromOptions(opts, "style", style);
+  if(features & SetMeta)
+    updateFromOptions(opts, "set-meta", meta);
+  if(features & Reversed)
+    updateFromOptions(opts, "reversed", reversed);
 }
 
 DataStackHelper::~DataStackHelper()
@@ -62,22 +66,27 @@ const QList<DataSet *> & DataStackHelper::currentDataSets() const
 }
 
 
-QList<Argument *> DataStackHelper::helperOptions()
+QList<Argument *> DataStackHelper::helperOptions(HelperFeatures features)
 {
   QList<Argument *> args;
-  args << (new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
-                                     "flags", 
-                                     "Flags",
-                                      "Flags to set on the newly created datasets"))->describe("a comma-separated list of flags", "flags")
-       << new StyleGeneratorArgument("style", 
-                                     "Style",
-                                     "Style for the displayed curves")
-       << new BoolArgument("reversed", 
-                           "Reversed",
-                           "Push the datasets in reverse order")
-       << new MetaHashArgument("set-meta", 
-                               "Meta-data to add",
-                               "Meta-data to add to the newly created datasets");
+  if(features & Flags)
+    args << (new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
+                                        "flags",
+                                        "Flags",
+                                        "Flags to set on the newly created datasets"))->describe("a comma-separated list of flags", "flags");
+  if(features & Style)
+    args << new StyleGeneratorArgument("style",
+                                       "Style",
+                                       "Style for the displayed curves");
+  if(features & SetMeta)
+    args << new MetaHashArgument("set-meta",
+                                 "Meta-data to add",
+                                 "Meta-data to add to the newly created datasets");
+  if(features & Reversed)
+    args << new BoolArgument("reversed",
+                             "Reversed",
+                             "Push the datasets in reverse order");
+      
   return args;
 }
 

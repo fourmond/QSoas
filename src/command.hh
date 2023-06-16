@@ -297,6 +297,11 @@ public:
   /// specification-like fashion (ie, things that can be
   /// compared). Not for use for a help string. Should be \b stable.
   QString commandSpec(bool full) const;
+
+
+  /// Checks that the options are consistent -- in particular, raise
+  /// an exception when using an option with two times the name.
+  void checkOptions() const;
 };
 
 #endif

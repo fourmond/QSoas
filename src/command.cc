@@ -61,7 +61,7 @@ Command::Command(const QString & cn,
   // o << "Creating command: " << cn << endl;
   if(autoRegister)
     registerMe();
-}; 
+}
 
 Command::Command(const QString & cn, 
                  CommandEffector * eff,
@@ -86,7 +86,7 @@ Command::Command(const QString & cn,
   // o << "Creating command: " << cn << endl;
   if(autoRegister)
     registerMe();
-}; 
+}
 
 Command::~Command()
 {
@@ -103,7 +103,25 @@ void Command::registerMe()
   if(! context)
     context = CommandContext::globalContext();
   context->registerCommand(this);
+  checkOptions();
 }
+
+
+void Command::checkOptions() const
+{
+  QSet<QString> opts;
+  if(options) {
+    for(int i = 0; i < options->size(); i++) {
+      const Argument * arg = (*options)[i];
+      QString a = arg->argumentName();
+      if(opts.contains(a))
+        throw InternalError("Duplicate option: %1 for command %2").
+          arg(a).arg(cmdName);
+      opts.insert(a);
+    }
+  }
+}
+
 
 
 /// Dummy ArgumentList. @todo move somewhere else ?

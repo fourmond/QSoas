@@ -92,7 +92,10 @@ static void saveCommand(const QString & /*name*/, QString file, const CommandOpt
   // updateFromOptions(opts, "rotate", rotation);
   // if(rotation != 0)
   //   Utils::rotateFile(file, rotation);
-  FitWorkspace::currentWorkspace()->saveParameters(file, false, opts);
+  QStringList comments;
+  updateFromOptions(opts, "comments", comments);
+  FitWorkspace::currentWorkspace()->saveParameters(file, false,
+                                                   comments, opts);
 }
 
 ArgumentList sA(QList<Argument*>() 
@@ -104,6 +107,9 @@ ArgumentList sA(QList<Argument*>()
 ArgumentList sO(QList<Argument*>() 
                 << File::fileOptions(File::OverwriteOption|
                                      File::RotationOption|File::MkPathOption)
+                << new SeveralStringsArgument(QRegExp("\n"),
+                                              "comments", "comments",
+                                              "Comments to include in the file")
 
                 );
 

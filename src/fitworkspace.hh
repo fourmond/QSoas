@@ -541,13 +541,17 @@ public:
 
 protected:
   /// Save to the given stream
-  void saveParameters(QIODevice * out) const;
+  void saveParameters(QIODevice * out,
+                      const QStringList & comments) const;
 
 public:
 
   /// Save to the named file.
+  ///
+  /// The @a opts argument is given directly to File handling.
   void saveParameters(const QString & fileName,
                       bool overwrite = false,
+                      const QStringList & comments = QStringList(),
                       const CommandOptions & opts = CommandOptions()) const;
 
   /// Load from the given stream

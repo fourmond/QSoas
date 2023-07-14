@@ -39,6 +39,8 @@ protected:
     int p = 0;
     if(peek.contains("# The following information are comments, but Soas"))
       p += 450;
+    if(peek.contains("# QSoas saved parameters"))
+      p += 450;
     QRegExp re1("^# Fit used:");
     if(re1.indexIn(s) >= 0)
       p += 20;

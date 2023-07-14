@@ -888,15 +888,20 @@ void FitWorkspace::writeToTerminal(bool writeMatrix)
   writeText(Terminal::out, writeMatrix);
 }
 
-void FitWorkspace::saveParameters(QIODevice * stream) const
+void FitWorkspace::saveParameters(QIODevice * stream,
+                                  const QStringList & comments) const
 {
   QTextStream out(stream);
   
-  out << "# The following information are comments, " 
-    "but Soas may make use of those if they are present" << endl;
-
+  out << "# QSoas saved parameters" << endl;
   out << "# Fit used: " << fitName() << endl;
   out << "# Command-line: " << soas().currentCommandLine() << endl;
+
+  if(comments.size() > 0) {
+    out << "# Comments:" << endl;
+    for(const QString & s: comments)
+      out << "#   " << s << endl;
+  }
 
   // A first pass to print out the global parameters
   for(int i = 0; i < nbParameters; i++) {
@@ -926,17 +931,16 @@ void FitWorkspace::saveParameters(QIODevice * stream) const
           << endl;
     }
   }
-  out << "# The following contains a more human-readable listing of the "
-    "parameters that is NEVER READ by QSoas" << endl;
   writeText(out, false, "# ");
 }
 
 void FitWorkspace::saveParameters(const QString & fileName,
                                   bool overwrite,
+                                  const QStringList & comments,
                                   const CommandOptions & opts) const
 {
   File f(fileName, (overwrite ? File::TextOverwrite : File::TextWrite), opts);
-  saveParameters(f);
+  saveParameters(f, comments);
   Terminal::out << "Saved fit parameters to file " << fileName << endl;
 }
 
@@ -1093,7 +1097,8 @@ void FitWorkspace::setValue(const QString & name, double value, int dsi)
     dsi = specRE.cap(2).toInt();
   }
   if(dsi >= datasets) {
-    Terminal::out << "Attempting to set parameter: '" << name << "' to a non-existent buffer:" << dsi << endl;
+    Terminal::out << "Attempting to set parameter: '" << name
+                  << "' to a non-existent buffer:" << dsi << endl;
     return;
   }
   if(p == "buffer_weight")

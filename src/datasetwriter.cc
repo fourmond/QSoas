@@ -44,14 +44,16 @@ void DataSetWriter::writeData(QIODevice * target,
   
   // Writing column names
   QList<QStringList> ls = ds->columnNames;
+  if(ls.size() == 0 && writeRowNames)
+    ls << ds->mainColumnNames();
   while(ls.size() > 0) {
     QStringList names = ls.takeLast();
     if(writeRowNames)
       names.insert(0, "row-names");
-    o << columnNamesPrefix << names.join(separator) << "\n";
+    o << columnNamesPrefix << " " 
+      << names.join(separator) << "\n";
   }
 
-  /// @todo write row names.
   ls = ds->rowNames;
   
   int nb = ds->nbRows();

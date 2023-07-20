@@ -105,5 +105,4 @@ template<typename T> bool testOption(const CommandOptions & opts,
   return false;
 };
 
-
 #endif

@@ -42,6 +42,9 @@ class BufferCache;
 class CombinedFit : public PerDatasetFit {
 protected:
 
+  ArgumentList softOptions;
+  ArgumentList hardOptions;
+
   class Storage : public FitInternalStorage {
   public:
     /// Storage space for all underlying fits
@@ -63,11 +66,19 @@ protected:
   };
 
   virtual FitInternalStorage * allocateStorage(FitData * data) const override;
-  virtual FitInternalStorage * copyStorage(FitData * data, FitInternalStorage * source, int ds = -1) const override; 
+  virtual FitInternalStorage * copyStorage(FitData * data,
+                                           FitInternalStorage * source,
+                                           int ds = -1) const override;
 
   
+  virtual ArgumentList fitHardOptions() const override;
+  virtual ArgumentList fitSoftOptions() const override;
+  virtual CommandOptions currentSoftOptions(FitData * data) const override;
+  virtual void processSoftOptions(const CommandOptions & opts,
+                                  FitData * data) const override;
   
-  virtual void processOptions(const CommandOptions & opts, FitData * data) const override;
+  virtual void processOptions(const CommandOptions & opts,
+                              FitData * data) const override;
   virtual QString optionsString(FitData * data) const override;
 
   /// The underlying fits

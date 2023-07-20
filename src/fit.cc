@@ -69,6 +69,8 @@ Fit::Fit(const QString & n, const QString & sd,
   registerFit(this);
   if(mkCmds)
     makeCommands();
+  // QTextStream o(stdout);
+  // o << "Making fit " << n << " at " << this << endl;
 }
 
 bool Fit::threadSafe() const {
@@ -126,7 +128,11 @@ void Fit::clearupCustomFits()
 {
   if(! fitsByName)
     return;
-  for(Fit * fit : *fitsByName) {
+
+  // QTextStream o(stdout);
+  for(const QString & s : fitsByName->keys()) {
+    Fit * fit = (*fitsByName)[s];
+    // o << "Fit: " << s << " -> " << fit << endl;
     if(fit->isCustom())
       delete fit;
   }
@@ -756,6 +762,13 @@ void Fit::computeFit(std::function<void (FitData *)> hook,
 
 Fit::~Fit()
 {
+  // QTextStream o(stdout);
+  // o << "Deleting fit " << name << " at " << this << endl;
+
+  // Unsure the fits are correctly removed
+  if(fitsByName && fitsByName->contains(name) && (*fitsByName)[name] == this)
+    fitsByName->remove(name);
+  
   deleteCommands();
 }
 

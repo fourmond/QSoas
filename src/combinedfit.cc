@@ -258,19 +258,51 @@ CombinedFit::CombinedFit(const QString & name, const QString & f,
   ownParameters = params.mid(1 + fits.size());
 
 
-  /// @hack This should be replaced by the right thing !
-  ArgumentList opts;
-
   for(int i = 0; i < underlyingFits.size(); i++) {
     PerDatasetFit *f = underlyingFits[i];
     Command * cmd = CommandContext::globalContext()->
       namedCommand("fit-" + f->fitName(false));
-    opts << *cmd->commandOptions();
+    softOptions.mergeOptions(f->fitSoftOptions());
+    hardOptions.mergeOptions(f->fitHardOptions());
   }
 
-  /// @todo Global register of options for fits...
+  makeCommands();
+}
 
-  makeCommands(ArgumentList(), NULL, NULL, opts);
+ArgumentList CombinedFit::fitHardOptions() const
+{
+  return hardOptions;
+}
+
+ArgumentList CombinedFit::fitSoftOptions() const
+{
+  return softOptions;
+}
+
+void CombinedFit::processSoftOptions(const CommandOptions & opts,
+                                     FitData * data) const
+{
+  Storage * s = storage<Storage>(data);
+
+  for(int i = 0; i < underlyingFits.size(); i++) {
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
+                                                      s->subs[i]);
+    underlyingFits[i]->processSoftOptions(opts, data);
+  }
+}
+
+
+CommandOptions CombinedFit::currentSoftOptions(FitData * data) const
+{
+  CommandOptions opts;
+  Storage * s = storage<Storage>(data);
+
+  for(int i = 0; i < underlyingFits.size(); i++) {
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
+                                                      s->subs[i]);
+    opts.unite(underlyingFits[i]->currentSoftOptions(data));
+  }
+  return opts;
 }
 
 

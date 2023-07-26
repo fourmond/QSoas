@@ -273,7 +273,8 @@ public:
   ///
   /// @{
 
-  /// Returns the perpendicular coordinates
+  /// Returns the perpendicular coordinates.
+  /// The return value can be empty.
   const Vector & perpendicularCoordinates() const;
 
   /// Sets perpendicular coordinates

@@ -12,3 +12,6 @@
 
 @ modes.cmds
 @ rotation.cmds
+
+# Singular value decomposition
+@ sv.cmds

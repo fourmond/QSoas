@@ -422,7 +422,8 @@ SOURCES += \
         src/contourlines.cc \
         src/settings-templates.cc \
         src/linearfunctions.cc \
-        src/indexedfit.cc
+        src/indexedfit.cc \
+        src/svd-command.cc
 
 
 # Fit engines, grouped in an easy way to disable them:

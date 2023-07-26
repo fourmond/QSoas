@@ -234,7 +234,7 @@ public:
       so = " (options: " + so + ")";
 
     QStringList defs = indexedParameters;
-    qSort(defs);
+    std::sort(defs.begin(), defs.end());
 
     return QString("fit: %1%2, with %3 indexed").
       arg(underlyingFit->fitName(false)).arg(so).

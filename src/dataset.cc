@@ -51,7 +51,7 @@
 OrderedList & OrderedList::operator=(const QList<int> & lst)
 {
   QList<int>::operator=(lst);
-  qSort(*this);
+  std::sort(begin(), end());
   return *this;
 }
 
@@ -59,7 +59,7 @@ void OrderedList::insert(int idx)
 {
   // The lazy-but-actually-smart-thing-to-do
   QList<int>::append(idx);
-  qSort(*this);
+  std::sort(begin(), end());
 }
 
 void OrderedList::shiftAbove(int idx, int delta)
@@ -124,7 +124,7 @@ QString DataSet::stringDescription(bool longDesc) const
       arg(name).arg(nbColumns()).arg(nbRows()).
       arg(segments.size() + 1).arg(index);
     QStringList flgs = QStringList::fromSet(flags);
-    qSort(flgs);
+    std::sort(flgs.begin(), flgs.end());
     val += QString("Flags: %1\n").arg(flgs.join(", "));
     val += "Meta-data:";
     val += metaData.prettyPrint(3, "\t", ",", true);
@@ -905,7 +905,7 @@ void DataSet::reverse()
   int sz = nbRows();
   for(int j = 0; j < segments.size(); j++)
     segments[j] = sz - segments[j];
-  qSort(segments);
+  std::sort(segments.begin(), segments.end());
 }
 
 
@@ -1194,9 +1194,9 @@ DataSet * DataSet::sort(bool reverse, int col) const
     vals << QPair<double, int>(xv[i], i);
   
   if(reverse)
-    qSort(vals.begin(), vals.end(), &greaterThan);
+    std::sort(vals.begin(), vals.end(), &greaterThan);
   else
-    qSort(vals.begin(), vals.end(), &lessThan);
+    std::sort(vals.begin(), vals.end(), &lessThan);
 
   /// Hmm.  @perf Make sure select works with iterators rather than
   /// with lists.
@@ -1953,7 +1953,7 @@ QList<DataSet *> DataSet::autoSplit(const QHash<int, QString> & cols,
   QHash<QVector<int>, DataSet *> rvs;
 
   QVector<int> cls = uniqueValues.keys().toVector();
-  qSort(cls);
+  std::sort(cls.begin(), cls.end());
 
   // A template for columns
   QList<Vector> tmplt;
@@ -2005,7 +2005,7 @@ QList<DataSet *> DataSet::autoSplit(const QHash<int, QString> & cols,
   }
 
   QList<QVector<int> > keys = rvs.keys();
-  qSort(keys.begin(), keys.end(), &cmpVectors);
+  std::sort(keys.begin(), keys.end(), &cmpVectors);
 
   for(int i = 0; i < keys.size(); i++) {
     DataSet * ds = rvs[keys[i]];

@@ -170,7 +170,7 @@ hlpc("define-alias", // command name
 static void displayAliasesCommand(const QString &)
 {
   QStringList aliases = definedAliases.keys();
-  qSort(aliases);
+  std::sort(aliases.begin(), aliases.end());
 
   Terminal::out << "Defined aliases:" << endl;
   for(int i = 0; i < aliases.size(); i++) {

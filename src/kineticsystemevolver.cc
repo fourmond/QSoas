@@ -247,7 +247,7 @@ static void kineticSystemCommand(const QString &, QString file,
       });
   }
   QStringList p = params.keys();
-  qSort(p);
+  std::sort(p.begin(), p.end());
 
   Terminal::out << "Parameter values: " << endl;
   for(int i = 0; i < p.size(); i++)
@@ -478,7 +478,7 @@ protected:
     QHash<QString, double> vals = evolver->parameterValues();
 
     QStringList ps = vals.keys();
-    qSort(ps);
+    std::sort(ps.begin(), ps.end());
 
     for(int i = 0; i < ps.size(); i++)
       Debug::debug()

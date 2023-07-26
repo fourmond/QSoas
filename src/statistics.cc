@@ -336,7 +336,7 @@ static MultiLambdaStat med(QStringList()
                            {
                              QList<QVariant> rv;
                              Vector v = ds->column(c);
-                             qSort(v);
+                             std::sort(v.begin(), v.end());
                              int nb = v.size();
                              rv << v[0.5 * nb]
                                 << v[0.1 * nb]

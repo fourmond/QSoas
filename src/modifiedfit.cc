@@ -205,7 +205,7 @@ protected:
     }
 
     // Now, prepare the parameters list
-    qSort(strippedIndices);
+    std::sort(strippedIndices.begin(), strippedIndices.end());
     for(int i = strippedIndices.size() - 1; i >= 0; i--)
       s->finalParameters.takeAt(strippedIndices[i]);
     
@@ -359,7 +359,7 @@ public:
       so = " (options: " + so + ")";
 
     QStringList defs = redefinitions.keys();
-    qSort(defs);
+    std::sort(defs.begin(), defs.end());
 
     return QString("fit: %1%2, with %3 redefined").
       arg(underlyingFit->fitName(false)).arg(so).arg(defs.join(", "));

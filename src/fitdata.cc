@@ -705,7 +705,8 @@ void FitData::initializeParameters()
   covarIsOK = false;
 
   // We make sure the parameters are in the right order
-  qSort(parameters.begin(), parameters.end(), FitParameter::parameterIsLower);
+  std::sort(parameters.begin(), parameters.end(),
+            FitParameter::parameterIsLower);
 
   parametersByDataset.clear();
   parametersByDefinition.clear();

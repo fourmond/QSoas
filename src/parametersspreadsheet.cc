@@ -148,7 +148,7 @@ void ParametersSpreadsheet::propagate(std::function<bool (const QModelIndex & a,
   QModelIndexList indexes = view->selectionModel()->selectedIndexes();
 
   // We first sort, and then we just have to propagate the values
-  qSort(indexes.begin(), indexes.end(), cmp);
+  std::sort(indexes.begin(), indexes.end(), cmp);
 
   int curCol = -1;
   QVariant curVal;
@@ -200,7 +200,7 @@ void ParametersSpreadsheet::interpolateParameters()
   QModelIndexList indexes = view->selectionModel()->selectedIndexes();
 
   // We first sort, and then we just have to propagate the values
-  qSort(indexes.begin(), indexes.end(), &::lower);
+  std::sort(indexes.begin(), indexes.end(), &::lower);
 
   QList<QModelIndexList > columns;
   QModelIndexList * cur = NULL;

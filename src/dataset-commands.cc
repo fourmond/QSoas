@@ -2534,7 +2534,7 @@ static void tweakColumnsCommand(const QString &,
   }
   else if(toRemove.columns.size() > 0) {
     QList<int> tr = toRemove.getValues(ds);
-    qSort(tr);
+    std::sort(tr.begin(), tr.end());
     for(int i = tr.size() - 1; i >= 0; i--)
       cols.removeAt(tr[i]);
   }

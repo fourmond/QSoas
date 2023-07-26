@@ -307,10 +307,11 @@ QList<FitTrajectoryCluster> FitTrajectoryCluster::clusterTrajectories(const QLis
 
   // Now sort the clusters
   for(int j = 0; j < clusters.size(); j++)
-    qSort(clusters[j].trajectories);
+    std::sort(clusters[j].trajectories.begin(),
+              clusters[j].trajectories.end());
 
   
-  qSort(clusters.begin(), clusters.end(), cmp);
+  std::sort(clusters.begin(), clusters.end(), cmp);
   
   return clusters;
 }

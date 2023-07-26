@@ -63,7 +63,7 @@ void Spline::remove(double x)
 void Spline::preparePoints(Vector * xt,
                            Vector * xv, Vector * yv)
 {
-  qSort(*xt);
+  std::sort(xt->begin(), xt->end());
   xv->clear();
   yv->clear();
 

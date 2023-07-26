@@ -59,7 +59,7 @@ QAction * Group::actionForGroup(QObject * parent,
                                 const CommandContext * context) const
 {
   QList<Command *> cmds = commands;
-  qSort(cmds.begin(), cmds.end(), compareCommands);
+  std::sort(cmds.begin(), cmds.end(), compareCommands);
   QAction * action = new QAction(parent);
   action->setText(publicName());
   action->setStatusTip(shortDescription());
@@ -67,7 +67,7 @@ QAction * Group::actionForGroup(QObject * parent,
   QMenu * menu = new QMenu(); // Leaks ? Isn't that a Qt bug ?
 
   QList<Group *> grps = subGroups;
-  qSort(grps.begin(), grps.end(), compareGroups);
+  std::sort(grps.begin(), grps.end(), compareGroups);
 
 
   for(int i = 0; i < grps.size(); i++) {
@@ -106,7 +106,7 @@ void Group::fillMenuBar(QMenuBar * menu, const CommandContext * context)
   if(! availableGroups)
     return;
   QList<Group *> groups = availableGroups->values();
-  qSort(groups.begin(), groups.end(), compareGroups);
+  std::sort(groups.begin(), groups.end(), compareGroups);
   for(int i = 0; i < groups.size(); i++) {
     if(groups[i]->parent)
       continue;

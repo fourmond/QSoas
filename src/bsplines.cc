@@ -112,7 +112,7 @@ void BSplines::setBreakPoints(const Vector & bps)
   int oldsize = breakPoints.size();
   breakPoints = bps;
 
-  qSort(breakPoints);
+  std::sort(breakPoints.begin(), breakPoints.end());
   if(breakPoints.min() > x.min())
     breakPoints.prepend(x.min());
   if(breakPoints.max() < x.max())

@@ -1198,7 +1198,7 @@ static void doAssert(QString code,
       AssertionsList totl;
       if(code == "all") {
         keys = assertResults.keys();
-        qSort(keys);
+        std::sort(keys.begin(), keys.end());
       }
       else
         keys = code.split(QRegExp("\\s+"));

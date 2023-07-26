@@ -125,15 +125,15 @@ public:
       if(nbdiv == 0 || (maxfuncalls > 0 && funcalls > maxfuncalls))
         break;
 
-      qSort(nnodes);
-      qSort(ns);
+      std::sort(nnodes.begin(), nnodes.end());
+      std::sort(ns.begin(), ns.end());
       nodes = nnodes;
       subNodes = ns;
     }
 
     // Now compute the integral proper
     nodes << subNodes;
-    qSort(nodes);
+    std::sort(nodes.begin(), nodes.end());
 
     for(int i = 0; i < dimension; i++) {
       prepareIntegration(nodes, i);

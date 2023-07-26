@@ -709,7 +709,7 @@ void FitWorkspace::prepareInfo(QStringList * rowNames,
     for(int i = 1; i < datasets; i++)
       names.intersect(fitData->datasets[i]->getMetaData().extractDoubles().keys().toSet());
     *metaNames = names.toList();
-    qSort(*metaNames);
+    std::sort(metaNames->begin(), metaNames->end());
     metaValues->clear();
     for(const QString & n : *metaNames)
       *metaValues << Vector();
@@ -750,7 +750,7 @@ void FitWorkspace::prepareExport(QStringList & lst, QString & lines,
     for(int i = 1; i < datasets; i++)
       names.intersect(fitData->datasets[i]->getMetaData().extractDoubles().keys().toSet());
     meta = names.toList();
-    qSort(meta);
+    std::sort(meta.begin(), meta.end());
     lst << meta;
   }
 

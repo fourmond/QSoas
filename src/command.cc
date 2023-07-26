@@ -603,7 +603,7 @@ QString Command::commandSpec(bool full) const
     }
   if(options) {
     QStringList an = options->argumentNames();
-    qSort(an);
+    std::sort(an.begin(), an.end());
     for(int i = 0; i < an.size(); i++) {
       const Argument * arg = options->namedArgument(an[i]);
       ret += " - /" + arg->argumentName() + 

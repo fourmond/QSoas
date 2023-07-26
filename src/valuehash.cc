@@ -290,7 +290,7 @@ QString ValueHash::prettyPrint(int nbCols,
   
   QStringList keys = vals.keys();
   if(sort)
-    qSort(keys);
+    std::sort(keys.begin(), keys.end());
   
   for(int i = 0; i < keys.size(); i++) {
     if(! (done % nbCols))

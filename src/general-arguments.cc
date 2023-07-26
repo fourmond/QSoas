@@ -322,7 +322,7 @@ QStringList ChoiceArgument::choices() const
   QStringList c = fixedChoices;
   if(provider)
     c = provider();
-  qSort(c);
+  std::sort(c.begin(), c.end());
   return c;
 }
 
@@ -408,7 +408,7 @@ QStringList SeveralChoicesArgument::choices() const
   QStringList c = fixedChoices;
   if(provider)
     c = provider();
-  qSort(c); // smart ?
+  std::sort(c.begin(), c.end()); // smart ?
   return c;
 }
 

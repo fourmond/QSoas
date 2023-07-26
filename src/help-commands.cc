@@ -207,7 +207,7 @@ void updateDocumentationFile(const QString &, QString file)
 
     QStringList nonInt = CommandContext::globalContext()->
       nonInteractiveCommands();
-    qSort(nonInt);
+    std::sort(nonInt.begin(), nonInt.end());
     Utils::makeUnique(nonInt);
     for(int i = 0; i < nonInt.size(); i++) {
       // Command * cmd = Command::namedCommand(nonInt[i]);
@@ -232,8 +232,6 @@ void updateDocumentationFile(const QString &, QString file)
     // // Now dealing with non-interactive fit commands ?
     // QStringList nonInt = CommandContext::globalContext()->
     //   nonInteractiveCommands();
-    // qSort(nonInt);
-    // Utils::makeUnique(nonInt);
   }
 
 

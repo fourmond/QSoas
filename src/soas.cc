@@ -157,27 +157,27 @@ void Soas::writeSpecFile(QTextStream & out, bool full)
   out << " - " << GSLConstant::availableConstants().join("\n - ") << endl;
 
   QStringList tdp = TimeDependentParameter::TDPFactory::availableItems();
-  qSort(tdp);
+  std::sort(tdp.begin(), tdp.end());
   out << "Time-dependent parameters:" << endl;
   out << " - " << tdp.join("\n - ") << endl;
 
   tdp = ODEStepperOptions::stepperTypes().keys();
-  qSort(tdp);
+  std::sort(tdp.begin(), tdp.end());
   out << "ODE steppers:" << endl;
   out << " - " << tdp.join("\n - ") << endl;
 
   tdp = IntegratorFactory::availableItems();
-  qSort(tdp);
+  std::sort(tdp.begin(), tdp.end());
   out << "Standard integrators:" << endl;
   out << " - " << tdp.join("\n - ") << endl;
 
   tdp = MultiIntegrator::MultiIntegratorFactory::availableItems();
-  qSort(tdp);
+  std::sort(tdp.begin(), tdp.end());
   out << "Multi integrators:" << endl;
   out << " - " << tdp.join("\n - ") << endl;
 
   tdp = FitEngineFactoryItem::availableItems();
-  qSort(tdp);
+  std::sort(tdp.begin(), tdp.end());
   out << "Fit engines:" << endl;
   for(const QString & f : tdp) {
     FitEngineFactoryItem * it = FitEngineFactoryItem::namedItem(f);
@@ -188,12 +188,12 @@ void Soas::writeSpecFile(QTextStream & out, bool full)
   }
 
   tdp = StyleGenerator::availableGenerators();
-  qSort(tdp);
+  std::sort(tdp.begin(), tdp.end());
   out << "Styles:" << endl;
   out << " - " << tdp.join("\n - ") << endl;
 
   tdp = Distribution::availableDistributions();
-  qSort(tdp);
+  std::sort(tdp.begin(), tdp.end());
   out << "Distribution:" << endl;
   out << " - " << tdp.join("\n - ") << endl;
 
@@ -254,7 +254,7 @@ static CommandLineOption lsc("--list-commands", [](const QStringList & /*args*/)
     {
       QTextStream o(stdout);
       QStringList cmds = CommandContext::listAllCommands();
-      qSort(cmds);
+      std::sort(cmds.begin(), cmds.end());
       o << cmds.join("\n") << endl;
     }
     ::exit(0);

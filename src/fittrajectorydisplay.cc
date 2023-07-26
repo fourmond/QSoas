@@ -79,38 +79,41 @@ public:
   void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) {
     Debug::debug() << "sort by " << column << " -- " << order << endl;
 
-    qSort(trajectories->begin(), trajectories->end(), [this, order, column](FitTrajectory a, FitTrajectory b) -> bool {
-        QVariant va = data(&a, column, Qt::DisplayRole, true);
-        QVariant vb = data(&b, column, Qt::DisplayRole, true);
-        if(va.type() == QMetaType::QDateTime) {
-          QDateTime da = va.toDateTime();
-          QDateTime db = vb.toDateTime();
-          return (order == Qt::AscendingOrder ?
-                  da < db : db < da);
-        }
-        if(va.type() == QMetaType::Double) {
-          double da = va.toDouble();
-          double db = vb.toDouble();
-          // We put the nans always at the end regardless of the order.
-          if(std::isnan(da))
-            return false;
-          if(std::isnan(db))
-            return true;
-          return (order == Qt::AscendingOrder ?
-                  da < db : db < da);
-        }
-        if(va.type() == QMetaType::Int || va.type() == QMetaType::UInt ||
-           va.type() == QMetaType::Long || va.type() == QMetaType::ULong) {
-          qint64 da = va.toLongLong();
-          qint64 db = vb.toLongLong();
-          return (order == Qt::AscendingOrder ?
-                  da < db : db < da);
-        }
-        QString da = va.toString();
-        QString db = vb.toString();
-        return (order == Qt::AscendingOrder ?
-                da < db : db < da);
-      });
+    std::sort(trajectories->begin(), trajectories->end(),
+              [this, order, column](FitTrajectory a, FitTrajectory b) -> bool {
+                QVariant va = data(&a, column, Qt::DisplayRole, true);
+                QVariant vb = data(&b, column, Qt::DisplayRole, true);
+                if(va.type() == QMetaType::QDateTime) {
+                  QDateTime da = va.toDateTime();
+                  QDateTime db = vb.toDateTime();
+                  return (order == Qt::AscendingOrder ?
+                          da < db : db < da);
+                }
+                if(va.type() == QMetaType::Double) {
+                  double da = va.toDouble();
+                  double db = vb.toDouble();
+                  // We put the nans always at the end regardless of the order.
+                  if(std::isnan(da))
+                    return false;
+                  if(std::isnan(db))
+                    return true;
+                  return (order == Qt::AscendingOrder ?
+                          da < db : db < da);
+                }
+                if(va.type() == QMetaType::Int || va.type() ==
+                   QMetaType::UInt ||
+                   va.type() == QMetaType::Long || va.type() ==
+                   QMetaType::ULong) {
+                  qint64 da = va.toLongLong();
+                  qint64 db = vb.toLongLong();
+                  return (order == Qt::AscendingOrder ?
+                          da < db : db < da);
+                }
+                QString da = va.toString();
+                QString db = vb.toString();
+                return (order == Qt::AscendingOrder ?
+                        da < db : db < da);
+              });
     update();
   };
   

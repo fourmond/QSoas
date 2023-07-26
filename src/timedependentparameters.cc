@@ -70,7 +70,7 @@ Vector TimeDependentParameters::discontinuities(const double * params) const
   Vector ret;
   for(const_iterator i = begin(); i != end(); ++i)
     ret << i.value()->discontinuities(params);
-  qSort(ret);
+  std::sort(ret.begin(), ret.end());
   return ret;
 }
 

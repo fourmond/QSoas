@@ -870,7 +870,7 @@ double Vector::median() const
   if(! size())
     throw RuntimeError("Need at least one element !");
   Vector v = *this;
-  qSort(v);
+  std::sort(v.begin(), v.end());
   return v[v.size()/2];
 }
 

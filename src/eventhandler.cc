@@ -158,7 +158,7 @@ int EventHandler::nextAction(const CurveEventLoop & loop) const
 QString EventHandler::buildHelpString(bool /*useHTML*/) const
 {
   QList<int> actions = helpTexts.keys();
-  qSort(actions);
+  std::sort(actions.begin(), actions.end());
 
   QString text;
 
@@ -187,7 +187,7 @@ QString EventHandler::buildHelpString(bool /*useHTML*/) const
 QString EventHandler::buildSpec() const
 {
   QList<int> actions = helpTexts.keys();
-  qSort(actions);
+  std::sort(actions.begin(), actions.end());
 
   QStringList sc;
 

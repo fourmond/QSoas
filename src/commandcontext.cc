@@ -201,13 +201,13 @@ static bool cmpCommands(const Command * a, const Command * b)
 void CommandContext::writeSpecFile(QTextStream & out, bool full)
 {
   QList<Command *> lst = globalContext()->availableCommands().toList();
-  qSort(lst.begin(), lst.end(), ::cmpCommands);
+  std::sort(lst.begin(), lst.end(), ::cmpCommands);
   for(int i = 0; i < lst.size(); i++)
     out << lst[i]->commandSpec(full);
 
   out << "Fit commands" << endl;
   lst = fitContext()->availableCommands().toList();
-  qSort(lst.begin(), lst.end(), ::cmpCommands);
+  std::sort(lst.begin(), lst.end(), ::cmpCommands);
 
   for(int i = 0; i < lst.size(); i++)
     out << lst[i]->commandSpec(full);

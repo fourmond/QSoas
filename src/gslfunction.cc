@@ -69,7 +69,7 @@ static bool cmpFunctions(GSLFunction * a, GSLFunction * b)
 QStringList GSLFunction::availableFunctions()
 {
   QList<GSLFunction *> sorted = *functions;
-  qSort(sorted.begin(), sorted.end(),  &cmpFunctions);
+  std::sort(sorted.begin(), sorted.end(),  &cmpFunctions);
 
   QStringList rv;
   for(int i = 0; i < sorted.size(); i++)
@@ -83,7 +83,7 @@ QString GSLFunction::functionDocumentation()
   if(! functions)
     return QString();
   QList<GSLFunction *> sorted = *functions;
-  qSort(sorted.begin(), sorted.end(),  &cmpFunctions);
+  std::sort(sorted.begin(), sorted.end(),  &cmpFunctions);
 
   QString retval;
   for(int i = 0; i < sorted.size(); i++) {
@@ -686,7 +686,7 @@ QStringList GSLConstant::availableConstants()
   if(! constants)
     return QStringList();
   QList<GSLConstant *> sorted = *constants;
-  qSort(sorted.begin(), sorted.end(),  &cmpConstants);
+  std::sort(sorted.begin(), sorted.end(),  &cmpConstants);
 
   QStringList retval;
   
@@ -700,7 +700,7 @@ QString GSLConstant::constantsDocumentation()
   if(! constants)
     return QString();
   QList<GSLConstant *> sorted = *constants;
-  qSort(sorted.begin(), sorted.end(),  &cmpConstants);
+  std::sort(sorted.begin(), sorted.end(),  &cmpConstants);
 
   QString retval;
   

@@ -623,7 +623,7 @@ void KineticSystem::ensureReady(const QStringList & add)
 
   parameters.clear();
   parameters = params.toList();
-  qSort(parameters);
+  std::sort(parameters.begin(), parameters.end());
 
   // First concentrations, then additional parameters, then the
   // remaining parameters.

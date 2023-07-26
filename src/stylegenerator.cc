@@ -71,7 +71,7 @@ QStringList StyleGenerator::availableGenerators()
   if(! factory)
     return QStringList();
   QStringList keys = factory->keys();
-  qSort(keys);
+  std::sort(keys.begin(), keys.end());
   return keys;
 }
 

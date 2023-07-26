@@ -232,7 +232,8 @@ QString Utils::smartConcatenate(const QStringList & strings,
 
 QString Utils::joinSortedList(QStringList list, const QString & glue)
 {
-  qSort(list);
+  /// @todo is this useful ?
+  std::sort(list.begin(), list.end());
   return list.join(glue);
 }
 

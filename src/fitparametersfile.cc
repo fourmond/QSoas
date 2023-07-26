@@ -147,7 +147,7 @@ QHash<QString,DataSet> FitParametersFile::parameterValuesAsfZ(bool makeupZ) cons
     else
       vls = vv.intersect(zidx);
     QList<int> vls2 = vls.toList();
-    qSort(vls2);
+    std::sort(vls2.begin(), vls2.end());
     Vector xv, yv;
     double def = v.value(-1, 0); // the 0 should never be needed.
     for(int j = 0; j < vls2.size(); j++) {

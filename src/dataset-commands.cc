@@ -1992,7 +1992,7 @@ static void statsOn(const DataSet * ds, const CommandOptions & opts,
   }
   else {
     os = os.select(sns);
-    Terminal::out << ds->name << os.toString(QString("\t")) << endl;
+    Terminal::out << ds->name << "\t" << os.toString(QString("\t"));
   }
 
   Terminal::out << endl;

@@ -120,7 +120,7 @@ QHash<QString, QString> ParameterSpaceExplorer::availableExplorers()
 
 bool ParameterSpaceExplorer::runHooks() const
 {
-  for(const std::function< bool()> h : preFitHooks) {
+  for(const std::function< bool()> &h : preFitHooks) {
     if(! h())
       return false;
   }

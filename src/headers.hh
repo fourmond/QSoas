@@ -191,6 +191,13 @@
 
 #include <mruby.h>
 
+// OK, this is a patch, because I have to juggle between places in
+// which ::endl is deprecated and places in which Qt::endl is not
+// defined.
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,15,0)
+#define endl Qt::endl
+#endif
 
 
 

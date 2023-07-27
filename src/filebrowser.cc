@@ -574,7 +574,7 @@ void FileBrowser::setupFrame()
                   // o << "Line: '" << lst.join("', '") << "'" << endl;
                   // QModelIndex i = idx;
                   idx = idx.sibling(row, col);
-                  for(const QString s : lst) {
+                  for(const QString & s : lst) {
                     QModelIndex i = idx.sibling(row, col);
                     // o << "Setting at index: " << i.row()
                     //   << "," << i.column() <<  " -> '"

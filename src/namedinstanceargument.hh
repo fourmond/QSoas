@@ -90,7 +90,7 @@ public:
     QComboBox * cb = new QComboBox(parent);
 
     QStringList keys = T::availableItems();
-    qSort(keys);
+    std::sort(keys.begin(), keys.end());
     for(int i = 0; i < keys.size(); i++)
       cb->addItem(keys[i]);
     return cb;

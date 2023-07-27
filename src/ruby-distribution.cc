@@ -79,7 +79,7 @@ public:
   virtual QList<ParameterDefinition> parameters(const QString & param)
     const override {
     QList<ParameterDefinition> ret;
-    for(const QString n : parameterSuffixes)
+    for(const QString & n : parameterSuffixes)
       ret << ParameterDefinition(QString("%1_%2").arg(param).arg(n));
     return ret;
   };

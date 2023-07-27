@@ -45,7 +45,7 @@ public:
     Argument(cn, pn, d, false, def), 
     fixedChoices(c), choiceName(chN), choiceDesc("One of: `%1`") {
     order = fixedChoices.keys();
-    qSort(order);
+    std::sort(order.begin(), order.end());
   }; 
 
   TemplateChoiceArgument(const QList<QString> & c1,
@@ -101,7 +101,7 @@ public:
 
   virtual QStringList toString(const ArgumentMarshaller * arg) const override {
     QStringList lst;
-    for(const QString n : fixedChoices.keys()) {
+    for(const QString & n : fixedChoices.keys()) {
       if(fixedChoices[n] == arg->value<T>()) {
         lst << n;
         break;
@@ -120,7 +120,7 @@ public:
     QComboBox * cb = new QComboBox(parent);
 
     QStringList keys = fixedChoices.keys();
-    qSort(keys);
+    std::sort(keys.begin(), keys.end());
     for(int i = 0; i < keys.size(); i++)
       cb->addItem(keys[i]);
     return cb;

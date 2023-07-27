@@ -147,7 +147,7 @@ CommandOptions Command::parseOptions(const QMultiHash<QString, QString> & opts,
   if(defaultOption) {
     const Argument * opt = options->defaultOption();
     ArgumentMarshaller * arg = NULL;
-    for(const QString a : *defaultOption) {
+    for(const QString & a : *defaultOption) {
       ArgumentMarshaller * na = opt->fromString(a);
       if(arg) {
         if(! opt->greedy)

@@ -278,9 +278,9 @@ void Fit::makeCommands(const ArgumentList &args,
                        CommandEffector * sim)
 {
 
-  QByteArray pn = "Fit: ";
+  QString pn = "Fit: ";
   pn += shortDesc;
-  QByteArray sd = "Single dataset fit: ";
+  QString sd = "Single dataset fit: ";
   sd += shortDesc;
 
   ArgumentList fal = args;

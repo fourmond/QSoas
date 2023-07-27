@@ -622,7 +622,7 @@ static void chopCommand(const QString &,
     if(lst.size() == 0)
       values << val.toDouble();
     else {
-      for(const QVariant v : lst)
+      for(const QVariant &v : lst)
         values << v.toDouble();
     }
   }
@@ -2217,7 +2217,7 @@ static void recordMetaCommand(const QString &, QString meta, QString value,
   bool remove = false;
   updateFromOptions(opts, "remove", remove);
 
-  for(const QString f : files) {
+  for(const QString &f : files) {
     if(MetaDataFile::isMetaDataFile(f)) {
       Terminal::out << "Skipping '" << f
                     << "', which is a meta-data file" << endl;

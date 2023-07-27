@@ -35,7 +35,7 @@ protected:
 
   QStringList sortedChoices() const {
     QStringList cs = F::availableItems();
-    qSort(cs);
+    std::sort(cs.begin(), cs.end());
     return cs;
   }
 public:
@@ -60,7 +60,7 @@ public:
 
   virtual QStringList toString(const ArgumentMarshaller * arg) const override {
     QStringList lst;
-    for(const QString n : F::availableItems()) {
+    for(const QString & n : F::availableItems()) {
       if(F::namedItem(n) ==  arg->value<F * >()) {
         lst << n;
         break;
@@ -77,7 +77,7 @@ public:
 
   virtual QString typeDescription() const override {
     QStringList cs = F::availableItems();
-    qSort(cs);
+    std::sort(cs.begin(), cs.end());
     return QString("One of: `%1`").arg(cs.join("`, `"));
   };
 

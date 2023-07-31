@@ -407,8 +407,9 @@ public:
     stream->seek(0);
 
     CommandOptions op = opts;
-    updateOptions(op, "text-columns", txtCols);
-
+    std::unique_ptr<ArgumentMarshaller> lst(new ArgumentMarshallerChild<QList<int> >(txtCols));
+    // We don't use updateOptions, since it leads to double free
+    op["text-columns"] = lst.get();
     return TextBackend::readFromStream(stream, fileName, op);
   };
 

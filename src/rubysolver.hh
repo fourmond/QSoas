@@ -35,10 +35,10 @@ protected:
   int nbVariables;
 
 public:
-  RubySolver(const QString & expr, 
-             const gsl_root_fdfsolver_type * type = 
-         gsl_root_fdfsolver_steffenson);
-
+  explicit RubySolver(const QString & expr, 
+                      const gsl_root_fdfsolver_type * type = 
+                      gsl_root_fdfsolver_steffenson);
+  
   virtual ~RubySolver();
 
   virtual double f(double x) override;

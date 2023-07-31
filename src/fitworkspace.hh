@@ -274,7 +274,7 @@ public:
   bool hasPerpendicularCoordinates() const;
 
 
-  FitWorkspace(FitData * data);
+  explicit FitWorkspace(FitData * data);
   ~FitWorkspace();
 
   /// @name Parameter edition
@@ -821,7 +821,7 @@ class CovarianceMatrixDisplay : public QDialog {
 
   void setupFrame();
 public:
-  CovarianceMatrixDisplay(FitWorkspace * params, QWidget * parent = 0);
+  explicit CovarianceMatrixDisplay(FitWorkspace * params, QWidget * parent = 0);
 
 public slots:
 

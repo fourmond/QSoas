@@ -50,7 +50,7 @@ class FitTrajectories {
 
 
 public:
-  FitTrajectories(const FitWorkspace * ws);
+  explicit FitTrajectories(const FitWorkspace * ws);
 
   /// Exports the fit trajectory to the given file.
   void exportToFile(QTextStream & out) const;

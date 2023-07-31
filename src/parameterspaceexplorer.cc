@@ -43,10 +43,10 @@ ParameterSpaceExplorerFactoryItem(const QString & n,
   Factory(n, c, pn), publicName(description)
 {
   QString cmdName = n + "-explorer";
-  cmd = new Command(cmdName.toLocal8Bit().data(),
+  cmd = new Command(cmdName,
                     ParameterSpaceExplorer::explorerEffector(n), "fits",
                     args, opts,
-                    pn.toLocal8Bit().data(),
+                    pn,
                     "", "",
                     CommandContext::fitContext());
 

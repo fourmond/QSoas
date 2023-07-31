@@ -86,7 +86,7 @@ class XYIDataSet : public XYIterable {
 
 public:
 
-  XYIDataSet(const DataSet * dataset);
+  explicit XYIDataSet(const DataSet * dataset);
   
   virtual bool next(double * x, double * y) override;
   virtual void reset() override;

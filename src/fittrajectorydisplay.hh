@@ -63,7 +63,7 @@ class TrajectoryParametersDisplay : public QWidget {
   
 public:
 
-  TrajectoryParametersDisplay(FitWorkspace * workspace);
+  explicit TrajectoryParametersDisplay(FitWorkspace * workspace);
 
 public slots:
 
@@ -135,7 +135,7 @@ class FitTrajectoryDisplay : public QDialog {
 
 public:
 
-  FitTrajectoryDisplay(FitWorkspace * workspace);
+  explicit FitTrajectoryDisplay(FitWorkspace * workspace);
   ~FitTrajectoryDisplay();
 
   /// Brings a dialog box to browse the trajectories of the given

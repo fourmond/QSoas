@@ -325,7 +325,7 @@ public:
              const QStringList & indexed,
              const QString & mn,
              PerDatasetFit * under) :
-  PerDatasetFit(name.toLocal8Bit(), 
+    PerDatasetFit(name, 
                 "Indexed fit",
                 "Indexed fit", 1, -1, false),
   underlyingFit(under),

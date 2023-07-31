@@ -356,7 +356,7 @@ void Fit::makeCommands(const ArgumentList &args,
   // necessary.
   if(minDataSets == 1) {
     fitCommand =
-      new Command((const char*)(QString("fit-") + name).toLocal8Bit(),
+      new Command("fit-" + name,
                   singleFit ? singleFit : 
                   effector(this, &Fit::runFitCurrentDataSet, true),
                   "sfits", fal, options, pn, sd);
@@ -381,7 +381,7 @@ void Fit::makeCommands(const ArgumentList &args,
   sd = "multi dataset fit: ";
   sd += shortDesc;
   mfitCommand = 
-    new Command((const char*)(QString("mfit-") + name).toLocal8Bit(),
+    new Command("mfit-" + name,
                 multiFit ? multiFit : 
                 effector(this, &Fit::runFit, true),
                 "mfits", al, options, pn, sd);
@@ -424,7 +424,7 @@ void Fit::makeCommands(const ArgumentList &args,
                                 "the full jacobian, reexport parameters "
                                 "with errors or just annotate datasets");
     simCommand = 
-      new Command((const char*)(QString("sim-") + name).toLocal8Bit(),
+      new Command("sim-" + name,
                   (sim ? sim : effector(this, &Fit::computeFit)),
                   "simulations", al, nopts, pn, sd);
   }

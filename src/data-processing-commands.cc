@@ -337,11 +337,12 @@ namespace __reg {
           
           if(i_hw >= 0) {
             Terminal::out << "\n  hw = " << d.xvalues[i_hw];
+            /* 
             y = reg.first * xleft + reg.second + d.yvalues[i_pk] * 0.5;
             hp.p1 = QPointF(xleft, y);
             y = reg.first * xright + reg.second + d.yvalues[i_pk] * 0.5;
             hp.p2 = QPointF(xright, y);
-            hp.hidden = false;
+            hp.hidden = false;*/
 
             double y = reg.first * ds->x()[i_hw] + reg.second;
             hp.p1 = QPointF(ds->x()[i_hw], y);
@@ -835,6 +836,7 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
           }
           needCompute = true;
         }
+        break;
       }
       case CycleSplineType:
         type = Spline::nextType(type);
@@ -2659,7 +2661,7 @@ dsOpts(QList<Argument *>()
        );
 
 static Command 
-ds("downsample", // command name
+dsc("downsample", // command name
     effector(downsampleCommand), // action
     "buffer",  // group name
     NULL, // arguments
@@ -2687,7 +2689,7 @@ static void dxCommand(const QString &,
 
 
 static Command 
-dx("dx", // command name
+dxC("dx", // command name
     effector(dxCommand), // action
     "math",  // group name
     NULL, // arguments
@@ -2716,7 +2718,7 @@ static void dyCommand(const QString &,
 
 
 static Command 
-dy("dy", // command name
+dyC("dy", // command name
     effector(dyCommand), // action
     "math",  // group name
     NULL, // arguments

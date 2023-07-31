@@ -80,7 +80,7 @@ public:
   };
 
   ExternalFunctionFit(const QString & name, ExternalFunction * fnc) :
-    PerDatasetFit(name.toLocal8Bit(), 
+    PerDatasetFit(name, 
                   "External function fit",
                   "External function fit",
                   1, -1),

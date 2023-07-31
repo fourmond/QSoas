@@ -59,7 +59,7 @@ public:
 
   
   /// Constructs a formatted string with the given marked up string.
-  FormattedString(const QString & str);
+  explicit FormattedString(const QString & str);
 
   /// Converts the string to plain text
   virtual QString toText() const;

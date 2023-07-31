@@ -70,7 +70,7 @@ public:
 
   /// @}
 
-  Simplex(Function f);
+  explicit Simplex(Function f);
 
   /// Compute the residuals at the given position
   StoredParameters compute(const Vector & v) const;

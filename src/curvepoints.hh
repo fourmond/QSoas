@@ -63,7 +63,7 @@ public:
   /// Creates a CurvePoints object showing the given source.
   ///
   /// The CurvePoints take ownership of the @a source
-  CurvePoints(XYIterable * source);
+  explicit CurvePoints(XYIterable * source);
 
   ~CurvePoints();
 

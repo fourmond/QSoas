@@ -25,7 +25,7 @@
 class FileLock {
   QFile * target;
 public:
-  FileLock(QFile *target);
+  explicit FileLock(QFile *target);
   ~FileLock();
 };
 

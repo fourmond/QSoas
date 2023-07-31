@@ -593,11 +593,11 @@ public:
 
   /// Creates (and registers) the derivative fit based on the given
   /// fit
-  CombinedDerivativeFit(PerDatasetFit * source) :
-      PerDatasetFit(DerivativeFit::derivativeFitName(source, DerivativeFit::Combined).
-          toLocal8Bit(), 
-          "Derived fit",
-          "(derived fit)", 1 , -1, false) {
+  explicit CombinedDerivativeFit(PerDatasetFit * source) :
+      PerDatasetFit(DerivativeFit::derivativeFitName(source,
+                                                     DerivativeFit::Combined), 
+                    "Derived fit",
+                    "(derived fit)", 1 , -1, false) {
     underlyingFitName = source->fitName(false);
 
     makeCommands();

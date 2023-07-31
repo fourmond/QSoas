@@ -80,7 +80,7 @@ private:
 public:
 
   PointIterator(const Vector & x, const Vector & y, Type t = Normal);
-  PointIterator(const DataSet * ds, Type t = Normal);
+  explicit PointIterator(const DataSet * ds, Type t = Normal);
   PointIterator(const gsl_vector * yvalues, const DataSet * ds,
                 bool residuals, Type t = Normal);
 

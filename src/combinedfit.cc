@@ -234,7 +234,7 @@ void CombinedFit::function(const double * parameters,
 
 CombinedFit::CombinedFit(const QString & name, const QString & f, 
                          QList<PerDatasetFit *> fits) :
-  PerDatasetFit(name.toLocal8Bit(), 
+  PerDatasetFit(name, 
                 "Combined fit",
                 "Combined fit", 1, -1, false), 
   underlyingFits(fits), formula(f)

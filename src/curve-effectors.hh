@@ -47,7 +47,7 @@ class WDisableUpdates {
 
   bool initial;
 public:
-  WDisableUpdates(QWidget * tg, bool disable = true);
+  explicit WDisableUpdates(QWidget * tg, bool disable = true);
   ~WDisableUpdates();
 };
 

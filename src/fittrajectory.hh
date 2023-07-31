@@ -164,7 +164,7 @@ public:
   /// The trajectories that belong to this cluster.
   QList<FitTrajectory> trajectories;
 
-  FitTrajectoryCluster(const FitTrajectory & seed);
+  explicit FitTrajectoryCluster(const FitTrajectory & seed);
 
   /// Cluster the given trajectories.
   ///

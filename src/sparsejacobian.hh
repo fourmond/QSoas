@@ -83,8 +83,8 @@ public:
   /// Constructs a sparse jacobian from the given FitData
   ///
   /// If @a matrix is provided the jacobian uses it directly.
-  SparseJacobian(const FitData * data,  bool sparse = true,
-                 gsl_matrix * matrix = NULL);
+  explicit SparseJacobian(const FitData * data,  bool sparse = true,
+                          gsl_matrix * matrix = NULL);
 
   ~SparseJacobian();
 

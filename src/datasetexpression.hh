@@ -87,8 +87,8 @@ public:
   bool useRealColNames;
 
   /// Creates an expression object
-  DataSetExpression(const DataSet * ds, bool useStats = false,
-                    bool useMeta = false, bool useNames = false);
+  explicit DataSetExpression(const DataSet * ds, bool useStats = false,
+                             bool useMeta = false, bool useNames = false);
 
   /// Prepares the expression for use with the given dataset, possibly
   /// adding the additional parameters.

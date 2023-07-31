@@ -138,7 +138,7 @@ public:
 
   /// Creates (and registers) the derivative fit based on the given
   /// fit
-  DerivativeFit(PerDatasetFit * fit, Mode m = Separated);
+  explicit DerivativeFit(PerDatasetFit * fit, Mode m = Separated);
   virtual ~DerivativeFit();
 
   static QString derivativeFitName(PerDatasetFit * source,

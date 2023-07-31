@@ -588,8 +588,8 @@ public:
 
   KineticSystemFit(const QString & name, 
                    KineticSystem * sys) : 
-    ODEFit(name.toLocal8Bit(), 
-           QString("Kinetic system of %1").arg(sys->fileName).toLocal8Bit(),
+    ODEFit(name, 
+           QString("Kinetic system of %1").arg(sys->fileName),
            "", 1, -1, false)
   {
     mySystem = sys;

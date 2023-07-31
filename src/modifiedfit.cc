@@ -427,7 +427,7 @@ public:
               const QStringList & newParams,
               const QHash<QString, QString> & redefs,
               PerDatasetFit * under, const QStringList & conds) :
-  PerDatasetFit(name.toLocal8Bit(), 
+  PerDatasetFit(name, 
                 "Modified fit",
                 "Modified fit", 1, -1, false),
   newParameters(newParams),

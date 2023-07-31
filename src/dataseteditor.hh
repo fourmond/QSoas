@@ -52,7 +52,7 @@ private:
 
 
 public:
-  DatasetEditor(const DataSet * ds);
+  explicit DatasetEditor(const DataSet * ds);
   ~DatasetEditor();
 
 public slots:

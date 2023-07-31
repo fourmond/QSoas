@@ -522,9 +522,10 @@ public:
   /// This alternative constructor is to help create named fits based
   /// on formulas.
   ImplicitFit(const QString & name, const QString & formula) : 
-    PerDatasetFit(name.toLocal8Bit(), 
-        QString("Fit: %1").arg(formula).toLocal8Bit(),
-                  QString("Fit of the formula %1").arg(formula).toLocal8Bit(), 1, -1, false)
+    PerDatasetFit(name, 
+                  QString("Fit: %1").arg(formula),
+                  QString("Fit of the formula %1").arg(formula),
+                  1, -1, false)
   { 
     formulaString = formula;
     makeCommands();

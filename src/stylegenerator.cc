@@ -101,9 +101,10 @@ class SimpleGradient : public StyleGenerator {
 public:
 
   SimpleGradient(const QColor & b, const QColor & e, int nb) : 
-    StyleGenerator(nb), idx(0) {
-    beg = ::colorToVector(b);
-    end = ::colorToVector(e);
+    StyleGenerator(nb),
+    beg(colorToVector(b)),
+    end(colorToVector(e)),
+    idx(0) {
   };
 
   virtual QPen nextStyle() override {

@@ -537,10 +537,12 @@ void DataStack::readSerializationHeader(QDataStream & in)
 
 void DataStack::readStack(QDataStream & in)
 {
+  clear();
   qint32 nbDs;
+
+  // Normal stack
   in >> nbDs;
   cachedByteSize = 0;
-  dataSets.clear();
   for(qint32 i = 0; i < nbDs; i++) {
     DataSet * ds = new DataSet;
     in >> *ds;
@@ -548,8 +550,8 @@ void DataStack::readStack(QDataStream & in)
     cachedByteSize += ds->byteSize();
   }
 
+  // Redo stack
   in >> nbDs;
-  redoStack.clear();
   for(qint32 i = 0; i < nbDs; i++) {
     DataSet * ds = new DataSet;
     in >> *ds;

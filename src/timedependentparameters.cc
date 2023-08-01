@@ -30,6 +30,11 @@ TimeDependentParameters::TimeDependentParameters() :
 {
 }
 
+TimeDependentParameters::~TimeDependentParameters()
+{
+  clear();
+}
+
 void TimeDependentParameters::clear()
 {
   for(iterator i = begin(); i != end(); ++i)

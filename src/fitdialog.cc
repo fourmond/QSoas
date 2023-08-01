@@ -1,7 +1,7 @@
 /*
   fitdialog.cc: Main window for QSoas
   Copyright 2011 by Vincent Fourmond
-            2012, 2013, 2014 by CNRS/AMU
+            2012, 2013, 2014, 2023 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -90,7 +90,8 @@ FitDialog::FitDialog(FitData * d, bool displayWeights, const QString & pm, bool 
   perpendicularMeta(pm),
   progressReport(NULL),
   residualsDisplay(NULL),
-  extraTitleInfo(extra)
+  extraTitleInfo(extra),
+  menuBar(NULL)
 {
   setWindowModality(Qt::WindowModal);
   resize(fitDialogSize);
@@ -159,6 +160,7 @@ FitDialog::~FitDialog()
     delete p;
   for(CurveView * v : views)
     delete v;
+  delete menuBar;
 }
 
 void FitDialog::message(const QString & str)
@@ -209,7 +211,7 @@ void FitDialog::setupFrame(bool expert)
   nup = new NupWidget;
   bufferSelection = new QComboBox;
 
-  QMenuBar * menuBar = new QMenuBar();
+  menuBar = new QMenuBar();
   // We make a non native menu bar as it is messed up in macos
   menuBar->setNativeMenuBar(false);
   layout->addWidget(menuBar);
@@ -409,132 +411,138 @@ void FitDialog::setupFrame(bool expert)
   residualsDisplay = new QLabel(" ");
   hb->addWidget(residualsDisplay);
 
-  //////////////////////////////
-  // Menus
+  {
+    auto addMenu = [this](QMenu * menu) {
+                     menuBar->addMenu(menu);
+                     menus << menu;
+                   };
 
-  QMenu * menu = NULL;
+    //////////////////////////////
+    // Menus
 
-  menu = new QMenu("Fit");
-  addMenuAction(menu, "Update curves",
-                this, SLOT(compute()), QKeySequence("Ctrl+U"));
-  addMenuAction(menu, "Fit options",
-                this, SLOT(setSoftOptions()));
-  addMenuAction(menu, "Start fit",
-                this, SLOT(startFit()), QKeySequence("Ctrl+F"));
-  menu->addSeparator();
-  addMenuAction(menu, "Save all as PDF", this, SLOT(saveAllPDF()));
-  menu->addSeparator();
-  addMenuAction(menu, "Close",
-                this, SLOT(close()), QKeySequence("Ctrl+W"));
+    QMenu * menu = NULL;
 
-  menuBar->addMenu(menu);
-
-  menu = new QMenu("Data");
-  addMenuAction(menu, "Push all to stack",
-                this, SLOT(pushSimulatedCurves()));
-  addMenuAction(menu, "Push current to stack",
-                this, SLOT(pushCurrentCurve()));
-  addMenuAction(menu, "Push annotated datasets",
-                this, SLOT(pushAnnotatedData()));
-  addMenuAction(menu, "Save all", this, SLOT(saveSimulatedCurves()));
-  addMenuAction(menu, "Push all residuals to stack", this, SLOT(pushResiduals()));
-
-  QAction * action = addMenuAction(menu, "Show transposed data",
-                                   this, SLOT(showTransposed()));
-  if(parameters.perpendicularCoordinates.size() <= 1)
-    action->setEnabled(false);
-
-  if(parameters.hasSubFunctions()) {
+    menu = new QMenu("Fit");
+    addMenuAction(menu, "Update curves",
+                  this, SLOT(compute()), QKeySequence("Ctrl+U"));
+    addMenuAction(menu, "Fit options",
+                  this, SLOT(setSoftOptions()));
+    addMenuAction(menu, "Start fit",
+                  this, SLOT(startFit()), QKeySequence("Ctrl+F"));
     menu->addSeparator();
-    addMenuAction(menu, "Toggle subfunctions display", this, 
-                  SLOT(toggleSubFunctions()));
-    addMenuAction(menu, "Push all subfunctions", this, 
-                  SLOT(pushSubFunctions()));
-  }
-  menuBar->addMenu(menu);
+    addMenuAction(menu, "Save all as PDF", this, SLOT(saveAllPDF()));
+    menu->addSeparator();
+    addMenuAction(menu, "Close",
+                  this, SLOT(close()), QKeySequence("Ctrl+W"));
+    addMenu(menu);
+
+    menu = new QMenu("Data");
+    addMenuAction(menu, "Push all to stack",
+                  this, SLOT(pushSimulatedCurves()));
+    addMenuAction(menu, "Push current to stack",
+                  this, SLOT(pushCurrentCurve()));
+    addMenuAction(menu, "Push annotated datasets",
+                  this, SLOT(pushAnnotatedData()));
+    addMenuAction(menu, "Save all", this, SLOT(saveSimulatedCurves()));
+    addMenuAction(menu, "Push all residuals to stack", this, SLOT(pushResiduals()));
+
+    QAction * action = addMenuAction(menu, "Show transposed data",
+                                     this, SLOT(showTransposed()));
+    if(parameters.perpendicularCoordinates.size() <= 1)
+      action->setEnabled(false);
+
+    if(parameters.hasSubFunctions()) {
+      menu->addSeparator();
+      addMenuAction(menu, "Toggle subfunctions display", this, 
+                    SLOT(toggleSubFunctions()));
+      addMenuAction(menu, "Push all subfunctions", this, 
+                    SLOT(pushSubFunctions()));
+    }
+    addMenu(menu);
 
 
   
-  menu = new QMenu("Parameters");
-  addMenuAction(menu, "Edit", this, 
-                SLOT(editParameters()),
-                QKeySequence(tr("Ctrl+E")));
-  addMenuAction(menu, "Spreadsheet", this, 
-                SLOT(parametersSpreadsheet()),
-                QKeySequence(tr("Ctrl+Shift+E")));
-  if(data->datasets.size() > 1)
-    addMenuAction(menu, "Show parameters", 
-                  this, SLOT(showParameters()),
-                  QKeySequence(tr("Ctrl+Shift+P")));
+    menu = new QMenu("Parameters");
+    addMenuAction(menu, "Edit", this, 
+                  SLOT(editParameters()),
+                  QKeySequence(tr("Ctrl+E")));
+    addMenuAction(menu, "Spreadsheet", this, 
+                  SLOT(parametersSpreadsheet()),
+                  QKeySequence(tr("Ctrl+Shift+E")));
+    if(data->datasets.size() > 1)
+      addMenuAction(menu, "Show parameters", 
+                    this, SLOT(showParameters()),
+                    QKeySequence(tr("Ctrl+Shift+P")));
 
-  addMenuAction(menu, "Show covariance matrix", this, 
-                SLOT(showCovarianceMatrix()),
-                QKeySequence(tr("Ctrl+M")));
-  menu->addSeparator();
+    addMenuAction(menu, "Show covariance matrix", this, 
+                  SLOT(showCovarianceMatrix()),
+                  QKeySequence(tr("Ctrl+M")));
+    menu->addSeparator();
 
   
-  addMenuAction(menu, "Load from file", this, 
-                SLOT(loadParameters()),
-                QKeySequence(tr("Ctrl+L")));
-  addMenuAction(menu, "Load for this buffer only", this, 
-                SLOT(loadParametersForCurrent()),
-                QKeySequence(tr("Ctrl+Shift+L")));
-  action = addMenuAction(menu, "Load using Z values",
-                         this, SLOT(loadUsingZValues()));
-  if(parameters.perpendicularCoordinates.size() <= 1)
-    action->setEnabled(false);
-  menu->addSeparator();
+    addMenuAction(menu, "Load from file", this, 
+                  SLOT(loadParameters()),
+                  QKeySequence(tr("Ctrl+L")));
+    addMenuAction(menu, "Load for this buffer only", this, 
+                  SLOT(loadParametersForCurrent()),
+                  QKeySequence(tr("Ctrl+Shift+L")));
+    action = addMenuAction(menu, "Load using Z values",
+                           this, SLOT(loadUsingZValues()));
+    if(parameters.perpendicularCoordinates.size() <= 1)
+      action->setEnabled(false);
+    menu->addSeparator();
     
-  addMenuAction(menu, "Save to file (for reusing later)", 
-                this, SLOT(saveParameters()),
-                QKeySequence(tr("Ctrl+S")));
+    addMenuAction(menu, "Save to file (for reusing later)", 
+                  this, SLOT(saveParameters()),
+                  QKeySequence(tr("Ctrl+S")));
   
-  addMenuAction(menu, "Export (for drawing/manipulating)", 
-                this, SLOT(exportParameters()),
-                QKeySequence(tr("Ctrl+X")));
-  addMenuAction(menu, "Export with errors", 
-                this, SLOT(exportParametersWithErrors()),
-                QKeySequence(tr("Ctrl+Shift+X")));
-  addMenuAction(menu, "Export to output file", this, 
-                SLOT(exportToOutFile()),
-                QKeySequence(tr("Ctrl+O")));
-  addMenuAction(menu, "Export to output file (w/errors)", this, 
-                SLOT(exportToOutFileWithErrors()),
-                QKeySequence(tr("Ctrl+Shift+O")));
-  menu->addSeparator();
-  addMenuAction(menu, "Push with errors", 
-                this, SLOT(pushParametersWithErrors()));
-  menu->addSeparator();
-  addMenuAction(menu, "Reset this to initial guess", this, 
-                SLOT(resetThisToInitialGuess()),
-                QKeySequence(tr("Ctrl+T")));
-  addMenuAction(menu, "Reset all to initial guess !", this, 
-                SLOT(resetAllToInitialGuess()));
-  addMenuAction(menu, "Reset to backup", &parameters, 
-                SLOT(resetToBackup()),
-                QKeySequence(tr("Ctrl+Shift+R")));
-  menu->addSeparator();
-  addMenuAction(menu, "Browse fit trajectories", this, 
-                SLOT(browseTrajectories()),
-                QKeySequence(tr("Ctrl+Shift+T")));
-  menuBar->addMenu(menu);
+    addMenuAction(menu, "Export (for drawing/manipulating)", 
+                  this, SLOT(exportParameters()),
+                  QKeySequence(tr("Ctrl+X")));
+    addMenuAction(menu, "Export with errors", 
+                  this, SLOT(exportParametersWithErrors()),
+                  QKeySequence(tr("Ctrl+Shift+X")));
+    addMenuAction(menu, "Export to output file", this, 
+                  SLOT(exportToOutFile()),
+                  QKeySequence(tr("Ctrl+O")));
+    addMenuAction(menu, "Export to output file (w/errors)", this, 
+                  SLOT(exportToOutFileWithErrors()),
+                  QKeySequence(tr("Ctrl+Shift+O")));
+    menu->addSeparator();
+    addMenuAction(menu, "Push with errors", 
+                  this, SLOT(pushParametersWithErrors()));
+    menu->addSeparator();
+    addMenuAction(menu, "Reset this to initial guess", this, 
+                  SLOT(resetThisToInitialGuess()),
+                  QKeySequence(tr("Ctrl+T")));
+    addMenuAction(menu, "Reset all to initial guess !", this, 
+                  SLOT(resetAllToInitialGuess()));
+    addMenuAction(menu, "Reset to backup", &parameters, 
+                  SLOT(resetToBackup()),
+                  QKeySequence(tr("Ctrl+Shift+R")));
+    menu->addSeparator();
+    addMenuAction(menu, "Browse fit trajectories", this, 
+                  SLOT(browseTrajectories()),
+                  QKeySequence(tr("Ctrl+Shift+T")));
+    addMenu(menu);
 
 
-  if(bufferWeightEditor) {
-    menu = new QMenu("Weights");
-    addMenuAction(menu, "Reset all weights to 1", this, 
-                  SLOT(resetWeights()),
-                  QKeySequence(tr("Ctrl+Shift+W")));
-    addMenuAction(menu, "Give equal importance to all buffers", this, 
-                  SLOT(equalWeightsPerBuffer()),
-                  QKeySequence(tr("Ctrl+Shift+B")));
-    menuBar->addMenu(menu);
+    if(bufferWeightEditor) {
+      menu = new QMenu("Weights");
+      addMenuAction(menu, "Reset all weights to 1", this, 
+                    SLOT(resetWeights()),
+                    QKeySequence(tr("Ctrl+Shift+W")));
+      addMenuAction(menu, "Give equal importance to all buffers", this, 
+                    SLOT(equalWeightsPerBuffer()),
+                    QKeySequence(tr("Ctrl+Shift+B")));
+      addMenu(menu);
+    }
+
+
+    menuBar->setEnabled(true);
+    menuBar->setNativeMenuBar(false);
+    menuBar->setVisible(true);
   }
-
-
-  menuBar->setEnabled(true);
-  menuBar->setNativeMenuBar(false);
-  menuBar->setVisible(true);
 
   
   //////////////////////////////////////////////////

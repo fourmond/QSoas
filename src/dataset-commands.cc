@@ -2771,7 +2771,7 @@ static void setRowNamesCommand(const QString &,
                                const CommandOptions & opts)
 {
   const DataSet * ds = soas().currentDataSet();
-  DataSet * nds = ds->derivedDataSet(".dat");
+  std::unique_ptr<DataSet> nds(ds->derivedDataSet(".dat"));
 
   QStringList names;
   updateFromOptions(opts, "names", names);
@@ -2787,7 +2787,7 @@ static void setRowNamesCommand(const QString &,
   for(int row : sp.keys())
     nds->setRowName(row, sp[row]);
   
-  soas().pushDataSet(nds);
+  soas().pushDataSet(nds.release());
 }
 
 static ArgumentList 

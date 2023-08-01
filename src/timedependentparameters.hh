@@ -45,6 +45,7 @@ class TimeDependentParameters : public QHash<int, TimeDependentParameter*> {
 public:
 
   TimeDependentParameters();
+  ~TimeDependentParameters();
   
   /// Clears
   void clear();

@@ -161,6 +161,12 @@ class FitDialog : public QDialog {
   /// A (guarded) pointer to the ParametersViewer
   QPointer<ParametersViewer> parametersViewer;
 
+  /// The menu bar
+  QMenuBar * menuBar;
+
+  /// The menus
+  PossessiveList<QMenu> menus;
+
 
 protected:
 

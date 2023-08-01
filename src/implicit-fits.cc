@@ -98,6 +98,10 @@ public:
       parseFormula(o.formula);
   };
 
+  ~ImplicitFitBase() {
+    delete expression;
+  };
+
   static ArgumentList hardOptions() {
     return 
       ArgumentList(QList<Argument *>()

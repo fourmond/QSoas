@@ -321,7 +321,7 @@ void MainWin::showStartupTips()
 void MainWin::setupFrame()
 {
   statusBar();
-  Group::fillMenuBar(menuBar(), CommandContext::globalContext());
+  menus = Group::fillMenuBar(menuBar(), CommandContext::globalContext());
   connect(menuBar(), SIGNAL(triggered(QAction *)),
           SLOT(menuActionTriggered(QAction *)));
 
@@ -422,6 +422,9 @@ MainWin::~MainWin()
 
   mainWinSize = size();
   splitterState = mainSplitter->saveState();
+  for(QMenu * m : menus)
+    delete m;
+  menus.clear();
 }
 
 void MainWin::showMessage(const QString & str, int ms)

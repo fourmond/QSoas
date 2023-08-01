@@ -249,6 +249,8 @@ public:
 
   ~SplinesMultiIntegrator() {
     gsl_interp_accel_free(accel);
+    if(ws)
+      gsl_interp_free(ws);
   }
     
 };

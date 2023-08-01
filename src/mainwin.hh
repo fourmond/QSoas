@@ -45,6 +45,9 @@ class MainWin : public QMainWindow {
   /// The main splitter
   QSplitter * mainSplitter;
 
+  /// These are saved for deleting later
+  QList<QMenu*> menus;
+
 public:
   MainWin(Soas * theSoas, bool runStartupFiles);
   ~MainWin();

@@ -201,6 +201,7 @@ RubyODESolver::~RubyODESolver()
 {
   delete initialization;
   delete derivatives;
+  delete reporters;
 }
 
 void RubyODESolver::initialize(double t)

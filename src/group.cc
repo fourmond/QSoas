@@ -101,10 +101,12 @@ QAction * Group::actionForGroup(QObject * parent,
 }
 
 
-void Group::fillMenuBar(QMenuBar * menu, const CommandContext * context)
+QList<QMenu*> Group::fillMenuBar(QMenuBar * menu,
+                                 const CommandContext * context)
 {
+  QList<QMenu*> rv;
   if(! availableGroups)
-    return;
+    return rv;
   QList<Group *> groups = availableGroups->values();
   std::sort(groups.begin(), groups.end(), compareGroups);
   for(int i = 0; i < groups.size(); i++) {
@@ -112,6 +114,8 @@ void Group::fillMenuBar(QMenuBar * menu, const CommandContext * context)
       continue;
     QAction * action = groups[i]->actionForGroup(menu->parent(), context);
     menu->addAction(action);
+    QMenu * m = action->menu();
+    rv << m;
 #ifdef Q_OS_MAC
     QMenu * sub = action->menu();
     // This is a workaround for bug https://bugreports.qt.nokia.com/browse/QTBUG-19920
@@ -121,4 +125,5 @@ void Group::fillMenuBar(QMenuBar * menu, const CommandContext * context)
 #endif
 
   }
+  return rv;
 }

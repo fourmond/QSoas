@@ -71,7 +71,7 @@ else {
 }
 
 # We use a precompiled header everywhere but on macosX (it fails !)
-unix:!macx {
+!macx {
   CONFIG += precompile_header
   PRECOMPILED_HEADER = src/headers.hh
 }

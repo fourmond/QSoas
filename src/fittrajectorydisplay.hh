@@ -1,7 +1,7 @@
 /**
    \file fittrajectorydisplay.hh
    Displays of fit trajectories display.
-   Copyright 2013, 2014, 2015, 2016, 2017, 2018 by CNRS/AMU
+   Copyright 2013, 2014, 2015, 2016, 2017, 2018, 2023 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -71,6 +71,8 @@ public slots:
 };
 
 class TrajectoriesModel;
+class FlaggedTrajectoriesModel;
+class DoubleDisplay;
 
 /// A dialog box displaying a set of FitTrajectory objects.
 ///
@@ -106,6 +108,14 @@ class FitTrajectoryDisplay : public QDialog {
 
   /// The underlying item model
   TrajectoriesModel * model;
+
+  DoubleDisplay * doubleDisplay;
+
+  /// The model for displaying the flags
+  FlaggedTrajectoriesModel * flagsModel;
+
+  /// The table view for displaying the flags/clusters
+  QTableView * flagsView;
 
 
   /// The heads of the display
@@ -200,6 +210,8 @@ protected:
   /// Returns the list of the indices of the currently selected
   /// trajectories. Sorted.
   QList<int> selectedTrajectories() const;
+
+  void updateModels();
 
 
 protected slots:

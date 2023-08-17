@@ -1,6 +1,6 @@
 /*
   fittrajectorydisplay.cc: display of fit trajectories
-  Copyright 2013, 2014, 2015, 2016, 2017, 2018 by CNRS/AMU
+  Copyright 2013, 2014, 2015, 2016, 2017, 2018, 2023 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -38,6 +38,8 @@
 #include <debug.hh>
 #include <file.hh>
 
+/// A model suitable to display the trajectories, displaying both the
+/// beginning and ending position.
 class TrajectoriesModel : public QAbstractTableModel {
   /// The list of trajectories
   FitTrajectories * trajectories;
@@ -146,8 +148,8 @@ public:
     
 
   TrajectoriesModel(FitTrajectories * trj, const FitData * d) :
-    trajectories(trj), fitData(d), referenceTrajectory(NULL),
-    flagColor(false) {
+    trajectories(trj), fitData(d), flagColor(false),
+    referenceTrajectory(NULL) {
     columns << Item("status", [](const FitTrajectory* trj,
                                 int role, bool final) -> QVariant {
                      if(role == Qt::DisplayRole && final) {
@@ -622,15 +624,16 @@ void TrajectoryParametersDisplay::displayRows(const QSet<int>& trjs)
 
 /// The class that displays both a table view of the trajectories and 
 class DoubleDisplay : public QWidget {
+public:
 
   TrajectoryParametersDisplay * display;
-public:
+  QTableView * tableView;
 
   DoubleDisplay(TrajectoriesModel * model, FitWorkspace * workspace)  {
     QSplitter * main = new QSplitter(Qt::Horizontal);
-    QTableView * view = new QTableView;
-    view->setModel(model);
-    main->addWidget(view);
+    tableView = new QTableView;
+    tableView->setModel(model);
+    main->addWidget(tableView);
 
     display = new TrajectoryParametersDisplay(workspace);
     main->addWidget(display);
@@ -638,13 +641,13 @@ public:
     QHBoxLayout * l = new QHBoxLayout(this);
     l->addWidget(main);
 
-    connect(view->selectionModel(), &QItemSelectionModel::selectionChanged,
+    connect(tableView->selectionModel(), &QItemSelectionModel::selectionChanged,
             this,
-            [this, view](const QItemSelection &selected,
-                         const QItemSelection &deselected) {
+            [this](const QItemSelection &selected,
+                   const QItemSelection &deselected) {
               QSet<int> d;
               for(const QModelIndex & cur :
-                    view->selectionModel()->selectedIndexes()) {
+                    tableView->selectionModel()->selectedIndexes()) {
                 int idx = cur.row();
                 d.insert(idx);
               }
@@ -653,6 +656,147 @@ public:
   };
   
 };
+
+
+//////////////////////////////////////////////////////////////////////
+
+/// A model for displaying all the "clusters" (the flagged trajectories)
+class FlaggedTrajectoriesModel : public QAbstractTableModel {
+  /// The list of trajectories
+  FitTrajectories * trajectories;
+
+  /// The underlying fit data...
+  const FitData * fitData;
+
+
+  class Item  {
+  public:
+    QString name;
+
+
+    std::function<QVariant (const QList<const FitTrajectory*> & trj,
+                            const QString & name,
+                            int role)> fcn;
+    
+    /// Number of the dataset
+    int dataset;
+
+    /// Index in the parameters vector
+    int index;
+
+    /// The parameter index -- not unique, unlike index.
+    int parameterIndex;
+
+    Item(const QString & n,
+         std::function<QVariant (const QList<const FitTrajectory*> & trj,
+                                 const QString & name,
+                                 int role)> f,
+         int ds = -1, int idx = -1, int pidx = - 1) :
+      name(n), fcn(f), dataset(ds), index(idx), parameterIndex(pidx) {;};
+  };
+
+  
+  QList<Item> columns;
+
+  /// The current list of flags. Always sorted (?)
+  QStringList flags;
+
+  QList<const FitTrajectory *> flaggedTrajectories(const QString & flag) const {
+    /// @todo setup some cache ?
+    QList<const FitTrajectory *> rv;
+    for(int i = 0; i < trajectories->size(); i++) {
+      if((*trajectories)[i].flagged(flag))
+        rv << &((*trajectories)[i]);
+    }
+    return rv;
+  };
+
+public:
+
+  // int col(const QString & n) {
+  //   for(int i = 0; i < columns.size(); i++)
+  //     if(columns[i].name == n)
+  //       return i;
+  //   return -1;
+  // };
+    
+
+  FlaggedTrajectoriesModel(FitTrajectories * trj, const FitData * d) :
+    trajectories(trj), fitData(d) {
+    columns << Item("flag", [](const QList<const FitTrajectory*> & /*trj*/,
+                               const QString & name,
+                               int role) -> QVariant {
+                              if(role == Qt::DisplayRole) {
+                                return name;
+                              }
+                              return QVariant();
+                            })
+            << Item("count", [](const QList<const FitTrajectory*> & trjs,
+                                const QString & /*name*/,
+                                int role) -> QVariant {
+                               if(role == Qt::DisplayRole) {
+                                 return trjs.size();
+                               }
+                               return QVariant();
+                             })
+      ;
+
+  };
+
+  QVariant data(const QString & flag, int col, int role) const {
+    QList<const FitTrajectory *> lst = flaggedTrajectories(flag);
+    return columns[col].fcn(lst, flag, role);
+  };
+
+  /// @name Reimplemented interface
+  ///
+  /// @{
+  virtual int rowCount(const QModelIndex & parent = QModelIndex()) const {
+    return flags.size();
+  }
+
+  virtual int columnCount(const QModelIndex & parent = QModelIndex()) const {
+    return columns.size();
+  };
+
+  virtual QVariant data(const QModelIndex & index,
+                        int role) const {
+    if(! index.isValid())
+      return QVariant();
+    
+    if(index.column() < 0 || index.column() >= columns.size())
+      return QVariant();
+
+    if(index.row() < 0 || index.row() >= flags.size())
+      return QVariant();
+
+    return data(flags[index.row()], index.column(), role);
+  };
+
+  virtual QVariant headerData(int section, Qt::Orientation orientation,
+                              int role) const {
+    if(orientation == Qt::Horizontal) {
+      if(role == Qt::DisplayRole) {
+        return columns[section].name;
+      }
+      return QVariant();
+    }
+    if(orientation == Qt::Vertical) {
+      if(role == Qt::DisplayRole) {
+        return flags.value(section);
+      }
+    }
+    return QVariant();
+  }
+  /// @}
+
+  void update() {
+    flags = trajectories->allFlags().toList();
+    std::sort(flags.begin(), flags.end());
+    emit(layoutChanged());
+  };
+};
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -795,8 +939,29 @@ void FitTrajectoryDisplay::setupFrame()
 
   //////////////////////////////
   // Setup of the mixed display
-  DoubleDisplay * dd = new DoubleDisplay(model, workspace);
-  tabs->addTab(dd, "Parameters");
+  doubleDisplay = new DoubleDisplay(model, workspace);
+  doubleDisplay->tableView->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(doubleDisplay->tableView, 
+          SIGNAL(customContextMenuRequested(const QPoint&)),
+          SLOT(contextMenuOnTable(const QPoint&)));
+
+  tabs->addTab(doubleDisplay, "Parameters");
+
+
+  //////////////////////////////
+  // Fourth tab
+  QWidget * fltab = new QWidget;
+  vl = new QVBoxLayout(fltab);
+  flagsView = new QTableView;
+  vl->addWidget(flagsView);
+  
+  flagsModel =
+    new FlaggedTrajectoriesModel(&workspace->trajectories, fitData);
+  flagsView->setModel(flagsModel);
+
+
+  tabs->addTab(fltab, "Flags/clusters");
+
 
   /// Here the close button at the bottom:
   hb = new QHBoxLayout;
@@ -808,6 +973,8 @@ void FitTrajectoryDisplay::setupFrame()
   hb->addWidget(box);
 
   t->addLayout(hb);
+
+
 
 
 
@@ -872,11 +1039,16 @@ void FitTrajectoryDisplay::setupFrame()
               QKeySequence(QString("Del")));
 }
 
+void FitTrajectoryDisplay::updateModels()
+{
+  model->update();
+  flagsModel->update();
+}
+
 void FitTrajectoryDisplay::update()
 {
-  
+  updateModels();
   // parametersDisplay->setRowCount(trajectories->size() * 2);
-  model->update();
   parametersDisplay->resizeColumnsToContents();
 }
 
@@ -909,11 +1081,15 @@ void FitTrajectoryDisplay::addCMSeparator()
 void FitTrajectoryDisplay::contextMenuOnTable(const QPoint & pos)
 {
   QMenu menu;
-  for(int i = 0; i < contextActions.size(); i++)
-    menu.addAction(contextActions[i]);
 
-  // Adding and removing tags
-  menu.addSeparator();
+  // Context menu for the main view
+  if(tabs->currentIndex() == 0) {
+    for(int i = 0; i < contextActions.size(); i++)
+      menu.addAction(contextActions[i]);
+
+    // Adding and removing tags
+    menu.addSeparator();
+  }
   QMenu s1("Add flags");
   QSet<QString> flgs = workspace->trajectories.allFlags();
 
@@ -994,10 +1170,18 @@ void FitTrajectoryDisplay::reuseParametersForThisDataset()
 QList<int> FitTrajectoryDisplay::selectedTrajectories() const
 {
   QSet<int> trjs;
-  QModelIndexList indexes =
-    parametersDisplay->selectionModel()->selectedIndexes();
+  QModelIndexList indexes;
+  if(tabs->currentIndex() == 0) // Normal view
+    indexes =
+      parametersDisplay->selectionModel()->selectedIndexes();
+
+  if(tabs->currentIndex() == 2) // Parameters view
+    indexes =
+      doubleDisplay->tableView->selectionModel()->selectedIndexes();
+
   for(const QModelIndex & idx : indexes)
     trjs.insert(idx.row()/2);
+  
   QList<int> l = trjs.toList();
   std::sort(l.begin(), l.end());
   return l;
@@ -1008,7 +1192,7 @@ void FitTrajectoryDisplay::deleteSelectedTrajectories()
   QList<int> l = selectedTrajectories();
   while(l.size() > 0)
     workspace->trajectories.remove(l.takeLast());
-  model->update();
+  updateModels();
 }
 
 
@@ -1017,7 +1201,7 @@ void FitTrajectoryDisplay::addFlagToSelected(const QString & flag)
   QList<int> l = selectedTrajectories();
   for(int i : l)
     workspace->trajectories[i].addFlag(flag);
-  model->update();
+  updateModels();
 }
 
 void FitTrajectoryDisplay::removeFlagToSelected(const QString & flag)
@@ -1025,7 +1209,7 @@ void FitTrajectoryDisplay::removeFlagToSelected(const QString & flag)
   QList<int> l = selectedTrajectories();
   for(int i : l)
     workspace->trajectories[i].removeFlag(flag);
-  model->update();
+  updateModels();
 }
 
 void FitTrajectoryDisplay::promptAddFlag()

@@ -92,6 +92,9 @@ public:
   /// Returns the nth element
   const FitTrajectory & operator[](int idx) const;
 
+  /// Returns the nth element
+  FitTrajectory & operator[](int idx);
+
   /// Returns the best fit, or the nth best fit.
   const FitTrajectory & best(int nth = 0) const;
 

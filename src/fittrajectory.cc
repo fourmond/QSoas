@@ -1,6 +1,6 @@
 /*
   fittrajectory.cc: implementation of fit trajectories
-  Copyright 2013 by CNRS/AMU
+  Copyright 2013, 2022, 2023 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -80,6 +80,16 @@ bool FitTrajectory::isWithinErrorRange(const FitTrajectory & o) const
 bool FitTrajectory::flagged(const QString & flag) const
 {
   return flags.contains(flag);
+}
+
+void FitTrajectory::addFlag(const QString & flag)
+{
+  flags.insert(flag);
+}
+
+void FitTrajectory::removeFlag(const QString & flag)
+{
+  flags.remove(flag);
 }
 
 ColumnBasedFormat * FitTrajectory::formatForTrajectory(const QStringList & s,

@@ -798,27 +798,21 @@ void FitTrajectoryDisplay::setupFrame()
               SLOT(reuseParametersForThisDataset()),
               QKeySequence(QString("Ctrl+U")));
 
-  QAction * a = new QAction(this);
-  a->setSeparator(true);
-  contextActions << a;
+  addCMSeparator();
 
   addCMAction("Set as Reference", this, SLOT(setAsReference()),
               QKeySequence(QString("Ctrl+R")));
   addCMAction("Clear reference", this, SLOT(clearReference()),
               QKeySequence(QString("Ctrl+Shift+R")));
 
-  a = new QAction(this);
-  a->setSeparator(true);
-  contextActions << a;
+  addCMSeparator();
 
   addCMAction("Next buffer", this, SLOT(nextBuffer()),
               QKeySequence(QString("Ctrl+PgDown")));
   addCMAction("Previous buffer", this, SLOT(previousBuffer()),
               QKeySequence(QString("Ctrl+PgUp")));
 
-  a = new QAction(this);
-  a->setSeparator(true);
-  contextActions << a;
+  addCMSeparator();
 
   addCMAction("Hide fixed", this, SLOT(hideFixed()),
               QKeySequence(QString("Ctrl+H")));
@@ -830,18 +824,14 @@ void FitTrajectoryDisplay::setupFrame()
   addCMAction("Show all", this, SLOT(showAll()),
               QKeySequence(QString("Ctrl+Shift+H")));
 
-  a = new QAction(this);
-  a->setSeparator(true);
-  contextActions << a;
+  addCMSeparator();
 
   addCMAction("Sort", this, SLOT(sortByCurrentColumn()),
               QKeySequence(QString("Ctrl+S")));
   addCMAction("Reverse sort", this, SLOT(reverseSortByCurrentColumn()),
               QKeySequence(QString("Ctrl+Shift+S")));
 
-  a = new QAction(this);
-  a->setSeparator(true);
-  contextActions << a;
+  addCMSeparator();
 
   addCMAction("Delete trajectory", this, SLOT(deleteSelectedTrajectories()),
               QKeySequence(QString("Del")));
@@ -873,6 +863,13 @@ void FitTrajectoryDisplay::addCMAction(const QString & name,
   QWidget::addAction(ac);
 }
 
+void FitTrajectoryDisplay::addCMSeparator()
+{
+  QAction * a = new QAction(this);
+  a->setSeparator(true);
+  contextActions << a;
+}
+
 
 void FitTrajectoryDisplay::contextMenuOnTable(const QPoint & pos)
 {
@@ -880,7 +877,52 @@ void FitTrajectoryDisplay::contextMenuOnTable(const QPoint & pos)
   for(int i = 0; i < contextActions.size(); i++)
     menu.addAction(contextActions[i]);
 
-  // Triggered automatically, apparently...
+  // Adding and removing tags
+  menu.addSeparator();
+  QMenu s1("Add flags");
+  QSet<QString> flgs = workspace->trajectories.allFlags();
+
+  if(flgs.size() > 0) {
+    QStringList ls = flgs.toList();
+    std::sort(ls.begin(), ls.end());
+    for(QString fl : ls) {
+      QAction * ac = new QAction(fl, this);
+      QObject::connect(ac, &QAction::triggered,
+                       this, [fl, this] {
+                               addFlagToSelected(fl);
+                             });
+      s1.addAction(ac);
+    }
+    s1.addSeparator();
+  }
+  
+  QAction * ac = ActionCombo::createAction("New tag",
+                                           this,
+                                           SLOT(promptAddFlag()),
+                                           QKeySequence(), this);
+  s1.addAction(ac);
+  menu.addMenu(&s1);
+
+  
+  QMenu s2("Remove flags");
+  QSet<QString> rFl;
+  for(int i : selectedTrajectories())
+    rFl += workspace->trajectories[i].flags;
+
+  if(rFl.size() > 0) {
+    QStringList ls = rFl.toList();
+    std::sort(ls.begin(), ls.end());
+    for(QString fl : ls) {
+      QAction * ac = new QAction(fl, this);
+      QObject::connect(ac, &QAction::triggered,
+                       this, [fl, this] {
+                               removeFlagToSelected(fl);
+                             });
+      s2.addAction(ac);
+    }
+  }
+  
+  menu.addMenu(&s2);
   menu.exec(view->viewport()->mapToGlobal(pos));
 }
 
@@ -914,7 +956,7 @@ void FitTrajectoryDisplay::reuseParametersForThisDataset()
   }
 }
 
-void FitTrajectoryDisplay::deleteSelectedTrajectories()
+QList<int> FitTrajectoryDisplay::selectedTrajectories() const
 {
   QSet<int> trjs;
   QModelIndexList indexes =
@@ -923,9 +965,41 @@ void FitTrajectoryDisplay::deleteSelectedTrajectories()
     trjs.insert(idx.row()/2);
   QList<int> l = trjs.toList();
   std::sort(l.begin(), l.end());
+  return l;
+}
+
+void FitTrajectoryDisplay::deleteSelectedTrajectories()
+{
+  QList<int> l = selectedTrajectories();
   while(l.size() > 0)
     workspace->trajectories.remove(l.takeLast());
   model->update();
+}
+
+
+void FitTrajectoryDisplay::addFlagToSelected(const QString & flag)
+{
+  QList<int> l = selectedTrajectories();
+  for(int i : l)
+    workspace->trajectories[i].addFlag(flag);
+  model->update();
+}
+
+void FitTrajectoryDisplay::removeFlagToSelected(const QString & flag)
+{
+  QList<int> l = selectedTrajectories();
+  for(int i : l)
+    workspace->trajectories[i].removeFlag(flag);
+  model->update();
+}
+
+void FitTrajectoryDisplay::promptAddFlag()
+{
+  QString flag = QInputDialog::getText(this, "Flag name",
+                                       "New flag name to use");
+  if(! flag.isEmpty())
+    addFlagToSelected(flag);
+                                       
 }
 
 void FitTrajectoryDisplay::nextBuffer()

@@ -131,7 +131,9 @@ class FitTrajectoryDisplay : public QDialog {
   void addCMAction(const QString & name, QObject * receiver, 
                    const char * slot, 
                    const QKeySequence & shortCut = QKeySequence());
-  
+
+  void addCMSeparator();
+
 
 public:
 
@@ -192,9 +194,16 @@ public slots:
 
   /// (reverse) sortByCurrentColumn()
   void reverseSortByCurrentColumn();
-                                                        
+
+protected:
+
+  /// Returns the list of the indices of the currently selected
+  /// trajectories. Sorted.
+  QList<int> selectedTrajectories() const;
+
 
 protected slots:
+
 
   void contextMenuOnTable(const QPoint & pos);
 
@@ -213,6 +222,15 @@ protected slots:
 
   /// Called whenever the user double clicks on an item
   void onDoubleClick(const QModelIndex & index);
+
+  /// Asks for a new tag name and add it
+  void promptAddFlag();
+
+  /// Adds a given flag to the selected trajectories
+  void addFlagToSelected(const QString & flag);
+
+  /// Removes a given flag to the selected trajectories
+  void removeFlagToSelected(const QString & flag);
 };
 
 

@@ -154,6 +154,11 @@ const FitTrajectory & FitTrajectories::operator[](int idx) const
   return trajectories[idx];
 }
 
+FitTrajectory & FitTrajectories::operator[](int idx)
+{
+  return trajectories[idx];
+}
+
 const FitTrajectory & FitTrajectories::best(int idx) const
 {
   if(residualsOrder.size() != trajectories.size())

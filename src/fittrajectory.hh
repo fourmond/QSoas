@@ -115,6 +115,12 @@ public:
   /// Returns whether the trajectory has the given flag or not
   bool flagged(const QString & flag) const;
 
+  /// Adds a flag
+  void addFlag(const QString & flag);
+
+  /// Removes a flag
+  void removeFlag(const QString & flag);
+
 
   /// Returns true if the argument is within the error range of this
   /// one (that does not necessarily mean that the reverse is true).

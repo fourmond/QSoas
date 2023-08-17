@@ -65,11 +65,13 @@ class TrajectoriesModel : public QAbstractTableModel {
     /// The parameter index -- not unique, unlike index.
     int parameterIndex;
 
-    Item(const QString & n,     std::function<QVariant (const FitTrajectory* trj, int role, bool final)> f, int ds = -1, int idx = -1, int pidx = - 1) :
+    Item(const QString & n,
+         std::function<QVariant (const FitTrajectory* trj,
+                                 int role, bool fnal)> f,
+         int ds = -1, int idx = -1, int pidx = - 1) :
       name(n), fcn(f), dataset(ds), index(idx), parameterIndex(pidx) {;};
   };
 
-  
   QList<Item> columns;
 
   /// Whether or not to color via flags
@@ -85,7 +87,6 @@ class TrajectoriesModel : public QAbstractTableModel {
     }
     return flagColors[flag];
   };
-  
 
 
 public:
@@ -731,16 +732,71 @@ public:
                               }
                               return QVariant();
                             })
-            << Item("count", [](const QList<const FitTrajectory*> & trjs,
-                                const QString & /*name*/,
-                                int role) -> QVariant {
-                               if(role == Qt::DisplayRole) {
+            << Item("count",
+                    [](const QList<const FitTrajectory*> & trjs,
+                       const QString & /*name*/,
+                       int role) -> QVariant {
+                      if(role == Qt::DisplayRole) {
                                  return trjs.size();
                                }
                                return QVariant();
                              })
+            << Item("residuals",
+                    [](const QList<const FitTrajectory*> & trjs,
+                       const QString & /*name*/,
+                       int role) -> QVariant {
+                      if(role == Qt::DisplayRole) {
+                        double min = 0, max = 0, s = 0;
+                        int nb = 0;
+                        for(const FitTrajectory * trj : trjs) {
+                          double res = trj->residuals;
+                          if(nb == 0) {
+                            min = res;
+                            max = res;
+                          }
+                          min = std::min(res, min);
+                          max = std::max(res, max);
+                          s += res;
+                          nb += 1;
+                        }
+                        return QString("%1 to %2 (%3 avg)").
+                          arg(min).arg(max).arg(s/nb);
+                      }
+                      return QVariant();
+                    })
       ;
 
+    int nbds = fitData->datasets.size();
+    int n = fitData->parametersPerDataset();
+    for(int i = 0; i < nbds; i++) {
+      for(int j = 0; j < n; j++) {
+        QString na = QString("%1[%2]").
+          arg(fitData->parameterDefinitions[j].name).
+          arg(i);
+
+        int col = i*n+j;
+        columns << Item(na,
+                        [this,j,i,n,col](const QList<const FitTrajectory*> & trjs,
+                                         const QString & /*name*/,
+                                         int role) -> QVariant {
+                          if(role == Qt::DisplayRole || role == Qt::EditRole) {
+                            int nb = 0;
+                            double sx = 0;
+                            double sxx = 0;
+                            for(const FitTrajectory * trj : trjs) {
+                              nb += 1;
+                              double x = trj->finalParameters[col];
+                              sx += x;
+                              sxx += x*x;
+                            }
+                            return QString("%1 +- %2").
+                              arg(sx/nb).
+                              arg(sqrt((sxx - sx*sx)/nb));
+                          }
+                          return QVariant();
+                        }, i, col, j);
+      }
+    }
   };
 
   QVariant data(const QString & flag, int col, int role) const {

@@ -722,7 +722,18 @@ FitData * FitDialog::getData() const
 
 void FitDialog::updateFitName()
 {
-  fitName->setText("<b>Fit:</b> " + parameters.fitName());
+  QString fn = parameters.fitName();
+  if(fn.size() > 50) {
+    // Insert invisible spaces at non-word boundaries
+    QChar spc(0x200A);          // Not invisible in the end
+    spc = ' ';
+    QString repl = QString("\\1") + spc;
+    // QRegExp re("(\\W+\\w+\\W+\\w+\\W+)");
+    QRegExp re("(\\W+\\w+\\W+)");
+    fn = fn.replace(re, repl);
+  }
+  
+  fitName->setText("<b>Fit:</b> " + fn);
 }
 
 FitWorkspace * FitDialog::getWorkspace()

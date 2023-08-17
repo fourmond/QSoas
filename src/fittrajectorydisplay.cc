@@ -70,11 +70,31 @@ class TrajectoriesModel : public QAbstractTableModel {
   
   QList<Item> columns;
 
+  /// Whether or not to color via flags
+  bool flagColor;
+
+  mutable QHash<QString, QColor> flagColors;
+
+  QColor getFlagColor(const QString & flag) const {
+    if(! flagColors.contains(flag)) {
+      int idx = flagColors.size();
+      flagColors[flag] = QColor::fromHsv(idx * 101, 50, 150 +
+                                         ((idx+1) % 2)*100);
+    }
+    return flagColors[flag];
+  };
+  
+
 
 public:
 
   /// A reference trajectory to color stuff
   const FitTrajectory * referenceTrajectory;
+
+  void setFlagColor(bool b) {
+    flagColor = b;
+    update();
+  };
 
   void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) {
     Debug::debug() << "sort by " << column << " -- " << order << endl;
@@ -126,7 +146,8 @@ public:
     
 
   TrajectoriesModel(FitTrajectories * trj, const FitData * d) :
-    trajectories(trj), fitData(d), referenceTrajectory(NULL) {
+    trajectories(trj), fitData(d), referenceTrajectory(NULL),
+    flagColor(false) {
     columns << Item("status", [](const FitTrajectory* trj,
                                 int role, bool final) -> QVariant {
                      if(role == Qt::DisplayRole && final) {
@@ -164,20 +185,20 @@ public:
 
         int col = i*n+j;
         columns << Item(na, [this,j,i,n,col,colors](const FitTrajectory* trj,
-                                             int role, bool final) -> QVariant {
+                                             int role, bool fnl) -> QVariant {
                           if(role == Qt::DisplayRole || role == Qt::EditRole) {
-                            double val = final ? trj->finalParameters[col] :
+                            double val = fnl ? trj->finalParameters[col] :
                               trj->initialParameters[col];
                             return QVariant(val);
                           }
-                          if(role == Qt::ToolTipRole && final) {
+                          if(role == Qt::ToolTipRole && fnl) {
                             return QString("Error: %1 %").arg(100 * trj->parameterErrors[col]);
                           }
-                          if(role == Qt::BackgroundRole && !final) {
+                          if(role == Qt::BackgroundRole && !fnl) {
                             if(trj->fixed[col]) 
                               return QBrush(QColor(210,210,210));
                           }
-                          if(role == Qt::BackgroundRole && final && referenceTrajectory) {
+                          if(role == Qt::BackgroundRole && fnl && referenceTrajectory) {
                             if(trj == referenceTrajectory)
                               return QBrush(QColor(200,255,200));
                             double dv = trj->finalParameters[col]/
@@ -285,24 +306,31 @@ public:
 
   };
 
-  QVariant data(const FitTrajectory* trj, int col, int role, bool final) const {
-    QVariant v = columns[col].fcn(trj, role, final);
+  QVariant data(const FitTrajectory* trj, int col, int role, bool fnl) const {
+    QVariant v = columns[col].fcn(trj, role, fnl);
     if(! v.isValid()) {
       if(role == Qt::BackgroundRole) {
         QColor c;
-        if(final) {
-          // Now select a color for the bottom line
-          switch(trj->ending) {
-          case FitWorkspace::Converged:
-            c = QColor::fromHsv(120, 15, 255);
-            break;
-          case FitWorkspace::Cancelled:
-            c = QColor::fromHsv(270, 15, 255);
-            break;
-          case FitWorkspace::TimeOut:
-          default:
-            c = QColor::fromHsv(359, 15, 255);
-            break;
+        if(flagColor) {
+          QStringList flg = trj->flags.toList();
+          if(flg.size() == 1)
+            c = getFlagColor(flg[0]);
+        }
+        else {
+          if(fnl) {
+            // Now select a color for the bottom line
+            switch(trj->ending) {
+            case FitWorkspace::Converged:
+              c = QColor::fromHsv(120, 15, 255);
+              break;
+            case FitWorkspace::Cancelled:
+              c = QColor::fromHsv(270, 15, 255);
+              break;
+            case FitWorkspace::TimeOut:
+            default:
+              c = QColor::fromHsv(359, 15, 255);
+              break;
+            }
           }
         }
         if(c.isValid())
@@ -702,17 +730,24 @@ void FitTrajectoryDisplay::setupFrame()
 
   QHBoxLayout * hb = new QHBoxLayout();
 
-  QPushButton * bt = new QPushButton(tr("Trim"));
+  QPushButton * bt = new QPushButton("Trim");
   connect(bt, SIGNAL(clicked()), SLOT(trim()));
   hb->addWidget(bt);
 
-  bt = new QPushButton(tr("Previous buffer"));
+  bt = new QPushButton("Previous buffer");
   connect(bt, SIGNAL(clicked()), SLOT(previousBuffer()));
   hb->addWidget(bt);
 
-  bt = new QPushButton(tr("Next buffer"));
+  bt = new QPushButton("Next buffer");
   connect(bt, SIGNAL(clicked()), SLOT(nextBuffer()));
   hb->addWidget(bt);
+
+  QCheckBox * check = new QCheckBox("Color by flag");
+  QObject::connect(check, &QCheckBox::clicked,
+                   this, [this, check]() {
+                           model->setFlagColor(check->isChecked());
+                         });
+  hb->addWidget(check);
 
   hb->addStretch();
 
@@ -896,7 +931,7 @@ void FitTrajectoryDisplay::contextMenuOnTable(const QPoint & pos)
     s1.addSeparator();
   }
   
-  QAction * ac = ActionCombo::createAction("New tag",
+  QAction * ac = ActionCombo::createAction("New flag",
                                            this,
                                            SLOT(promptAddFlag()),
                                            QKeySequence(), this);

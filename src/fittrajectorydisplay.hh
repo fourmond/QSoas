@@ -219,8 +219,15 @@ protected slots:
 
   void contextMenuOnTable(const QPoint & pos);
 
+  
+  void flagsViewContextMenu(const QPoint & pos);
+
   /// Send the currently selected parameters to the FitWorkspace
   void reuseCurrentParameters();
+
+  /// Reuse the current flagged parameters
+  void reuseFlaggedParameters(const QString & flag,
+                              bool best);
 
   /// Send the currently selected parameters for the current dataset
   /// to the FitWorkspace.

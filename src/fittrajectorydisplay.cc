@@ -789,9 +789,11 @@ public:
                               sx += x;
                               sxx += x*x;
                             }
+                            sx /= nb;
+                            sxx /= nb;
                             return QString("%1 +- %2").
                               arg(sx/nb).
-                              arg(sqrt((sxx - sx*sx)/nb));
+                              arg(sqrt(sxx - sx*sx));
                           }
                           return QVariant();
                         }, i, col, j);
@@ -851,6 +853,11 @@ public:
     std::sort(flags.begin(), flags.end());
     emit(layoutChanged());
   };
+
+  QString flag(const QModelIndex & index) const {
+    return flags.value(index.row());
+  };
+
 };
 
 
@@ -1014,7 +1021,11 @@ void FitTrajectoryDisplay::setupFrame()
   flagsModel =
     new FlaggedTrajectoriesModel(&workspace->trajectories, fitData);
   flagsView->setModel(flagsModel);
+  flagsView->setContextMenuPolicy(Qt::CustomContextMenu);
 
+  connect(flagsView, 
+          SIGNAL(customContextMenuRequested(const QPoint&)),
+          SLOT(flagsViewContextMenu(const QPoint&)));
 
   tabs->addTab(fltab, "Flags/clusters");
 
@@ -1191,6 +1202,54 @@ void FitTrajectoryDisplay::contextMenuOnTable(const QPoint & pos)
   
   menu.addMenu(&s2);
   menu.exec(view->viewport()->mapToGlobal(pos));
+}
+
+void FitTrajectoryDisplay::flagsViewContextMenu(const QPoint & pos)
+{
+  QMenu menu;
+  QAction * ac = new QAction("Reuse best", this);
+  QObject::connect(ac, &QAction::triggered,
+                   this,
+                   [this] {
+                     QString flg = flagsModel->flag(flagsView->currentIndex());
+                     if(! flg.isEmpty())
+                       reuseFlaggedParameters(flg, true);
+                   });
+  menu.addAction(ac);
+
+  ac = new QAction("Reuse average", this);
+  QObject::connect(ac, &QAction::triggered,
+                   this,
+                   [this] {
+                     QString flg = flagsModel->flag(flagsView->currentIndex());
+                     if(! flg.isEmpty())
+                       reuseFlaggedParameters(flg, false);
+                   });
+  menu.addAction(ac);
+  menu.exec(view->viewport()->mapToGlobal(pos));
+}
+
+
+void FitTrajectoryDisplay::reuseFlaggedParameters(const QString & flag,
+                                                  bool best)
+{
+  FitTrajectories trjs = workspace->trajectories.flaggedTrajectories(flag);
+  Vector v;
+  if(best)
+    v = trjs.best().finalParameters;
+  else {
+    int nb = 0;
+    for(const FitTrajectory & tr : trjs) {
+      if(nb == 0)
+        v = tr.finalParameters;
+      else
+        v += tr.finalParameters;
+    }
+    v *= (1.0/nb);
+  }
+    
+  
+  workspace->restoreParameterValues(v);
 }
 
 void FitTrajectoryDisplay::reuseCurrentParameters()

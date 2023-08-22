@@ -1198,6 +1198,15 @@ void FitTrajectoryDisplay::contextMenuOnTable(const QPoint & pos)
                              });
       s2.addAction(ac);
     }
+    s2.addSeparator();
+    QAction * ac = new QAction("All", this);
+    QObject::connect(ac, &QAction::triggered,
+                     this, [ls, this] {
+                       for(const QString & fl : ls)
+                         removeFlagToSelected(fl);
+                     });
+    s2.addAction(ac);
+
   }
   
   menu.addMenu(&s2);

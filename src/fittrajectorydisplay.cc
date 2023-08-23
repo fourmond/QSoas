@@ -78,18 +78,19 @@ class TrajectoriesModel : public QAbstractTableModel {
   bool flagColor;
 
   mutable QHash<QString, QColor> flagColors;
-
+  
+public:
+  
   QColor getFlagColor(const QString & flag) const {
     if(! flagColors.contains(flag)) {
       int idx = flagColors.size();
-      flagColors[flag] = QColor::fromHsv(idx * 101, 50, 150 +
+      flagColors[flag] = QColor::fromHsv((idx * 111)%360, 50, 150 +
                                          ((idx+1) % 2)*100);
     }
     return flagColors[flag];
   };
 
 
-public:
 
   /// A reference trajectory to color stuff
   const FitTrajectory * referenceTrajectory;
@@ -712,6 +713,9 @@ class FlaggedTrajectoriesModel : public QAbstractTableModel {
     return rv;
   };
 
+  /// The trajectories model, mainly for coloring the lines. Can be NULL
+  const TrajectoriesModel * trajectoriesModel;
+
 public:
 
   // int col(const QString & n) {
@@ -722,8 +726,9 @@ public:
   // };
     
 
-  FlaggedTrajectoriesModel(FitTrajectories * trj, const FitData * d) :
-    trajectories(trj), fitData(d) {
+  FlaggedTrajectoriesModel(FitTrajectories * trj, const FitData * d,
+                           const TrajectoriesModel * md = NULL) :
+    trajectories(trj), fitData(d), trajectoriesModel(md) {
     columns << Item("flag", [](const QList<const FitTrajectory*> & /*trj*/,
                                const QString & name,
                                int role) -> QVariant {
@@ -799,11 +804,15 @@ public:
                         }, i, col, j);
       }
     }
+    update();
   };
 
   QVariant data(const QString & flag, int col, int role) const {
     QList<const FitTrajectory *> lst = flaggedTrajectories(flag);
-    return columns[col].fcn(lst, flag, role);
+    QVariant d = columns[col].fcn(lst, flag, role);
+    if(role == Qt::BackgroundRole && d.isNull() && trajectoriesModel)
+      d = trajectoriesModel->getFlagColor(flag);
+    return d;
   };
 
   /// @name Reimplemented interface
@@ -1019,7 +1028,7 @@ void FitTrajectoryDisplay::setupFrame()
   vl->addWidget(flagsView);
   
   flagsModel =
-    new FlaggedTrajectoriesModel(&workspace->trajectories, fitData);
+    new FlaggedTrajectoriesModel(&workspace->trajectories, fitData, model);
   flagsView->setModel(flagsModel);
   flagsView->setContextMenuPolicy(Qt::CustomContextMenu);
 

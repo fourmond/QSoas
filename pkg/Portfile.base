@@ -17,10 +17,10 @@ depends_lib         port:qt511-qtbase \
                     port:qt511-qtsvg \
                     port:qt511-qt3d \
                     port:qt511-qttools \
-                    port:ruby19 \
+                    port:mruby \
                     port:gsl
 
-configure.cmd MRUBY_DIR=/Users/vincent/mruby ./configure #VERSION#
+configure.cmd ./configure #VERSION#
 
 checksum {
     # @todo Enable checksums

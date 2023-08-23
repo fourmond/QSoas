@@ -215,7 +215,7 @@ LIBS += -lgsl -lgslcblas -lm
     LIBS += $$system($${MRUBY_DIR}/bin/mruby-config --ldflags)
     message("LIBS: $$system($${MRUBY_DIR}/bin/mruby-config --libs)")
     LIBS += $$system($${MRUBY_DIR}/bin/mruby-config --libs)
-  }
+   }
   else {
       exists($${MRUBY_DIR}\bin\mruby-config.bat) {
         message("Found mruby-config.bat")
@@ -238,6 +238,12 @@ LIBS += -lgsl -lgslcblas -lm
 # IMPORTANT NOTE: we need a recent version on mruby,
 # https://github.com/mruby/mruby/commit/7450a774a5f796f7e9d312ba9c9690097f4aa309,
 # seems to do the trick.
+}
+else {
+     # case of macos ?
+     exists(/opt/local/lib/mruby) {
+        LIBS += -L/opt/local/lib/mruby
+     }
 }
 
 LIBS += -lmruby

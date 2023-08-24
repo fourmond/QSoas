@@ -94,7 +94,7 @@ MRuby::MRuby()
 
   // Getting the exception class, seems dependent on
 
-#if MRUBY_RELEASE_MAJOR == 3
+#if MRUBY_RELEASE_MAJOR >= 2
   mrb_value v = getConstant("Exception");
   cException = mrb_class_ptr(v);
 #else

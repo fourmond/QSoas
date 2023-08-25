@@ -71,7 +71,7 @@ public:
 
   virtual QStringList toString(const ArgumentMarshaller * arg) const override {
     QStringList lst;
-    for(const QString n : T::availableItems()) {
+    for(const QString &n : T::availableItems()) {
       if(T::namedItem(n) == arg->value<T*>()) {
         lst << n;
         break;

@@ -598,7 +598,7 @@ HEADERS += src/helpbrowser.hh
 SOURCES += src/helpbrowser.cc
 
 
-# These are for JSON meta-data files
+# These are for QSoas's internal file handling
 HEADERS += src/file.hh src/fileinfo.hh
 SOURCES += src/file.cc src/fileinfo.cc
 
@@ -606,6 +606,11 @@ SOURCES += src/file.cc src/fileinfo.cc
 # These are for all the serialization of column
 HEADERS += src/columnbasedformat.hh
 SOURCES += src/columnbasedformat.cc
+
+# Synchronized table view
+HEADERS += src/synchronizedtables.hh
+SOURCES += src/synchronizedtables.cc
+
 
 ######################################################################
 # Sources for the parameter space explorers

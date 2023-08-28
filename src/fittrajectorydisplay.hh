@@ -97,6 +97,9 @@ class FitTrajectoryDisplay : public QDialog {
   /// The main display of the parameters
   QTableView * parametersDisplay;
 
+  /// The display of the reference
+  QTableView * referenceDisplay;
+
 
   /// The parameters display in the first tab
   TrajectoryParametersDisplay * graphicalDisplay;

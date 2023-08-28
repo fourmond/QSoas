@@ -946,9 +946,11 @@ void FitTrajectoryDisplay::setupFrame()
           this,
           SLOT(onSelectionChanged()));
 
-  QTableView * tv = new QTableView();
-  tv->setModel(model);
-  parametersTables->addTable(tv);
+  referenceDisplay = new QTableView();
+  referenceDisplay->setModel(model);
+  parametersTables->addTable(referenceDisplay);
+
+  referenceDisplay->hide();
 
 
   QHBoxLayout * hb = new QHBoxLayout();
@@ -1534,8 +1536,17 @@ void FitTrajectoryDisplay::setAsReference()
   int idx = cur.row();
   if(idx < 0)
     return;
-  const FitTrajectory * trj = &(workspace->trajectories[idx/2]);
+  idx = idx/2;
+  const FitTrajectory * trj = &(workspace->trajectories[idx]);
   model->referenceTrajectory = trj;
+  referenceDisplay->show();
+  for(int i = 0; i < 2*workspace->trajectories.size(); i++) {
+    if(i == (idx * 2  + 1))
+      referenceDisplay->showRow(i);
+    else
+      referenceDisplay->hideRow(i);
+  }
+  
   model->update();
 }
 
@@ -1543,6 +1554,8 @@ void FitTrajectoryDisplay::clearReference()
 {
   model->referenceTrajectory = NULL;
   model->update();
+
+  referenceDisplay->hide();
 }
 
 void FitTrajectoryDisplay::browseTrajectories(FitWorkspace * ws)

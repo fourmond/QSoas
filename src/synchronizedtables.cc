@@ -22,38 +22,7 @@
 SynchronizedTables::SynchronizedTables(QWidget * parent) :
   QSplitter(Qt::Vertical, parent)
 {
-  // splitter = new QSplitter(this);
-  // setWidget(splitter);
-  // setWidgetResizable(true);
 }
-
-
-// void SynchronizedTables::resizeEvent(QResizeEvent *event)
-// {
-//   int width = 0;
-//   QTextStream o(stdout);
-//   o << "resize" << endl;
-//   for(QWidget * w : allWidgets) {
-//     o << "W: " << w << endl;
-//     QSize sz = w->sizeHint();
-//     o << " -> " << sz.width() << "x" << sz.height() << endl;
-//     width = std::max(sz.width(), width);
-//   }
-//   for(QTableView * t : tables) {
-//     int w = 0;
-//     o << "T: " << t << endl;
-//     for(int i = 0; i < t->horizontalHeader()->count(); i++) {
-//       if(! t->isColumnHidden(i))
-//         w += t->columnWidth(i);
-//     }
-//     o << " -> width: " << w << endl;
-//     width = std::max(w, width);
-//   }
-//   QSize ssz = event->size();
-//   ssz.setWidth(width);
-//   splitter->resize(ssz);
-//   QScrollArea::resizeEvent(event);
-// }
 
 int SynchronizedTables::addWidget(QWidget * widget, int region,
                                   int stretch)

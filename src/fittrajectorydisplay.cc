@@ -805,6 +805,13 @@ public:
                           return QVariant();
                         }, i, col, j);
       }
+      // Two dummy columns for matching the number of columns in the base model
+      columns << Item("XX",
+                        [](const QList<const FitTrajectory*> & trjs,
+                                         const QString & /*name*/,
+                           int role) -> QVariant {
+                          return QVariant();
+                        }, i);
     }
     update();
   };
@@ -1421,6 +1428,21 @@ void FitTrajectoryDisplay::trim()
     trim(thr);
 }
 
+void FitTrajectoryDisplay::hideColumn(int col)
+{
+  for(QTableView * view : {parametersDisplay, doubleDisplay->tableView,
+      flagsView})
+    view->hideColumn(col);
+}
+
+void FitTrajectoryDisplay::showColumn(int col)
+{
+  for(QTableView * view : {parametersDisplay, doubleDisplay->tableView,
+    flagsView})
+    view->showColumn(col);
+}
+
+
 void FitTrajectoryDisplay::hideFixed()
 {
   QModelIndex cur = parametersDisplay->currentIndex();
@@ -1432,7 +1454,7 @@ void FitTrajectoryDisplay::hideFixed()
   const FitTrajectory * trj = &(workspace->trajectories[idx/2]);
   for(int i = 0; i < nbtot; i++) {
     if(model->isFixed(i, trj))
-      parametersDisplay->hideColumn(i);
+      hideColumn(i);
   }
 }
 
@@ -1444,7 +1466,7 @@ void FitTrajectoryDisplay::hideSelected()
     ->selectedIndexes();
   
   for(const QModelIndex & idx : selected)
-    parametersDisplay->hideColumn(idx.column());
+    hideColumn(idx.column());
 
 }
 
@@ -1478,7 +1500,7 @@ void FitTrajectoryDisplay::hideButSelected()
     int pid = model->parameterIndex(i);
     if(pid >= 0 && model->dataset(i) == ds
        && (! parameters.contains(pid)))
-      parametersDisplay->hideColumn(i);
+      hideColumn(i);
   }
 }
 
@@ -1503,7 +1525,7 @@ void FitTrajectoryDisplay::hideButSelectedEverywhere()
   for(int i = 0; i < nbtot; i++) {
     int pid = model->parameterIndex(i);
     if(pid >= 0 && (! parameters.contains(model->parameterIndex(i))))
-      parametersDisplay->hideColumn(i);
+      hideColumn(i);
   }
 }
 
@@ -1513,7 +1535,7 @@ void FitTrajectoryDisplay::showAll()
   QModelIndex idx = parametersDisplay->currentIndex();
   int nbtot = model->columnCount(idx);
   for(int i = 0; i < nbtot; i++)
-    parametersDisplay->showColumn(i);
+    showColumn(i);
 }
 
 

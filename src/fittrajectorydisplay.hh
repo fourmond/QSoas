@@ -221,6 +221,12 @@ protected:
 
   void updateModels();
 
+  /// Hides a column in the various tables
+  void hideColumn(int col);
+
+  /// Shows a column in the various tables
+  void showColumn(int col);
+
 
 protected slots:
 

@@ -925,10 +925,6 @@ void FitTrajectoryDisplay::setupFrame()
   connect(parametersDisplay, SIGNAL(doubleClicked(const QModelIndex &)),
           SLOT(onDoubleClick(const QModelIndex &)));
 
-  graphicalDisplay = new TrajectoryParametersDisplay(workspace);
-
-  // splt->addWidget(graphicalDisplay);
-
   l->addWidget(splt);
 
   model = new TrajectoriesModel(&workspace->trajectories, fitData);
@@ -937,6 +933,8 @@ void FitTrajectoryDisplay::setupFrame()
   parametersDisplay->setSortingEnabled(true);
   parametersDisplay->horizontalHeader()->
     setSortIndicator(model->col("date"), Qt::AscendingOrder);
+
+  
 
   connect(parametersDisplay, 
           SIGNAL(customContextMenuRequested(const QPoint&)),
@@ -947,6 +945,11 @@ void FitTrajectoryDisplay::setupFrame()
                                   const QItemSelection &)),
           this,
           SLOT(onSelectionChanged()));
+
+  QTableView * tv = new QTableView();
+  tv->setModel(model);
+  parametersTables->addTable(tv);
+
 
   QHBoxLayout * hb = new QHBoxLayout();
 
@@ -983,6 +986,10 @@ void FitTrajectoryDisplay::setupFrame()
 
   //////////////////////////////
   // Setup of curve view
+
+
+  graphicalDisplay = new TrajectoryParametersDisplay(workspace);
+
   
   QWidget * viewtab = new QWidget;
   QVBoxLayout * vl = new QVBoxLayout(viewtab);

@@ -20,40 +20,40 @@
 #include <synchronizedtables.hh>
 
 SynchronizedTables::SynchronizedTables(QWidget * parent) :
-  QScrollArea(parent)
+  QSplitter(Qt::Vertical, parent)
 {
-  splitter = new QSplitter(this);
-  setWidget(splitter);
+  // splitter = new QSplitter(this);
+  // setWidget(splitter);
   // setWidgetResizable(true);
 }
 
 
-void SynchronizedTables::resizeEvent(QResizeEvent *event)
-{
-  int width = 0;
-  QTextStream o(stdout);
-  o << "resize" << endl;
-  for(QWidget * w : allWidgets) {
-    o << "W: " << w << endl;
-    QSize sz = w->sizeHint();
-    o << " -> " << sz.width() << "x" << sz.height() << endl;
-    width = std::max(sz.width(), width);
-  }
-  for(QTableView * t : tables) {
-    int w = 0;
-    o << "T: " << t << endl;
-    for(int i = 0; i < t->horizontalHeader()->count(); i++) {
-      if(! t->isColumnHidden(i))
-        w += t->columnWidth(i);
-    }
-    o << " -> width: " << w << endl;
-    width = std::max(w, width);
-  }
-  QSize ssz = event->size();
-  ssz.setWidth(width);
-  splitter->resize(ssz);
-  QScrollArea::resizeEvent(event);
-}
+// void SynchronizedTables::resizeEvent(QResizeEvent *event)
+// {
+//   int width = 0;
+//   QTextStream o(stdout);
+//   o << "resize" << endl;
+//   for(QWidget * w : allWidgets) {
+//     o << "W: " << w << endl;
+//     QSize sz = w->sizeHint();
+//     o << " -> " << sz.width() << "x" << sz.height() << endl;
+//     width = std::max(sz.width(), width);
+//   }
+//   for(QTableView * t : tables) {
+//     int w = 0;
+//     o << "T: " << t << endl;
+//     for(int i = 0; i < t->horizontalHeader()->count(); i++) {
+//       if(! t->isColumnHidden(i))
+//         w += t->columnWidth(i);
+//     }
+//     o << " -> width: " << w << endl;
+//     width = std::max(w, width);
+//   }
+//   QSize ssz = event->size();
+//   ssz.setWidth(width);
+//   splitter->resize(ssz);
+//   QScrollArea::resizeEvent(event);
+// }
 
 int SynchronizedTables::addWidget(QWidget * widget, int region,
                                   int stretch)
@@ -62,7 +62,7 @@ int SynchronizedTables::addWidget(QWidget * widget, int region,
     region = splitterWidgets.size();
   while(splitterWidgets.size() <= region) {
     QWidget * w = new QWidget;
-    splitter->addWidget(w);
+    QSplitter::addWidget(w);
     splitterWidgets << w;
     layouts << new QVBoxLayout(w);
   }
@@ -92,8 +92,11 @@ int SynchronizedTables::addTable(QTableView * table, int region,
           SIGNAL(sectionResized(int, int, int)),
           SLOT(columnResized(int, int, int)));
 
-  table->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  table->horizontalScrollBar()->setEnabled(false);
+  // table->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  // table->horizontalScrollBar()->setEnabled(false);
+  connect(table->horizontalScrollBar(),
+          SIGNAL(valueChanged(int)),
+          SLOT(tableSliderChanged(int)));
   tables << table;
 
   return rv;
@@ -109,6 +112,12 @@ void SynchronizedTables::showColumn(int col)
 {
   for(QTableView * table : tables)
     table->showColumn(col);
+}
+
+void SynchronizedTables::tableSliderChanged(int value)
+{
+  for(QTableView * v : tables)
+    v->horizontalScrollBar()->setValue(value);
 }
 
 

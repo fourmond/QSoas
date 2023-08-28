@@ -26,11 +26,8 @@
 /// @li same column sizes
 /// @li same horizontal position (in fact, a global horizontal slider is used)
 /// @li same hidden/visible state
-class SynchronizedTables : public QScrollArea {
+class SynchronizedTables : public QSplitter {
   Q_OBJECT;
-
-  /// The vertical splitter
-  QSplitter * splitter;
 
   /// The widgets being handled by the splitter
   QList<QWidget*> splitterWidgets;
@@ -60,11 +57,13 @@ public slots:
 
   void showColumn(int col);
 
-protected:
-  void resizeEvent(QResizeEvent * event) override;
+// protected:
+//   void resizeEvent(QResizeEvent * event) override;
 
 protected slots:
   void columnResized(int column, int oldSize, int newSize);
+
+  void tableSliderChanged(int value);
 
 };
 

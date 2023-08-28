@@ -35,6 +35,9 @@ class SynchronizedTables : public QScrollArea {
   /// The widgets being handled by the splitter
   QList<QWidget*> splitterWidgets;
 
+  /// All the widgets
+  QList<QWidget*> allWidgets;
+
   /// The VBoxes use
   QList<QVBoxLayout*> layouts;
 
@@ -44,11 +47,24 @@ class SynchronizedTables : public QScrollArea {
 public:
   explicit SynchronizedTables(QWidget * parent = NULL);
 
-  /// Adds a widget to the given region
-  void addWidget(QWidget * widget, int region = -1, int stretch = 1);
+  /// Adds a widget to the given region, or a new region if @a region
+  /// is -1. Returns the new region.
+  int addWidget(QWidget * widget, int region = -1, int stretch = 0);
 
   /// Adds a table view to the given region
-  void addView(QTableView * table, int region = -1, int stretch = 1);
+  int addTable(QTableView * table, int region = -1, int stretch = 0);
+
+public slots:
+
+  void hideColumn(int col);
+
+  void showColumn(int col);
+
+protected:
+  void resizeEvent(QResizeEvent * event) override;
+
+protected slots:
+  void columnResized(int column, int oldSize, int newSize);
 
 };
 

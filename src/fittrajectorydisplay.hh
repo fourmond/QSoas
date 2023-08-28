@@ -73,6 +73,7 @@ public slots:
 class TrajectoriesModel;
 class FlaggedTrajectoriesModel;
 class DoubleDisplay;
+class SynchronizedTables;
 
 /// A dialog box displaying a set of FitTrajectory objects.
 ///
@@ -88,6 +89,10 @@ class FitTrajectoryDisplay : public QDialog {
 
   /// The main tabs representing the trajectories.
   QTabWidget * tabs;
+
+  /// The first synchronized table, including a table view for the
+  /// reference.
+  SynchronizedTables * parametersTables;
 
   /// The main display of the parameters
   QTableView * parametersDisplay;

@@ -38,6 +38,8 @@
 #include <debug.hh>
 #include <file.hh>
 
+#include <synchronizedtables.hh>
+
 /// A model suitable to display the trajectories, displaying both the
 /// beginning and ending position.
 class TrajectoriesModel : public QAbstractTableModel {
@@ -908,6 +910,7 @@ void FitTrajectoryDisplay::setupFrame()
 
   //////////////////////////////
   // Tab1: table view + parameter ranges
+  parametersTables = new SynchronizedTables;
   parametersDisplay = new QTableView();
 
   QWidget * wdgt = new QWidget;
@@ -915,7 +918,8 @@ void FitTrajectoryDisplay::setupFrame()
   QVBoxLayout * l = new QVBoxLayout(wdgt);
 
   QSplitter * splt = new QSplitter(Qt::Vertical);
-  splt->addWidget(parametersDisplay);
+  parametersTables->addTable(parametersDisplay);
+  splt->addWidget(parametersTables);
 
   parametersDisplay->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(parametersDisplay, SIGNAL(doubleClicked(const QModelIndex &)),

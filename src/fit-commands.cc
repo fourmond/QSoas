@@ -1627,6 +1627,9 @@ static void pickFromTrajectoriesCommand(const QString &,
   if(t == "initial")
     final = false;
 
+  QString mode = "local-best";
+  updateFromOptions(opts, "mode", mode);
+
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
 
   if(trajs.size() == 0)
@@ -1634,20 +1637,63 @@ static void pickFromTrajectoriesCommand(const QString &,
 
   Vector tgt = trajs[0].finalParameters;
   int nbds = trajs[0].pointResiduals.size();
+  int nbp = tgt.size() / nbds;
 
-  for(int i = 0; i < nbds; i++) {
-    int idx = 0;
-    double res = trajs[0].pointResiduals[i];
-    for(int j = 1; j < trajs.size(); j++) {
-      if(trajs[j].pointResiduals[i] < res) {
-        idx = j;
-        res = trajs[j].pointResiduals[i];
+  if(mode == "local-best") {
+    for(int i = 0; i < nbds; i++) {
+      int idx = 0;
+      double res = trajs[0].pointResiduals[i];
+      for(int j = 1; j < trajs.size(); j++) {
+        if(trajs[j].pointResiduals[i] < res) {
+          idx = j;
+          res = trajs[j].pointResiduals[i];
+        }
+      }
+      for(int j = i * nbp; j  < (i+1) * nbp; j++)
+        tgt[j] = (final ? trajs[idx].finalParameters :
+                  trajs[idx].initialParameters)[j];
+    }
+  }
+  if(mode == "local-average") {
+    tgt *= 0;
+    for(int i = 0; i < nbds; i++) {
+      int idx = 0;
+      double sum = 0;
+      for(int k = 0; k < trajs.size(); k++) {
+        double fct = 1/trajs[k].pointResiduals[i];
+        for(int j = i * nbp; j  < (i+1) * nbp; j++) {
+          tgt[j] += fct * (final ? trajs[idx].finalParameters :
+                           trajs[idx].initialParameters)[j];
+        }
+        sum += fct;
+      }
+      for(int j = i * nbp; j  < (i+1) * nbp; j++) {
+        tgt[j] /= sum;
       }
     }
-    int nbp = tgt.size() / nbds;
-    for(int j = i * nbp; j  < (i+1) * nbp; j++)
-      tgt[j] = (final ? trajs[idx].finalParameters :
-                trajs[idx].initialParameters)[j];
+  }
+  if(mode == "global-best") {
+    double res = 1 + trajs[0].residuals;
+    for(int k = 1; k < trajs.size(); k++) {
+      if(trajs[k].residuals < res) {
+        tgt = (final ? trajs[k].finalParameters :
+               trajs[k].initialParameters);
+        res = trajs[k].residuals;
+      }
+    }
+  }
+  if(mode == "global-average") {
+    tgt *= 0;
+    double sum = 0;
+    for(int k = 0; k < trajs.size(); k++) {
+      double fct = 1/trajs[k].residuals;
+      Vector v = (final ? trajs[k].finalParameters :
+                  trajs[k].initialParameters);
+      v *= fct;
+      tgt += v;
+      sum += fct;
+    }
+    tgt /= sum;
   }
   ws->restoreParameterValues(tgt);
 }
@@ -1659,6 +1705,13 @@ pftOpts(QList<Argument *>()
                               "parameters", 
                               "Parameters",
                               "which parameters to use")
+        << new ChoiceArgument(QStringList()
+                              << "local-best" << "local-average"
+                              << "global-best" << "global-average"
+                              ,
+                              "mode", 
+                              "Mode",
+                              "how to combine the parameters")
         );
 
 static ArgumentList 

@@ -980,7 +980,13 @@ class EECRRelayFit : public PerDatasetFit {
     /// Whether the equilibrium constants (false) or the potentials
     /// (true) are used
     bool usePotentials;
+
+    /// Whether the bias parameter is a open circuit potential or a
+    /// ratio of rate constants.
+    bool useEoc;
   };
+
+
 
 
 protected:
@@ -995,9 +1001,12 @@ protected:
   virtual void processOptions(const CommandOptions & opts, FitData * data) const override 
   {
     Storage * s = storage<Storage>(data);
-    s->usePotentials = false;
 
+    s->usePotentials = false;
     updateFromOptions(opts, "use-potentials", s->usePotentials);
+
+    s->useEoc = false;
+    updateFromOptions(opts, "use-eoc", s->useEoc);
   }
 
   virtual QString optionsString(FitData * data) const override {
@@ -1017,7 +1026,11 @@ public:
                    BoolArgument("use-potentials", 
                                 "Use potentials",
                                 "if on, use the potentials of the active site electronic transitions rather than the equilibrium constants")
-                   );
+                   << new 
+                   BoolArgument("use-eoc", 
+                                "Use open circuit",
+                                "whether to use explicitly the bias or compute "
+                                "it using the open circuit potential (default: false)"));
   };
 
   
@@ -1047,6 +1060,21 @@ public:
       params[7] = exp(f * (params[1] - params[7]));
     }
 
+    if(s->useEoc) {
+      // From maple, the EOC is:
+      // m3_ocp_n_eq_2 := simplify(subs(m3_ocp_ds, d^4));
+      //                              k_2 kp_m1 k_m1
+      //                              --------------
+      //                              kp_1 k_1 k_m2
+      // d^4 = exp(2*f*(E_oc - E_r)
+      //
+      // So that k_m2/k_2 = kp_m1/kp_1 * k_m1/k_1 /d^4
+      QTextStream o(stdout);
+      o << "Changing from : " << params[3] << endl;
+      params[3] = exp(2*f*(params[1] - params[3]))/(params[5] * params[7]);
+      o << " -> to " << params[3] << endl;
+    }
+
 
     for(int i = 2; i <= 7; i++)
       if(params[i] < 0)
@@ -1072,7 +1100,7 @@ public:
     const double ilim    = params[8];
     const double beta_d0 = params[9];
     const double k_0m    = k_0M * exp(-beta_d0);
-
+ 
     
     // We now precompute the  coefficients of all the A,B,C,D,E,F constants:
     // The number is the power of d.
@@ -1166,7 +1194,7 @@ public:
     a[0] = soas().temperature();
     a[1] = 0.5 * (xmin + xmax) ; 
     a[2] = 1; 
-    a[3] = 1; 
+    a[3] = s->useEoc ? (0.6 * xmin + 0.4 * xmax) : 1.5; 
     a[4] = 10;
     a[5] = s->usePotentials ?  (0.7 * xmin + 0.3 * xmax) : 2;
     a[6] = 2;
@@ -1181,7 +1209,7 @@ public:
     defs << ParameterDefinition("temperature", true)
          << ParameterDefinition("Er")
          << ParameterDefinition("k0r/k2")
-         << ParameterDefinition("km2/k2") // params[3]
+         << ParameterDefinition(s->useEoc ? "Eoc" : "km2/k2") // params[3]
          << ParameterDefinition("k1/k2")
          << ParameterDefinition(s->usePotentials ? "Eoi" : "k1/km1") 
          << ParameterDefinition("kp1/k2") // params[6]

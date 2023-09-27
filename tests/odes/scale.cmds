@@ -1,0 +1,12 @@
+eval $w=1
+
+generate-dataset 0 10
+## INLINE: test-one
+apply-formula x*=4
+eval $w/=4
+sim-ode simple.ode simple.params 0 /override=w=%{$w}
+apply-formula y-=sin($w*x)
+assert $stats.y_norm 1e-9
+## INLINE END
+
+run-for-each inline:test-one 0..1:30 /range-type=lin

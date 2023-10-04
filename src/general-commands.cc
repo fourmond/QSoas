@@ -1,7 +1,7 @@
 /**
    \file general-commands.cc various general purpose commands and groups
    Copyright 2011 by Vincent Fourmond
-             2012, 2013, 2014, 2016 by CNRS/AMU
+             2012, 2013, 2014, 2016, 2023 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -55,6 +55,7 @@
 
 #include <argument-templates.hh>
 
+#include <clocale>
 
 static Group file("file", 0,
                   "File",
@@ -1308,6 +1309,16 @@ void versionCommand(const QString &, const CommandOptions & opts)
 #else
     o << "Not using libzip\n";
 #endif
+
+    o << "Locales:\n";
+#define DUMP_LOC(x) o << " * " << #x << ": " << std::setlocale(x, NULL) << "\n"
+    DUMP_LOC(LC_ALL);
+    DUMP_LOC(LC_CTYPE);
+    DUMP_LOC(LC_NUMERIC);
+    DUMP_LOC(LC_COLLATE);
+    DUMP_LOC(LC_MONETARY);
+    DUMP_LOC(LC_TIME);
+    
     QTextStream os(stdout);
     os << str << flush;
     Terminal::out << str << flush;

@@ -153,16 +153,21 @@ void ODEStepper::freeDriver()
 double ODEStepper::effectiveInitialStepSize() const
 {
   double hs = options.hStart;
-  if(hs == 0)
-    hs = 0.01;                  // As good as anything ?
+  if(hs == 0) {
+    if(options.fixed)
+      hs = 0.01;                // We need something here.
+    else
+      hs = 0.01 * lastStep;
+  }
   return hs;
 }
 
 /// @todo Make provisions for using several different control objects.
-void ODEStepper::initialize(gsl_odeiv2_system * system)
+void ODEStepper::initialize(gsl_odeiv2_system * system, double firstStep)
 {
   freeDriver();
-  driver = gsl_odeiv2_driver_alloc_y_new(system, options.type, 
+  lastStep = firstStep;
+  driver = gsl_odeiv2_driver_alloc_y_new(system, options.type,
                                          effectiveInitialStepSize(),
                                          options.epsAbs,
                                          options.epsRel);
@@ -205,7 +210,7 @@ int ODEStepper::apply(double * t, const double t1, double y[], bool retry)
     if(retry && (status == GSL_FAILURE || status == GSL_EMAXITER)) {
       // We try to reset the driver with the initial step where we are
       // now and proceeed
-      double hs = options.hStart;
+      double hs = effectiveInitialStepSize();
       if(hs == 0.0)
         hs = 0.01;
       //      gsl_odeiv2_driver_reset_hstart(driver, hs);
@@ -214,6 +219,7 @@ int ODEStepper::apply(double * t, const double t1, double y[], bool retry)
       if(fabs(*t - t1) < 1e-14 * (fabs(t1) + fabs(*t))) {
         // Sometimes the final value is not exactly reached, in which
         // case the program goes on forever...
+        lastStep = t1 - orig;
         return GSL_SUCCESS;     // Just a small glitch ;-)...
       }
       else
@@ -226,6 +232,9 @@ int ODEStepper::apply(double * t, const double t1, double y[], bool retry)
   //   << ":\t h=" << driver->h << " -> " << status <<  "\t" 
   //   << "last_step: " << driver->e->last_step <<  "\tfailed:" 
   //   << driver->e->failed_steps << "\tmax tries:" << driver->nmax << endl;
+  if(status == GSL_SUCCESS)
+    lastStep = t1 - orig;
+
   return status;
 }
 
@@ -265,7 +274,8 @@ void ODEStepper::dumpStepperState(FILE * target)
 
 //////////////////////////////////////////////////////////////////////
 
-ODESolver::ODESolver() : yValues(NULL)
+ODESolver::ODESolver() : stepperInitialized(false),
+                         yValues(NULL)
 {
 }
 
@@ -334,8 +344,6 @@ void ODESolver::initializeDriver()
   system.jacobian = &ODESolver::jacobian;       // Hey !
   system.dimension = dimension();
   system.params = this;
-  
-  stepper.initialize(&system);
 
   // stepper.dumpStepperState();
 }
@@ -366,19 +374,33 @@ void ODESolver::initialize(const double * yStart, double tStart)
 {
   if(! yValues)
     initializeDriver();
-  stepper.reset();
 
   for(int i = 0; i < system.dimension; i++)
     yValues[i] = yStart[i];
 
   t = tStart;
   evaluations = 0;
+  stepperInitialized = false;
+}
+
+void ODESolver::initializeStepper(double firstStep)
+{
+  // QTextStream o(stdout);
+  // o << "Initialize stepper: " << firstStep << " opt: "
+  //   << stepper.options.hStart << "\n";
+  stepper.initialize(&system, firstStep);
+  stepper.reset();
+  stepperInitialized = true;
 }
 
 void ODESolver::stepTo(double to)
 {
   double dt = to - t;
   double org = t;
+  if(dt == 0)
+    return;
+  if(! stepperInitialized)
+    initializeStepper(dt);
   int status = stepper.apply(&t, to, yValues);
   if(status != GSL_SUCCESS) {
     throw RuntimeError("Integration failed to give the desired "

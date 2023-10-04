@@ -1,5 +1,9 @@
 @ simple.cmds
-@ scaling.cmds
+@ scaling.cmds rkf45
+@ scaling.cmds rk4imp
+@ scaling.cmds bsimp
+
+
 @ fast-equilibrium.cmds
 @ conservation.cmds
 @ bimol.cmds

@@ -17,6 +17,7 @@ depends_lib         port:qt511-qtbase \
                     port:qt511-qtsvg \
                     port:qt511-qt3d \
                     port:qt511-qttools \
+                    port:qt511-sqlite-plugin \
                     port:mruby \
                     port:gsl
 

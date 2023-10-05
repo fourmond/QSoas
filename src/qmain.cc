@@ -35,6 +35,8 @@
 
 #include <commandlineparser.hh>
 
+#include <clocale>
+
 
 extern void updateDocumentationFile(const QString &, QString file);
 
@@ -117,6 +119,8 @@ int main(int argc, char ** argv)
 #endif
 
   QSoasApplication main(argc, argv);
+
+  std::setlocale(LC_NUMERIC, "C");
   
   main.setApplicationName("QSoas");
 

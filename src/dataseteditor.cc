@@ -171,6 +171,22 @@ public:
     endInsertColumns();
   };
 
+  void insertRows(const QModelIndex & index, bool above, int nb = 1) {
+    int row = index.row();
+    if(row < 0)
+      row = 0;
+    if(row >= rowCount())
+      row = rowCount() - 1;
+    modify();
+    modified = true;
+    beginInsertRows(QModelIndex(), row, row + nb - 1);
+    if(! above)
+      row += 1;
+    for(int i = 0; i < nb; i++)
+      modifiedDataSet->insertRow(row, 0);
+    endInsertRows();
+  };
+
   // void promptRenameColumn(const QModelIndex & index) {
   //   int col = index.column();
   //   if(col >= 0 && col < columnCount()) {
@@ -258,6 +274,16 @@ void DatasetEditor::contextMenuOnTable(const QPoint& pos)
   });
 
   menu.addMenu(&sub);
+
+  QMenu sub2("Insert Row");
+  addAction(&sub2, "Above", [this] {
+    model->insertRows(table->currentIndex(), true);
+  });
+  addAction(&sub2, "Below", [this] {
+    model->insertRows(table->currentIndex(), false);
+  });
+
+  menu.addMenu(&sub2);
 
   menu.exec(table->viewport()->mapToGlobal(pos));
 }

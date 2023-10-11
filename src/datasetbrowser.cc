@@ -20,6 +20,8 @@
 #include <headers.hh>
 #include <datasetbrowser.hh>
 #include <settings-templates.hh>
+#include <argument-templates.hh>
+#include <general-arguments.hh>
 
 #include <checkablewidget.hh>
 #include <nupwidget.hh>
@@ -31,11 +33,23 @@
 
 static SettingsValue<QSize> browserSize("browser/size", QSize(700,500));
 
-
-DatasetBrowser::DatasetBrowser() : extendedSelection(false)
+QList<Argument *> DatasetBrowser::browserOptions()
 {
+  return QList<Argument *>()
+    << new StringArgument("nup",
+                          "N-up",
+                          "Initial n-up for the browser");
+}
+
+
+DatasetBrowser::DatasetBrowser(const CommandOptions & opts) :
+  extendedSelection(false)
+{
+  QString nup;
+  updateFromOptions(opts, "nup", nup);
+  
   resize(browserSize);
-  setupFrame();
+  setupFrame(nup);
   actionsMapper = new QSignalMapper;
   connect(actionsMapper, SIGNAL(mapped(int)),
           SLOT(runHook(int)));
@@ -55,13 +69,16 @@ void DatasetBrowser::cleanupViews()
   datasets.clear();
 }
 
-void DatasetBrowser::setupFrame()
+void DatasetBrowser::setupFrame(const QString & np)
 {
   QVBoxLayout * layout = new QVBoxLayout(this);
 
   nup = new NupWidget;
   layout->addWidget(nup);
-  nup->setNup(4,4);
+  if(np.isEmpty())
+    nup->setNup(4,4);
+  else
+    nup->setNup(np);
 
   connect(nup, SIGNAL(pageChanged(int)), SLOT(pageChanged(int)));
 

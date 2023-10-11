@@ -417,7 +417,7 @@ static void pushOntoStack(const QList<const DataSet*> & lst)
 
 void browseFilesCommand(const QString &, const CommandOptions & opts)
 {
-  DatasetBrowser dlg;
+  DatasetBrowser dlg(opts);
   QString pattern = "*";
   updateFromOptions(opts, "pattern", pattern);
   QStringList files = File::glob(pattern);
@@ -476,6 +476,7 @@ void browseFilesCommand(const QString &, const CommandOptions & opts)
 
 static ArgumentList 
 bfOpts(QList<Argument*>()
+       << DatasetBrowser::browserOptions()
        << new StringArgument("pattern", 
                              "Pattern",
                              "Files to browse", true)

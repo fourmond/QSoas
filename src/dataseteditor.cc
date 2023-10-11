@@ -146,6 +146,43 @@ public:
   }
   /// @}
 
+  /// @name Modification interface
+  ///
+  /// @{
+
+  /// Insert @a nb columns to the left or to the right of the given
+  /// column.
+
+  void insertColumns(const QModelIndex & index, bool left, int nb = 1) {
+    int col = index.column();
+    if(col < 0)
+      col = 0;
+    if(col >= columnCount())
+      col = columnCount() - 1;
+    modify();
+    modified = true;
+    beginInsertColumns(QModelIndex(), col, col + nb - 1);
+    Vector v = modifiedDataSet->x();
+    v *= 0;
+    if(! left)
+      col += 1;
+    for(int i = 0; i < nb; i++)
+      modifiedDataSet->insertColumn(col, v);
+    endInsertColumns();
+  };
+
+  // void promptRenameColumn(const QModelIndex & index) {
+  //   int col = index.column();
+  //   if(col >= 0 && col < columnCount()) {
+  //     QString cur = headerData(Qt::Horizontal, col, Qt::DisplayRole);
+  //     QString nw = QMessageDialog::
+
+  //     emit(headerDataChanged(Qt::Horizontal, col, col));
+  //   };
+  
+
+  /// @}
+
 };
 
 
@@ -174,7 +211,12 @@ void DatasetEditor::setupFrame()
   layout->addWidget(table, 1);
   model = new DataSetTableModel(source);
   table->setModel(model);
-  
+
+  table->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(table,
+          SIGNAL(customContextMenuRequested(const QPoint&)),
+          SLOT(contextMenuOnTable(const QPoint&)));
+
   QHBoxLayout * sub = new QHBoxLayout();
 
   layout->addLayout(sub);
@@ -193,4 +235,29 @@ void DatasetEditor::pushToStack()
 {
   soas().pushDataSet(model->currentDataSet()->
                      derivedDataSet(".dat"));
+}
+
+void DatasetEditor::contextMenuOnTable(const QPoint& pos)
+{
+  QMenu menu;
+
+  auto addAction = [this] (QMenu * menu,
+                           const QString & str,
+                           std::function<void ()> fn) {
+    QAction * action = new QAction(str);
+    QObject::connect(action, &QAction::triggered, this, fn);
+    menu->addAction(action);
+  };
+
+  QMenu sub("Insert Column");
+  addAction(&sub, "Left", [this] {
+    model->insertColumns(table->currentIndex(), true);
+  });
+  addAction(&sub, "Right", [this] {
+    model->insertColumns(table->currentIndex(), false);
+  });
+
+  menu.addMenu(&sub);
+
+  menu.exec(table->viewport()->mapToGlobal(pos));
 }

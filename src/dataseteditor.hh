@@ -22,6 +22,7 @@
 
 class DataSet;
 class ValueHashEditor;
+class DataSetTableModel;
 
 /// A dialog box displaying/editing the contents of the dataset in
 /// table form.
@@ -31,8 +32,7 @@ class DatasetEditor : public QDialog {
 
 private:
 
-  /// Whether the buffer has changed at all
-  bool hasChanged;
+  DataSetTableModel * model;
 
   /// The original dataset, not modified
   const DataSet * source;
@@ -40,12 +40,8 @@ private:
   /// Setup the frame
   void setupFrame();
 
-  /// Setup the target table to display the contents of the given
-  /// dataset
-  static void setupTable(QTableWidget * t, const DataSet * ds);
-
   /// The table widget
-  QTableWidget * table;
+  QTableView * table;
 
   /// An editor for meta-data
   ValueHashEditor * metaEditor;
@@ -58,11 +54,6 @@ public:
 public slots:
   /// Push a new dataset to the stack
   void pushToStack();
-
-
-protected slots:
-  /// Called whenever an item changes.
-  void itemEdited(QTableWidgetItem * it);
 
   
 };

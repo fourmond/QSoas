@@ -620,7 +620,7 @@ poiCmd("points", // command name
 
 static void browseStackCommand(const QString &, const CommandOptions & opts)
 {
-  DatasetBrowser dlg;
+  DatasetBrowser dlg(opts);
 
   DataSetList datasets(opts, true);
   
@@ -637,7 +637,8 @@ static void browseStackCommand(const QString &, const CommandOptions & opts)
 }
 
 static ArgumentList 
-bsOpts(QList<Argument *>() 
+bsOpts(QList<Argument *>()
+       << DatasetBrowser::browserOptions()
        << DataSetList::listOptions("Datasets to show")
        );
 

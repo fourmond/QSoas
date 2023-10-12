@@ -2884,3 +2884,77 @@ kernFilter("kernel-filter", // command name
            "Kernel filter",
            "Filters data using a kernel");
 
+
+//////////////////////////////////////////////////////////////////////
+
+/// @todo Convert to multibuffer later on
+static void averageDupsCommand(const QString &,
+                               const CommandOptions& opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+
+  QList<Vector> base, sums, errors;
+  Vector numbers;
+
+  base = ds->allColumns();         // to complement later
+  QStringList oldNames = ds->mainColumnNames();
+
+  for(const Vector & v : base)
+    sums << Vector();
+  errors = sums;
+
+  const Vector & x = base.first();
+  for(int i = 0; i < x.size(); i++) {
+    double xv = x[i];
+    int idx = 0;
+    for(; idx < numbers.size(); idx++) {
+      if(sums[0][idx]/numbers[idx] == xv)
+        break;
+    }
+    if(idx == numbers.size()) {
+      for(Vector & v : sums)
+        v << 0;
+      for(Vector & v : errors)
+        v << 0;
+      numbers << 0;
+    }
+    numbers[idx] += 1;
+    for(int j = 0; j < base.size(); j++) {
+      double v = base[j][i];
+      sums[j][idx] += v;
+      errors[j][idx] += v*v;
+    }
+  }
+  
+  for(int j = 0; j < base.size(); j++) {
+    sums[j] /= numbers;
+    Vector s2 = sums[j];
+    errors[j] /= numbers;
+    s2 *= s2;
+    errors[j] -= s2;
+    for(double & v : errors[j])
+      v = sqrt(v);
+  }
+
+  QList<Vector> cols;
+  QStringList names;
+  for(int j = 0; j < base.size(); j++) {
+    cols << sums[j] << errors[j];
+    names << oldNames[j] << oldNames[j] + "_err";
+  }
+  cols << numbers;
+  names << "number";
+  DataSet * nds = ds->derivedDataSet(cols, "_avgd.dat");
+  nds->setColumnName(0, "dummy");
+  nds->columnNames[0] = names;
+  soas().pushDataSet(nds);
+}
+
+
+static Command 
+avgd("average-duplicates", // command name
+     effector(averageDupsCommand), // action
+     "math",  // group name
+     NULL, // arguments
+     NULL, // options
+     "Average duplicates");

@@ -2893,11 +2893,27 @@ static void averageDupsCommand(const QString &,
 {
   const DataSet * ds = soas().currentDataSet();
 
+  ColumnListSpecification columns;
+  updateFromOptions(opts, "columns", columns);
+  double tolerance = 0;
+  updateFromOptions(opts, "tolerance", tolerance);  
+
   QList<Vector> base, sums, errors;
   Vector numbers;
 
   base = ds->allColumns();         // to complement later
   QStringList oldNames = ds->mainColumnNames();
+  if(columns.columns.size() > 0) {
+    QList<int> nc = columns.getValues(ds);
+    QStringList nn;
+    QList<Vector> nb;
+    for(int i : nc) {
+      nb << base[i];
+      nn << oldNames[i];
+    }
+    base = nb;
+    oldNames = nn;
+  }
 
   for(const Vector & v : base)
     sums << Vector();
@@ -2908,7 +2924,8 @@ static void averageDupsCommand(const QString &,
     double xv = x[i];
     int idx = 0;
     for(; idx < numbers.size(); idx++) {
-      if(sums[0][idx]/numbers[idx] == xv)
+      double cv = sums[0][idx]/numbers[idx];
+      if(fabs(cv - xv) <= tolerance * fabs(xv))
         break;
     }
     if(idx == numbers.size()) {
@@ -2950,11 +2967,18 @@ static void averageDupsCommand(const QString &,
   soas().pushDataSet(nds);
 }
 
+static ArgumentList 
+avgdOps(QList<Argument *>()
+        << new SeveralColumnsArgument("columns", "columns", "Column to be averaged (defaults to all)")
+        << new NumberArgument("tolerance", "tolerance",
+                              "Tolerance in comparing the X values (defaults to 0)")
+        );
+
 
 static Command 
 avgd("average-duplicates", // command name
      effector(averageDupsCommand), // action
      "math",  // group name
      NULL, // arguments
-     NULL, // options
+     &avgdOps, // options
      "Average duplicates");

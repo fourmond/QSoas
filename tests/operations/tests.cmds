@@ -15,3 +15,6 @@
 
 # Singular value decomposition
 @ sv.cmds
+
+# Averaging duplicates
+@ average-duplicates.cmds

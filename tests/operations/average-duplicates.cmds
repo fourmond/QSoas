@@ -1,0 +1,19 @@
+generate-dataset 0 10 /samples=1000
+apply-formula x=i%13+3;y=x**2+0.3*sin(i)
+average-duplicates
+assert $nstats.x_err_norm 0
+apply-formula /use-names=true y-=x**2
+assert $nstats.y_norm 0.05
+
+drop 0,1
+
+average-duplicates /columns=y,x
+assert $stats.rows==1000
+
+drop
+
+average-duplicates /columns=y,x /tolerance=0.05
+save bidule.dat /overwrite=true
+assert $stats.rows==13
+assert $nstats.x_err_norm 0
+apply-formula /use-names=true y-=x**2

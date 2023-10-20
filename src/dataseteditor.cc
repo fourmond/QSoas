@@ -63,6 +63,17 @@ public:
     }
   };
 
+  /// Returns true if the dataset was modified since the last call to
+  /// clearModified()
+  bool isModified() const {
+    return modified;
+  }
+
+  /// Clears the "modified" state.
+  void clearModified() {
+    modified = false;
+  };
+
   static void columnName(const DataSet * ds, int column,
                          QString * standard,
                          QString * real) {
@@ -93,6 +104,7 @@ public:
     if(! source) {
       Vector v(1,1);
       modifiedDataSet = new DataSet(QList<Vector>() << v << v);
+      modifiedDataSet->name = "edited.dat";
     }
   };
 
@@ -196,11 +208,13 @@ public:
           return false;
         setColumnName(col, value.toString());
         emit(dataChanged(index, index));
+        modified = true;
         return true;
       }
       else if(col == -1) {
         setRowName(row, value.toString());
         emit(dataChanged(index, index));
+        modified = true;
         return true;
       }
     }
@@ -362,7 +376,15 @@ void DatasetEditor::setupFrame()
   sub->addWidget(bt);
 
   bt = new QPushButton("Close");
-  connect(bt, SIGNAL(clicked()), SLOT(close()));
+  connect(bt, &QPushButton::clicked,
+          this, [this]() {
+            if(model->isModified()) {
+              if(! Utils::askConfirmation("The dataset has unpushed "
+                                          "modifications, close anyway ?"))
+                return;
+            }
+            close();
+          });
   sub->addWidget(bt);
 }
 
@@ -370,6 +392,7 @@ void DatasetEditor::pushToStack()
 {
   soas().pushDataSet(model->currentDataSet()->
                      derivedDataSet(".dat"));
+  model->clearModified();
 }
 
 void DatasetEditor::contextMenuOnTable(const QPoint& pos)

@@ -937,7 +937,8 @@ void FitDialog::onFitEnd(int ending)
   
   msg = QString("Finished fitting, final residuals: %1 "
                 "<font color=%2>%3</font>").
-    arg(parameters.trajectories.last().residuals).
+    arg(FitWorkspace::formatResiduals(parameters.
+                                      trajectories.last().residuals)).
     arg(htmlColor(col)).arg(msg);
   
   message(msg);
@@ -955,7 +956,8 @@ void FitDialog::onFitEnd(int ending)
 void FitDialog::onIterate(int nb, double residuals)
 {
   QString str = QString("Iteration #%1, current internal residuals: %2, %3 s elapsed").
-    arg(nb).arg(residuals).arg(parameters.elapsedTime());
+    arg(nb).arg(FitWorkspace::formatResiduals(residuals)).
+    arg(parameters.elapsedTime());
   message(str);
 
   parameters.retrieveParameters();
@@ -1362,10 +1364,14 @@ void FitDialog::updateResidualsDisplay()
     if(! parameters.pointResiduals.size())
       s = "(impossible to compute residuals)";
     else
-      s = s.arg(parameters.pointResiduals[currentIndex], 0, 'g', 2).
-        arg(parameters.overallPointResiduals, 0, 'g', 2).
-        arg(parameters.relativeResiduals[currentIndex], 0, 'g', 2).
-        arg(parameters.overallRelativeResiduals, 0, 'g', 2);
+      s = s.arg(FitWorkspace::formatResiduals(parameters.
+                                              pointResiduals[currentIndex])).
+        arg(FitWorkspace::formatResiduals(parameters.
+                                          overallPointResiduals)).
+        arg(FitWorkspace::formatResiduals(parameters.
+                                          relativeResiduals[currentIndex])).
+        arg(FitWorkspace::formatResiduals(parameters.
+                                          overallRelativeResiduals));
   }
   residualsDisplay->setText(s);
 }

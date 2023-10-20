@@ -147,6 +147,9 @@ public:
   /// and the formulas...
   void loadParametersValues(FitParametersFile & params);
 
+  /// A function to format residuals in a consistent way
+  static QString formatResiduals(double res);
+
 private:
   /// This updates the parameters values, by packing from values and
   /// unpacking back to values.

@@ -220,6 +220,12 @@ QString FitWorkspace::fitName(bool includeOptions) const
   return fitData->fit->fitName(includeOptions, fitData);
 }
 
+
+QString FitWorkspace::formatResiduals(double res)
+{
+  return QString::number(res, 'e', 7);
+}
+
 void FitWorkspace::computePerpendicularCoordinates(const QString & perpendicularMeta)
 {
   // Here, setup the perpendicular coordinates
@@ -774,10 +780,10 @@ void FitWorkspace::prepareExport(QStringList & lst, QString & lines,
     }
     ls2 << QString::number(fitData->datasets[i]->x().min());
     ls2 << QString::number(fitData->datasets[i]->x().max());
-    ls2 << QString::number(pointResiduals[i]) 
-        << QString::number(relativeResiduals[i]);
-    ls2 << QString::number(overallPointResiduals) 
-        << QString::number(overallRelativeResiduals);
+    ls2 << formatResiduals(pointResiduals[i])
+        << formatResiduals(relativeResiduals[i]);
+    ls2 << formatResiduals(overallPointResiduals) 
+        << formatResiduals(overallRelativeResiduals);
     ls2 << QString::number(fitData->weightsPerBuffer[i]);
 
     if(meta.size() > 0) {
@@ -810,7 +816,7 @@ void FitWorkspace::exportParameters(QIODevice * stream,
   QTextStream out(stream);
   QStringList lst;
   out << "# Fit used: " << fitName() 
-      << ", residuals: " << overallPointResiduals << endl;
+      << ", residuals: " << formatResiduals(overallPointResiduals) << endl;
 
   QString lines;
   prepareExport(lst, lines, exportErrors);
@@ -829,7 +835,8 @@ template <typename T> void FitWorkspace::writeText(T & target,
 
   // Writing down the goodness of fit
 
-  target << prefix << "Final residuals: " << overallPointResiduals << endl;
+  target << prefix << "Final residuals: "
+         << formatResiduals(overallPointResiduals) << endl;
   if(fitData->standardYErrors)
     target << prefix
            << "Final chi-squared: " << overallChiSquared << endl;
@@ -1788,7 +1795,7 @@ void FitWorkspace::startFit()
                 << params 
                 << " using the '" << fitData->engineFactory->name
                 << "' fit engine; initial residuals: "
-                << overallPointResiduals
+                << formatResiduals(overallPointResiduals)
                 << endl;
   fitEnding = Running;
   emit(startedFitting(freeParams));
@@ -1851,7 +1858,7 @@ void FitWorkspace::traceFit()
   ValueHash trace;
 
   trace << "iteration" << fitData->nbIterations;
-  trace << "residuals" << fitData->residuals();
+  trace << "residuals" << formatResiduals(fitData->residuals());
 
   // OK, I thought this would look better, but, weel.
   QList<const FitParameter *> ps;

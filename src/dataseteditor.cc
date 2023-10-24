@@ -321,12 +321,13 @@ public:
 
   void insertColumns(const QModelIndex & index, bool left, int nb = 1) {
     int col = index.column();
+    const DataSet * ds = currentDataSet();
     if(editingNames)
       col -= 1;
     if(col < 0)
       col = 0;
-    if(col >= columnCount())
-      col = columnCount() - 1;
+    if(col >= ds->nbColumns())
+      col = ds->nbColumns() - 1;
     modify();
     modified = true;
     beginInsertColumns(QModelIndex(), col, col + nb - 1);
@@ -341,12 +342,13 @@ public:
 
   void insertRows(const QModelIndex & index, bool above, int nb = 1) {
     int row = index.row();
+    const DataSet * ds = currentDataSet();
     if(editingNames)
-      row -= 1;
+      row -= 2;
     if(row < 0)
       row = 0;
-    if(row >= rowCount())
-      row = rowCount() - 1;
+    if(row >= ds->nbRows())
+      row = ds->nbRows() - 1;
     modify();
     modified = true;
     beginInsertRows(QModelIndex(), row, row + nb - 1);
@@ -357,15 +359,35 @@ public:
     endInsertRows();
   };
 
-  // void promptRenameColumn(const QModelIndex & index) {
-  //   int col = index.column();
-  //   if(col >= 0 && col < columnCount()) {
-  //     QString cur = headerData(Qt::Horizontal, col, Qt::DisplayRole);
-  //     QString nw = QMessageDialog::
+  void removeRow(const QModelIndex & index) {
+    int row = index.row();
+    const DataSet * ds = currentDataSet();
+    if(editingNames)
+      row -= 2;
+    if(row < 0 || row >= ds->nbRows())
+      return;
+    modify();
+    modified = true;
+    beginRemoveRows(QModelIndex(), row, row);
+    modifiedDataSet->removeRow(row);
+    endRemoveRows();
+  };
 
-  //     emit(headerDataChanged(Qt::Horizontal, col, col));
-  //   };
-  
+  void removeColumn(const QModelIndex & index) {
+    int column = index.column();
+    const DataSet * ds = currentDataSet();
+    if(editingNames)
+      column -= 1;
+    if(column < 0 || column >= ds->nbColumns())
+      return;
+    modify();
+    modified = true;
+    beginRemoveColumns(QModelIndex(), column, column);
+    modifiedDataSet->takeColumn(column);
+    endRemoveColumns();
+  };
+
+    
 
   /// @}
 
@@ -471,6 +493,16 @@ void DatasetEditor::contextMenuOnTable(const QPoint& pos)
   });
 
   menu.addMenu(&sub2);
+
+  QMenu sub3("Remove");
+  addAction(&sub3, "Current row", [this] {
+    model->removeRow(table->currentIndex());
+  });
+  addAction(&sub3, "Current column", [this] {
+    model->removeColumn(table->currentIndex());
+  });
+
+  menu.addMenu(&sub3);
 
   menu.exec(table->viewport()->mapToGlobal(pos));
 }

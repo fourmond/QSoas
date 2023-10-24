@@ -38,7 +38,8 @@ protected:
 
   bool modified;
 
-  /// If true, we are editing the names of rows and columns
+  /// If true, we are editing the names of rows and columns,
+  /// and the perpendicular coordinates
   bool editingNames;
 
   void modify() {
@@ -117,7 +118,7 @@ public:
   /// @{
   virtual int rowCount(const QModelIndex & parent = QModelIndex()) const override {
     if(editingNames)
-      return currentDataSet()->nbRows() + 1;
+      return currentDataSet()->nbRows() + 2;
     else
       return currentDataSet()->nbRows();
   }
@@ -135,8 +136,8 @@ public:
     const DataSet * ds = currentDataSet();
     if(editingNames) {
       col -= 1;
-      row -= 1;
-      if(row == -1) {
+      row -= 2;
+      if(row == -2) {
         if(col == -1)
           return QVariant();
         if(role == Qt::DisplayRole || role == Qt::EditRole) {
@@ -149,7 +150,16 @@ public:
           return QString("(%1)").arg(cn);
         }
       }
-      else if(col == -1) {
+      if(row == -1) {
+        if(col <= 0)
+          return QVariant();
+        if(role == Qt::DisplayRole || role == Qt::EditRole) {
+          Vector pc = ds->perpendicularCoordinates();
+          if(pc.size() > col-1)
+            return QString::number(pc[col-1]);
+        }
+      }
+      if(col == -1) {
         if(role == Qt::DisplayRole || role == Qt::EditRole) {
           QString rn = rowName(ds, row);
           if(! rn.isEmpty())
@@ -185,10 +195,26 @@ public:
     modify();
     modifiedDataSet->setRowName(row, name);
     if(editingNames)
-      row += 1;
+      row += 2;
     emit(headerDataChanged(Qt::Vertical, row, row));
   };
-  
+
+  void setPerpendicularCoordinate(int column, double value) {
+    modify();
+    if(column <= 0 || column >= modifiedDataSet->nbColumns())
+      return;
+    Vector pc = modifiedDataSet->perpendicularCoordinates();
+    if(pc.size() != modifiedDataSet->nbColumns() - 1) {
+      pc.clear();
+      for(int i = 0; i < modifiedDataSet->nbColumns() - 1; i++)
+        pc << i;
+    }
+    pc[column-1] = value;
+    modifiedDataSet->setPerpendicularCoordinates(pc);
+    if(editingNames)
+      column += 1;
+    emit(headerDataChanged(Qt::Horizontal, column, column));
+  };
   
   virtual bool setData(const QModelIndex & index,
                const QVariant & value, int role) override {
@@ -202,8 +228,8 @@ public:
     
     if(editingNames) {
       col -= 1;
-      row -= 1;
-      if(row == -1) {
+      row -= 2;
+      if(row == -2) {
         if(col == -1)
           return false;
         setColumnName(col, value.toString());
@@ -211,7 +237,15 @@ public:
         modified = true;
         return true;
       }
-      else if(col == -1) {
+      if(row == -1) {
+        if(col <= 0)
+          return false;
+        setPerpendicularCoordinate(col, value.toDouble());
+        emit(dataChanged(index, index));
+        modified = true;
+        return true;
+      }
+      if(col == -1) {
         setRowName(row, value.toString());
         emit(dataChanged(index, index));
         modified = true;
@@ -235,25 +269,36 @@ public:
 
   virtual QVariant headerData(int section, Qt::Orientation orientation,
                               int role) const override {
-    if(editingNames)
-      section -= 1;
     if(orientation == Qt::Horizontal) {
+      if(editingNames)
+        section -= 1;
       if(role == Qt::DisplayRole) {
         const DataSet * ds = currentDataSet();
+        Vector pc = ds->perpendicularCoordinates();
+        if(section == -1 && editingNames)
+          return "Row name";
         if(section >= 0 && section < ds->nbColumns()) {
           QString cn, rn;
           columnName(ds, section, &cn, &rn);
           if(! rn.isEmpty())
             cn = QString("%1 (%2)").
               arg(rn).arg(cn);
+          if(pc.size() >= section && section >= 1)
+            cn += QString("\nZ = %1").arg(pc[section - 1]);
           return cn;
         }
       }
       return QVariant();
     }
     if(orientation == Qt::Vertical) {
+      if(editingNames)
+        section -= 2;
       if(role == Qt::DisplayRole) {
         const DataSet * ds = currentDataSet();
+        if(section == -2 && editingNames)
+          return "Column name";
+        if(section == -1 && editingNames)
+          return "Z";
         if(section >= 0 && section < ds->nbRows()) {
           QString n = QString("#%1").arg(section);
           QString rn = rowName(ds, section);
@@ -362,7 +407,7 @@ void DatasetEditor::setupFrame()
 
   layout->addLayout(sub);
 
-  QCheckBox * cb = new QCheckBox("Edit names");
+  QCheckBox * cb = new QCheckBox("Edit names/Z");
   connect(cb, &QCheckBox::stateChanged, this,
           [this] (int state) {
             model->setEditingNames(state == Qt::Checked);

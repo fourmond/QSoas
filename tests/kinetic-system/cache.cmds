@@ -1,0 +1,16 @@
+# This file checks for the correctness of the cache, and in particular
+# what happens when one changes the linear parameters
+
+define-kinetic-system-fit auto-catalytic.qsys ac /redefine=true
+generate-dataset 0 10
+generate-dataset 0 10
+sim-ac parameters/autocatalytic-2.params 0 1
+# Use the analytical formula
+apply-formula a=1e-2/(1-1e-2);k=1;e=a*exp(k*x);y-=e/(1+e)
+assert $stats.y_norm 1e-12
+
+drop 0,1
+apply-formula a=1e-2/(1-1e-2);k=1;e=a*exp(k*x);y-=1-e/(1+e)
+assert $stats.y_norm 1e-12
+
+# OK, this seems to work

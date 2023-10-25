@@ -1,0 +1,23 @@
+# The following information are comments, but Soas may make use of those if they are present
+# Fit used: kinetic-system (system: auto-catalytic.qsys)
+# Command-line: fit-kinetic-system auto-catalytic.qsys
+c0_A	=1-c0_I	!	0
+c0_I	0.01	!	0
+kc	1	!	1
+y_A[#0]	0	!	1
+y_I[#0]	1	!	0
+buffer_weight[#0]	1
+y_A[#1]	1	!	1
+y_I[#1]	0	!	0
+buffer_weight[#1]	1
+buffer_name[#0]	generated_fit_c-2_mod.dat
+# The following contains a more human-readable listing of the parameters that is NEVER READ by QSoas
+# Final residuals: 0.664404
+# Buffer-local parameters: 
+# 
+# Buffer: generated_fit_c-2_mod.dat (weight: 1)
+# y_A	=	0	+- 0	+- nan%
+# y_I	=	1	(fixed)
+# c0_A	=	0.99	(fixed)
+# c0_I	=	0.01	(fixed)
+# kc	=	1	+- 0	+- 0%

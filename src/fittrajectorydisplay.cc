@@ -929,6 +929,10 @@ void FitTrajectoryDisplay::setupFrame()
   splt->addWidget(parametersTables);
 
   parametersDisplay->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(parametersDisplay, 
+          SIGNAL(customContextMenuRequested(const QPoint&)),
+          SLOT(contextMenuOnTable(const QPoint&)));
+
   connect(parametersDisplay, SIGNAL(doubleClicked(const QModelIndex &)),
           SLOT(onDoubleClick(const QModelIndex &)));
 
@@ -941,11 +945,6 @@ void FitTrajectoryDisplay::setupFrame()
   parametersDisplay->horizontalHeader()->
     setSortIndicator(model->col("date"), Qt::AscendingOrder);
 
-  
-
-  connect(parametersDisplay, 
-          SIGNAL(customContextMenuRequested(const QPoint&)),
-          SLOT(contextMenuOnTable(const QPoint&)));
 
   connect(parametersDisplay->selectionModel(),
           SIGNAL(selectionChanged(const QItemSelection &,
@@ -1036,6 +1035,8 @@ void FitTrajectoryDisplay::setupFrame()
   connect(doubleDisplay->tableView, 
           SIGNAL(customContextMenuRequested(const QPoint&)),
           SLOT(contextMenuOnTable(const QPoint&)));
+  connect(doubleDisplay->tableView, SIGNAL(doubleClicked(const QModelIndex &)),
+          SLOT(onDoubleClick(const QModelIndex &)));
 
   tabs->addTab(doubleDisplay, "Parameters");
 
@@ -1091,10 +1092,10 @@ void FitTrajectoryDisplay::setupFrame()
 
   
   addCMAction("Reuse parameters", this, SLOT(reuseCurrentParameters()),
-              QKeySequence(QString("Ctrl+Shift+U")));
+              QKeySequence(QString("Ctrl+Shift+U")), {0,2});
   addCMAction("Reuse parameters for this dataset", this,
               SLOT(reuseParametersForThisDataset()),
-              QKeySequence(QString("Ctrl+U")));
+              QKeySequence(QString("Ctrl+U")), {0,2});
 
   addCMSeparator();
 
@@ -1155,37 +1156,47 @@ FitTrajectoryDisplay::~FitTrajectoryDisplay()
 void FitTrajectoryDisplay::addCMAction(const QString & name,
                                        QObject * receiver, 
                                        const char * slot,
-                                       const QKeySequence & shortCut)
+                                       const QKeySequence & shortCut,
+                                       const QSet<int> & tabs)
 {
   QString str = name;
   if(! shortCut.isEmpty())
     str += "   (" + shortCut.toString() + ")";
   QAction * ac = ActionCombo::createAction(name, receiver,
                                            slot, shortCut, this);
-  contextActions << ac;
+  for(int i : tabs) {
+    if(! contextActions.contains(i))
+      contextActions[i] = QList<QAction*>();
+    contextActions[i] << ac;
+  }
+  // or shall I add them to the widget of the tab ?
   QWidget::addAction(ac);
 }
 
-void FitTrajectoryDisplay::addCMSeparator()
+void FitTrajectoryDisplay::addCMSeparator(const QSet<int> & tabs)
 {
   QAction * a = new QAction(this);
   a->setSeparator(true);
-  contextActions << a;
+  for(int i : tabs) {
+    if(! contextActions.contains(i))
+      contextActions[i] = QList<QAction*>();
+    contextActions[i] << a;
+  }
 }
 
 
 void FitTrajectoryDisplay::contextMenuOnTable(const QPoint & pos)
 {
   QMenu menu;
-
-  // Context menu for the main view
-  if(tabs->currentIndex() == 0) {
-    for(int i = 0; i < contextActions.size(); i++)
-      menu.addAction(contextActions[i]);
-
-    // Adding and removing tags
-    menu.addSeparator();
+  int s = 0;
+  for(QAction * ac :  contextActions[tabs->currentIndex()]) {
+    s++;
+    menu.addAction(ac);
   }
+  
+  if(s > 0)
+    menu.addSeparator();
+
   QMenu s1("Add flags");
   QSet<QString> flgs = workspace->trajectories.allFlags();
 
@@ -1293,9 +1304,19 @@ void FitTrajectoryDisplay::reuseFlaggedParameters(const QString & flag,
 void FitTrajectoryDisplay::reuseCurrentParameters()
 {
   // Send back the given parameters to the fitdialog
-  int idx = parametersDisplay->currentIndex().row();
-  if(idx < 0)
+  QTableView * view = NULL;
+  if(tabs->currentIndex() == 0)
+    view = parametersDisplay;
+  if(tabs->currentIndex() == 2)
+    view = doubleDisplay->tableView;
+  if(! view)
     return;
+  
+  int idx = view->currentIndex().row();
+  if(idx < 0 || idx >= workspace->trajectories.size() * 2)
+    return;
+
+  
   Vector parameters;
   if(idx % 2)
     parameters = workspace->trajectories[idx/2].finalParameters;
@@ -1307,8 +1328,19 @@ void FitTrajectoryDisplay::reuseCurrentParameters()
 void FitTrajectoryDisplay::reuseParametersForThisDataset()
 {
   // Send back the given parameters to the fitdialog
-  int idx = parametersDisplay->currentIndex().row();
-  int col = parametersDisplay->currentIndex().column();
+  QTableView * view = NULL;
+  if(tabs->currentIndex() == 0)
+    view = parametersDisplay;
+  if(tabs->currentIndex() == 2)
+    view = doubleDisplay->tableView;
+  if(! view)
+    return;
+
+  int idx = view->currentIndex().row();
+  if(idx < 0 || idx >= workspace->trajectories.size() * 2)
+    return;
+
+  int col = view->currentIndex().column();
   int ds = model->dataset(col);
   if(ds >= 0) {
     Vector parameters;

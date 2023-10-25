@@ -144,13 +144,16 @@ class FitTrajectoryDisplay : public QDialog {
   /// Whether we have done at least one iteration
   bool doneOne;
 
-  QList<QAction *> contextActions;
+  /// A hash of
+  QHash<int, QList<QAction *>> contextActions;
+  // QList<QAction *> contextActions;
 
   void addCMAction(const QString & name, QObject * receiver, 
                    const char * slot, 
-                   const QKeySequence & shortCut = QKeySequence());
+                   const QKeySequence & shortCut = QKeySequence(),
+                   const QSet<int> & tabs = {0});
 
-  void addCMSeparator();
+  void addCMSeparator(const QSet<int> & tabs = {0});
 
 
 public:

@@ -13,11 +13,11 @@ long_description    QSoas
 homepage            http://qsoas.org
 master_sites        http://10.234.32.140/soas/
 
-depends_lib         port:qt511-qtbase \
-                    port:qt511-qtsvg \
-                    port:qt511-qt3d \
-                    port:qt511-qttools \
-                    port:qt511-sqlite-plugin \
+depends_lib         port:qt5-qtbase \
+                    port:qt5-qtsvg \
+                    port:qt5-qt3d \
+                    port:qt5-qttools \
+                    port:qt5-sqlite-plugin \
                     port:mruby \
                     port:gsl
 

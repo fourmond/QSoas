@@ -205,6 +205,7 @@ private:
   friend class CombinedDerivativeFit;
   friend class CombinedFit;
   friend class ModifiedFit;
+  friend class MonotoneFit;
   friend class IndexedFit;
   friend class DistribFit;
 

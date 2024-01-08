@@ -71,7 +71,7 @@ DataSetList::DataSetList(const CommandOptions & opts,
 {
   // By default look in all the stack
   parseOptions(opts, true);
-  QSet<const DataSet *> nl(datasets.begin(), datasets.end());
+  QSet<const DataSet *> nl = datasets.toSet();
   datasets.clear();
   for(int i = 0; i < pickFrom.size(); i++) {
     if(nl.contains(pickFrom[i])) {

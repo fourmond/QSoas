@@ -1,6 +1,6 @@
 /*
   dataseteditor.cc: Implementation of the dataset editor
-  Copyright 2013 by CNRS/AMU
+  Copyright 2013,2023,2024 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -443,16 +443,18 @@ void DatasetEditor::setupFrame()
   sub->addWidget(bt);
 
   bt = new QPushButton("Close");
-  connect(bt, &QPushButton::clicked,
-          this, [this]() {
-            if(model->isModified()) {
-              if(! Utils::askConfirmation("The dataset has unpushed "
-                                          "modifications, close anyway ?"))
-                return;
-            }
-            close();
-          });
+  connect(bt, &QPushButton::clicked, this, &DatasetEditor::reject);
   sub->addWidget(bt);
+}
+
+void DatasetEditor::reject()
+{
+  if(model->isModified()) {
+    if(! Utils::askConfirmation("The dataset has unpushed "
+                                "modifications, close anyway ?"))
+      return;
+  }
+  QDialog::reject();
 }
 
 void DatasetEditor::pushToStack()

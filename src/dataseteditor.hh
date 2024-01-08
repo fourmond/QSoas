@@ -54,6 +54,9 @@ public:
 public slots:
   /// Push a new dataset to the stack
   void pushToStack();
+  
+  void reject() override;
+                    
 
 protected slots:
   void contextMenuOnTable(const QPoint& point);

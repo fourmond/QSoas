@@ -2085,6 +2085,71 @@ double DataSet::metaScanRate(bool * ok) const
 }
 
 
+Vector DataSet::convolveWith(const DataSet * kernel) const
+{
+  Vector rv = y();
+
+  int nbr = nbRows();
+  int kbr = kernel->nbRows();
+
+  double dmin = kernel->x().first();
+  if(dmin > 0)
+    throw RuntimeError("Trying to convolve with a kernel whose min x value > 0");
+  // double xmin = x().first();
+  double dmax = kernel->x().last();
+  if(dmax < 0)
+    throw RuntimeError("Trying to convolve with a kernel whose max x value < 0");
+  // double xmax = x().last();
+
+  // We deal with each element one by one
+  // QTextStream o(stdout);
+  // o << "Convolving: " << nbr << "/" << kbr << endl;
+  for(int i = 0; i < nbr; i++) {
+    double xv = x()[i];
+    // o << "Point #" << i << ": x = " << xv << endl;
+    // first look for the boundaries within this dataset
+
+    int j = 0;
+    while(j < nbr && x()[j] < xv - dmax)
+      j++;
+    // o << " -> starting at " << j << ": x = " << x()[j] << endl;
+    //j should be <= i
+    if(j > i)
+      throw RuntimeError("Confusion in convolve, are the datasets sorted ?");
+
+    double sum = 0;
+    double prev = 0;
+    double cur = 0;
+    int j0 = j;
+
+    while(j < nbr && x()[j] < xv - dmin) {
+      // o << "\t dealing with " << j << "/" << nbr << endl;
+      // o << "\t -> x value is " << x()[j] << endl;
+      // First find the position in the kernel
+      double dx = xv - x()[j];
+      int k = kbr - 2;
+      while(kernel->x()[k] > dx && k > 0)
+        k --;
+      // o << "\t -> found kernel position #" << k << " for x = "
+      //   << kernel->x()[k] << endl;
+      // In principle we should have found
+      double alpha = (dx - kernel->x()[k])/
+        (kernel->x()[k+1] - kernel->x()[k]);
+      double ky = alpha * kernel->y()[k+1] + (1 - alpha) * kernel->y()[k];
+      cur = y()[j]*ky;
+      if(j > j0)
+        sum += 0.5 * (cur + prev) * (x()[j] - x()[j-1]);
+      prev = cur;
+      // o << "\t done, cur sum is " << sum << endl;
+      j++;
+    }
+    // o << "-> got value for" << i << ": " << sum <<  endl;
+    rv[i] = sum;
+  }
+  
+  return rv;
+}
+
 
 
 //////////////////////////////////////////////////////////////////////

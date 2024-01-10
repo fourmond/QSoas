@@ -2982,3 +2982,33 @@ avgd("average-duplicates", // command name
      NULL, // arguments
      &avgdOps, // options
      "Average duplicates");
+
+
+//////////////////////////////////////////////////////////////////////
+
+static void convolveCommand(const QString &,
+                            DataSet * ds1,
+                            DataSet * kernel,
+                            const CommandOptions& opts)
+{
+  Terminal::out << "Convolving dataset " << ds1->name
+                << " with kernel " << kernel->name << endl;
+  Vector ny = ds1->convolveWith(kernel);
+  DataSet * nds = ds1->derivedDataSet(ny, "_conv.dat");
+  soas().pushDataSet(nds);
+}
+
+static ArgumentList 
+convArgs(QList<Argument *>()
+         << new DataSetArgument("dataset", "dataset", "the dataset to convolve")
+         << new DataSetArgument("kernel", "kernel", "the convolution kernel")
+         );
+
+
+static Command 
+conv("convolve", // command name
+     effector(convolveCommand), // action
+     "math",  // group name
+     &convArgs, // arguments
+     NULL,
+     "Convolve");

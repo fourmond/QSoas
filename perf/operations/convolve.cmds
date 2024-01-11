@@ -1,0 +1,4 @@
+generate-dataset -10 10 exp(-2*x**2) /samples=4000
+generate-dataset -10 10 exp(-3*x**2) /samples=4000
+
+convolve 1 0

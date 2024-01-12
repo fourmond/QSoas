@@ -2099,18 +2099,27 @@ Vector DataSet::convolveWith(const DataSet * kernel) const
   double dmax = kernel->x().last();
   if(dmax < 0)
     throw RuntimeError("Trying to convolve with a kernel whose max x value < 0");
-  // double xmax = x().last();
+
+
+  // Using directly the pointers to improve a bit the performance
+  double * target = rv.data();
+
+  const double * ds_x = x().data();
+  const double * ds_y = y().data();
+
+  const double * ke_x = kernel->x().data();
+  const double * ke_y = kernel->y().data();
 
   // We deal with each element one by one
   // QTextStream o(stdout);
   // o << "Convolving: " << nbr << "/" << kbr << endl;
   for(int i = 0; i < nbr; i++) {
-    double xv = x()[i];
+    double xv = ds_x[i];
     // o << "Point #" << i << ": x = " << xv << endl;
     // first look for the boundaries within this dataset
 
     int j = 0;
-    while(j < nbr && x()[j] < xv - dmax)
+    while(j < nbr && ds_x[j] < xv - dmax)
       j++;
     // o << " -> starting at " << j << ": x = " << x()[j] << endl;
     //j should be <= i
@@ -2122,29 +2131,28 @@ Vector DataSet::convolveWith(const DataSet * kernel) const
     double cur = 0;
     int j0 = j;
 
-    while(j < nbr && x()[j] < xv - dmin) {
+    while(j < nbr && ds_x[j] < xv - dmin) {
       // o << "\t dealing with " << j << "/" << nbr << endl;
       // o << "\t -> x value is " << x()[j] << endl;
       // First find the position in the kernel
-      double dx = xv - x()[j];
+      double dx = xv - ds_x[j];
       int k = kbr - 2;
-      while(kernel->x()[k] > dx && k > 0)
+      while(ke_x[k] > dx && k > 0)
         k --;
       // o << "\t -> found kernel position #" << k << " for x = "
       //   << kernel->x()[k] << endl;
       // In principle we should have found
-      double alpha = (dx - kernel->x()[k])/
-        (kernel->x()[k+1] - kernel->x()[k]);
-      double ky = alpha * kernel->y()[k+1] + (1 - alpha) * kernel->y()[k];
-      cur = y()[j]*ky;
+      double alpha = (dx - ke_x[k])/
+        (ke_x[k+1] - ke_x[k]);
+      double ky = alpha * ke_y[k+1] + (1 - alpha) * ke_y[k];
+      cur = ds_y[j]*ky;
       if(j > j0)
-        sum += 0.5 * (cur + prev) * (x()[j] - x()[j-1]);
+        sum += 0.5 * (cur + prev) * (ds_x[j] - ds_x[j-1]);
       prev = cur;
-      // o << "\t done, cur sum is " << sum << endl;
       j++;
     }
     // o << "-> got value for" << i << ": " << sum <<  endl;
-    rv[i] = sum;
+    target[i] = sum;
   }
   
   return rv;

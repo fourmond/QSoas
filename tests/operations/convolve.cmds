@@ -1,9 +1,14 @@
-generate-dataset -10 10 exp(-2*x**2)
-generate-dataset -10 10 exp(-3*x**2)
+## INLINE: tcv
+generate-dataset -10 10 exp(-${1}*x**2)
+generate-dataset -10 10 exp(-${2}*x**2)
 
 # Convolution of gaussians, see doc/computations.tex
 convolve 1 0
-apply-formula y-=sqrt(PI/(2+3))*exp(-6.0/5*x**2)
+apply-formula y-=sqrt(PI/(${1}+${2}))*exp(-${1}*${2}/(${1}+${2})*x**2)
 
 # OK, not that amazing, but not that bad either
 assert $stats.y_norm 1e-3
+## INLINE END
+
+@ inline:tcv 2.0 3.0
+@ inline:tcv 4.0 7.0

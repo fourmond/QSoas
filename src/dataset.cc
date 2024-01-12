@@ -1,7 +1,7 @@
 /*
   dataset.cc: implementation of the DataSet class
   Copyright 2011 by Vincent Fourmond
-            2012, 2013, 2014 by CNRS/AMU
+            2012, 2013, 2014, 2024 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -2110,6 +2110,8 @@ Vector DataSet::convolveWith(const DataSet * kernel) const
   const double * ke_x = kernel->x().data();
   const double * ke_y = kernel->y().data();
 
+  int j_prev = 0;
+
   // We deal with each element one by one
   // QTextStream o(stdout);
   // o << "Convolving: " << nbr << "/" << kbr << endl;
@@ -2118,9 +2120,11 @@ Vector DataSet::convolveWith(const DataSet * kernel) const
     // o << "Point #" << i << ": x = " << xv << endl;
     // first look for the boundaries within this dataset
 
-    int j = 0;
+    int j = j_prev;
+    // int j = 0;
     while(j < nbr && ds_x[j] < xv - dmax)
-      j++;
+        j++;
+    j_prev = j;
     // o << " -> starting at " << j << ": x = " << x()[j] << endl;
     //j should be <= i
     if(j > i)
@@ -2131,14 +2135,17 @@ Vector DataSet::convolveWith(const DataSet * kernel) const
     double cur = 0;
     int j0 = j;
 
+    int k_prev = kbr-2;
+
     while(j < nbr && ds_x[j] < xv - dmin) {
       // o << "\t dealing with " << j << "/" << nbr << endl;
       // o << "\t -> x value is " << x()[j] << endl;
       // First find the position in the kernel
       double dx = xv - ds_x[j];
-      int k = kbr - 2;
+      int k = k_prev;
       while(ke_x[k] > dx && k > 0)
         k --;
+      k_prev = k;
       // o << "\t -> found kernel position #" << k << " for x = "
       //   << kernel->x()[k] << endl;
       // In principle we should have found

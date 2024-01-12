@@ -1,14 +1,16 @@
 ## INLINE: tcv
-generate-dataset -10 10 exp(-${1}*x**2)
-generate-dataset -10 10 exp(-${2}*x**2)
+generate-dataset -10 10 exp(-${1}*x**2) /samples=${3}
+generate-dataset -${5:-10} ${5:-10} exp(-${2}*x**2) /samples=${3}
 
 # Convolution of gaussians, see doc/computations.tex
 convolve 1 0
 apply-formula y-=sqrt(PI/(${1}+${2}))*exp(-${1}*${2}/(${1}+${2})*x**2)
 
 # OK, not that amazing, but not that bad either
-assert $stats.y_norm 1e-3
+assert $stats.y_norm ${4}
 ## INLINE END
 
-@ inline:tcv 2.0 3.0
-@ inline:tcv 4.0 7.0
+@ inline:tcv 2.0 3.0 1000 1e-3
+@ inline:tcv 4.0 7.0 1000 1e-3
+@ inline:tcv 4.0 7.0 10000 3e-5
+@ inline:tcv 4.0 7.0 1000 1e-3 3

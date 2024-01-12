@@ -1,4 +1,5 @@
-generate-dataset -10 10 exp(-2*x**2) /samples=4000
-generate-dataset -10 10 exp(-3*x**2) /samples=4000
+let sz 30000
+generate-dataset -10 10 exp(-2*x**2) /samples=${sz}
+generate-dataset -10 10 exp(-3*x**2) /samples=${sz}
 
 convolve 1 0

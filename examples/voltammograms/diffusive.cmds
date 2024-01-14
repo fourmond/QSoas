@@ -1,0 +1,11 @@
+# This is a tentative to compute a reversible diffusive voltammogram
+# using plain convolution
+
+generate-dataset 0 10 0.5-0.2*abs(x-5) /samples=10000
+apply-formula /extra-columns=1 y2=y;e=exp(F*y/(R*298));y=e/(1+e)
+diff
+generate-dataset 0 20 if(x>0);1/sqrt(x);else;0;end /samples=20000
+apply-formula if(x==0);y=0*$stats.y_max;end
+convolve 2 0
+apply-formula x,y2=y2,x
+echem-peaks

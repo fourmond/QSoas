@@ -3023,7 +3023,7 @@ static void convolveCommand(const QString &,
     int c = i - (nb - 1);
     double x;
     if(i == 0) {
-      x = (c - i) * dx;
+      x = (c - 1) * dx;
       prev = expression.evaluate(&x);
     }
     x = c * dx;
@@ -3033,7 +3033,8 @@ static void convolveCommand(const QString &,
     // av is the integral
     av[i] = 0.5 * (prev + cur) * dx;
     // bv is the integral of t*g. Very naive to start with
-    bv[i] = prev * dx;
+    bv[i] = 0.5* prev * dx;
+    prev = cur;
   }
 
   // Now the convolution proper

@@ -1,7 +1,8 @@
 % -*- coding: utf-8; -*-
 \documentclass{article}
 
-%% This helper document is part of the test suite of QSoas
+%% This helper document is part of QSoas, it's purpose is to make
+%% the computations involved in some parts of the code more explicit
 %% 
 %% Copyright 2024 by CNRS/AMU
 
@@ -18,8 +19,6 @@
 %% You should have received a copy of the GNU General Public License
 %% along with this program.  If not, see
 %% <http://www.gnu.org/licenses/>.
-
-
 
 \usepackage[english]{babel}
 \usepackage[utf8]{inputenc}
@@ -59,63 +58,43 @@ margin=1.8cm]{geometry}
 \begin{document}
 
 \begin{abstract}
-  This document contains a number of computations used in the more
-  computational part of the tests. It serves both as a reminder of the
-  rationale behind the tests and as a means to compute the results and
-  verify them.
+  This document contains a number of computations underlying some of
+  the algorithms used in the code of QSoas. It serves both as a helper
+  to write the code and a justification of how it works. See also the
+  file \texttt{tests/doc/computations.tex} for the pendant of this
+  file for the tests.
 \end{abstract}
 
 \section{Convolutions}
 
-See tests in \texttt{.../...}.
-
-The convolution product of two functions $f$ and $g$ is defined by the followingq
-integral:
+Here are the computations for the way \texttt{QSoas} convolves a
+\emph{dataset} $f$ with a \emph{function} $g$. The convolution product
+is given by the following integral:
 %
 \begin{equation}
-  (f\mathop{*}g)(t) = \int_{t' = -\infty}^{\infty} f(t') g(t-t') \dd t'
-  \label{eq:convolution}
+  (f*g)(t) = \int_{t' = -\infty}^{\infty} f(t') g(t-t')\:\dd t'
 \end{equation}
 %
-This definition is of course subject to the definition domain of the
-functions.
-
-\subsection{Convolution of gaussians}
-
-Let's look at the convolution product of two gaussians, with for
-instance:
+Assuming that the data points of $f$ are uniformly spread over $n$
+intervals of length $\Delta t$ starting at $t_0$ (this means $n+1$
+data points), this integral can be rewritten this way:
 %
-\begin{align}
-  f(t) &= \exp \pa{-a\,t^2} &
-  g(t) &= \exp \pa{-b\,t^2}
-\end{align}
+\begin{equation}
+  (f*g)(t) = \sum_{i = 0}^{n-1}
+  \int_{t_0 + i \Delta t}^{t_0 + (i+1) \Delta t}
+  f(t') g(t-t')\:\dd t'
+\end{equation}
 %
-Then,
-\begin{align}
-  (f\mathop{*}g)(t) &=
-  \int_{t' = -\infty}^{\infty}
-  \exp \pa{-a\,t'^2}\exp \pa{-b\,[t-t']^2} \dd t'\\[3mm]
-  &= 
-  \int_{t' = -\infty}^{\infty}
-  \exp \pab{-\pa{a+b}\,t'^2 + 2b\,t\,t' - b\,t^2} \dd t'\\[3mm]
-  &= 
-  \int_{t' = -\infty}^{\infty}
-  \exp
-  \pa{-\frac{1}{a+b}
-    \pab{\pa{(a+b)t'}^2 - 2b\,t\,\pa{a+b}t' + \pa{b t}^2}
-    - bt^2 + \frac{b^2t^2}{a+b}
-  } \dd t'\\[3mm]
-  &=
-  \exp -\frac{a\,b\,t^2}{a+b} \times
-  \int_{t' = -\infty}^{\infty}
-  \exp
-  \pa{-\frac{\pa{(a+b)t' - bt}^2}{a+b}}
-  \dd t'\\[3mm]
-  &= \sqrt{\frac{\pi}{a+b}} \times 
-  \exp \pa{-\frac{a\,b\,t^2}{a+b}}
-\end{align}
-
-
-
+The convolution process will produce a \emph{dataset} with the same
+number and position of points as $f$. For all points $i < n$, we have
+therefore:
+%
+\begin{equation}
+  (f*g)_i = (f*g)(t_0 + i\Delta i) = 
+  \sum_{i = 0}^{n-1} \int_{t_0 + j \Delta t}^{t_0 + (j+1) \Delta t}
+  f(t') g(t_0 + i\Delta t-t')\:\dd t'
+\end{equation}
+%
+We'll look at the last point later.
 
 \end{document}

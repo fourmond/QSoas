@@ -2085,6 +2085,8 @@ double DataSet::metaScanRate(bool * ok) const
 }
 
 
+// OK, this maybe isn't that great, let's forget that.
+/*
 Vector DataSet::convolveWith(const DataSet * kernel) const
 {
   Vector rv = y();
@@ -2164,7 +2166,7 @@ Vector DataSet::convolveWith(const DataSet * kernel) const
   
   return rv;
 }
-
+*/
 
 
 //////////////////////////////////////////////////////////////////////

@@ -2985,23 +2985,76 @@ avgd("average-duplicates", // command name
 
 
 //////////////////////////////////////////////////////////////////////
+#include <expression.hh>
 
 static void convolveCommand(const QString &,
-                            DataSet * ds1,
-                            DataSet * kernel,
+                            QString formula,
                             const CommandOptions& opts)
 {
-  Terminal::out << "Convolving dataset " << ds1->name
-                << " with kernel " << kernel->name << endl;
-  Vector ny = ds1->convolveWith(kernel);
-  DataSet * nds = ds1->derivedDataSet(ny, "_conv.dat");
+  const DataSet * ds = soas().currentDataSet();
+  Expression expression(formula);
+  QStringList nv = expression.naturalVariables();
+  // We're allowing convolution by a constant
+  if(nv.size() > 1 || (nv.size() == 1 && nv.first() != "x"))
+    throw RuntimeError("Convolution expression '%1' should be a "
+                       "function of only x").arg(formula);
+
+  // This code is based on the computations in doc/computations.tex
+  // section "convolution"
+
+  int nb = ds->nbRows();
+
+  /// @todo Check uniformity
+  double dx = (ds->x().last() - ds->x().first())/nb;
+
+
+  // First, let's assume symmetric range, so that the vectors range from
+  // -n+1 to n, i.e. 2*n
+  // The "0" is at nb-1
+  Vector av(2*nb, 0);
+  Vector bv = av;
+
+  // First, we compute the integrals for the coefficients of av and bv
+  // For now very naive
+  double prev = 0;
+  double cur = 0;
+
+  for(int i = 0; i < 2*nb; i++) {
+    int c = i - (nb - 1);
+    double x;
+    if(i == 0) {
+      x = (c - i) * dx;
+      prev = expression.evaluate(&x);
+    }
+    x = c * dx;
+    cur = expression.evaluate(&x);
+
+    // Both of these should be way better
+    // av is the integral
+    av[i] = 0.5 * (prev + cur) * dx;
+    // bv is the integral of t*g. Very naive to start with
+    bv[i] = prev * dx;
+  }
+
+  // Now the convolution proper
+  const Vector & yv = ds->y();
+  Vector ny = ds->y();
+  for(int i = 0; i < nb; i++) {
+    double sum = 0;
+    for(int j = 0; j < nb-1; j++) {
+      int k = i - j + nb - 1;
+      sum +=  (av[k] - bv[k]) * yv[j] + bv[k] * yv[j+1];
+    }
+    ny[i] = sum;
+  }
+  DataSet * nds = ds->derivedDataSet(ny, "_conv.dat");
   soas().pushDataSet(nds);
 }
 
 static ArgumentList 
 convArgs(QList<Argument *>()
-         << new DataSetArgument("dataset", "dataset", "the dataset to convolve")
-         << new DataSetArgument("kernel", "kernel", "the convolution kernel")
+         << new StringArgument("formula", "formula",
+                                "")
          );
 
 

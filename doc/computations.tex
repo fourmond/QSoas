@@ -53,6 +53,7 @@ margin=1.8cm]{geometry}
 \newcommand{\dd}{\mathrm{d}}
 \newcommand{\pa}[1]{\left(#1\right)}
 \newcommand{\pab}[1]{\left[#1\right]}
+\newcommand{\obs}[2]{\textbf{Note: #1 --} #2}
 
 
 \begin{document}
@@ -86,15 +87,83 @@ data points), this integral can be rewritten this way:
 \end{equation}
 %
 The convolution process will produce a \emph{dataset} with the same
-number and position of points as $f$. For all points $i < n$, we have
+number and position of points as $f$. For all points $0 \leq i \leq n$, we have
 therefore:
 %
 \begin{equation}
-  (f*g)_i = (f*g)(t_0 + i\Delta i) = 
-  \sum_{i = 0}^{n-1} \int_{t_0 + j \Delta t}^{t_0 + (j+1) \Delta t}
+  (f*g)_i = (f*g)(t_0 + i\Delta t) = 
+  \sum_{j = 0}^{n-1} \int_{t_0 + j \Delta t}^{t_0 + (j+1) \Delta t}
+  f(t') g(t_0 + i\Delta t-t')\:\dd t'
+\end{equation}
+
+Lets look at the following integral defined for $0\leq j < n$ and $0
+\leq i \leq n$:
+%
+\begin{equation}
+  I_{i,j} = 
+  \int_{t_0 + j \Delta t}^{t_0 + (j+1) \Delta t}
   f(t') g(t_0 + i\Delta t-t')\:\dd t'
 \end{equation}
 %
-We'll look at the last point later.
+We will assume linear interpolation of the datapoints over each of the
+intervals between data points, so that the following integral is in
+fact:
+%
+\begin{equation}
+  I_{i,j}  =
+\int_{t_0 + j \Delta t}^{t_0 + (j+1) \Delta t}
+\pab{f_j + \frac{t' - \pa{t_0 + j \Delta t}}{\Delta t} \pa{f_{j+1} - f_j}}
+g(t_0 + i\Delta t-t')\:\dd t'
+\end{equation}
+%
+Shifting the integral by $t_0 + j\Delta t$ yields:
+%
+\begin{align}
+  I_{i,j}  &=
+  \int_{0}^{ \Delta t}
+  \pab{f_j + \frac{t'}{\Delta t} \pa{f_{j+1} - f_j}}
+  g(\pab{i-j}\Delta t -t')\:\dd t'\\
+  & = f_j \int_{0}^{\Delta t} g(\pab{i-j}\Delta t -t')\:\dd t'
+  + \pa{f_{j+1} - f_j}
+  \int_{0}^{\Deltat}
+  \frac{t'}{\Delta t} g(\pab{i-j}\Delta t -t')\:\dd t'
+\end{align}
+%
+Hence, the element $i$ of the convolution product can be written thus:
+%
+\begin{equation}
+  (f*g)_i = \sum_{j = 0}^{n-1}
+  \pab{
+    A_{i-j}\, f_j + B_{i-j}\pa{f_{j+1} - f_j}
+  }
+  =
+  \sum_{j = 0}^{n-1}
+  \pab{
+    \pa{A_{i-j}- B_{i-j}}f_j + B_{i-j}\,f_{j+1}
+  }
+\end{equation}
+%
+in which, for $-n < k \leq n$:
+%
+\begin{align}
+  A_k &= \int_{0}^{\Delta t} g(k\Delta t -t')\:\dd t' =
+  \int_{\pa{k-1} \Delta t}^{k \Delta t} g(t') \:\dd t'\\[4mm]
+  B_k &= \int_{0}^{\Delta t}
+  \frac{t'}{\Delta t} g(\pab{i-j}\Delta t -t')\:\dd t'
+\end{align}
+%
+\obs{16.01.2024}{it may be better to parametrize from the end of
+  the interval to cancel singularities on 0 for the first moment ?}
+
+In any case, not all the integrals $A_k$ and $B_k$ have to be defined,
+those who fall outside of the domain of definition of $g$ simply will
+be assumed to be 0.
+
+\paragraph{Computation of the integrals}
+For now, let's just do an adaptive ``divide by two'' approach, it's
+not a Gauss-Kronrod approach, but it will do (for now).
+
+
+
 
 \end{document}

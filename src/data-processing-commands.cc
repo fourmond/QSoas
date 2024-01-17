@@ -3016,51 +3016,54 @@ static void convolveCommand(const QString &,
   /// @todo Check uniformity
   double dx = (ds->x().last() - ds->x().first())/(nb-1);
 
+  bool symetric = true;
+  updateFromOptions(opts, "symetric", symetric);
+
+  // If symetric is false, then the convolution function is defined
+  // only for positive x (and might be divergent at x == 0).
+
+  int elements = (symetric ? 2*nb : nb);
+  int center = (symetric ? nb - 1 : -1);
+
 
   // First, let's assume symmetric range, so that the vectors range from
   // -n+1 to n, i.e. 2*n
   // The "0" is at nb-1
-  Vector av(2*nb, 0);
+  Vector av(elements, 0);
   Vector bv = av;
 
   // First, we compute the integrals for the coefficients of av and bv
 
   double xr;
-  gsl_function func;
   std::function<double (double)> fnl = [&expression, &xr](double x) -> double {
     double xv = xr - x;
     return expression.evaluate(&xv);
   };
-  func.params = &fnl;
-  func.function = &::integrate;
 
-  gsl_function xfunc;
   std::function<double (double)> xfnl = [&expression, &xr, &dx](double x) -> double {
     double xv = xr - x;
     return x*expression.evaluate(&xv)/dx;
   };
-  xfunc.params = &xfnl;
-  xfunc.function = &::integrate;
 
-  
   // Wow, this works very very well.
-  for(int i = 0; i < 2*nb; i++) {
-    int c = i - (nb - 1);
-    xr = c*dx;
-    double res;
-    size_t nn;
-    double err;
-    // int status = gsl_integration_qng(&func, 0, dx, 1e-6, 1e-6,
-    //                                  &res, &err, &nn);
-    res = 0.5*(fnl(0) + fnl(dx))*dx;
-    av[i] = res;
+  for(int i = 0; i < elements; i++) {
+    // We must take special care for the integrals around 0, i.e. for
+    // c == 1 (and c == 0 if we allow for a singular point on both sides)
+    
+      int c = i - center;
+      xr = c*dx;
 
-    // status = gsl_integration_qng(&xfunc, 0, dx, 1e-6, 1e-6,
-    //                              &res, &err, &nn);
-    res = 0.5*(xfnl(0) + xfnl(dx))*dx;
-    bv[i] = res;
+      res = 0.5*(fnl(0) + fnl(dx))*dx;
+      av[i] = res;
+
+      res = 0.5*(xfnl(0) + xfnl(dx))*dx;
+      bv[i] = res;
+
+      // @todo We need to handle specially the case i == 0 for the
+      // non-symetric case, to allow for singularities or
+      // "pseudo-singularities" (like functions vanishing very quickly
+      // to 0)"
   }
-  
 
   // Now the convolution proper
   const double * yvd = ds->y().data();
@@ -3071,8 +3074,9 @@ static void convolveCommand(const QString &,
   for(int i = 0; i < nb; i++) {
     double sum = 0;
     for(int j = 0; j < nb-1; j++) {
-      int k = i - j + nb - 1;
-      sum += (avd[k] - bvd[k]) * yvd[j] + bvd[k] * yvd[j+1];
+      int k = i - j + center;
+      if(k >= 0)
+        sum += (avd[k] - bvd[k]) * yvd[j] + bvd[k] * yvd[j+1];
     }
     nyd[i] = sum;
   }
@@ -3083,7 +3087,14 @@ static void convolveCommand(const QString &,
 static ArgumentList 
 convArgs(QList<Argument *>()
          << new StringArgument("formula", "formula",
-                                "")
+                                "the convolution formula (function of x)")
+         );
+
+static ArgumentList 
+convOpts(QList<Argument *>()
+         << new BoolArgument("symetric", "symetric",
+                             "whether convolution formula is symetric "
+                             "(-inf < x < inf) or not (0 <= x < inf)")
          );
 
 
@@ -3092,5 +3103,5 @@ conv("convolve", // command name
      effector(convolveCommand), // action
      "math",  // group name
      &convArgs, // arguments
-     NULL,
+     &convOpts,
      "Convolve");

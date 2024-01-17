@@ -125,7 +125,7 @@ Shifting the integral by $t_0 + j\Delta t$ yields:
   g(\pab{i-j}\Delta t -t')\:\dd t'\\
   & = f_j \int_{0}^{\Delta t} g(\pab{i-j}\Delta t -t')\:\dd t'
   + \pa{f_{j+1} - f_j}
-  \int_{0}^{\Deltat}
+  \int_{0}^{\Delta t}
   \frac{t'}{\Delta t} g(\pab{i-j}\Delta t -t')\:\dd t'
 \end{align}
 %
@@ -158,6 +158,9 @@ in which, for $-n < k \leq n$:
 In any case, not all the integrals $A_k$ and $B_k$ have to be defined,
 those who fall outside of the domain of definition of $g$ simply will
 be assumed to be 0.
+
+Not that in the case that $g$ is only defined for $x \geq 0$, then $0
+< k \leq n$.
 
 \paragraph{Computation of the integrals}
 For now, let's just do an adaptive ``divide by two'' approach, it's

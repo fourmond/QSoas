@@ -2986,6 +2986,15 @@ avgd("average-duplicates", // command name
 
 //////////////////////////////////////////////////////////////////////
 #include <expression.hh>
+#include <gsl/gsl_integration.h>
+
+
+double integrate(double x, void * params)
+{
+  std::function<double (double)> * fn =
+    reinterpret_cast<std::function<double (double)> *>(params);
+  return (*fn)(x);
+}
 
 static void convolveCommand(const QString &,
                             QString formula,
@@ -3005,7 +3014,7 @@ static void convolveCommand(const QString &,
   int nb = ds->nbRows();
 
   /// @todo Check uniformity
-  double dx = (ds->x().last() - ds->x().first())/nb;
+  double dx = (ds->x().last() - ds->x().first())/(nb-1);
 
 
   // First, let's assume symmetric range, so that the vectors range from
@@ -3015,27 +3024,43 @@ static void convolveCommand(const QString &,
   Vector bv = av;
 
   // First, we compute the integrals for the coefficients of av and bv
-  // For now very naive
-  double prev = 0;
-  double cur = 0;
 
+  double xr;
+  gsl_function func;
+  std::function<double (double)> fnl = [&expression, &xr](double x) -> double {
+    double xv = xr - x;
+    return expression.evaluate(&xv);
+  };
+  func.params = &fnl;
+  func.function = &::integrate;
+
+  gsl_function xfunc;
+  std::function<double (double)> xfnl = [&expression, &xr, &dx](double x) -> double {
+    double xv = xr - x;
+    return x*expression.evaluate(&xv)/dx;
+  };
+  xfunc.params = &xfnl;
+  xfunc.function = &::integrate;
+
+  
+  // Wow, this works very very well.
   for(int i = 0; i < 2*nb; i++) {
     int c = i - (nb - 1);
-    double x;
-    if(i == 0) {
-      x = (c - 1) * dx;
-      prev = expression.evaluate(&x);
-    }
-    x = c * dx;
-    cur = expression.evaluate(&x);
+    xr = c*dx;
+    double res;
+    size_t nn;
+    double err;
+    // int status = gsl_integration_qng(&func, 0, dx, 1e-6, 1e-6,
+    //                                  &res, &err, &nn);
+    res = 0.5*(fnl(0) + fnl(dx))*dx;
+    av[i] = res;
 
-    // Both of these should be way better
-    // av is the integral
-    av[i] = 0.5 * (prev + cur) * dx;
-    // bv is the integral of t*g. Very naive to start with
-    bv[i] = 0.5* prev * dx;
-    prev = cur;
+    // status = gsl_integration_qng(&xfunc, 0, dx, 1e-6, 1e-6,
+    //                              &res, &err, &nn);
+    res = 0.5*(xfnl(0) + xfnl(dx))*dx;
+    bv[i] = res;
   }
+  
 
   // Now the convolution proper
   const Vector & yv = ds->y();
@@ -3044,7 +3069,7 @@ static void convolveCommand(const QString &,
     double sum = 0;
     for(int j = 0; j < nb-1; j++) {
       int k = i - j + nb - 1;
-      sum +=  (av[k] - bv[k]) * yv[j] + bv[k] * yv[j+1];
+      sum += (av[k] - bv[k]) * yv[j] + bv[k] * yv[j+1];
     }
     ny[i] = sum;
   }

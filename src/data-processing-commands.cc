@@ -3063,15 +3063,18 @@ static void convolveCommand(const QString &,
   
 
   // Now the convolution proper
-  const Vector & yv = ds->y();
+  const double * yvd = ds->y().data();
+  const double * avd = av.data();
+  const double * bvd = bv.data();
   Vector ny = ds->y();
+  double * nyd = ny.data();
   for(int i = 0; i < nb; i++) {
     double sum = 0;
     for(int j = 0; j < nb-1; j++) {
       int k = i - j + nb - 1;
-      sum += (av[k] - bv[k]) * yv[j] + bv[k] * yv[j+1];
+      sum += (avd[k] - bvd[k]) * yvd[j] + bvd[k] * yvd[j+1];
     }
-    ny[i] = sum;
+    nyd[i] = sum;
   }
   DataSet * nds = ds->derivedDataSet(ny, "_conv.dat");
   soas().pushDataSet(nds);

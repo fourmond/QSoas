@@ -1305,14 +1305,16 @@ static void doAssert(QString code,
         Terminal::out << "assertion " << adj << ": " << code
                       << " (should be below: " << tolerance
                       << " but is: " << mr->floatValue(value) << ")" << endl;
-        Debug::debug() << let << ": " << code
+        Debug::debug() << let << "(" << as.commandContext.scriptFile
+                       << ") : " << code
                        << " (should be below: " << tolerance
                        << " but is: " << mr->floatValue(value) << ")"
                        << context << endl;
       }
       else {
         Terminal::out << "assertion failed: " << code  << endl;
-        Debug::debug() << let << ": " << code  << context << endl;
+        Debug::debug() << let << "(" << as.commandContext.scriptFile
+                       << ") : " << code  << context << endl;
       }
     }
   }
@@ -1322,7 +1324,8 @@ static void doAssert(QString code,
     as.exceptionMessage = e.message();
     Terminal::out << "assertion failed with exception: " << code  << ":\n";
     Terminal::out << e.message() << endl;
-    Debug::debug() << "E: " << code  << " -- "
+    Debug::debug() << "E(" << as.commandContext.scriptFile
+                   << ") : " << code  << " -- "
                    << e.message() << context << endl;
   }
   allAssertions << as;

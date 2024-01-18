@@ -3056,6 +3056,13 @@ static void convolveCommand(const QString &,
       // non-symetric case, to allow for singularities or
       // "pseudo-singularities" (like functions vanishing very quickly
       // to 0, like fast decaying exponentials)"
+      //
+      // This function works OK but it will overestimate the integrals
+      // in very very steep cases, like when we're approaching a dirac
+      //
+      // Maybe in this case, we should use the level of detail used as
+      // a guideline, step back a couple of steps and use an
+      // appropriate GSL call for that ?
       if(! symetric && c == 1) {
         int subdiv = 0;
         // Final values of a and b
@@ -3078,8 +3085,8 @@ static void convolveCommand(const QString &,
 
         // Here, we subdivide only the leftmost segment
         // really should be enough
-        QTextStream o(stdout);
-        while(subdiv < 30) {
+        // QTextStream o(stdout);
+        while(subdiv < 40) {
           if(! missing_left) {
             left_a = 0.5*(left_f + cur_f) * cur_dx;
             left_b = 0.5*(left_f + cur_f * (dx - cur_dx)/dx) * cur_dx;
@@ -3088,11 +3095,13 @@ static void convolveCommand(const QString &,
             b = left_b + right_b;
           }
           else {
-            a = right_a;
-            b = right_b;
+            // Extrapolate to 0
+            a = right_a * (dx)/(dx-cur_dx);
+            b = right_b * (dx)/(dx-cur_dx);
           }
-          o << "Iteration #" << subdiv << "@ " << cur_dx << "/" << dx << "\n"
-            << "a = " << a << "\tb = " << b << endl;
+          // o << "Iteration #" << subdiv << "@ " << cur_dx << "/" << dx << "\n"
+          //   << "a = " << a << "\tb = " << b << "\tcur_f = " << cur_f << "\n"
+          //   << "right_a = " << right_a << "\tright_b = " << right_b << endl;
           if(subdiv > 0) {
             if(abs(a - a_prev) < 0.001*abs(a) &&
                abs(b - b_prev) < 0.001*abs(b)) // We're good enough
@@ -3104,9 +3113,11 @@ static void convolveCommand(const QString &,
           double prev_f = cur_f;
           cur_f = fnl(dx - cur_dx);
           
-          right_a += 0.5*(prev_f + cur_f) * cur_dx;
-          right_b += 0.5*(prev_f * (dx - 2*cur_dx)/dx +
-                          cur_f * (dx - cur_dx)/dx) * cur_dx;
+          right_a += 0.5*(cur_f + prev_f) * cur_dx;
+          right_b += 0.5*(
+                          cur_f * (dx - cur_dx)/dx +
+                          prev_f * (dx - 2*cur_dx)/dx
+                          ) * cur_dx;
           subdiv += 1;
         }
         av[i] = a;

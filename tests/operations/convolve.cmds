@@ -30,8 +30,13 @@ assert abs($int-$stats.y_int) ${2}
 @ inline:test-conservation 1e3 0.01
 @ inline:test-conservation 1e4 0.01
 
-# test singularity at 0
-generate-dataset -10 10 if(abs(x)>1);0;else;i%2;end
-eval $int=$stats.y_int
-convolve  x**(-0.5) /symetric=false
-
+# test singularity at 0 by simulating a reversible CV
+generate-dataset 0 10 0.5-0.2*abs(x-5) /samples=30000
+apply-formula /extra-columns=1 y2=y;e=exp(F*y/(R*298));y=e/(1+e)
+diff
+convolve x**-0.5 /symetric=false
+apply-formula x,y2=y2,x
+echem-peaks /output=false /accumulate=delta_x
+pop
+# at 298K, the difference should be close to 0.057 mV
+assert $nstats.delta_x_first-0.057 0.001

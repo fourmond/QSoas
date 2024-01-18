@@ -1,4 +1,5 @@
-## INLINE: tcv
+# Analytical formula: convolution of two gaussians
+## INLINE: two-gaussians
 generate-dataset -10 10 exp(-${1}*x**2) /samples=${3}
 convolve exp(-${2}*x**2)
 apply-formula y-=sqrt(PI/(${1}+${2}))*exp(-${1}*${2}/(${1}+${2})*x**2)
@@ -6,7 +7,31 @@ apply-formula y-=sqrt(PI/(${1}+${2}))*exp(-${1}*${2}/(${1}+${2})*x**2)
 assert $stats.y_norm ${4}
 ## INLINE END
 
-@ inline:tcv 2.0 3.0 1000 1e-14
-@ inline:tcv 4.0 7.0 1000 1e-14
-@ inline:tcv 4.0 7.0 10000 2e-14
-@ inline:tcv 4.0 7.0 1000 1e-14
+@ inline:two-gaussians 2.0 3.0 1000 1e-14
+@ inline:two-gaussians 4.0 7.0 1000 1e-14
+@ inline:two-gaussians 4.0 7.0 10000 2e-14
+@ inline:two-gaussians 4.0 7.0 1000 1e-14
+
+# Other check: conservation of the integral, if one convolves by something
+# of unity integral
+
+## INLINE: test-conservation
+generate-dataset -10 10 if(abs(x)>1);0;else;i%2;end
+eval $int=$stats.y_int
+convolve ${1}*exp(-x*${1}) /symetric=false
+assert abs($int-$stats.y_int) ${2}
+## INLINE END
+
+# OK, we're not that good, but, well
+@ inline:test-conservation 1 3e-5
+@ inline:test-conservation 5 1e-3
+@ inline:test-conservation 30 0.01
+@ inline:test-conservation 100 0.01
+@ inline:test-conservation 1e3 0.01
+@ inline:test-conservation 1e4 0.01
+
+# test singularity at 0
+generate-dataset -10 10 if(abs(x)>1);0;else;i%2;end
+eval $int=$stats.y_int
+convolve  x**(-0.5) /symetric=false
+

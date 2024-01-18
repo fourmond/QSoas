@@ -2,7 +2,7 @@
    \file data-processing-commands.cc
    Commands to extract information from datasets
    Copyright 2011 by Vincent Fourmond
-             2011,2013,2014,2015 by CNRS/AMU
+             2011,2013,2014,2015,2024 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -3052,17 +3052,72 @@ static void convolveCommand(const QString &,
     
       int c = i - center;
       xr = c*dx;
-
-      res = 0.5*(fnl(0) + fnl(dx))*dx;
-      av[i] = res;
-
-      res = 0.5*(xfnl(0) + xfnl(dx))*dx;
-      bv[i] = res;
-
-      // @todo We need to handle specially the case i == 0 for the
+      // We need to handle specially the case i == 0 for the
       // non-symetric case, to allow for singularities or
       // "pseudo-singularities" (like functions vanishing very quickly
-      // to 0)"
+      // to 0, like fast decaying exponentials)"
+      if(! symetric && c == 1) {
+        int subdiv = 0;
+        // Final values of a and b
+        double a,b, a_prev = 0, b_prev = 0;
+        // Values of the leftmost segment
+        double left_a, left_b;
+        // Values of the rest
+        double right_a = 0, right_b = 0;
+        // Value of the right side of the current 
+        double cur_f = fnl(0);
+        // Keep in mind that fnl is defined right to left.
+        double left_f = fnl(dx);
+        double cur_dx = dx;
+
+        bool missing_left = false;
+
+        if(std::isinf(left_f))
+          missing_left = right;
+
+
+        // Here, we subdivide only the leftmost segment
+        // really should be enough
+        QTextStream o(stdout);
+        while(subdiv < 30) {
+          if(! missing_left) {
+            left_a = 0.5*(left_f + cur_f) * cur_dx;
+            left_b = 0.5*(left_f + cur_f * (dx - cur_dx)/dx) * cur_dx;
+            
+            a = left_a + right_a;
+            b = left_b + right_b;
+          }
+          else {
+            a = right_a;
+            b = right_b;
+          }
+          o << "Iteration #" << subdiv << "@ " << cur_dx << "/" << dx << "\n"
+            << "a = " << a << "\tb = " << b << endl;
+          if(subdiv > 0) {
+            if(abs(a - a_prev) < 0.001*abs(a) &&
+               abs(b - b_prev) < 0.001*abs(b)) // We're good enough
+              break;
+          }
+          a_prev = a;
+          b_prev = b;
+          cur_dx *= 0.5;
+          double prev_f = cur_f;
+          cur_f = fnl(dx - cur_dx);
+          
+          right_a += 0.5*(prev_f + cur_f) * cur_dx;
+          right_b += 0.5*(prev_f * (dx - 2*cur_dx)/dx +
+                          cur_f * (dx - cur_dx)/dx) * cur_dx;
+          subdiv += 1;
+        }
+        av[i] = a;
+        bv[i] = b;
+      }
+
+      else {
+        av[i] = 0.5*(fnl(0) + fnl(dx))*dx;
+
+        bv[i] = 0.5*(xfnl(0) + xfnl(dx))*dx;
+      }
   }
 
   // Now the convolution proper

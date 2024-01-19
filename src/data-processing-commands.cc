@@ -2987,6 +2987,7 @@ avgd("average-duplicates", // command name
 //////////////////////////////////////////////////////////////////////
 #include <expression.hh>
 #include <gsl/gsl_integration.h>
+#include <integrator.hh>
 
 
 double integrate(double x, void * params)
@@ -3016,14 +3017,14 @@ static void convolveCommand(const QString &,
   /// @todo Check uniformity
   double dx = (ds->x().last() - ds->x().first())/(nb-1);
 
-  bool symetric = true;
-  updateFromOptions(opts, "symetric", symetric);
+  bool symmetric = true;
+  updateFromOptions(opts, "symmetric", symmetric);
 
-  // If symetric is false, then the convolution function is defined
+  // If symmetric is false, then the convolution function is defined
   // only for positive x (and might be divergent at x == 0).
 
-  int elements = (symetric ? 2*nb : nb);
-  int center = (symetric ? nb - 1 : -1);
+  int elements = (symmetric ? 2*nb : nb);
+  int center = (symmetric ? nb - 1 : -1);
 
 
   // First, let's assume symmetric range, so that the vectors range from
@@ -3040,11 +3041,22 @@ static void convolveCommand(const QString &,
     return expression.evaluate(&xv);
   };
 
+
   std::function<double (double)> xfnl = [&expression, &xr, &dx](double x) -> double {
     double xv = xr - x;
     return x*expression.evaluate(&xv)/dx;
   };
 
+  // For the singularities
+  gsl_function func;
+  func.params = &fnl;
+  func.function = &::integrate;
+
+  gsl_function xfunc;
+  xfunc.params = &xfnl;
+  xfunc.function = &::integrate;
+
+  
   // Wow, this works very very well.
   for(int i = 0; i < elements; i++) {
     // We must take special care for the integrals around 0, i.e. for
@@ -3053,17 +3065,15 @@ static void convolveCommand(const QString &,
       int c = i - center;
       xr = c*dx;
       // We need to handle specially the case i == 0 for the
-      // non-symetric case, to allow for singularities or
+      // non-symmetric case, to allow for singularities or
       // "pseudo-singularities" (like functions vanishing very quickly
       // to 0, like fast decaying exponentials)"
       //
-      // This function works OK but it will overestimate the integrals
-      // in very very steep cases, like when we're approaching a dirac
-      //
-      // Maybe in this case, we should use the level of detail used as
-      // a guideline, step back a couple of steps and use an
-      // appropriate GSL call for that ?
-      if(! symetric && c == 1) {
+      // OK, this function actually works fine now for almost all the
+      // cases but the ones in which the decrease is sharp but not so
+      // sharp as to be negligible on the second element.
+
+      if(! symmetric && c == 1) {
         int subdiv = 0;
         // Final values of a and b
         double a,b, a_prev = 0, b_prev = 0;
@@ -3086,6 +3096,7 @@ static void convolveCommand(const QString &,
         // Here, we subdivide only the leftmost segment
         // really should be enough
         // QTextStream o(stdout);
+        // o << "Computing for: " << formula << endl;
         while(subdiv < 40) {
           if(! missing_left) {
             left_a = 0.5*(left_f + cur_f) * cur_dx;
@@ -3120,8 +3131,40 @@ static void convolveCommand(const QString &,
                           ) * cur_dx;
           subdiv += 1;
         }
+
         av[i] = a;
         bv[i] = b;
+        // o << "Final:\n"
+        //   << "a = " << a << "\tb = " << b << endl;
+
+        // I think the singularities
+        if(subdiv >=3 && !missing_left) {
+          std::unique_ptr<Integrator> in(Integrator::createNamedIntegrator());
+          double err = 0;
+          av[i] = in->integrateSegment(fnl, 0, dx, &err);
+          bv[i] = in->integrateSegment(xfnl, 0, dx, &err);
+
+            // // We recompute
+            // double err;
+            // int st;
+            // size_t nn;
+            // cur_dx *= 2;
+            // double left = 0;
+            // st = gsl_integration_qng(&func, cur_dx, dx, 1e-6, 1e-6,
+            //                          &right_a, &err, &nn);
+            // st = gsl_integration_qng(&func, left, cur_dx, 1e-6, 1e-6,
+            //                          &left_a, &err, &nn);
+            
+            // st = gsl_integration_qng(&xfunc, cur_dx, dx, 1e-6, 1e-6,
+            //                          &right_b, &err, &nn);
+            // st = gsl_integration_qng(&xfunc, left, cur_dx, 1e-6, 1e-6,
+            //                          &left_b, &err, &nn);
+
+            // av[i] = left_a + right_a;
+            // bv[i] = left_b + right_b;
+          // o << "QNG:\n"
+          //   << "a = " << av[i] << "\tb = " << bv[i] << endl;
+        }
       }
 
       else {
@@ -3158,8 +3201,8 @@ convArgs(QList<Argument *>()
 
 static ArgumentList 
 convOpts(QList<Argument *>()
-         << new BoolArgument("symetric", "symetric",
-                             "whether convolution formula is symetric "
+         << new BoolArgument("symmetric", "symmetric",
+                             "whether convolution formula is symmetric "
                              "(-inf < x < inf) or not (0 <= x < inf)")
          );
 

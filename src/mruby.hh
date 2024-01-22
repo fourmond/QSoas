@@ -159,7 +159,8 @@ public:
   /// native detection mode, i.e. asking mruby what it thinks the
   /// parameters are.
   QStringList detectParametersNative(const QByteArray & code,
-                                     QStringList * localVariables = NULL);
+                                     QStringList * localVariables = NULL,
+                                     bool debug = false);
 
   /// Detects the "external parameters" for the given code.  Unlike
   /// the detectParameters, this does not rely on a deep understanding

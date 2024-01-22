@@ -482,7 +482,8 @@ QStringList MRuby::detectParametersApprox(const QString & code,
 
 
 QStringList MRuby::detectParametersNative(const QByteArray & code,
-                                          QStringList * locals)
+                                          QStringList * locals,
+                                          bool debug)
 {
   STACK_DUMP;
   MRubyArenaContext c(this);
@@ -528,10 +529,16 @@ QStringList MRuby::detectParametersNative(const QByteArray & code,
 #elif MRUBY_RELEASE_MAJOR == 2
 
 
-#define CASE(insn,ops) case insn: FETCH_ ## ops (); /*o << "Got: " << #insn << endl; */L_ ## insn
+#define CASE(insn,ops) case insn: FETCH_ ## ops (); dump(#insn);/*o << "Got: " << #insn << endl; */L_ ## insn
+
+// Note that the debug=true emulates the effect of running the code
+// using mruby 2.1.2 that way:
+//
+//  mruby --verbose -c -e 'y=(0.7071067811865476*exp(96500/8.31/298*x)-0.7071067811865476)'
 
 QStringList MRuby::detectParametersNative(const QByteArray & code,
-                                          QStringList * locals)
+                                          QStringList * locals,
+                                          bool debug)
 {
   STACK_DUMP;
   MRubyArenaContext c(this);
@@ -562,6 +569,11 @@ QStringList MRuby::detectParametersNative(const QByteArray & code,
 
   pc = irep->iseq;
   pcend = pc + irep->ilen;
+  QTextStream * o = NULL;
+  if(debug) {
+    o = new QTextStream(stdout);
+    *o << "Detecting parameters for code: '" << code << "'" << endl;
+  }
   while (pc < pcend) {
     ptrdiff_t i;
     uint32_t a;
@@ -577,6 +589,16 @@ QStringList MRuby::detectParametersNative(const QByteArray & code,
         cur_top_self = -1;
     };
 
+    auto dump = [&o, &a, &b, &c, &cur_top_self](const char * opcode) {
+      if(o)
+        *o << QString("%1").arg(opcode, -12)
+           << "\tself = " <<  QString::number(cur_top_self, 16)
+           << "\ta = " <<  QString::number(a, 16)
+           << "\tb = " <<  QString::number(b, 16)
+           << "\tc = " <<  QString::number(c, 16)
+           << endl;
+    };
+
     ins = READ_B();
     // We unfortunately need the full case from mruby/src/codedump.c,
     // since the opcodes now have variable lengths
@@ -588,6 +610,7 @@ QStringList MRuby::detectParametersNative(const QByteArray & code,
       CASE(OP_LOADL, BB): cancel_cts(); break;
       CASE(OP_LOADI, BB): cancel_cts(); break;
       CASE(OP_LOADINEG, BB): cancel_cts(); break;
+      CASE(OP_LOADI16, BS): cancel_cts(); break;
       CASE(OP_LOADI__1, B): cancel_cts(); break;
       CASE(OP_LOADI_0, B): cancel_cts(); break;
       CASE(OP_LOADI_1, B): cancel_cts(); break;
@@ -730,7 +753,8 @@ QStringList MRuby::detectParametersNative(const QByteArray & code,
 #define CASE(insn,ops) case insn: FETCH_ ## ops (); L_ ## insn
 
 QStringList MRuby::detectParametersNative(const QByteArray & code,
-                                          QStringList * locals)
+                                          QStringList * locals,
+                                          bool debug)
 {
   STACK_DUMP;
   MRubyArenaContext c(this);
@@ -1267,7 +1291,7 @@ bool MRuby::isInferior(mrb_value a, mrb_value b)
 }
 
 
-
+//////////////////////////////////////////////////////////////////////
 
 #include <command.hh>
 #include <group.hh>
@@ -1284,11 +1308,14 @@ static void mRubyArgs(const QString &, QString code,
   bool native = true;
   updateFromOptions(opts, "native", native);
 
+  bool dump = false;
+  updateFromOptions(opts, "dump", dump);
+
   bool setGlobals = false;
   updateFromOptions(opts, "set-globals", setGlobals);
   QStringList locals;
   QStringList vars =
-    native ? r->detectParametersNative(code.toLocal8Bit(), &locals) :
+    native ? r->detectParametersNative(code.toLocal8Bit(), &locals, dump) :
     MRuby::detectParametersApprox(code.toLocal8Bit(), &locals);
   std::sort(locals.begin(), locals.end());
   std::sort(vars.begin(), vars.end());
@@ -1327,6 +1354,9 @@ eO(QList<Argument *>()
    << new BoolArgument("set-globals", 
                        "Set globals",
                        "Set globals ")
+   << new BoolArgument("dump", 
+                       "Dump code",
+                       "Dumps the interpreted code")
    );
 
 static Command 

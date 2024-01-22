@@ -44,7 +44,10 @@ FitParameterEditor::FitParameterEditor(const ParameterDefinition * d,
   extended(ext)
 {
   layout = new QHBoxLayout(this);
-  layout->addWidget(new QLabel(QString("<b>%1: </b>").arg(def->name)), 1);
+
+  label = new QLabel();
+  layout->addWidget(label, 1);
+  updateLinear();
   editor = new QLineEdit();
   connect(editor, SIGNAL(textChanged(const QString &)),
           SLOT(onValueChanged(const QString &)));
@@ -119,6 +122,18 @@ FitParameterEditor::FitParameterEditor(const ParameterDefinition * d,
           SLOT(parameterUpdated(int, int)));
   connect(parameters, SIGNAL(parametersChanged()),
           SLOT(updateFromParameters()));
+
+}
+
+void FitParameterEditor::updateLinear()
+{
+  QString lbl = QString("<b>%1: </b>").arg(def->name);
+  if(def->isLinear())
+    lbl = QString("<font color=blue>%1</font>").arg(lbl);
+  label->setText(lbl);
+
+  // Add some mouseover text ?
+  // Hmm, that's actually not easy.
 }
 
 void FitParameterEditor::contextMenu(const QPoint & pos)
@@ -328,6 +343,7 @@ void FitParameterEditor::parameterUpdated(int idx, int ds)
 {
   if(index == idx && (ds == -1 || ds == dataset))
     updateFromParameters(false);
+  updateLinear();
 }
 
 void FitParameterEditor::updateFromParameters(bool setErrors)

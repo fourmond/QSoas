@@ -47,6 +47,9 @@ class FitParameterEditor : public QWidget {
   /// The current dataset
   int dataset;
 
+  /// The label of the line edit
+  QLabel * label;
+
   const ParameterDefinition * def;
 
   /// The editor
@@ -132,6 +135,9 @@ public slots:
 
   /// Sets the relative error. A negative value cancels display
   void setRelativeError(double error);
+
+  /// Update the linear status -- and in fact the label text.
+  void updateLinear();
 
 protected slots:
   void onFixedClicked();

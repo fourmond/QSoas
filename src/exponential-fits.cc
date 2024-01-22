@@ -156,14 +156,15 @@ public:
     defs << ParameterDefinition("x0", true);
 
     /// The value at infinite time (barring slow stuff)
-    defs << ParameterDefinition("A_inf");
+    defs << ParameterDefinition("A_inf", false, true, true);
 
     // Normal exponential forms:
     for(int i = 0; i < s->exponentials; i++) {
       defs << ParameterDefinition(QString("tau_%1").arg(i+1));
 
       if(s->absolute)
-        defs << ParameterDefinition(QString("A_%1").arg(i+1));
+        defs << ParameterDefinition(QString("A_%1").arg(i+1),
+                                    false, true, true);
       else
         defs << ParameterDefinition(QString("alpha_%1").arg(i+1));
     }

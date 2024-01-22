@@ -43,9 +43,20 @@ public:
   /// the same time.
   bool canBeBufferSpecific;
 
+  /// The parameter indicates whether the parameter is linear or not.
+  bool isIntrinsicallyLinear;
+
+  /// Whether or not the linear character has been forced manually
+  bool forceLinear;
+
+  bool isLinear() const {
+    return isIntrinsicallyLinear || forceLinear;
+  };
+
   explicit ParameterDefinition(const QString & n, bool fixed = false,
-                               bool cbs = true) :
-    name(n), defaultsToFixed(fixed), canBeBufferSpecific(cbs)
+                               bool cbs = true, bool linear = false) :
+    name(n), defaultsToFixed(fixed), canBeBufferSpecific(cbs),
+    isIntrinsicallyLinear(linear), forceLinear(false)
   {
   };
 };

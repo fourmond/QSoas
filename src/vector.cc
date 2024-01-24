@@ -1232,6 +1232,19 @@ void Vector::convolve(const double * vector,
   double * av = buffer;
   double * bv = buffer + elements;
 
+  // The absolute values of the and b coefficients
+  double amax = 0, bmax = 0;
+  int amax_i = 0, bmax_i = 0;
+
+  QSet<int> needUpdate;
+
+        //   std::unique_ptr<Integrator> in(Integrator::createNamedIntegrator());
+        //   double err = 0;
+        //   av[i] = in->integrateSegment(fnl, 0, dx, &err);
+        //   bv[i] = in->integrateSegment(xfnl, 0, dx, &err);
+        // }
+  
+
     // Wow, this works very very well.
   for(int i = 0; i < elements; i++) {
     // We must take special care for the integrals around 0, i.e. for
@@ -1314,12 +1327,8 @@ void Vector::convolve(const double * vector,
 
         // I think the singularities We need a much better handling of
         // the integration, in particular, we need to go over the whole
-        if(subdiv >=3 && !missing_left) {
-          std::unique_ptr<Integrator> in(Integrator::createNamedIntegrator());
-          double err = 0;
-          av[i] = in->integrateSegment(fnl, 0, dx, &err);
-          bv[i] = in->integrateSegment(xfnl, 0, dx, &err);
-        }
+        if(subdiv >=3 && !missing_left)
+          needUpdate.insert(i);
       }
 
       else {
@@ -1327,8 +1336,71 @@ void Vector::convolve(const double * vector,
 
         bv[i] = 0.5*(xfnl(0) + xfnl(dx))*dx;
       }
+      if(i == 0) {
+        amax = fabs(av[i]);
+        bmax = fabs(bv[i]);
+      }
+      else {
+        double ab_a = fabs(av[i]);
+        if(amax < ab_a) {
+          amax_i = i;
+          amax = ab_a;
+        }
+        double ab_b = fabs(bv[i]);
+        if(bmax < ab_b) {
+          bmax_i = i;
+          bmax = ab_b;
+        }
+      }
   }
 
+  int lefti = 0;
+  while(fabs(av[lefti]) < 1e-16 * amax &&
+        fabs(bv[lefti]) < 1e-16 * bmax)
+    lefti++;
+
+  int righti = elements-1;
+  while(fabs(av[righti]) < 1e-16 * amax &&
+        fabs(bv[righti]) < 1e-16 * bmax)
+    righti--;
+
+  // OK, now we look for each relevant place and find elements which
+  // are not too small by varying by more than 20% between
+  double threshold = 3e-4;
+  double variation = 0.8;
+  for(int i = lefti; i < righti; i++) {
+    if(i < amax_i) {
+      if(fabs(av[i]) > threshold &&
+         fabs(av[i]) < variation * fabs(av[i+1]))
+        needUpdate.insert(i);
+    }
+    else {
+      if(fabs(av[i]) > threshold &&
+         fabs(av[i]) < variation * fabs(av[i-1]))
+        needUpdate.insert(i);
+    }
+    if(i < bmax_i) {
+      if(fabs(bv[i]) > threshold &&
+         fabs(bv[i]) < variation * fabs(bv[i+1]))
+        needUpdate.insert(i);
+    }
+    else {
+      if(fabs(bv[i]) > threshold &&
+         fabs(bv[i]) < variation * fabs(bv[i-1]))
+        needUpdate.insert(i);
+    }
+  }
+
+  std::unique_ptr<Integrator> in(Integrator::createNamedIntegrator());
+  for(int i : needUpdate) {
+    int c = i - center;
+    double err;
+    xr = c*dx;
+    av[i] = in->integrateSegment(fnl, 0, dx, &err);
+    bv[i] = in->integrateSegment(xfnl, 0, dx, &err);
+  }
+
+  
   /// @todo Post-processing work to:
   /// @li detect the max of a and b (and their position ?)
   /// @li detect elements that should be better computed, using
@@ -1343,7 +1415,9 @@ void Vector::convolve(const double * vector,
     double sum = 0;
     for(int j = 0; j < nb-1; j++) {
       int k = i - j + center;
-      if(k >= 0)
+      /// @todo this can be included in the loop
+      if(k >= lefti && k <= righti)
+      // if(k >= 0)
         sum += (av[k] - bv[k]) * yv[j] + bv[k] * yv[j+1];
     }
     target[i] = sum;

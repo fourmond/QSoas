@@ -610,7 +610,10 @@ QStringList MRuby::detectParametersNative(const QByteArray & code,
       CASE(OP_LOADL, BB): cancel_cts(); break;
       CASE(OP_LOADI, BB): cancel_cts(); break;
       CASE(OP_LOADINEG, BB): cancel_cts(); break;
+      // mruby 2.1.2 specific
+#if MRUBY_RELEASE_MINOR >= 2
       CASE(OP_LOADI16, BS): cancel_cts(); break;
+#endif
       CASE(OP_LOADI__1, B): cancel_cts(); break;
       CASE(OP_LOADI_0, B): cancel_cts(); break;
       CASE(OP_LOADI_1, B): cancel_cts(); break;

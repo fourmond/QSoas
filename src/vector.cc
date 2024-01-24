@@ -1413,12 +1413,14 @@ void Vector::convolve(const double * vector,
   const double * yv = vector;
   for(int i = 0; i < nb; i++) {
     double sum = 0;
-    for(int j = 0; j < nb-1; j++) {
+    int minj = std::max(0, center + i - righti);
+    int maxj = std::min(nb-1, center + i - lefti + 1);
+    for(int j = minj; j < maxj; j++) {
       int k = i - j + center;
       /// @todo this can be included in the loop
-      if(k >= lefti && k <= righti)
+      // if(k >= lefti && k <= righti)
       // if(k >= 0)
-        sum += (av[k] - bv[k]) * yv[j] + bv[k] * yv[j+1];
+      sum += (av[k] - bv[k]) * yv[j] + bv[k] * yv[j+1];
     }
     target[i] = sum;
   }

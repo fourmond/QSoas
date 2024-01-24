@@ -19,16 +19,17 @@ assert $stats.y_norm ${4}
 generate-dataset -10 10 if(abs(x)>1);0;else;i%2;end
 eval $int=$stats.y_int
 convolve ${1}*exp(-x*${1}) /symmetric=false
+# eval abs($int-$stats.y_int) ${2}
 assert abs($int-$stats.y_int) ${2}
 ## INLINE END
 
 # OK, we're not that good, but, well
 @ inline:test-conservation 1 3e-5
 @ inline:test-conservation 5 1e-3
-@ inline:test-conservation 30 0.01
-@ inline:test-conservation 100 0.01
-@ inline:test-conservation 1e3 0.01
-@ inline:test-conservation 1e4 0.01
+@ inline:test-conservation 30 1e-4
+@ inline:test-conservation 100 1e-4
+@ inline:test-conservation 1e3 1e-4
+@ inline:test-conservation 1e4 1e-4
 
 # test singularity at 0 by simulating a reversible CV
 generate-dataset 0 10 0.5-0.2*abs(x-5) /samples=30000

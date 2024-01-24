@@ -1196,3 +1196,158 @@ double Vector::correlation(const Vector & x, const Vector & y)
   sxy /= nb;
   return (sxy - sx*sy)/(sqrt((sxx - sx*sx)*(syy - sy*sy)));
 }
+
+#include <integrator.hh>
+
+
+void Vector::convolve(const double * vector,
+                      int nb,
+                      double * target,
+                      double xmin,
+                      double xmax,
+                      std::function<double (double)> function,
+                      bool symmetric,
+                      double * buffer)
+{
+  double dx = (xmax - xmin)/(nb-1);
+  int elements = (symmetric ? 2*nb : nb);
+  int center = (symmetric ? nb - 1 : -1);
+
+  double xr;
+
+  std::function<double (double)> fnl = [&xr, &function](double x) -> double {
+    return function(xr - x);
+  };
+
+
+  std::function<double (double)> xfnl = [&xr, &dx, &function](double x) -> double {
+    double xv = xr - x;
+    return x*function(xv)/dx;
+  };
+
+
+  ////////////////////////////////////////
+  // First step: computation of the coefficients of the kernel
+
+  double * av = buffer;
+  double * bv = buffer + elements;
+
+    // Wow, this works very very well.
+  for(int i = 0; i < elements; i++) {
+    // We must take special care for the integrals around 0, i.e. for
+    // c == 1 (and c == 0 if we allow for a singular point on both sides)
+    
+      int c = i - center;
+      xr = c*dx;
+      // We need to handle specially the case i == 0 for the
+      // non-symmetric case, to allow for singularities or
+      // "pseudo-singularities" (like functions vanishing very quickly
+      // to 0, like fast decaying exponentials)"
+      //
+      // OK, this function actually works fine now for almost all the
+      // cases but the ones in which the decrease is sharp but not so
+      // sharp as to be negligible on the second element.
+
+      if(! symmetric && c == 1) {
+        int subdiv = 0;
+        // Final values of a and b
+        double a,b, a_prev = 0, b_prev = 0;
+        // Values of the leftmost segment
+        double left_a, left_b;
+        // Values of the rest
+        double right_a = 0, right_b = 0;
+        // Value of the right side of the current 
+        double cur_f = fnl(0);
+        // Keep in mind that fnl is defined right to left.
+        double left_f = fnl(dx);
+        double cur_dx = dx;
+
+        bool missing_left = false;
+
+        if(std::isinf(left_f))
+          missing_left = right;
+
+
+        // Here, we subdivide only the leftmost segment
+        // really should be enough
+        // QTextStream o(stdout);
+        // o << "Computing for: " << formula << endl;
+        while(subdiv < 40) {
+          if(! missing_left) {
+            left_a = 0.5*(left_f + cur_f) * cur_dx;
+            left_b = 0.5*(left_f + cur_f * (dx - cur_dx)/dx) * cur_dx;
+            
+            a = left_a + right_a;
+            b = left_b + right_b;
+          }
+          else {
+            // Extrapolate to 0
+            a = right_a * (dx)/(dx-cur_dx);
+            b = right_b * (dx)/(dx-cur_dx);
+          }
+          // o << "Iteration #" << subdiv << "@ " << cur_dx << "/" << dx << "\n"
+          //   << "a = " << a << "\tb = " << b << "\tcur_f = " << cur_f << "\n"
+          //   << "right_a = " << right_a << "\tright_b = " << right_b << endl;
+          if(subdiv > 0) {
+            if(abs(a - a_prev) < 0.001*abs(a) &&
+               abs(b - b_prev) < 0.001*abs(b)) // We're good enough
+              break;
+          }
+          a_prev = a;
+          b_prev = b;
+          cur_dx *= 0.5;
+          double prev_f = cur_f;
+          cur_f = fnl(dx - cur_dx);
+          
+          right_a += 0.5*(cur_f + prev_f) * cur_dx;
+          right_b += 0.5*(
+                          cur_f * (dx - cur_dx)/dx +
+                          prev_f * (dx - 2*cur_dx)/dx
+                          ) * cur_dx;
+          subdiv += 1;
+        }
+
+        av[i] = a;
+        bv[i] = b;
+        // o << "Final:\n"
+        //   << "a = " << a << "\tb = " << b << endl;
+
+        // I think the singularities We need a much better handling of
+        // the integration, in particular, we need to go over the whole
+        if(subdiv >=3 && !missing_left) {
+          std::unique_ptr<Integrator> in(Integrator::createNamedIntegrator());
+          double err = 0;
+          av[i] = in->integrateSegment(fnl, 0, dx, &err);
+          bv[i] = in->integrateSegment(xfnl, 0, dx, &err);
+        }
+      }
+
+      else {
+        av[i] = 0.5*(fnl(0) + fnl(dx))*dx;
+
+        bv[i] = 0.5*(xfnl(0) + xfnl(dx))*dx;
+      }
+  }
+
+  /// @todo Post-processing work to:
+  /// @li detect the max of a and b (and their position ?)
+  /// @li detect elements that should be better computed, using
+  /// like more than a 30% decrease in one step, and more than 1% total ?
+  /// @li the elements on the side that are consistently less than 1e-16
+  /// of the max, which should be removed from the convolution itself.
+
+  ////////////////////////////////////////
+  // Now the convolution proper
+  const double * yv = vector;
+  for(int i = 0; i < nb; i++) {
+    double sum = 0;
+    for(int j = 0; j < nb-1; j++) {
+      int k = i - j + center;
+      if(k >= 0)
+        sum += (av[k] - bv[k]) * yv[j] + bv[k] * yv[j+1];
+    }
+    target[i] = sum;
+  }
+
+
+}

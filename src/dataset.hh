@@ -698,24 +698,6 @@ public:
                                        bool setSegments = true);
 
 
-  /// Convolves the Y values of this dataset with the @a kernel,
-  /// i.e. returns $$\int_{t' = -\infty}^\infty f(t') g(t - t') \dd
-  /// t'$$
-  /// 
-  ///
-  /// The X values of both datasets are assumed to be sorted.
-  ///
-  /// The number of points returned is the same as this dataset.
-  ///
-  /// The points in the kernel are linearly interpolated. The points
-  /// in this dataset are not modified.
-  ///
-  /// The returned value is just the Vector for now.
-  ///
-  /// The kernel *really* should include 0.
-  Vector convolveWith(const DataSet * kernel) const;
-
-
   /// @}
 
   /// Transpose a dataset, ie creates a new dataset where the

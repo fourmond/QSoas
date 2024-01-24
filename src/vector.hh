@@ -228,6 +228,26 @@ public:
   /// the elements from @a i to @a i + @a delta, wrapping around.
   void rotate(int delta);
 
+  /// This function is a low-level convolution function in which the
+  /// vector @a vector containing @a nb elements assumed to be equally
+  /// spaced between @a xmin and @a xmax are convolved by the function
+  /// @a function.
+  ///
+  /// That function is either symmetric (defined for positive and
+  /// negative values of x) or not (defined only for positive values
+  /// of x)
+  ///
+  /// The @a buffer is a buffer for storing values it must be large
+  /// enough to contain 4*nb values.
+  static void convolve(const double * vector,
+                       int nb,
+                       double * target,
+                       double xmin,
+                       double xmax,
+                       std::function<double (double)> function,
+                       bool symmetric,
+                       double * buffer);
+
 
   /// @}
 

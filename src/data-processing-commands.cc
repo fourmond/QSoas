@@ -3011,184 +3011,27 @@ static void convolveCommand(const QString &,
 
   // This code is based on the computations in doc/computations.tex
   // section "convolution"
-
   int nb = ds->nbRows();
 
   /// @todo Check uniformity
-  double dx = (ds->x().last() - ds->x().first())/(nb-1);
 
   bool symmetric = true;
   updateFromOptions(opts, "symmetric", symmetric);
 
-  // If symmetric is false, then the convolution function is defined
-  // only for positive x (and might be divergent at x == 0).
+  Vector buffer(nb*4, 0);
 
-  int elements = (symmetric ? 2*nb : nb);
-  int center = (symmetric ? nb - 1 : -1);
-
-
-  // First, let's assume symmetric range, so that the vectors range from
-  // -n+1 to n, i.e. 2*n
-  // The "0" is at nb-1
-  Vector av(elements, 0);
-  Vector bv = av;
-
-  // First, we compute the integrals for the coefficients of av and bv
-
-  double xr;
-  std::function<double (double)> fnl = [&expression, &xr](double x) -> double {
-    double xv = xr - x;
-    return expression.evaluate(&xv);
+  std::function<double (double)> fnl = [&expression](double x) -> double {
+    return expression.evaluate(&x);
   };
 
-
-  std::function<double (double)> xfnl = [&expression, &xr, &dx](double x) -> double {
-    double xv = xr - x;
-    return x*expression.evaluate(&xv)/dx;
-  };
-
-  // For the singularities
-  gsl_function func;
-  func.params = &fnl;
-  func.function = &::integrate;
-
-  gsl_function xfunc;
-  xfunc.params = &xfnl;
-  xfunc.function = &::integrate;
-
-  
-  // Wow, this works very very well.
-  for(int i = 0; i < elements; i++) {
-    // We must take special care for the integrals around 0, i.e. for
-    // c == 1 (and c == 0 if we allow for a singular point on both sides)
-    
-      int c = i - center;
-      xr = c*dx;
-      // We need to handle specially the case i == 0 for the
-      // non-symmetric case, to allow for singularities or
-      // "pseudo-singularities" (like functions vanishing very quickly
-      // to 0, like fast decaying exponentials)"
-      //
-      // OK, this function actually works fine now for almost all the
-      // cases but the ones in which the decrease is sharp but not so
-      // sharp as to be negligible on the second element.
-
-      if(! symmetric && c == 1) {
-        int subdiv = 0;
-        // Final values of a and b
-        double a,b, a_prev = 0, b_prev = 0;
-        // Values of the leftmost segment
-        double left_a, left_b;
-        // Values of the rest
-        double right_a = 0, right_b = 0;
-        // Value of the right side of the current 
-        double cur_f = fnl(0);
-        // Keep in mind that fnl is defined right to left.
-        double left_f = fnl(dx);
-        double cur_dx = dx;
-
-        bool missing_left = false;
-
-        if(std::isinf(left_f))
-          missing_left = right;
-
-
-        // Here, we subdivide only the leftmost segment
-        // really should be enough
-        // QTextStream o(stdout);
-        // o << "Computing for: " << formula << endl;
-        while(subdiv < 40) {
-          if(! missing_left) {
-            left_a = 0.5*(left_f + cur_f) * cur_dx;
-            left_b = 0.5*(left_f + cur_f * (dx - cur_dx)/dx) * cur_dx;
-            
-            a = left_a + right_a;
-            b = left_b + right_b;
-          }
-          else {
-            // Extrapolate to 0
-            a = right_a * (dx)/(dx-cur_dx);
-            b = right_b * (dx)/(dx-cur_dx);
-          }
-          // o << "Iteration #" << subdiv << "@ " << cur_dx << "/" << dx << "\n"
-          //   << "a = " << a << "\tb = " << b << "\tcur_f = " << cur_f << "\n"
-          //   << "right_a = " << right_a << "\tright_b = " << right_b << endl;
-          if(subdiv > 0) {
-            if(abs(a - a_prev) < 0.001*abs(a) &&
-               abs(b - b_prev) < 0.001*abs(b)) // We're good enough
-              break;
-          }
-          a_prev = a;
-          b_prev = b;
-          cur_dx *= 0.5;
-          double prev_f = cur_f;
-          cur_f = fnl(dx - cur_dx);
-          
-          right_a += 0.5*(cur_f + prev_f) * cur_dx;
-          right_b += 0.5*(
-                          cur_f * (dx - cur_dx)/dx +
-                          prev_f * (dx - 2*cur_dx)/dx
-                          ) * cur_dx;
-          subdiv += 1;
-        }
-
-        av[i] = a;
-        bv[i] = b;
-        // o << "Final:\n"
-        //   << "a = " << a << "\tb = " << b << endl;
-
-        // I think the singularities
-        if(subdiv >=3 && !missing_left) {
-          std::unique_ptr<Integrator> in(Integrator::createNamedIntegrator());
-          double err = 0;
-          av[i] = in->integrateSegment(fnl, 0, dx, &err);
-          bv[i] = in->integrateSegment(xfnl, 0, dx, &err);
-
-            // // We recompute
-            // double err;
-            // int st;
-            // size_t nn;
-            // cur_dx *= 2;
-            // double left = 0;
-            // st = gsl_integration_qng(&func, cur_dx, dx, 1e-6, 1e-6,
-            //                          &right_a, &err, &nn);
-            // st = gsl_integration_qng(&func, left, cur_dx, 1e-6, 1e-6,
-            //                          &left_a, &err, &nn);
-            
-            // st = gsl_integration_qng(&xfunc, cur_dx, dx, 1e-6, 1e-6,
-            //                          &right_b, &err, &nn);
-            // st = gsl_integration_qng(&xfunc, left, cur_dx, 1e-6, 1e-6,
-            //                          &left_b, &err, &nn);
-
-            // av[i] = left_a + right_a;
-            // bv[i] = left_b + right_b;
-          // o << "QNG:\n"
-          //   << "a = " << av[i] << "\tb = " << bv[i] << endl;
-        }
-      }
-
-      else {
-        av[i] = 0.5*(fnl(0) + fnl(dx))*dx;
-
-        bv[i] = 0.5*(xfnl(0) + xfnl(dx))*dx;
-      }
-  }
-
-  // Now the convolution proper
-  const double * yvd = ds->y().data();
-  const double * avd = av.data();
-  const double * bvd = bv.data();
   Vector ny = ds->y();
-  double * nyd = ny.data();
-  for(int i = 0; i < nb; i++) {
-    double sum = 0;
-    for(int j = 0; j < nb-1; j++) {
-      int k = i - j + center;
-      if(k >= 0)
-        sum += (avd[k] - bvd[k]) * yvd[j] + bvd[k] * yvd[j+1];
-    }
-    nyd[i] = sum;
-  }
+  Vector::convolve(ds->y().data(), nb, ny.data(),
+                   ds->x().first(), 
+                   ds->x().last(),
+                   fnl,
+                   symmetric,
+                   buffer.data()
+                   );
   DataSet * nds = ds->derivedDataSet(ny, "_conv.dat");
   soas().pushDataSet(nds);
 }

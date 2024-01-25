@@ -1301,11 +1301,13 @@ static void doAssert(QString code,
         cur->failed++;
         as.result = SingleAssertion::Failed;
       }
+      QString sctx = QString("%1:%2").arg(as.commandContext.scriptFile).
+        arg(as.commandContext.lineNumber);
       if(useTol) {
         Terminal::out << "assertion " << adj << ": " << code
                       << " (should be below: " << tolerance
                       << " but is: " << mr->floatValue(value) << ")" << endl;
-        Debug::debug() << let << "(" << as.commandContext.scriptFile
+        Debug::debug() << let << "(" << sctx
                        << ") : " << code
                        << " (should be below: " << tolerance
                        << " but is: " << mr->floatValue(value) << ")"
@@ -1313,7 +1315,7 @@ static void doAssert(QString code,
       }
       else {
         Terminal::out << "assertion failed: " << code  << endl;
-        Debug::debug() << let << "(" << as.commandContext.scriptFile
+        Debug::debug() << let << "(" << sctx
                        << ") : " << code  << context << endl;
       }
     }

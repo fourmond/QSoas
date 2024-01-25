@@ -217,6 +217,17 @@ void File::open()
     return;
   }
 
+#ifdef Q_OS_WIN32
+  // Emulation of /dev/null for input in Windows
+  if(! fileName == "/dev/null") {
+    QBuffer * buf = new QBuffer;
+    buf->open(m);
+    device = buf;
+    // We're not going to track this too
+    return;
+  }
+#endif
+
   
   // QTextStream o(stdout);
   // o << "Opening file: " << fileName << " with mode: "

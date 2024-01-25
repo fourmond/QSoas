@@ -583,21 +583,33 @@ QStringList MRuby::detectParametersNative(const QByteArray & code,
     ai = mrb_gc_arena_save(mrb);
 
     i = pc - irep->iseq;
-    auto cancel_cts = [&cur_top_self, a/*, &o*/] ()  {
+    // I think I'm completely wrong on what is the top self here.
+    // Yes. a is the target register
+    auto cancel_cts = [&cur_top_self, &a] ()  {
       // o << "Cancel: " << a << "/" << cur_top_self << endl;
       if(cur_top_self == a)
         cur_top_self = -1;
     };
 
-    auto dump = [&o, &a, &b, &c, &cur_top_self](const char * opcode) {
+    auto dump = [&i, &ins, &o, &a, &b, &c, &cur_top_self](const char * opcode) {
       if(o)
-        *o << QString("%1").arg(opcode, -12)
-           << "\tself = " <<  QString::number(cur_top_self, 16)
+        *o << "# " << QString("%1").arg(i, -3)
+           << ": " << ins << "\t"
+           << QString("%1").arg(opcode, -12)
+           << "\tself = " <<  cur_top_self
            << "\ta = " <<  QString::number(a, 16)
            << "\tb = " <<  QString::number(b, 16)
            << "\tc = " <<  QString::number(c, 16)
            << endl;
     };
+
+    auto store_sym = [&o, &a, &b, &c, &irep, this, &rv, &cur_top_self]() {
+                      if(o)
+                        *o << " ->  b is " << mrb_sym2name(mrb, irep->syms[b])
+                           << endl;
+                      if(cur_top_self == a && c == 0)
+                        rv.insert(mrb_sym2name(mrb, irep->syms[b]));
+                     };
 
     ins = READ_B();
     // We unfortunately need the full case from mruby/src/codedump.c,
@@ -653,24 +665,20 @@ QStringList MRuby::detectParametersNative(const QByteArray & code,
       CASE(OP_JMPNOT, BS): break;
       CASE(OP_JMPNIL, BS): break;
       CASE(OP_SENDV, BB):
-        if(cur_top_self == a && c == 0)
-          rv.insert(mrb_sym2name(mrb, irep->syms[b]));
-      cancel_cts();
+        store_sym();
+        cancel_cts();
       break;
       CASE(OP_SENDVB, BB):
-        if(cur_top_self == a && c == 0)
-          rv.insert(mrb_sym2name(mrb, irep->syms[b]));
-      cancel_cts();
+        store_sym();
+        cancel_cts();
       break;
       CASE(OP_SEND, BBB):
-        if(cur_top_self == a && c == 0)
-          rv.insert(mrb_sym2name(mrb, irep->syms[b]));
-      cancel_cts();
+        store_sym();
+        cancel_cts();
       break;
       CASE(OP_SENDB, BBB):
-        if(cur_top_self == a && c == 0)
-          rv.insert(mrb_sym2name(mrb, irep->syms[b]));
-      cancel_cts();
+        store_sym();
+        cancel_cts();
       break;
       CASE(OP_CALL, Z): break;
       CASE(OP_SUPER, BB): break;
@@ -732,9 +740,33 @@ QStringList MRuby::detectParametersNative(const QByteArray & code,
       CASE(OP_EPOP, B): break;
       CASE(OP_DEBUG, BBB): break;
       CASE(OP_STOP, Z): break;
-      CASE(OP_EXT1, Z): break;
-      CASE(OP_EXT2, Z): break;
-      CASE(OP_EXT3, Z): break;
+      CASE(OP_EXT1, Z):
+        ins = READ_B();
+      i++;
+      switch (ins) {
+#define OPCODE(i,x) case OP_ ## i: FETCH_ ## x ## _1 (); dump("OP_" # i); goto L_OP_ ## i;
+#include "mruby/ops.h"
+#undef OPCODE
+      }
+      break;
+      CASE(OP_EXT2, Z):
+        ins = READ_B();
+      i++;
+      switch (ins) {
+#define OPCODE(i,x) case OP_ ## i: FETCH_ ## x ## _2 (); dump("OP_" #i); goto L_OP_ ## i;
+#include "mruby/ops.h"
+#undef OPCODE
+      }
+      break;
+      CASE(OP_EXT3, Z):
+        ins = READ_B();
+      i++;
+      switch (ins) {
+#define OPCODE(i,x) case OP_ ## i: FETCH_ ## x ## _3 (); dump("OP_" #i); goto L_OP_ ## i;
+#include "mruby/ops.h"
+#undef OPCODE
+      }
+      break;
       mrb_gc_arena_restore(mrb, ai);
     }
   }

@@ -219,7 +219,7 @@ void File::open()
 
 #ifdef Q_OS_WIN32
   // Emulation of /dev/null for input in Windows
-  if(! fileName == "/dev/null") {
+  if(fileName == "/dev/null") {
     QBuffer * buf = new QBuffer;
     buf->open(m);
     device = buf;

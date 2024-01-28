@@ -785,7 +785,7 @@ QStringList MRuby::detectParametersNative(const QByteArray & code,
 // The following code is based on the following command:
 // grep CASE src/codedump.c | sed s/'$/ break;/'
 
-#define CASE(insn,ops) case insn: FETCH_ ## ops (); L_ ## insn
+#define CASE(insn,ops) case insn: FETCH_ ## ops (); dump(#insn); L_ ## insn 
 
 QStringList MRuby::detectParametersNative(const QByteArray & code,
                                           QStringList * locals,
@@ -802,7 +802,6 @@ QStringList MRuby::detectParametersNative(const QByteArray & code,
 
   // The idea is just to scan the code and detect funcalls of single
   // arguments from what seems to be top level self.
-  int cur_top_self = -1;
   QSet<QString> rv;
 
     // Detect local variables first:
@@ -820,11 +819,29 @@ QStringList MRuby::detectParametersNative(const QByteArray & code,
 
   pc = irep->iseq;
   pcend = pc + irep->ilen;
+  QTextStream * o = NULL;
+  if(debug) {
+    o = new QTextStream(stdout);
+    *o << "Detecting parameters for code: '" << code << "'" << endl;
+  }
+
   while (pc < pcend) {
     ptrdiff_t i;
     uint32_t a;
     uint16_t b;
     uint8_t c;
+
+    auto dump = [&i, &ins, &o, &a, &b, &c](const char * opcode) {
+      if(o)
+        *o << "# " << QString("%1").arg(i, -3)
+           << ": " << ins << "\t"
+           << QString("%1").arg(opcode, -12)
+           << "\ta = " <<  QString::number(a, 16)
+           << "\tb = " <<  QString::number(b, 16)
+           << "\tc = " <<  QString::number(c, 16)
+           << endl;
+    };
+
 
     ai = mrb_gc_arena_save(mrb);
 
@@ -947,9 +964,33 @@ QStringList MRuby::detectParametersNative(const QByteArray & code,
       CASE(OP_RAISEIF, B): break;
       CASE(OP_DEBUG, BBB): break;
       CASE(OP_STOP, Z): break;
-      CASE(OP_EXT1, Z): break;
-      CASE(OP_EXT2, Z): break;
-      CASE(OP_EXT3, Z): break;
+      CASE(OP_EXT1, Z):
+        ins = READ_B();
+      i++;
+      switch (ins) {
+#define OPCODE(i,x) case OP_ ## i: FETCH_ ## x ## _1 (); dump("OP_" # i); goto L_OP_ ## i;
+#include "mruby/ops.h"
+#undef OPCODE
+      }
+      break;
+      CASE(OP_EXT2, Z):
+        ins = READ_B();
+      i++;
+      switch (ins) {
+#define OPCODE(i,x) case OP_ ## i: FETCH_ ## x ## _2 (); dump("OP_" # i); goto L_OP_ ## i;
+#include "mruby/ops.h"
+#undef OPCODE
+      }
+        break;
+      CASE(OP_EXT3, Z):
+        ins = READ_B();
+      i++;
+      switch (ins) {
+#define OPCODE(i,x) case OP_ ## i: FETCH_ ## x ## _3 (); dump("OP_" # i); goto L_OP_ ## i;
+#include "mruby/ops.h"
+#undef OPCODE
+      }
+        break;
       
       mrb_gc_arena_restore(mrb, ai);
     }

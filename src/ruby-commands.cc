@@ -118,7 +118,6 @@ static void applyFormulaCommand(const QString &, QString formula,
         else
           indexInEval[i] = -1;
       }
-
       int nbm = modified.size();
 
     
@@ -126,6 +125,11 @@ static void applyFormulaCommand(const QString &, QString formula,
       QString finalFormula = QString(nbm != 1 ? "%2\n[%1]" : "%2\n%1").
         arg(modified.join(",")).
         arg(formula);
+      if(Debug::debugLevel() > 0)
+        Debug::debug() << "apply-formula, '" << formula
+                       << "'\n -> locals: " << locals.join(", ")
+                       << "\n -> modified: " << modified.join(", ")
+                       << "\n -> converted into '" << finalFormula << endl;
 
       // QTextStream o(stdout);
       // o << "Found targets: " << modified.join(", ") << endl;

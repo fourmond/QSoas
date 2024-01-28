@@ -90,6 +90,7 @@ void Expression::buildCode()
     minimalVariables = mr->detectParameters(expression.toLocal8Bit(),
                                             &localVariables);
 
+    QSet<QString> mv = minimalVariables.toSet();
     QSet<QString> v = variables.toSet();
     // If a local is in the "variables", then it really is a variable,
     // not a local. Examples:
@@ -99,10 +100,10 @@ void Expression::buildCode()
     // In both these cases, Ruby is happy because the local x is
     // defined... But it can't work.
     for(const QString & loc : localVariables)
-      if(v.contains(loc))
+      if(v.contains(loc) && !mv.contains(loc))
         minimalVariables << loc;
     
-    QSet<QString> mv = minimalVariables.toSet();
+    mv = minimalVariables.toSet();
     mv.subtract(v);
     if(mv.size() > 0) {
       QStringList l = mv.toList();

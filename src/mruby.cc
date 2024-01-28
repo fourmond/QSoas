@@ -994,14 +994,14 @@ QStringList MRuby::detectParameters(const QByteArray & code,
   return detectParametersNative(code, locals);
 #elif MRUBY_RELEASE_MAJOR == 3
   QStringList rv = detectParametersNative(code, locals);
-  if(locals) {
+  /*if(locals) {
     // Sometimes get detected twice...
     QSet<QString> p = rv.toSet();
     for(int i = 0; i < locals->size(); i++) {
       if(p.contains((*locals)[i]))
         locals->takeAt(i--);
     }
-  }
+    }*/
   return rv;
 #else
   return detectParametersApprox(code, locals);

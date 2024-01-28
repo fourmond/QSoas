@@ -143,7 +143,8 @@ void ODEFit::updateParameters(FitData * data) const
     s->reporterIndex = defs.size();
     for(int i = 0; i < names.size(); i++)
       defs << ParameterDefinition(QString("y_%1").
-                                  arg(names[i]), i != 0);
+                                  arg(names[i]), i != 0,
+                                  true, true);
   }
   // If there are reporters, then the underlying parameters are
   // already taken care of by the systemParameters()

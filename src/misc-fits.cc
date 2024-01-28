@@ -806,10 +806,12 @@ public:
 
       /// Current of each species
       for(int j = 0; j < s->species; j++)
-        defs << ParameterDefinition(QString("I_%1%2").arg(j+1).arg(suffix));
+        defs << ParameterDefinition(QString("I_%1%2").arg(j+1).arg(suffix),
+                                    false, true, true);
 
       if(s->offset)
-        defs << ParameterDefinition(QString("I_off_%1").arg(suffix), true);
+        defs << ParameterDefinition(QString("I_off_%1").arg(suffix), true,
+                                    true, true);
 
       /// Reaction constants
       for(int j = 0; j < s->species; j++)

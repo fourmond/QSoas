@@ -120,7 +120,8 @@ public:
       for(int j = 0; j < nb; j++)
         defs << ParameterDefinition(QString("A_%1_%2").arg(id).
                                     arg(stateName(j, nb)),
-                                    (j == 0 && i > 0));
+                                    (j == 0 && i > 0),
+                                    true, true);
     
       for(int j = 0; j < nb-1; j++) {
         defs << ParameterDefinition(QString("E_%1_%2/%3").arg(id).
@@ -310,7 +311,8 @@ public:
       for(int j = 0; j < nb; j++)
         defs << ParameterDefinition(QString("A_%1%2").arg(id).
                                     arg(stateName(j, nb)),
-                                    (j == 0 && i > 0));
+                                    (j == 0 && i > 0),
+                                    true, true);
     
       for(int j = 0; j < nb-1; j++)
         defs << ParameterDefinition(QString("pK_%1_%2").arg(id).

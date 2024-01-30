@@ -3095,13 +3095,19 @@ static void reverseLaplaceCommand(const QString &,
 
   int maxt = ds->nbRows();
   int cur_k = 0;
+
+  int zero_index = -1;
   MRuby * mr = MRuby::ruby();
   QTextStream o(stdout);
 
   for(int i = 0; i < ds->nbRows(); i++) {
     double t = ds->x()[i];
-    if(t <= 0)
+    if(t < 0)
       continue;
+    if(t == 0) {
+      zero_index = i;
+      continue;
+    }
     double step = 3.0/steps;
     double mu = M_PI * steps/(12*t);
     double val = 0;
@@ -3138,6 +3144,40 @@ static void reverseLaplaceCommand(const QString &,
         val = GSL_REAL(ex);
     }
     ny[i] = val;
+  }
+
+  // Limit at t = 0
+  if(zero_index >= 0) {
+    // We multiply by two until the value doesn't change that much
+    double args[2];
+    double curx = 1e4;
+    args[1] = 0;
+    args[0] = 0;
+
+    int nb = 0;
+    double prev = 0, cur = 0;
+
+    o << "Looking at t = 0" << endl;
+    while(nb < 30) {
+      args[0] = curx;
+      args[1] = 0;
+      mrb_value v = expression.evaluateAsRuby(args);
+      gsl_complex z = mr->complexValue(v);
+      double fnv = GSL_REAL(z);
+      cur = curx * fnv;
+      o << "Iteration " << nb << ": arg\t" << curx
+        << "\n -> val " << fnv
+        << "\t -> limit " << cur << endl;
+      // if(nb > 0) {
+      //   if(fabs(prev/cur) < 1e-5 * fabs(cur))
+      //     break;
+      // }
+
+      curx *= 2;
+      prev = cur;
+      nb++;
+    }
+    ny[zero_index] = cur;
   }
 
   DataSet * nds = ds->derivedDataSet(ny, "_rev_laplace.dat");

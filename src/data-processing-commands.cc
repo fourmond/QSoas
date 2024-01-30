@@ -3071,7 +3071,7 @@ static void reverseLaplaceCommand(const QString &,
   Expression expression(formula);
 
   // The parabola parameters, for now arbitrary
-  double step = 0.2, mu = 1;
+  // double step = 0.2, mu = 1;
   double precision = 1e-7;
   int steps = 100;
 
@@ -3097,48 +3097,47 @@ static void reverseLaplaceCommand(const QString &,
   int cur_k = 0;
   MRuby * mr = MRuby::ruby();
   QTextStream o(stdout);
-  while(cur_k < steps) {
-    // No optimization for now
-    gsl_complex zv, zp, fn, ex;
-    double args[2];
-    double uk = step*cur_k;
-    GSL_SET_COMPLEX(&zv, 1, uk);
-    zv = gsl_complex_mul(zv, zv);
-    zv = gsl_complex_mul_real(zv, mu);
-    args[0] = GSL_REAL(zv);
-    args[1] = GSL_IMAG(zv);
-    mrb_value v = expression.evaluateAsRuby(args);
-    fn = mr->complexValue(v);
 
-    GSL_SET_COMPLEX(&zp, step * mu/M_PI, step * mu*uk/M_PI);
-    o << "k:\t" << cur_k << "\n -> Z = " << args[0]
-      << "\t+ " << args[1] << "\tI\n"
-      << " -> F = " << GSL_REAL(fn) << "\t+ "
-      << GSL_IMAG(fn) << "\tI" << endl;
+  for(int i = 0; i < ds->nbRows(); i++) {
+    double t = ds->x()[i];
+    if(t <= 0)
+      continue;
+    double step = 3.0/steps;
+    double mu = M_PI * steps/(12*t);
+    double val = 0;
+    // o << "Dealing with time t = " << t
+    //   << "\n -> step = " << step << "\tmu = " << mu << endl;
 
+    for(int cur_k = 0; cur_k < steps; cur_k++) {
+      // No optimization for now
+      gsl_complex zv, zp, fn, ex;
+      double args[2];
+      double uk = step*cur_k;
+      GSL_SET_COMPLEX(&zv, 1, uk);
+      zv = gsl_complex_mul(zv, zv);
+      zv = gsl_complex_mul_real(zv, mu);
+      args[0] = GSL_REAL(zv);
+      args[1] = GSL_IMAG(zv);
+      mrb_value v = expression.evaluateAsRuby(args);
+      fn = mr->complexValue(v);
+      
+      // o << "k:\t" << cur_k << "\n -> Z = " << args[0]
+      //   << "\t+ " << args[1] << "\tI\n"
+      //   << " -> F = " << GSL_REAL(fn) << "\t+ "
+      //   << GSL_IMAG(fn) << "\tI" << endl;
 
-    // Note, once again, we work under the assumption here that
-    // f(conj(z)) = con(f(z))
-    for(int i = 0; i < ds->nbRows(); i++) {
-      double t = ds->x()[i];
-      if(t <= 0)                // Cannot handle
-        continue;
+      
+      GSL_SET_COMPLEX(&zp, step * mu/M_PI, step * mu*uk/M_PI);
       ex = gsl_complex_mul_real(zv, t);
       ex = gsl_complex_exp(ex);
-      if(i % 30 == 1) {
-        o << " -> at t = " << t
-          << "\texp = " << GSL_REAL(ex) << "\t+ "
-          << GSL_IMAG(ex) << "\tI" << endl;
-        
-      }
       ex = gsl_complex_mul(ex, fn);
       ex = gsl_complex_mul(ex, zp);
-      if(i > 0)
-        ny[i] += 2 * GSL_REAL(ex);
+      if(cur_k > 0)
+        val += 2 * GSL_REAL(ex);
       else
-        ny[i] = GSL_REAL(ex);
+        val = GSL_REAL(ex);
     }
-    cur_k += 1;
+    ny[i] = val;
   }
 
   DataSet * nds = ds->derivedDataSet(ny, "_rev_laplace.dat");

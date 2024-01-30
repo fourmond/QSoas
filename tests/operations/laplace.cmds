@@ -1,0 +1,31 @@
+# Tests about reverse Laplace transforms
+
+# exp(-t)
+generate-dataset 0 10
+reverse-laplace 1/(1+s)
+apply-formula y-=exp(-x)
+assert $stats.y_stddev 1e-5
+
+# sin(t)
+# Surprised it works at all to be honest, I thought the singularities
+# would cause trouble
+generate-dataset 0 10
+reverse-laplace 1/(1+s**2)
+apply-formula y-=sin(x)
+assert $stats.y_stddev 3e-6
+
+
+# t
+generate-dataset 0 10 0
+reverse-laplace 1/s**2
+apply-formula y-=x
+assert $stats.y_stddev 3e-6
+
+# 1/sqrt(PI*t)
+generate-dataset 0 10 0
+strip-if x<=0
+reverse-laplace 1/s**0.5
+apply-formula y-=1/(PI*x)**0.5
+assert $stats.y_stddev 5e-5
+
+

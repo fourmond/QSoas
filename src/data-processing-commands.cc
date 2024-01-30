@@ -3157,7 +3157,7 @@ static void reverseLaplaceCommand(const QString &,
     int nb = 0;
     double prev = 0, cur = 0;
 
-    o << "Looking at t = 0" << endl;
+    // o << "Looking at t = 0" << endl;
     while(nb < 30) {
       args[0] = curx;
       args[1] = 0;
@@ -3165,9 +3165,9 @@ static void reverseLaplaceCommand(const QString &,
       gsl_complex z = mr->complexValue(v);
       double fnv = GSL_REAL(z);
       cur = curx * fnv;
-      o << "Iteration " << nb << ": arg\t" << curx
-        << "\n -> val " << fnv
-        << "\t -> limit " << cur << endl;
+      // o << "Iteration " << nb << ": arg\t" << curx
+      //   << "\n -> val " << fnv
+      //   << "\t -> limit " << cur << endl;
       // if(nb > 0) {
       //   if(fabs(prev/cur) < 1e-5 * fabs(cur))
       //     break;

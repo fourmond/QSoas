@@ -21,3 +21,6 @@
 
 # Convolution
 @ convolve.cmds
+
+# Reverse Laplace transforms
+@ laplace.cmds

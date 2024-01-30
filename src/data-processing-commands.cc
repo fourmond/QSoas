@@ -2986,16 +2986,6 @@ avgd("average-duplicates", // command name
 
 //////////////////////////////////////////////////////////////////////
 #include <expression.hh>
-#include <gsl/gsl_integration.h>
-#include <integrator.hh>
-
-
-double integrate(double x, void * params)
-{
-  std::function<double (double)> * fn =
-    reinterpret_cast<std::function<double (double)> *>(params);
-  return (*fn)(x);
-}
 
 static void convolveCommand(const QString &,
                             QString formula,
@@ -3057,3 +3047,115 @@ conv("convolve", // command name
      &convArgs, // arguments
      &convOpts,
      "Convolve");
+
+//////////////////////////////////////////////////////////////////////
+
+static void reverseLaplaceCommand(const QString &,
+                                  QString formula,
+                                  const CommandOptions& opts)
+{
+  // We'll implement a parabola
+  const DataSet * ds = soas().currentDataSet();
+  // Used as base
+  {
+    Expression expression(formula);
+    QStringList nv = expression.naturalVariables();
+    // We're allowing convolution by a constant
+    if(nv.size() > 1 || (nv.size() == 1 && nv.first() != "s"))
+      throw RuntimeError("Laplace '%1' should be a "
+                         "function of only s").arg(formula);
+  }
+
+  // OK, reparametrize into a complex
+  formula = "s=a+I*b;" + formula;
+  Expression expression(formula);
+
+  // The parabola parameters, for now arbitrary
+  double step = 0.2, mu = 1;
+  double precision = 1e-7;
+  int steps = 100;
+
+  Vector ny(ds->nbRows(), 0);
+
+  // We handle all the times in parallel We work under the assumption
+  // that the laplace formula takes only real values in the real axis,
+  // meaning that the value of its complex conjugate is the complex
+  // conjugate.
+
+  /// We sum:
+  /// $$\frac{h}{2\pi i} \sum_{k=-N}{N} exp(z(u_k)t) F(z(u_k)) z'(u_k)$$
+  ///
+  /// With
+  /// $$z(u_k) = \mu (i u +1)^2$$
+  /// and thus:
+  /// $$z'(u_k) = 2 \mu i (i u +1)$$
+  ///
+  /// So that:
+  /// $$z'(u_k) \times \frac{h}{2\pi i} = \mu h (i u +1)/\pi$$
+
+  int maxt = ds->nbRows();
+  int cur_k = 0;
+  MRuby * mr = MRuby::ruby();
+  QTextStream o(stdout);
+  while(cur_k < steps) {
+    // No optimization for now
+    gsl_complex zv, zp, fn, ex;
+    double args[2];
+    double uk = step*cur_k;
+    GSL_SET_COMPLEX(&zv, 1, uk);
+    zv = gsl_complex_mul(zv, zv);
+    zv = gsl_complex_mul_real(zv, mu);
+    args[0] = GSL_REAL(zv);
+    args[1] = GSL_IMAG(zv);
+    mrb_value v = expression.evaluateAsRuby(args);
+    fn = mr->complexValue(v);
+
+    GSL_SET_COMPLEX(&zp, step * mu/M_PI, step * mu*uk/M_PI);
+    o << "k:\t" << cur_k << "\n -> Z = " << args[0]
+      << "\t+ " << args[1] << "\tI\n"
+      << " -> F = " << GSL_REAL(fn) << "\t+ "
+      << GSL_IMAG(fn) << "\tI" << endl;
+
+
+    // Note, once again, we work under the assumption here that
+    // f(conj(z)) = con(f(z))
+    for(int i = 0; i < ds->nbRows(); i++) {
+      double t = ds->x()[i];
+      if(t <= 0)                // Cannot handle
+        continue;
+      ex = gsl_complex_mul_real(zv, t);
+      ex = gsl_complex_exp(ex);
+      if(i % 30 == 1) {
+        o << " -> at t = " << t
+          << "\texp = " << GSL_REAL(ex) << "\t+ "
+          << GSL_IMAG(ex) << "\tI" << endl;
+        
+      }
+      ex = gsl_complex_mul(ex, fn);
+      ex = gsl_complex_mul(ex, zp);
+      if(i > 0)
+        ny[i] += 2 * GSL_REAL(ex);
+      else
+        ny[i] = GSL_REAL(ex);
+    }
+    cur_k += 1;
+  }
+
+  DataSet * nds = ds->derivedDataSet(ny, "_rev_laplace.dat");
+  soas().pushDataSet(nds);
+}
+
+static ArgumentList 
+rLArgs(QList<Argument *>()
+       << new StringArgument("formula", "formula",
+                             "the formula of the Laplace transform "
+                             "(Laplace variable is s)")
+       );
+
+static Command 
+rlap("reverse-laplace", // command name
+     effector(reverseLaplaceCommand), // action
+     "math",  // group name
+     &rLArgs, // arguments
+     NULL,
+     "Reverse Laplace");

@@ -163,9 +163,12 @@ void ComplexExpression::reverseLaplace(const double * parameters,
 
   for(int i = 0; i < nbt; i++) {
     double t = xvalues[i];
-    if(t < 0)
+    if(t < 0) {
+      gsl_vector_set(target, i, 0);
       continue;
+    }
     if(t == 0) {
+      gsl_vector_set(target, i, 0);
       zero_index = i;
       continue;
     }
@@ -208,7 +211,6 @@ void ComplexExpression::reverseLaplace(const double * parameters,
   // Limit at t = 0
   if(zero_index >= 0) {
     // We multiply by two until the value doesn't change that much
-    double args[2];
     double curx = 1e4;
     argvs[1] = 0;
     argvs[0] = 0;

@@ -3066,116 +3066,11 @@ static void reverseLaplaceCommand(const QString &,
 
   ComplexExpression expression("s", formula);
 
-  // The parabola parameters, for now arbitrary
-  // double step = 0.2, mu = 1;
-  double precision = 1e-7;
   int steps = 100;
-
   Vector ny(ds->nbRows(), 0);
-
-  // We handle all the times in parallel We work under the assumption
-  // that the laplace formula takes only real values in the real axis,
-  // meaning that the value of its complex conjugate is the complex
-  // conjugate.
-
-  /// We sum:
-  /// $$\frac{h}{2\pi i} \sum_{k=-N}{N} exp(z(u_k)t) F(z(u_k)) z'(u_k)$$
-  ///
-  /// With
-  /// $$z(u_k) = \mu (i u +1)^2$$
-  /// and thus:
-  /// $$z'(u_k) = 2 \mu i (i u +1)$$
-  ///
-  /// So that:
-  /// $$z'(u_k) \times \frac{h}{2\pi i} = \mu h (i u +1)/\pi$$
-
-  int maxt = ds->nbRows();
-  int cur_k = 0;
-
-  int zero_index = -1;
-  MRuby * mr = MRuby::ruby();
-  QTextStream o(stdout);
-
-  for(int i = 0; i < ds->nbRows(); i++) {
-    double t = ds->x()[i];
-    if(t < 0)
-      continue;
-    if(t == 0) {
-      zero_index = i;
-      continue;
-    }
-    double step = 3.0/steps;
-    double mu = M_PI * steps/(12*t);
-    double val = 0;
-    // o << "Dealing with time t = " << t
-    //   << "\n -> step = " << step << "\tmu = " << mu << endl;
-
-    for(int cur_k = 0; cur_k < steps; cur_k++) {
-      // No optimization for now
-      gsl_complex zv, zp, fn, ex;
-      double args[2];
-      double uk = step*cur_k;
-      GSL_SET_COMPLEX(&zv, 1, uk);
-      zv = gsl_complex_mul(zv, zv);
-      zv = gsl_complex_mul_real(zv, mu);
-      args[0] = GSL_REAL(zv);
-      args[1] = GSL_IMAG(zv);
-      fn = expression.evaluate(args);
-
-      
-      // o << "k:\t" << cur_k << "\n -> Z = " << args[0]
-      //   << "\t+ " << args[1] << "\tI\n"
-      //   << " -> F = " << GSL_REAL(fn) << "\t+ "
-      //   << GSL_IMAG(fn) << "\tI" << endl;
-
-      
-      GSL_SET_COMPLEX(&zp, step * mu/M_PI, step * mu*uk/M_PI);
-      ex = gsl_complex_mul_real(zv, t);
-      ex = gsl_complex_exp(ex);
-      ex = gsl_complex_mul(ex, fn);
-      ex = gsl_complex_mul(ex, zp);
-      if(cur_k > 0)
-        val += 2 * GSL_REAL(ex);
-      else
-        val = GSL_REAL(ex);
-    }
-    ny[i] = val;
-  }
-
-  // Limit at t = 0
-  if(zero_index >= 0) {
-    // We multiply by two until the value doesn't change that much
-    double args[2];
-    double curx = 1e4;
-    args[1] = 0;
-    args[0] = 0;
-
-    int nb = 0;
-    double prev = 0, cur = 0;
-
-    // o << "Looking at t = 0" << endl;
-    while(nb < 30) {
-      args[0] = curx;
-      args[1] = 0;
-      mrb_value v = expression.evaluateAsRuby(args);
-      gsl_complex z = mr->complexValue(v);
-      double fnv = GSL_REAL(z);
-      cur = curx * fnv;
-      // o << "Iteration " << nb << ": arg\t" << curx
-      //   << "\n -> val " << fnv
-      //   << "\t -> limit " << cur << endl;
-      // if(nb > 0) {
-      //   if(fabs(prev/cur) < 1e-5 * fabs(cur))
-      //     break;
-      // }
-
-      curx *= 2;
-      prev = cur;
-      nb++;
-    }
-    ny[zero_index] = cur;
-  }
-
+  double val = 0;
+  expression.reverseLaplace(&val, ds->x().data(),
+                            ny, steps);
   DataSet * nds = ds->derivedDataSet(ny, "_rev_laplace.dat");
   soas().pushDataSet(nds);
 }

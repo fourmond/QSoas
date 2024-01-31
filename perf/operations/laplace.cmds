@@ -1,0 +1,5 @@
+# Performance test for the Laplace transforms
+
+# exp(-t)
+generate-dataset 0 10 /samples=10000
+reverse-laplace 1/(1+s)

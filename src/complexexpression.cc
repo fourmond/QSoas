@@ -69,9 +69,9 @@ void ComplexExpression::buildCode()
 }
 
 
-ComplexExpression::ComplexExpression(const QString & variable,
+ComplexExpression::ComplexExpression(const QString & _variable,
                                      const QString & expr) :
-  Expression(expr)
+  Expression(expr), variable(_variable)
 {
   effectiveMinVars = minimalVariables;
   effectiveMinVars.insert(0, variable);
@@ -79,6 +79,17 @@ ComplexExpression::ComplexExpression(const QString & variable,
   Expression::setVariables(effectiveMinVars);
   buildArgs();
 }
+
+ComplexExpression::ComplexExpression(const ComplexExpression & o) :
+  Expression(o),
+  variable(o.variable)
+{
+  effectiveMinVars = minimalVariables;
+  effectiveMinVars.insert(0, variable);
+  setVariables(o.currentVariables());
+  buildArgs();
+}
+
 
 
 void ComplexExpression::setVariables(const QStringList & vars)

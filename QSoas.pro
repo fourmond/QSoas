@@ -616,6 +616,8 @@ SOURCES += src/synchronizedtables.cc
 HEADERS += src/complexexpression.hh
 SOURCES += src/complexexpression.cc
 
+# Laplace fits
+SOURCES += src/laplace-fits.cc
 
 ######################################################################
 # Sources for the parameter space explorers

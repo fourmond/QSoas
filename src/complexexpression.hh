@@ -55,7 +55,7 @@ public:
                     const QString & expression);
 
   /// Let's disable this for now.
-  ComplexExpression(const ComplexExpression & o) = delete;
+  ComplexExpression(const ComplexExpression & o);
 
   /// @name Evalution functions
   ///

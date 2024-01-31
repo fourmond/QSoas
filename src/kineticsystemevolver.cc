@@ -575,7 +575,7 @@ public:
 
   KineticSystemFit() :
     ODEFit("kinetic-system", 
-                  "Full kinetic system",
+           "Full kinetic system",
            "", 1, -1, false), mySystem(NULL), myEvolver(NULL)
   { 
     makeCommands(ArgumentList(), 

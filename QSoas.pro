@@ -612,6 +612,10 @@ SOURCES += src/columnbasedformat.cc
 HEADERS += src/synchronizedtables.hh
 SOURCES += src/synchronizedtables.cc
 
+# Expressions of a complex variable
+HEADERS += src/complexexpression.hh
+SOURCES += src/complexexpression.cc
+
 
 ######################################################################
 # Sources for the parameter space explorers

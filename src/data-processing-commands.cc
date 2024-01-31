@@ -3050,25 +3050,21 @@ conv("convolve", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+#include <complexexpression.hh>
+
 static void reverseLaplaceCommand(const QString &,
                                   QString formula,
                                   const CommandOptions& opts)
 {
   // We'll implement a parabola
   const DataSet * ds = soas().currentDataSet();
-  // Used as base
-  {
-    Expression expression(formula);
-    QStringList nv = expression.naturalVariables();
-    // We're allowing convolution by a constant
-    if(nv.size() > 1 || (nv.size() == 1 && nv.first() != "s"))
-      throw RuntimeError("Laplace '%1' should be a "
-                         "function of only s").arg(formula);
-  }
+  QStringList nv = Expression::variablesNeeded(formula);
+  // We're allowing convolution by a constant
+  if(nv.size() > 1 || (nv.size() == 1 && nv.first() != "s"))
+    throw RuntimeError("Laplace '%1' should be a "
+                       "function of only s").arg(formula);
 
-  // OK, reparametrize into a complex
-  formula = "s=a+I*b;" + formula;
-  Expression expression(formula);
+  ComplexExpression expression("s", formula);
 
   // The parabola parameters, for now arbitrary
   // double step = 0.2, mu = 1;
@@ -3124,8 +3120,8 @@ static void reverseLaplaceCommand(const QString &,
       zv = gsl_complex_mul_real(zv, mu);
       args[0] = GSL_REAL(zv);
       args[1] = GSL_IMAG(zv);
-      mrb_value v = expression.evaluateAsRuby(args);
-      fn = mr->complexValue(v);
+      fn = expression.evaluate(args);
+
       
       // o << "k:\t" << cur_k << "\n -> Z = " << args[0]
       //   << "\t+ " << args[1] << "\tI\n"

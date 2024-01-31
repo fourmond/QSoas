@@ -9,6 +9,9 @@ assert $stats.y_stddev 1e-5
 # sin(t)
 # Surprised it works at all to be honest, I thought the singularities
 # would cause trouble
+#
+# That said, I strongly suspect larger oscillatory components are not
+# going to work
 generate-dataset 0 10
 reverse-laplace 1/(1+s**2)
 apply-formula y-=sin(x)

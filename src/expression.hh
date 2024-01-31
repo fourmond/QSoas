@@ -29,6 +29,7 @@
 ///
 /// @todo Derivatives !
 class Expression {
+protected:
 
   /// The expression
   QString expression;

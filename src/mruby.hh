@@ -132,6 +132,10 @@ public:
   /// Returns the complex value. This is the unprotected version
   gsl_complex complexValue_up(mrb_value value);
 
+  /// Returns a pointer to the underlying complex.  This function @b
+  /// will @b crash if you're not feeding a QSoas complex to that.
+  gsl_complex * complexInternal(mrb_value value);
+
   /// Returns the value of the object as a double
   double floatValue(mrb_value fv);
 

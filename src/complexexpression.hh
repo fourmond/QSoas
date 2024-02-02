@@ -85,10 +85,11 @@ public:
   /// the X (t) values pointed to by @a xvalues, the @a target being
   /// set with the Y values (the number of elements is taken from
   /// that), with a number of computation @a steps.
+  /// 35 seems to be a good choice for non-oscillatory transforms
   void reverseLaplace(const double * parameters,
                       const double * xvalues,
                       gsl_vector * target,
-                      int steps = 100);
+                      int steps = 35);
 
 private:
   /// @name Disabled functions

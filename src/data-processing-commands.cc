@@ -3066,7 +3066,8 @@ static void reverseLaplaceCommand(const QString &,
 
   ComplexExpression expression("s", formula);
 
-  int steps = 100;
+  int steps = 35;
+  updateFromOptions(opts, "steps", steps);
   Vector ny(ds->nbRows(), 0);
   double val = 0;
   expression.reverseLaplace(&val, ds->x().data(),
@@ -3082,10 +3083,16 @@ rLArgs(QList<Argument *>()
                              "(Laplace variable is s)")
        );
 
+static ArgumentList 
+rLOpts(QList<Argument *>()
+       << new IntegerArgument("steps", "steps",
+                              "number integration steps")
+       );
+
 static Command 
 rlap("reverse-laplace", // command name
      effector(reverseLaplaceCommand), // action
      "math",  // group name
      &rLArgs, // arguments
-     NULL,
+     &rLOpts, // options
      "Reverse Laplace");

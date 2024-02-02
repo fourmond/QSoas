@@ -1,0 +1,10 @@
+# This file, like the laplace-precision subfile, is not a test suite, but
+# a guideline for me to evaluate the precision of reverse Laplace transforms
+
+@ laplace-precision.cmds 1/(1+s) exp(-x)
+@ laplace-precision.cmds 1/s**2 x
+@ laplace-precision.cmds 1/s**0.5 1/sqrt(PI*x)
+
+# OK, the oscillatory transforms are not great in terms of precision...
+@ laplace-precision.cmds 1/(1+s**2) sin(x)
+@ laplace-precision.cmds 1/(16+s**2) 0.25*sin(4*x)

@@ -1,0 +1,24 @@
+# OK, this file is not really a test suite file, but it is helpful in general
+# It takes two arguments:
+# * ${1}: a Laplace formula
+# * ${2}: the reverse transform
+# It runs the reverse Laplace for all the steps and assess the precision
+
+# This small subscript checks a Laplace transform against the
+# theoretical formula
+# ${1}: the number of steps
+# ${2}: Laplace formula
+# ${3}: the inverse
+## INLINE: test-laplace-steps
+generate-dataset 0 10
+reverse-laplace ${2} /steps=${1}
+apply-formula y-=${3}
+strip-if !y.finite?
+eval ${1} $stats.y_stddev /accumulate=*
+## INLINE END
+
+run-for-each /range-type=lin /arg2="${1}" /arg3="${2}" inline:test-laplace-steps 8..100:93
+pop
+apply-formula y=log10(y)
+a "${1}"
+flag /flags=precision

@@ -1,34 +1,23 @@
 # Tests about reverse Laplace transforms
 
-# exp(-t)
+# This small subscript checks a Laplace transform against the
+# theoretical formula
+# ${1}: Laplace formula
+# ${2}: the inverse
+# ${3}: the precision
+# ${4}: the number of steps (default: 35)
+## INLINE: test-laplace
 generate-dataset 0 10
-reverse-laplace 1/(1+s)
-apply-formula y-=exp(-x)
-assert $stats.y_stddev 1e-5
+reverse-laplace ${1} /steps=${4:-35}
+apply-formula y2=${2} /extra-columns=1
+apply-formula y-=y2
+strip-if !y2.finite?
+assert $stats.y_stddev ${3}
+## INLINE END
 
-# sin(t)
-# Surprised it works at all to be honest, I thought the singularities
-# would cause trouble
-#
-# That said, I strongly suspect larger oscillatory components are not
-# going to work
-generate-dataset 0 10
-reverse-laplace 1/(1+s**2)
-apply-formula y-=sin(x)
-assert $stats.y_stddev 3e-6
-
-
-# t
-generate-dataset 0 10 0
-reverse-laplace 1/s**2
-apply-formula y-=x
-assert $stats.y_stddev 3e-6
-
-# 1/sqrt(PI*t)
-generate-dataset 0 10 0
-strip-if x<=0
-reverse-laplace 1/s**0.5
-apply-formula y-=1/(PI*x)**0.5
-assert $stats.y_stddev 5e-5
+@ inline:test-laplace 1/(1+s) exp(-x) 1e-11
+@ inline:test-laplace 1/(1+s**2) sin(x) 1e-8
+@ inline:test-laplace 1/s**2 x 1e-11
+@ inline:test-laplace 1/s**0.5 1/sqrt(PI*x) 1e-11
 
 

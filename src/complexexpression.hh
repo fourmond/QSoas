@@ -22,28 +22,51 @@
 #ifndef __COMPLEXEXPRESSION_HH
 #define __COMPLEXEXPRESSION_HH
 
-#include <expression.hh>
+#include <gcguard.hh>
 
-/// This subclass of Expression handles the case of a complex function
-/// of a single variable with optional parameters.
+/// This class is a small copy of Expression that handles functions of
+/// a complex variable with (optional) parameters.
 ///
-/// The main differences with Expression:
-/// @li the complex variable is always the first one
-/// @li it corresponds to two doubles
-class ComplexExpression : public Expression {
+/// All the arguments but the complex one are real
+class ComplexExpression {
+
+  /// The expression being used
+  QString expression;
 
   /// The complex variable
   QString variable;
 
-  /// Effective minimal variables, which always includes the complex
-  /// variable as first even if it's not actually used
+  /// The minimal variables, including the complex one even if it isn't used
   QStringList effectiveMinVars;
 
-  /// Builds the args array
-  void buildArgs();
+  /// The real list of variables
+  QStringList variables;
+
+  /// The underlying Ruby Proc object
+  mrb_value code;
+
+  /// The list of doubles used as cache for argument passing.
+  mrb_value * args;
+
+  /// The current size of args
+  int argsSize;
+
+  /// A guard against GC
+  GCGuard guard;
+
+  /// The index of the variables used to build the code
+  int * indexInVariables;
 
   /// Builds the code, using the current variable list.
   void buildCode();
+
+  /// Frees the code
+  void freeCode();
+
+
+  
+  /// Builds the args array
+  void buildArgs();
 
   /// Evaluate as a Ruby VALUE
   mrb_value rubyEvaluation(const double * values) const;
@@ -57,6 +80,8 @@ public:
   /// Let's disable this for now.
   ComplexExpression(const ComplexExpression & o);
 
+  ~ComplexExpression();
+  
   /// @name Evalution functions
   ///
   /// All the functions in here use the Ruby global lock excepted
@@ -79,6 +104,12 @@ public:
   /// Whatever happens, the complex variable is always the first
   void setVariables(const QStringList & vars);
 
+  /// The current list of variables
+  QStringList currentVariables() const;
+
+  /// Returns the formula of the expression.
+  QString formula() const;
+
 
   /// Performs the reverse Laplace transform of the expression, using
   /// the extra parameters (after the main variable) in @a parameters
@@ -90,21 +121,6 @@ public:
                       const double * xvalues,
                       gsl_vector * target,
                       int steps = 35);
-
-private:
-  /// @name Disabled functions
-  ///
-  /// These functions are disabled from Expression
-  /// @{
-  double evaluateNoLock(const double * variables) const;
-  bool evaluateAsBoolean(const double * variables) const;
-  Vector evaluateAsArray(const double * variables) const;
-  Vector evaluateAsArrayNoLock(const double * variables) const;
-  int evaluateIntoArray(const double * variables, double * target, 
-                        int size) const;
-  int evaluateIntoArrayNoLock(const double * variables, double * target, 
-                        int size) const;
-  /// @}
 
 };
 

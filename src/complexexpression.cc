@@ -19,12 +19,36 @@
 
 #include <headers.hh>
 #include <complexexpression.hh>
+
+#include <expression.hh>
 #include <exceptions.hh>
 
 #include <mruby.hh>
 
 #include <utils.hh>
 
+void ComplexExpression::buildCode()
+{
+  if(! mrb_nil_p(code))
+    freeCode();
+
+  if(variables.isEmpty() && effectiveMinVars.isEmpty()) {
+    effectiveMinVars = Expression::variablesNeeded(expression);
+    effectiveMinVars.insert(0, variable);
+    Utils::makeUnique(effectiveMinVars);
+    variables = effectiveMinVars;
+  }
+
+  MRuby * mr = MRuby::ruby();
+  code = mr->makeBlock(expression.toLocal8Bit(), effectiveMinVars);
+  guard.protect(code);
+  buildArgs();                  // Build the arguments cache
+}
+
+QString ComplexExpression::formula() const
+{
+  return expression;
+}
 
 void ComplexExpression::buildArgs()
 {
@@ -44,10 +68,11 @@ void ComplexExpression::buildArgs()
   }
 
   // Update the cache
-  //
-  // NOTE that this DOES NOT reflect the complex variable
   delete[] indexInVariables;
   indexInVariables = new int[argsSize];
+  // QTextStream o(stdout);
+  // o << "Variables for expression: " << expression
+  //   <<"\n -> final variables: " << variables.join(", ") << endl;
   for(int i = 0; i < argsSize; i++) {
     indexInVariables[i] = -1;
     for(int j = 0; j < variables.size(); j++) {
@@ -56,40 +81,47 @@ void ComplexExpression::buildArgs()
         break;
       }
     }
+    // o << " * " << effectiveMinVars[i] << " -> " << indexInVariables[i] << endl;
     if(indexInVariables[i] < 0)
       throw InternalError("One of the natural variables, '%1' was not found, shouldn't happen. Variables: %2").arg(effectiveMinVars[i]).arg(variables.join(","));
     
   }
 }
 
-void ComplexExpression::buildCode()
+void ComplexExpression::freeCode()
 {
-  Expression::buildCode();
-  buildArgs();
+  MRuby * mr = MRuby::ruby();
+  delete[] args;
+  args = NULL;
+  delete[] indexInVariables;
+  indexInVariables = NULL;
+  code = mrb_nil_value();
+  // mr->startGC();
 }
 
 
-ComplexExpression::ComplexExpression(const QString & _variable,
+ComplexExpression::ComplexExpression(const QString & var,
                                      const QString & expr) :
-  Expression(expr), variable(_variable)
+  expression(expr), variable(var),
+  args(NULL),
+  indexInVariables(NULL)
 {
-  effectiveMinVars = minimalVariables;
-  effectiveMinVars.insert(0, variable);
-  Utils::makeUnique(effectiveMinVars);
-  Expression::setVariables(effectiveMinVars);
-  buildArgs();
+  buildCode();
 }
 
 ComplexExpression::ComplexExpression(const ComplexExpression & o) :
-  Expression(o),
-  variable(o.variable)
+  expression(o.expression),
+  variable(o.variable),
+  args(NULL),
+  indexInVariables(NULL)
 {
-  effectiveMinVars = minimalVariables;
-  effectiveMinVars.insert(0, variable);
   setVariables(o.currentVariables());
-  buildArgs();
 }
 
+ComplexExpression::~ComplexExpression()
+{
+  freeCode();
+}
 
 
 void ComplexExpression::setVariables(const QStringList & vars)
@@ -100,22 +132,32 @@ void ComplexExpression::setVariables(const QStringList & vars)
   buildCode();
 }
 
+QStringList ComplexExpression::currentVariables() const
+{
+  return variables;
+}
 
 mrb_value ComplexExpression::rubyEvaluation(const double * values) const
 {
-  // Should this be cached at the Complexexpression level ?
   MRuby * mr = MRuby::ruby();
+  // QTextStream o(stdout);
   for(int i = 0; i < argsSize; i++) {
     if(i == 0) {
       gsl_complex * c = mr->complexInternal(args[i]);
       GSL_SET_COMPLEX(c, values[0], values[1]);
+      // o << " * s = " << values[0] << "\tI+\t" << values[1] << endl;
     }
-    else
+    else {
       // +1 since the first variable takes two spots
-      SET_FLOAT_VALUE(mr->mrb, args[i], values[indexInVariables[i] + 1]);
+      double val = values[indexInVariables[i] + 1];
+      SET_FLOAT_VALUE(mr->mrb, args[i], val);
+      // o << " * #" << i << ": " << val << endl;
+    }
+    // mrb_p(mr->mrb, args[i]);
   }
 
-  mrb_value rv = mr->funcall(code, callSym(), argsSize, args);
+  mrb_value rv = mr->funcall(code, Expression::callSym(), argsSize, args);
+  // mrb_p(mr->mrb, rv);
   return rv;
 }
 
@@ -147,6 +189,12 @@ void ComplexExpression::reverseLaplace(const double * parameters,
   ///
   /// So that:
   /// $$z'(u_k) \times \frac{h}{2\pi i} = \mu h (i u +1)/\pi$$
+
+  // QTextStream o(stdout);
+  // o << "Reverse transform of " << expression << endl;
+  // for(int i = 1; i < variables.size(); i++)
+  //   o << " * " << variables[i] << " -> " << parameters[i-1] << endl;
+      
 
   int nbt = target->size;
   int cur_k = 0;
@@ -200,11 +248,14 @@ void ComplexExpression::reverseLaplace(const double * parameters,
       ex = gsl_complex_exp(ex);
       ex = gsl_complex_mul(ex, fn);
       ex = gsl_complex_mul(ex, zp);
+      //      o << "  " <<
       if(cur_k > 0)
         val += 2 * GSL_REAL(ex);
       else
         val = GSL_REAL(ex);
+      // o << "  cval: " << val << endl;
     }
+    // o << " -> t = " << t << " -> " << val << endl;
     gsl_vector_set(target, i, val);
   }
 

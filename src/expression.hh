@@ -29,8 +29,6 @@
 ///
 /// @todo Derivatives !
 class Expression {
-protected:
-
   /// The expression
   QString expression;
 
@@ -66,11 +64,6 @@ protected:
   int singleVariableIndex;
 
 
-  /// The mrb_sym of the function call !
-  static mrb_sym callSymCache;
-
-  /// And the way to access it
-  static mrb_sym callSym();
 
   /// "frees" the code associated with the expression.
   void freeCode();
@@ -85,7 +78,14 @@ protected:
   /// Evaluate as a Ruby VALUE
   mrb_value rubyEvaluation(const double * values) const;
 
+  /// The mrb_sym of the function call !
+  static mrb_sym callSymCache;
+
+
 public:
+
+  /// And the way to access it
+  static mrb_sym callSym();
 
   /// Creates an expression object (and compile it)
   explicit Expression(const QString & expression);

@@ -55,6 +55,10 @@ class ReverseLaplaceFit : public PerDatasetFit {
 
 
 protected:
+
+  /// The formula, in case we are using a predefined formula
+  QString formula;
+  
   virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const override {
     return new Storage;
   };
@@ -68,11 +72,19 @@ protected:
 protected:
 
   virtual QString optionsString(FitData * data) const override {
-    return "formula: " + storage<Storage>(data)->expression->formula();
+    if(formula.isEmpty())
+      return "formula: " + storage<Storage>(data)->expression->formula();
+    else
+      return "formula: " + formula;
   };
 
   virtual void processOptions(const CommandOptions &opts,
                               FitData * data) const override {
+    if(! formula.isEmpty()) {
+      Storage * s = storage<Storage>(data);
+      delete s->expression;
+      s->expression = new ComplexExpression("s", formula);
+    }
   };
 
   void prepareFit(const QString & formula,
@@ -136,14 +148,34 @@ public:
   };
 
   virtual ArgumentList fitArguments() const override {
-    return
-      ArgumentList(QList<Argument *>()
-                   << new StringArgument("formula",
-                                         "Formula",
-                                         "formula of the Laplace transform "
-                                         "(the variable is s)"));
+    if(formula.isEmpty())
+      return
+        ArgumentList(QList<Argument *>()
+                     << new StringArgument("formula",
+                                           "Formula",
+                                           "formula of the Laplace transform "
+                                           "(the variable is s)"));
+    else
+      return ArgumentList();
   };
 
+  
+
+  QList<ParameterDefinition> parameters(FitData * data) const override {
+    Storage * s = storage<Storage>(data);
+    QStringList variables = s->expression->currentVariables();
+    QString first = variables.takeFirst();
+    if(first != "s")
+      throw InternalError("The first variable should be 's' but is '%1'").
+        arg(first);
+    QList<ParameterDefinition> defs;
+    for(const QString & v : variables)
+      defs << ParameterDefinition(v);
+    return defs;
+  };
+
+  ////////////////////
+  // constructors
 
   /// This alternative constructor is to help create named fits based
   /// on formulas.
@@ -159,20 +191,54 @@ public:
                  );
   };
 
-
-  QList<ParameterDefinition> parameters(FitData * data) const override {
-    Storage * s = storage<Storage>(data);
-    QStringList variables = s->expression->currentVariables();
-    QString first = variables.takeFirst();
-    if(first != "s")
-      throw InternalError("The first variable should be 's' but is '%1'").
-        arg(first);
-    QList<ParameterDefinition> defs;
-    for(const QString & v : variables)
-      defs << ParameterDefinition(v);
-    return defs;
-  };
+  ReverseLaplaceFit(const QString & name,
+                    const QString & frml) : 
+    PerDatasetFit(name,
+                  "Reverse Laplace transform", "", 1, -1, false),
+    formula(frml)
+  {
+    makeCommands();
+  }
 
 };
 
 static ReverseLaplaceFit rf;
+
+//////////////////////////////////////////////////////////////////////
+
+static ArgumentList 
+dRLArgs(QList<Argument *>() 
+         << new StringArgument("formula", 
+                               "Formula",
+                               "The formula in Laplace space (variable: s)")
+         << new StringArgument("name", 
+                               "Name",
+                               "Name of the newly created fit")
+         );
+
+
+static ArgumentList 
+dRLOpts(QList<Argument *>() 
+         << new BoolArgument("redefine", 
+                             "Redefine",
+                             "If the fit already exists, redefines it")
+         );
+
+static void defineRLFitCommand(const QString &, QString formula, 
+                               QString name, const CommandOptions & opts)
+{
+  bool overwrite = false;
+  updateFromOptions(opts, "redefine", overwrite);
+  Fit::safelyRedefineFit(name, overwrite);
+
+  new ReverseLaplaceFit(name, formula);
+}
+
+
+static Command 
+dlwf("define-reverse-laplace-fit", // command name
+     effector(defineRLFitCommand), // action
+     "fits",                       // group name
+     &dRLArgs,                     // arguments
+     &dRLOpts,                     // options
+     "Define a reverse Laplace fit based on a formula");

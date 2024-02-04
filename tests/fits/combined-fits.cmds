@@ -19,3 +19,18 @@ sim-extra parameters/combined-extra.params 0
 apply-formula y-=2*(2*x+3)*(x+3)
 assert '$stats["y_norm"]' 1e-13
 
+
+# Looking at the possibilities with merging
+
+custom-fit square c*x**2+d
+combine-fits ln-sq y1+y2 line square /duplicates=fail
+generate-dataset 0 10
+sim-ln-sq parameters/combined-ln-sq.params 0
+apply-formula y-=2*x+3+1*x**2+3
+assert '$stats["y_norm"]' 1e-13
+
+sim-ln-sq parameters/combined-ln-sq.params 0 /override="a=0"
+apply-formula y-=3+1*x**2+3
+assert '$stats["y_norm"]' 1e-13
+
+

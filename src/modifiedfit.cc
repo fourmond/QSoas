@@ -17,7 +17,6 @@
 */
 
 #include <headers.hh>
-#include <combinedfit.hh>
 
 #include <fit.hh>
 #include <expression.hh>

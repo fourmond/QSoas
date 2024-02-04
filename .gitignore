@@ -34,7 +34,15 @@ qrc_*.cpp
 *.qch
 *.qhc
 *tmp
+tmp*
 
 # soas logs:
 soas.log*
 out.dat
+
+# Other temporary files
+*old
+qsoas.*ds
+
+# Zip files are not tracked
+*.zip

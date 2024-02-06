@@ -50,10 +50,14 @@ margin=1.8cm]{geometry}
 
 
 
-%% A series of useful macros:
+%% A series of useful macros.
+%%
+%% These should be shared
 \newcommand{\dd}{\mathrm{d}}
+\newcommand{\ddt}[1]{\frac{\dd #1}{\dd t}}
 \newcommand{\pa}[1]{\left(#1\right)}
 \newcommand{\pab}[1]{\left[#1\right]}
+\newcommand{\QSoas}{\texttt{QSoas}}
 
 
 \begin{document}
@@ -116,6 +120,73 @@ Then,
 \end{align}
 
 
+\section{Laplace transforms}
+
+Let's consider the Laplace transform, defined by:
+To solve these directly, it is useful to remember that the Laplace
+transform of a derivative is simply given by:
+%
+\begin{equation}
+  \tilde{f}(s) = \int_{t = 0}^{\infty} f(t) \exp \pa{-st} \dd t
+  \label{eq:laplace:def}
+\end{equation}
+%
+What is implemented in \QSoas{} is the reverse Laplace transform,
+i.e. taking a function in the Laplace domain and turning back into the
+time domain.
+
+The Laplace transforms has many properties.
+The Laplace transform of a derivative is given by:
+%
+\begin{equation}
+  \int_{t = 0}^{\infty} \ddt{f}(t) \exp \pa{-st} \dd t
+  = [f(t)\exp\pa{-st}]_{t = 0}^{t = \infty}
+  + s \int_{t = 0}^{\infty} f(t) \exp \pa{-st}\dd t
+  = s\tilde{f} - f(t = 0)
+  \label{eq:laplace:ddt}
+\end{equation}
+
+
+
+\subsection{Simple kinetic models}
+
+As a test for the reverse Laplace transform, let's consider the series
+of irreversible reactions:
+%
+\begin{equation}
+  \ce{C_{i} ->[k_i] C_{i+1}}
+\end{equation}
+%
+in which the initial condition is $C_0 = 1$ and $C_{i>0} = 0$. The
+differential equations governing the concentrations are:
+%
+\begin{align}
+  \ddt{C_0} &= -k_0 C_0 &
+  \ddt{C_i} &= k_{i-1} C_{i-1} - k_{i} C_{i} 
+\end{align}
+%
+Taking the Laplace transform of the above equations (with the initial
+conditions) and using equation~\eqref{eq:laplace:ddt} yields:
+%
+\begin{align}
+  s \tilde{C}_0 - 1 &= -k_0 \tilde{C}_0 &
+  s \tilde{C}_i = k_{i-1} \tilde{C}_{i-1} - k_{i} \tilde{C}_{i} 
+\end{align}
+%
+In other words, the $\tilde{C}_i$ are defined by the following
+recurrence:
+%
+\begin{align}
+  \tilde{C}_0 &= \frac{1}{k_0 + s} &
+  \tilde{C}_i &= \frac{k_{i-1} \tilde{C}_{i-1}}{k_i + s}
+\end{align}
+%
+Thus:
+\begin{align}
+  \tilde{C}_0 &= \frac{1}{k_0 + s} & 
+  \tilde{C}_1 &= \frac{k_{0}}{\pa{k_0 + s}\pa{k_1 + s}} &
+  \tilde{C}_2 &= \frac{k_{0}\,k_1}{\pa{k_0 + s}\pa{k_1 + s}\pa{k_2 + s}}
+\end{align}
 
 
 \end{document}

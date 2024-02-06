@@ -24,3 +24,4 @@
 
 # Reverse Laplace transforms
 @ laplace.cmds
+@ irreversible-steps.cmds

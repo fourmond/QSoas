@@ -1,0 +1,19 @@
+generate-dataset 0 20
+eval $k0=1;$k1=2;$k2=3
+
+sim-kinetic-system irreversible-steps.qsys irreversible-steps.params 0
+reverse-laplace 1/(s+$k0)
+S 1 0
+assert $stats.y_norm 1.5e-11
+
+sim-kinetic-system irreversible-steps.qsys irreversible-steps.params 0 /override=y_C0=0;y_C1=1
+reverse-laplace $k0/((s+$k0)*(s+$k1))
+S 1 0
+assert $stats.y_norm 3e-10
+
+sim-kinetic-system irreversible-steps.qsys irreversible-steps.params 0 /override=y_C0=0;y_C2=1
+reverse-laplace $k0*$k1/((s+$k0)*(s+$k1)*(s+$k2))
+S 1 0
+assert $stats.y_norm 2e-9
+
+

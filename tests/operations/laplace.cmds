@@ -12,7 +12,7 @@ reverse-laplace ${1} /steps=${4:-35}
 apply-formula y2=${2} /extra-columns=1
 apply-formula y-=y2
 strip-if !y2.finite?
-assert $stats.y_stddev ${3}
+assert $stats.y_0dev ${3}
 ## INLINE END
 
 @ inline:test-laplace 1/(1+s) exp(-x) 1e-11

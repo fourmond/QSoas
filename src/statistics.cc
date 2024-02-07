@@ -236,7 +236,8 @@ static MultiLambdaStat avg(QStringList()
                            << "sum"
                            << "average"
                            << "var"
-                           << "stddev", false, false,
+                           << "stddev"
+                           << "0dev", false, false,
                            [](const DataSet * ds, int c) -> QList<QVariant>
                            {
                              QList<QVariant> rv;
@@ -245,9 +246,10 @@ static MultiLambdaStat avg(QStringList()
                              rv << s
                                 << a
                                 << v
-                                << sqrt(v);
+                                << sqrt(v)
+                                << sqrt(v + a*a);
                              return rv;
-                           }, "the sum, the average, the variance and the standard deviation of the values of the column.");
+                           }, "the sum, the average, the variance, the standard deviation of the values of the column, together with the square root of the average of the squares.");
 
 
 static MultiLambdaStat global(QStringList()
@@ -317,7 +319,7 @@ static SingleLambdaStat nrm("norm", false, false,
                             [](const DataSet * ds, int c) -> QVariant
                             {
                               return ds->column(c).norm();
-                            }, "the norm of the column, that is $$\\sqrt{\\sum {x_i}^2}$$.");
+                            }, "the norm of the column, that is $$\\sqrt{\\sum {x_i}^2}$$ (see also 0dev).");
 
 
 static SingleLambdaStat inte("int", false, true,

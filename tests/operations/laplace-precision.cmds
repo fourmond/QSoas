@@ -14,7 +14,7 @@ generate-dataset 0 10
 reverse-laplace ${2} /steps=${1}
 apply-formula y-=${3}
 strip-if !y.finite?
-eval ${1} $stats.y_stddev /accumulate=*
+eval ${1} $stats.y_0dev /accumulate=*
 ## INLINE END
 
 run-for-each /range-type=lin /arg2="${1}" /arg3="${2}" inline:test-laplace-steps 8..100:93

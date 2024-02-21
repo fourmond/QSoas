@@ -202,7 +202,8 @@ void Expression::setVariables(const QStringList & vars)
 }
 
 Expression::Expression(const Expression & c) :
-  expression(c.expression), args(NULL),
+  expression(c.expression), code(mrb_nil_value()),
+  args(NULL),
   indexInVariables(NULL),
   minimalVariables(c.minimalVariables), variables(c.variables)
 {

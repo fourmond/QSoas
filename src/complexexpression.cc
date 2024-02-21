@@ -103,6 +103,7 @@ void ComplexExpression::freeCode()
 ComplexExpression::ComplexExpression(const QString & var,
                                      const QString & expr) :
   expression(expr), variable(var),
+  code(mrb_nil_value()),
   args(NULL),
   indexInVariables(NULL)
 {
@@ -112,6 +113,7 @@ ComplexExpression::ComplexExpression(const QString & var,
 ComplexExpression::ComplexExpression(const ComplexExpression & o) :
   expression(o.expression),
   variable(o.variable),
+  code(mrb_nil_value()),
   args(NULL),
   indexInVariables(NULL)
 {

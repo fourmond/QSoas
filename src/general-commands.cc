@@ -637,6 +637,9 @@ noop("noop", // command name
 
 static ArgumentList 
 argList(QList<Argument *>() 
+        << new FileArgument("arg1", 
+                            "First argument",
+                            "First argument to the script")
         << new FileArgument("arg2", 
                             "Second argument",
                             "Second argument to the script")
@@ -712,9 +715,6 @@ rfdArgs(QList<Argument *>()
 static ArgumentList 
 rfdOpts(ArgumentList()
         << runOpts
-        << new FileArgument("arg1", 
-                            "First argument",
-                            "First argument to the script")
         << argList);
 
 static Command 
@@ -737,6 +737,9 @@ static void runForEachCommand(const QString &, QString script,
   bool addToHistory = false;
   updateFromOptions(opts, "add-to-history", addToHistory);
 
+  int target = 1;
+  updateFromOptions(opts, "target", target);
+
   bool silent = false;
   updateFromOptions(opts, "silent", silent);
   CommandWidget::ScriptErrorMode mode = CommandWidget::Abort;
@@ -744,17 +747,26 @@ static void runForEachCommand(const QString &, QString script,
   
   WDisableUpdates eff(& soas().view(), silent);
 
-  int nb = 1;
 
-  QStringList additionalArgs;
+  // Was never used ?
+  // int nb = 1;
 
-  for(int i = 2; i <= argList.size()+1; i++) {
+  QStringList arguments;
+
+  for(int i = 1; i <= argList.size()+1; i++) {
     QString on = QString("arg%1").arg(i);
     if(opts.contains(on))
-      additionalArgs << opts[on]->value<QString>();
-    else
-      break;
-  }  
+      arguments << opts[on]->value<QString>();
+    else {
+      if(target == i)
+        arguments << "";
+      else
+        break;
+    }
+  }
+  if(target > arguments.size() || target < 1)
+    throw RuntimeError("Invalid target: %1 -- please provide enough arguments").
+      arg(target);
 
   QStringList oa = args;
   QString type;
@@ -793,11 +805,12 @@ static void runForEachCommand(const QString &, QString script,
 
 
   while(args.size() > 0) {
-    QStringList a;
-    for(int i = 0; i < nb && args.size() > 0; i++)
-      a << args.takeFirst();
-    a << additionalArgs;
-    soas().prompt().runCommandFile(script, a, addToHistory, mode);
+    // QStringList a;
+    // for(int i = 0; i < nb && args.size() > 0; i++)
+    //   a << args.takeFirst();
+    // a << additionalArgs;
+    arguments[target-1] = args.takeFirst();
+    soas().prompt().runCommandFile(script, arguments, addToHistory, mode);
   }
 }
 
@@ -813,6 +826,9 @@ rfeArgs(QList<Argument *>()
 
 static ArgumentList 
 rfeOpts(ArgumentList()
+        << new IntegerArgument("target",
+                               "Target",
+                               "Argument number being changed")
         << argList
         << new ChoiceArgument(QStringList() << "lin" << "log",
                               "range-type",

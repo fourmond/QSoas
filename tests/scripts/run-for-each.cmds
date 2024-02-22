@@ -1,0 +1,20 @@
+## INLINE: tst-1
+eval $nb+=${1}+${2}*10
+## INLINE END
+
+eval $nb=0
+run-for-each /arg2=0 inline:tst-1 1 2 3 4
+assert $nb-10 0
+
+eval $nb=0
+run-for-each /arg2=1 inline:tst-1 1 2 3 4
+assert $nb-50 0
+
+
+eval $nb=0
+run-for-each /arg1=0 inline:tst-1 /target=2 1 2 3 4
+assert $nb-100 0
+
+eval $nb=0
+run-for-each /arg1=5 inline:tst-1 /target=2 1 2 3 4
+assert $nb-120 0

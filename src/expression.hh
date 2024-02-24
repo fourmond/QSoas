@@ -186,7 +186,9 @@ public:
   /// returns the current variables
   const QStringList & currentVariables() const;
 
-  /// Return the natural variables
+  /// Return the natural variables, i.e. the variables that are used
+  /// in the formula of the expression. More variables can be added by
+  /// using setVariables(but their value won't matter)
   const QStringList & naturalVariables() const;
 
   /// returns the local variablesvariables

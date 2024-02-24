@@ -137,12 +137,21 @@ bool KineticSystem::Reaction::isLinear() const
   if(abs(speciesStoechiometry[0]) != 1 || 
      abs(speciesStoechiometry[1]) != 1)
     return false;
-  
-  if(!forward->isAVariable())
-    return false;
+
+  // Now check the expressions
+  QStringList vars = forward->naturalVariables();
+  for(const QString & v : vars)
+    if(v.startsWith("c_"))
+      return false;
   if(! backward)
     return true;
-  return backward->isAVariable();
+
+  vars = backward->naturalVariables();
+  for(const QString & v : vars)
+    if(v.startsWith("c_"))
+      return false;
+  
+  return true;
 }
 
 

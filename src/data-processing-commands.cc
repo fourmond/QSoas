@@ -1450,6 +1450,7 @@ namespace __fft {
     ToggleBaseline,
     ToggleBandcut,
     TogglePowerSpectrum,
+    ToggleFreqLog,
     QuitPushingTransform,
     ChangeAlpha,
     Replace,
@@ -1464,15 +1465,18 @@ namespace __fft {
     addClick(Qt::RightButton, DecreaseCutoff, "decrease cutoff").
     alsoKey('-').
     addKey('c', EnterCutoff, "manually set cutoff").
+    alsoKey('C').
+    addKey('B', ToggleBandcut, "toggle the use of bandcut filters").
     addKey('d', ToggleDerivative, "toggle display of derivative").
     alsoKey('D').
     addKey('b', ToggleBaseline, "toggle display of baseline").
     addKey('a', ChangeAlpha, "change alpha").
     alsoKey('A').
-    addKey('T', QuitPushingTransform, "replace with transform").
-    addKey('B', ToggleBandcut, "toggle the use of bandcut filters").
     addKey('p', TogglePowerSpectrum, "display power spectrum").
-    alsoKey('P');
+    alsoKey('P').
+    addKey('T', QuitPushingTransform, "replace with transform").
+    addKey('l', ToggleFreqLog, "toggle the lin/log scale for frequencies");
+;
 
 
   /// @todo Add windowing function change, bandcut filters, highpass filter ?
@@ -1550,15 +1554,21 @@ namespace __fft {
 
 
   // **************************************************
-  // Setup of the "power" panel
+  // Setup of the "power spectrum" panel
+  bool freqLogScale = true;
 
+  Vector freqLog, freqLin;
+  freqLog = Vector(orig.frequencies() - 1,0);
+  freqLin = freqLog;
 
   spec1.pen = gs.dataSetPen(0);
   // We don't display the 0th frequency !
-  spec1.xvalues = Vector(orig.frequencies() - 1,0);
-  for(int i = 0; i < spec1.xvalues.size(); i++)
-    spec1.xvalues[i] = log10((i+1)*0.5/(spec1.xvalues.size() *
-                                        fabs(orig.deltaX)));
+  for(int i = 0; i < freqLog.size(); i++) {
+    freqLin[i] = (i+1)*0.5/(freqLog.size() *
+                         fabs(orig.deltaX));
+    freqLog[i] = log10(freqLin[i]);
+  }
+  spec1.xvalues = freqLog;
   spec1.yvalues = spec1.xvalues;
   spec1.countBB = true;
   spec1.histogram = true;
@@ -1601,7 +1611,21 @@ namespace __fft {
   // Bandcut handling
   bool bandCut = false;
   int band = 0;
-  
+
+  /// Converts the X values of the spectrum to 
+  auto freqToIndex =
+    [&orig, &spec1, &freqLogScale] (double x) -> double
+    {
+      // if(freqLogScale)
+      //   x = pow(10, x);
+      return x*2*fabs(orig.deltaX)*spec1.xvalues.size();
+    };
+
+  auto indexToFreq = 
+    [&orig, &spec1] (double idx, bool lin = false) -> double
+    {
+      return log10(idx /(2 * fabs(orig.deltaX) * spec1.xvalues.size()));
+    };
     
   dsDisplay->hidden = order > 0;
 
@@ -1633,12 +1657,14 @@ namespace __fft {
       if(loop.currentPanel() == &spectrum) {
         double x = loop.position(&spectrum).x();
         if(bandCut) {
-          Terminal::out << "X = " << x << "/" << orig.deltaX << endl;
-          band = (pow(10.0, x)*2*orig.deltaX*spec1.xvalues.size());
-          bandPos.x = log10(band /(2 * orig.deltaX * spec1.xvalues.size()));
+          // Terminal::out << "X = " << x << "/" << orig.deltaX << endl;
+          band = freqToIndex(x);
         }
-        else
-          cutoff = 0.5/(pow(10.0, x) * orig.deltaX);
+        else {
+          cutoff = spec1.xvalues.size()*1.0/(freqToIndex(x));
+        }
+        Terminal::out << "Picked: " << x << " -> index: "
+                      << freqToIndex(x) << "\tcutoff: " << cutoff << endl;
       }
       else {                                 // +/- decrease.
         cutoff++;
@@ -1704,6 +1730,10 @@ namespace __fft {
       needUpdate = true;
       needCompute = true;
       break;
+    case ToggleFreqLog:
+      freqLogScale = ! freqLogScale;
+      needUpdate = true;
+      break;
     case ChangeAlpha: {
       bool ok = false;
       QString na = loop.promptForString("new value of alpha (%):", 
@@ -1733,11 +1763,15 @@ namespace __fft {
         cutoff = ds->x().size()/2 - 2;
       if(cutoff < 2)
         cutoff = 2;
-      if(bandCut)
+      if(bandCut) {
+        bandPos.x = indexToFreq(band);
         Terminal::out << "Bandcut centered around frequency: " << bandPos.x << ", with a cutoff of: " << cutoff << endl;
-      else
+      }
+      else {
+        lim.x = indexToFreq(spec1.xvalues.size()*1.0/cutoff);
         Terminal::out << "Now using a cutoff of " << cutoff << " points ("
                       << cutoff * orig.deltaX << " in X values)" << endl;
+      }
       updateCutoff = false;
       needCompute = true;
     }
@@ -1751,7 +1785,6 @@ namespace __fft {
           spec1.yvalues[i] = 2*log10(orig.magnitude(i+1));
       }
       FFT trans = orig;
-      lim.x = log10(0.5/(cutoff*orig.deltaX));
       if(bandCut) {
         trans.applyBandCut(band, cutoff);
       }

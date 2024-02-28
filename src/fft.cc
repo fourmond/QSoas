@@ -298,7 +298,22 @@ void FFT::applyGaussianFilter(double cutoff)
   for(int i = 0; i < nb; i++) { 
     double freq = i/(nb*1.0);
     double xx = freq*freq;
-    double fact = exp(-1*xx*cutoff*cutoff/2.);
+    double fact = exp(-0.5*xx*cutoff*cutoff);
+    scaleFrequency(i, fact);
+  }
+}
+
+
+void FFT::applyBandCut(double band, double width)
+{
+  int nb = frequencies();
+  for(int i = 0; i < nb; i++) {
+    // Anything more than 1 in absolute 
+    double nrm = (i - band)/width;
+    nrm *= nrm;
+    double fact = 0;
+    if(nrm > 0)
+      fact = exp(-1/nrm);
     scaleFrequency(i, fact);
   }
 }

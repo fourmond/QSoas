@@ -164,6 +164,11 @@ public:
   /// from 0 to 1)
   void applyGaussianFilter(double cutoff);
 
+
+  /// Apply a relatively smooth bandcut filter centered around the
+  /// given frequency and with the given width.
+  void applyBandCut(double band, double width);
+
   /// @}
 
 };

@@ -1443,9 +1443,12 @@ namespace __fft {
 
   typedef enum {
     IncreaseSetCutoff,
+    IncreaseCutoff,
     DecreaseCutoff,
+    EnterCutoff,
     ToggleDerivative,
     ToggleBaseline,
+    ToggleBandcut,
     TogglePowerSpectrum,
     QuitPushingTransform,
     ChangeAlpha,
@@ -1456,14 +1459,18 @@ namespace __fft {
   static EventHandler fftHandler = EventHandler("filter-fft").
     addKey(Qt::Key_Escape, Abort, "abort").
     conventionalAccept(Replace, "replace with filtered data").
-    addClick(Qt::LeftButton, IncreaseSetCutoff, "increase/set cutoff").
+    addClick(Qt::LeftButton, IncreaseSetCutoff, "increase/set cutoff, pick band ceter").
+    addKey('+', IncreaseCutoff, "increase cutoff").
     addClick(Qt::RightButton, DecreaseCutoff, "decrease cutoff").
+    alsoKey('-').
+    addKey('c', EnterCutoff, "manually set cutoff").
     addKey('d', ToggleDerivative, "toggle display of derivative").
     alsoKey('D').
     addKey('b', ToggleBaseline, "toggle display of baseline").
     addKey('a', ChangeAlpha, "change alpha").
     alsoKey('A').
     addKey('T', QuitPushingTransform, "replace with transform").
+    addKey('B', ToggleBandcut, "toggle the use of bandcut filters").
     addKey('p', TogglePowerSpectrum, "display power spectrum").
     alsoKey('P');
 
@@ -1479,7 +1486,7 @@ namespace __fft {
   CurvePanel bottom;
   CurvePanel spectrum;
 
-  CurveItem * dsDisplay = view.mainPanel()->items().first();
+  CurveDataSet * dsDisplay = view.getCurrentDataSet();
 
   CEHideAll ha(view.mainPanel(), false);
 
@@ -1490,9 +1497,13 @@ namespace __fft {
   CurveData spec2;
   CurveVerticalLine lim;
 
+  // Position of the band 
+  CurveVerticalLine bandPos;
+
 
   double ap = 0.05;
   bool recomputeForward = true;
+
   FFT orig(ds->x(), ds->y());
 
   double dmin, dmax;
@@ -1546,7 +1557,8 @@ namespace __fft {
   // We don't display the 0th frequency !
   spec1.xvalues = Vector(orig.frequencies() - 1,0);
   for(int i = 0; i < spec1.xvalues.size(); i++)
-    spec1.xvalues[i] = log10((i+1)*0.5/(spec1.xvalues.size() * fabs(orig.deltaX)));
+    spec1.xvalues[i] = log10((i+1)*0.5/(spec1.xvalues.size() *
+                                        fabs(orig.deltaX)));
   spec1.yvalues = spec1.xvalues;
   spec1.countBB = true;
   spec1.histogram = true;
@@ -1570,15 +1582,27 @@ namespace __fft {
   spectrum.addItem(&lim);
 
 
+  bandPos.pen = gs.getPen(GraphicsSettings::PeaksPen);
+  spectrum.addItem(&bandPos);
+  bandPos.hidden = true;
 
 
-  /// Position of the segments
-  Vector x;
+
+
+  // State variables 
   bool needUpdate = false;
+  bool updateCutoff = false;
   bool showSpectrum = false;
   bool needCompute = true;
 
+
   int cutoff = 20;
+
+  // Bandcut handling
+  bool bandCut = false;
+  int band = 0;
+  
+    
   dsDisplay->hidden = order > 0;
 
 
@@ -1608,25 +1632,37 @@ namespace __fft {
     case IncreaseSetCutoff:
       if(loop.currentPanel() == &spectrum) {
         double x = loop.position(&spectrum).x();
-        cutoff = 0.5/(pow(10.0, x) * orig.deltaX);
+        if(bandCut) {
+          Terminal::out << "X = " << x << "/" << orig.deltaX << endl;
+          band = (pow(10.0, x)*2*orig.deltaX*spec1.xvalues.size());
+          bandPos.x = log10(band /(2 * orig.deltaX * spec1.xvalues.size()));
+        }
+        else
+          cutoff = 0.5/(pow(10.0, x) * orig.deltaX);
       }
       else {                                 // +/- decrease.
         cutoff++;
-        if(cutoff > ds->x().size()/2 - 2)
-          cutoff = ds->x().size()/2 - 2;
       }
-      Terminal::out << "Now using a cutoff of " << cutoff << " points ("
-                    << cutoff * orig.deltaX << " in X values)" << endl;
-      needCompute = true;
+      updateCutoff = true;
+      break;
+    case IncreaseCutoff:
+      cutoff++;
+      updateCutoff = true;
       break;
     case DecreaseCutoff:
       cutoff--;
-      if(cutoff < 2)
-        cutoff = 2;
-      Terminal::out << "Now using a cutoff of " << cutoff << " points ("
-                    << cutoff * orig.deltaX << " in X values)" << endl;
-      needCompute = true;
+      updateCutoff = true;
       break;
+    case EnterCutoff: {
+      QString str = loop.promptForString("Cutoff value:");
+      bool ok = false;
+      int val = str.toInt(&ok);
+      if(ok) {
+        cutoff = val;
+        updateCutoff = true;
+      }
+      break;
+    }
     case Abort:
       return;
     case QuitPushingTransform: {
@@ -1635,6 +1671,21 @@ namespace __fft {
     }
     case ToggleBaseline:
       baseline.hidden = ! baseline.hidden;
+      break;
+    case ToggleBandcut:
+      if(bandCut) {
+        bandCut = false;
+        lim.hidden = false;
+        bandPos.hidden = true;
+        Terminal::out << "Switching back to standard lowpass filter" << endl;
+      }
+      else {
+        bandCut = true;
+        lim.hidden = true;
+        bandPos.hidden = false;
+        Terminal::out << "Switching to bandcut filter" << endl;
+      }
+      needCompute = true;
       break;
     case ToggleDerivative:
       if(order > 0)
@@ -1677,6 +1728,19 @@ namespace __fft {
       else
         view.setPanel(0, &bottom);
     }
+    if(updateCutoff) {
+      if(cutoff > ds->x().size()/2 - 2)
+        cutoff = ds->x().size()/2 - 2;
+      if(cutoff < 2)
+        cutoff = 2;
+      if(bandCut)
+        Terminal::out << "Bandcut centered around frequency: " << bandPos.x << ", with a cutoff of: " << cutoff << endl;
+      else
+        Terminal::out << "Now using a cutoff of " << cutoff << " points ("
+                      << cutoff * orig.deltaX << " in X values)" << endl;
+      updateCutoff = false;
+      needCompute = true;
+    }
     if(needCompute) {
       if(recomputeForward) {
         orig.initialize(ds->x(), ds->y(), true, ap);
@@ -1688,7 +1752,11 @@ namespace __fft {
       }
       FFT trans = orig;
       lim.x = log10(0.5/(cutoff*orig.deltaX));
-      trans.applyGaussianFilter(cutoff);
+      if(bandCut) {
+        trans.applyBandCut(band, cutoff);
+      }
+      else
+        trans.applyGaussianFilter(cutoff);
 
       if(order > 0)             /// @todo and the second derivative ?
         trans.differentiate();

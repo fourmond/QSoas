@@ -1558,12 +1558,13 @@ namespace __fft {
   bool freqLogScale = true;
 
   Vector freqLog, freqLin;
-  freqLog = Vector(orig.frequencies() - 1,0);
+  int nbFreqs = orig.frequencies() - 1;
+  freqLog = Vector(nbFreqs,0);
   freqLin = freqLog;
 
   spec1.pen = gs.dataSetPen(0);
   // We don't display the 0th frequency !
-  for(int i = 0; i < freqLog.size(); i++) {
+  for(int i = 0; i < nbFreqs; i++) {
     freqLin[i] = (i+1)*0.5/(freqLog.size() *
                          fabs(orig.deltaX));
     freqLog[i] = log10(freqLin[i]);
@@ -1614,19 +1615,23 @@ namespace __fft {
 
   /// Converts the X values of the spectrum to 
   auto freqToIndex =
-    [&orig, &spec1, &freqLogScale] (double x) -> double
+    [&orig, &freqLogScale, &nbFreqs] (double x) -> double
     {
-      // if(freqLogScale)
-      //   x = pow(10, x);
-      return x*2*fabs(orig.deltaX)*spec1.xvalues.size();
+      if(freqLogScale)
+        x = pow(10, x);
+      return x*2*fabs(orig.deltaX)*nbFreqs;
     };
-
-  auto indexToFreq = 
-    [&orig, &spec1] (double idx, bool lin = false) -> double
+  
+  auto indexToFreq =
+    [&orig, &freqLogScale, &nbFreqs] (double idx, bool lin = false) -> double
     {
-      return log10(idx /(2 * fabs(orig.deltaX) * spec1.xvalues.size()));
+      double v = idx /(2 * fabs(orig.deltaX) * nbFreqs);
+      if(freqLogScale)
+        return log10(v);
+      else
+        return v;
     };
-    
+  
   dsDisplay->hidden = order > 0;
 
 
@@ -1732,7 +1737,10 @@ namespace __fft {
       break;
     case ToggleFreqLog:
       freqLogScale = ! freqLogScale;
-      needUpdate = true;
+      spec1.xvalues = freqLogScale ? freqLog : freqLin;
+      spec2.xvalues = spec1.xvalues;
+      spectrum.xLabel = freqLogScale ? "Frequency (log)": "Frequency";
+      spectrum.resetZoom();
       break;
     case ChangeAlpha: {
       bool ok = false;

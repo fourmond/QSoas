@@ -334,7 +334,7 @@ static void unwrapCommand(const QString &,
   
   const Vector & oldX = ds->x();
 
-  DataSet * nds;
+  DataSet * nds = NULL;
   if(reverse) {
     int cs = 0;                 // cur segment
     double sr = 1;
@@ -357,11 +357,12 @@ static void unwrapCommand(const QString &,
         double dx = oldX[i] - oldX[i-1];
         if(ds->segments.value(cs, -1) == i) {
           sign *= -1;
+          cs += 1;
         }
         ei += dx * sign *sr;
       }
       newX << ei;
-    }            
+    }
     nds = ds->derivedDataSet(ds->y(), "_rewrap.dat", newX);
   }
   else {
@@ -377,7 +378,8 @@ static void unwrapCommand(const QString &,
           segs.insert(i);
         }
         newX << newX.last() + fabs(dx);
-        olddx = dx;
+        if(dx != 0)
+          olddx = dx;
       }
       else
         newX << 0;

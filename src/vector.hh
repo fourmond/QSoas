@@ -133,6 +133,7 @@ public:
 
   /// Returns true if the sum of the variations of the vector exceed
   /// threshold times the min to max distance.
+  /// @sa DatasetOptions::isJaggy
   bool isJaggy(double threshold) const;
 
 

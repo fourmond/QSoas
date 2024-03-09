@@ -85,6 +85,7 @@ public:
 
   DatasetOptions();
 
+  /// Returns true if the dataset should be considered "jaggy"
   bool isJaggy(const DataSet * ds) const;
 
   /// Whether one should draw markers or not.

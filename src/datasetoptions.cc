@@ -91,11 +91,9 @@ bool DatasetOptions::isJaggy(const DataSet * ds) const
 {
   if(jagThreshold <= 0)
     return false;
-  double dx = ds->x().deltaSum()/(ds->x().max() - ds->x().min());
-  if(dx > jagThreshold)
+  if(ds->x().isJaggy(jagThreshold))
     return true;
-  dx = ds->y().deltaSum()/(ds->y().max() - ds->y().min());
-  if(dx > jagThreshold)
+  if(ds->y().isJaggy(jagThreshold))
     return true;
   return false;
 

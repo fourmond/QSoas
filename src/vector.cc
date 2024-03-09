@@ -744,6 +744,17 @@ double Vector::deltaSum() const
   return s;
 }
 
+
+bool Vector::isJaggy(double threshold) const
+{
+  if(threshold <= 0)
+    return false;
+  double dx = deltaSum()/(max() - min());
+  if(dx > threshold)
+    return true;
+  return false;
+}
+
 void Vector::applyFunction(const std::function<double (double)> & func)
 {
   int sz = size();

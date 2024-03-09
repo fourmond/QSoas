@@ -182,6 +182,8 @@ void CurveRectangle::setRect(const QRectF & r)
 
 //////////////////////////////////////////////////////////////////////
 
+#include <curvemarker.hh>
+
 QRectF CurveData::boundingRect() const
 {
   if(xvalues.size() == 0)
@@ -203,11 +205,20 @@ void CurveData::paint(QPainter * painter, const QRectF &,
   painter->save();
   painter->setPen(pen);
 
-  QPainterPath pp;
   PointIterator it(xvalues, yvalues, 
                    histogram ? PointIterator::Steps : PointIterator::Normal);
-  it.addToPath(pp, ctw);
-  painter->drawPath(pp);
+  if((!histogram) &&
+     (xvalues.isJaggy(100) || yvalues.isJaggy(100))
+     ) {
+    while(it.hasNext())
+      CurveMarker::paintMarker(painter, it.next(ctw),
+                               CurveMarker::Circle, 2.5);
+  }
+  else {
+    QPainterPath pp;
+    it.addToPath(pp, ctw);
+    painter->drawPath(pp);
+  }
   painter->restore();
 }
 

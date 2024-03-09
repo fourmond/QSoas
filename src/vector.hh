@@ -130,6 +130,12 @@ public:
   /// Returns the total distance (ie sum of absolute value of deltas).
   double deltaSum() const;
 
+
+  /// Returns true if the sum of the variations of the vector exceed
+  /// threshold times the min to max distance.
+  bool isJaggy(double threshold) const;
+
+
   /// Looks for the indice of the first point crossing the given
   /// value, starting from the given index and going in the direction
   /// given by di (only the sign matters). It returns the index of the

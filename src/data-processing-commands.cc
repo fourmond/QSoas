@@ -1990,9 +1990,16 @@ static void autoFilterFFTCommand(const QString &, const CommandOptions & opts)
   int derivatives = 0;
   bool transform = false;
 
+  bool bc = false;
+  double bcf = 0;
+
   updateFromOptions(opts, "cutoff", cutoff);
   updateFromOptions(opts, "derive", derivatives);
   updateFromOptions(opts, "transform", transform);
+  if(opts.contains("bandcut")) {
+    bc = true;
+    updateFromOptions(opts, "bandcut", bcf);
+  }
 
 
   DataSetList buffers(opts);
@@ -2018,7 +2025,10 @@ static void autoFilterFFTCommand(const QString &, const CommandOptions & opts)
       soas().pushDataSet(orig.transform(ds));
       return;
     }
-    orig.applyGaussianFilter(cutoff);
+    if(bc)
+      orig.applyBandCut(orig.frequencyIndex(bcf), cutoff);
+    else
+      orig.applyGaussianFilter(cutoff);
   
     for(int i = 0; i < derivatives; i++)
       orig.differentiate();
@@ -2045,6 +2055,9 @@ afftOps(QList<Argument *>()
         << new IntegerArgument("derive", 
                                "Derive",
                                "differentiate to the given order")
+        << new NumberArgument("bandcut", 
+                              "Bandcut",
+                              "if present, does a bandcut around that frequency")
       );
 
 

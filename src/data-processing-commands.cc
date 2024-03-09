@@ -1454,6 +1454,14 @@ namespace __fft {
     QuitPushingTransform,
     ChangeAlpha,
     Replace,
+    Alias1 = 100,
+    Alias2 = Alias1 + 1,
+    Alias3 = Alias1 + 2,
+    Alias4 = Alias1 + 3,
+    Alias5 = Alias1 + 4,
+    Alias6 = Alias1 + 5,
+    Alias7 = Alias1 + 6,
+    Alias8 = Alias1 + 7,
     Abort
   } FFTActions;
 
@@ -1475,8 +1483,17 @@ namespace __fft {
     addKey('p', TogglePowerSpectrum, "display power spectrum").
     alsoKey('P').
     addKey('T', QuitPushingTransform, "replace with transform").
-    addKey('l', ToggleFreqLog, "toggle the lin/log scale for frequencies");
-;
+    addKey('l', ToggleFreqLog, "toggle the lin/log scale for frequencies").
+    addKey('1', Alias1, "show 1st aliasing range").
+    addKey('2', Alias2, "show 2nd aliasing range").
+    addKey('3', Alias3, "show 3rd aliasing range").
+    addKey('4', Alias4, "show 4th aliasing range").
+    addKey('5', Alias5, "show 5th aliasing range").
+    addKey('6', Alias6, "show 6th aliasing range").
+    addKey('7', Alias7, "show 7th aliasing range").
+    addKey('8', Alias8, "show 8th aliasing range")
+    ;
+
 
 
   /// @todo Add windowing function change, bandcut filters, highpass filter ?
@@ -1557,7 +1574,7 @@ namespace __fft {
   // Setup of the "power spectrum" panel
   bool freqLogScale = true;
 
-  Vector freqLog, freqLin;
+  Vector freqLog, freqLin, freqAlias;
   int nbFreqs = orig.frequencies() - 1;
   freqLog = Vector(nbFreqs,0);
   freqLin = freqLog;
@@ -1569,6 +1586,8 @@ namespace __fft {
                          fabs(orig.deltaX));
     freqLog[i] = log10(freqLin[i]);
   }
+  // Just for aliasing
+  freqAlias = freqLin;
   spec1.xvalues = freqLog;
   spec1.yvalues = spec1.xvalues;
   spec1.countBB = true;
@@ -1619,7 +1638,7 @@ namespace __fft {
     {
       if(freqLogScale)
         x = pow(10, x);
-      return x*2*fabs(orig.deltaX)*nbFreqs;
+      return orig.frequencyIndex(x);
     };
   
   auto indexToFreq =
@@ -1653,7 +1672,8 @@ namespace __fft {
   loop.setHelpString("FFT filtering:\n"
                        + fftHandler.buildHelpString());
   do {
-    switch(fftHandler.nextAction(loop)) {
+    int action = fftHandler.nextAction(loop);
+    switch(action) {
     case Replace:
       soas().pushDataSet(ds->derivedDataSet(d.yvalues, "_filtered.dat"));
       return;
@@ -1739,9 +1759,39 @@ namespace __fft {
       freqLogScale = ! freqLogScale;
       spec1.xvalues = freqLogScale ? freqLog : freqLin;
       spec2.xvalues = spec1.xvalues;
+      spec1.histogram = freqLogScale;
+      spec2.histogram = freqLogScale;
       spectrum.xLabel = freqLogScale ? "Frequency (log)": "Frequency";
       spectrum.resetZoom();
       break;
+    case Alias1:
+    case Alias2:
+    case Alias3:
+    case Alias4:
+    case Alias5:
+    case Alias6:
+    case Alias7:
+    case Alias8: {
+      int idx = action - Alias1 + 1;
+      double mf = orig.maxFrequency();
+      if(idx % 2 == 0) {
+        for(int i = 0; i < nbFreqs; i++)
+          freqAlias[i] = freqLin[i] + idx * mf;
+      }
+      else {
+        for(int i = 0; i < nbFreqs; i++)
+          freqAlias[i] = (idx + 1)* mf - freqLin[i];
+      }
+      freqLogScale = false;
+      spec1.xvalues = freqAlias;
+      spec2.xvalues = spec1.xvalues;
+      spec1.histogram = false;
+      spec2.histogram = false;
+
+      spectrum.xLabel = "Frequency";
+      spectrum.resetZoom();
+      break;
+    }
     case ChangeAlpha: {
       bool ok = false;
       QString na = loop.promptForString("new value of alpha (%):", 

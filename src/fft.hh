@@ -133,6 +133,17 @@ public:
   /// Returns a newly-allocated dataset.
   DataSet * transform(const DataSet * model) const;
 
+  /// Returns the maximum frequency
+  double maxFrequency() const;
+
+  /// Returns the wrapped-around value of the frequency, taking into
+  /// account aliasing.
+  double wrappedFrequency(double value) const;
+
+  /// Returns the index of the given frequency, accounting for the max
+  /// frequency. Returned as double in case one wants sub-point
+  /// precision, but, really, that should be rounded.
+  double frequencyIndex(double freq) const;
 
   /// @}
 

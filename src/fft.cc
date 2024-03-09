@@ -317,3 +317,26 @@ void FFT::applyBandCut(double band, double width)
     scaleFrequency(i, fact);
   }
 }
+
+double FFT::maxFrequency() const
+{
+  int nb = frequencies();
+  return 0.5/fabs(deltaX);
+}
+
+double FFT::wrappedFrequency(double freq) const
+{
+  double mf = maxFrequency();
+  double res = std::fmod(freq, 2*mf);
+  if(res > mf)
+    res = 2*mf - res;
+  return res;
+}
+
+double FFT::frequencyIndex(double freq) const
+{
+  freq = wrappedFrequency(freq);
+  int nb = frequencies();
+  return freq * (2 * (nb - 1) * fabs(deltaX));
+}
+

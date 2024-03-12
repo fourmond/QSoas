@@ -103,6 +103,9 @@ public:
   /// Removes all the parameters whose names are not in the list
   void keepOnly(const QSet<QString> & parameters);
 
+  /// Removes all the given parameters
+  void remove(const QSet<QString> & parameters);
+
   /// Renames the given parameter, replacing all existing instances of
   /// the target.
   void renameParameter(const QString & oldName, const QString & newName);

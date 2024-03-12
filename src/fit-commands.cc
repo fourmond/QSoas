@@ -142,6 +142,11 @@ static void loadCommand(const QString & /*name*/, QString file,
   if(keepOnly.size() > 0)
     params.keepOnly(keepOnly.toSet());
 
+  QStringList excepted;
+  updateFromOptions(opts, "excepted", excepted);
+  if(excepted.size() > 0)
+    params.remove(excepted.toSet());
+
   
   QStringList renameParams;
   updateFromOptions(opts, "rename", renameParams);
@@ -238,6 +243,10 @@ ArgumentList lO(QList<Argument*>()
                                               "only",
                                               "Only parameters",
                                               "loads only the given parameters")
+                << new SeveralStringsArgument(QRegExp(","),
+                                              "excepted",
+                                              "Excepted parameters",
+                                              "loads all the parameters but the ones given here")
                 << (new SeveralStringsArgument("rename",
                                               "Rename",
                                                "rename parameters before setting"))->describe("A comma-separated list of old->new parameter rename specifications")

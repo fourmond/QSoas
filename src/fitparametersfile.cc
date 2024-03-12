@@ -178,6 +178,15 @@ void FitParametersFile::keepOnly(const QSet<QString> & keep)
   }
 }
 
+void FitParametersFile::remove(const QSet<QString> & remove)
+{
+  for(int i = 0; i < parameters.size(); i++) {
+    if(remove.contains(parameters[i].name))
+      parameters.takeAt(i--);
+  }
+}
+
+
 void FitParametersFile::renameParameter(const QString & oldName, const QString & newName)
 {
   for(int i = 0; i < parameters.size(); i++) {

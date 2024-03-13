@@ -163,26 +163,34 @@ FitDialog::~FitDialog()
   delete menuBar;
 }
 
-void FitDialog::message(const QString & str)
+void FitDialog::message(const QString & str, bool error)
 {
   if(progressReport) {
-    progressReport->setText(str);
+    QTextStream o(stdout);
+    o << "Got that: " << str << " -- " << error << endl;
+    progressText = str;
+    progressError = error;
+    QString s;
+    if(progressError)
+      s = "<b><font color='red'>Error: </font></b> ";
+    else
+      s = "<b>Status: </b> ";
+    s += progressText;
+    progressReport->setText(s);
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
   }
   QString s = str;
+  // Hmm. This isn't going to work on strings with HTML entities (&lt;)
   s.replace(QRegExp("<[^>]+>"),"");
   Terminal::out << s << endl;
 }
 
-void FitDialog::appendToMessage(const QString & str, bool format)
+void FitDialog::appendToMessage(const QString & str)
 {
   if(progressReport) {
-    QString txt = progressReport->text();
-    if(format)
-      txt = str.arg(txt);
-    else
-      txt += str;
-    message(txt);
+    QString txt = progressText;
+    txt += str;
+    message(txt, progressError);
   }
   else {
     QString s = str;
@@ -254,7 +262,7 @@ void FitDialog::setupFrame(bool expert)
   connect(nup, SIGNAL(nupChanged(int,int)), SLOT(nupChanged()));
 
 
-    // Add a terminal
+  // Add a terminal
   // THis seems to make macos crash, for reasons that escape me
   if(! soas().isHeadless()) {
     QTabWidget * tabs = new QTabWidget;
@@ -271,8 +279,20 @@ void FitDialog::setupFrame(bool expert)
   
 
   //////////////////////////////////////////////////////////////////////
-  // First line
+  // Progress report
   QHBoxLayout * hb = new QHBoxLayout;
+
+  progressReport = new QLabel(" ");
+  progressReport->setWordWrap(true);
+  progressReport->setTextFormat(Qt::RichText);
+  hb->addWidget(progressReport, 3);
+
+
+  layout->addLayout(hb);
+
+  //////////////////////////////////////////////////////////////////////
+  // First line
+  hb = new QHBoxLayout;
   QPushButton * bt =
     new QPushButton(Utils::standardIcon(QStyle::SP_ArrowLeft), "");
   nup->connect(bt, SIGNAL(clicked()), SLOT(previousPage()));
@@ -365,17 +385,32 @@ void FitDialog::setupFrame(bool expert)
   //////////////////////////////////////////////////////////////////////
   // Progress line (with fit engine choice)
 
+
+  // Prompt line, contains iterations too
+  // First, prompt:
   hb = new QHBoxLayout;
   
-  progressReport = new QLabel(" ");
-  progressReport->setWordWrap(true);
-  progressReport->setTextFormat(Qt::RichText);
-  hb->addWidget(progressReport, 1);
+  fitPrompt = new CommandWidget(CommandContext::fitContext());
+  hb->addWidget(fitPrompt, 2);
 
+  if(! expert)
+    Terminal::out << "Now always using expert mode for fits" << endl;
+  
   hb->addWidget(new QLabel("Max iterations:"));
   iterationLimitEditor = new QLineEdit();
   hb->addWidget(iterationLimitEditor);
 
+  layout->addLayout(hb);
+
+  // Then, the actions line
+
+  
+
+  hb = new QHBoxLayout;
+  residualsDisplay = new QLabel(" ");
+  hb->addWidget(residualsDisplay, 1);
+
+  // Fit engine selection
   hb->addWidget(new QLabel("Fit engine:"));
 
   fitEngineSelection = new QComboBox;
@@ -389,27 +424,9 @@ void FitDialog::setupFrame(bool expert)
             SLOT(engineSelected(int)));
   }
   hb->addWidget(fitEngineSelection);
-  layout->addLayout(hb);
 
-  // Bottom
-
-  // First, prompt:
-  if(expert) {
-    fitPrompt = new CommandWidget(CommandContext::fitContext());
-    layout->addWidget(fitPrompt);
-  }
-  else
-    fitPrompt = NULL;
-  
-
-
-  // Then, actions
 
   
-
-  hb = new QHBoxLayout;
-  residualsDisplay = new QLabel(" ");
-  hb->addWidget(residualsDisplay);
 
   {
     auto addMenu = [this](QMenu * menu) {
@@ -545,98 +562,7 @@ void FitDialog::setupFrame(bool expert)
   }
 
   
-  //////////////////////////////////////////////////
-  // // legacy code: action combo
-  // ac->addAction("Push all to stack", this, SLOT(pushSimulatedCurves()));
-  // ac->addAction("Push current to stack", this, SLOT(pushCurrentCurve()));
-  // ac->addAction("Push annotated datasets", this, SLOT(pushAnnotatedData()));
-  // ac->addAction("Save all", this, SLOT(saveSimulatedCurves()));
-  // ac->addAction("Push all residuals to stack", this, SLOT(pushResiduals()));
-
-  // if(parameters.perpendicularCoordinates.size() > 1)
-  //   ac->addAction("Show transposed data", this, SLOT(showTransposed()));
-
-
-  // if(parameters.hasSubFunctions()) {
-  //   ac->addAction("Toggle subfunctions display", this, 
-  //                 SLOT(toggleSubFunctions()));
-  //   ac->addAction("Push all subfunctions", this, 
-  //                 SLOT(pushSubFunctions()));
-  // }
-  // hb->addWidget(ac);
- 
-  // ac = new ActionCombo(tr("Parameters..."));
-  // ac->addAction("Edit", this, 
-  //               SLOT(editParameters()),
-  //               QKeySequence(tr("Ctrl+E")));
-  // ac->addAction("Spreadsheet", this, 
-  //               SLOT(parametersSpreadsheet()),
-  //               QKeySequence(tr("Ctrl+Shift+E")));
-  // ac->addAction("Load from file", this, 
-  //               SLOT(loadParameters()),
-  //               QKeySequence(tr("Ctrl+L")));
-  // ac->addAction("Load for this buffer only", this, 
-  //               SLOT(loadParametersForCurrent()),
-  //               QKeySequence(tr("Ctrl+Shift+L")));
-  // if(parameters.perpendicularCoordinates.size() > 1)
-  //   ac->addAction("Load using Z values", this, SLOT(loadUsingZValues()));
-  // ac->addAction("Save to file (for reusing later)", 
-  //               this, SLOT(saveParameters()),
-  //               QKeySequence(tr("Ctrl+S")));
-  // if(data->datasets.size() > 1)
-  //   ac->addAction("Show parameters", 
-  //                 this, SLOT(showParameters()),
-  //                 QKeySequence(tr("Ctrl+Shift+P")));
-  // ac->addAction("Export (for drawing/manipulating)", 
-  //               this, SLOT(exportParameters()),
-  //               QKeySequence(tr("Ctrl+X")));
-  // ac->addAction("Export with errors", 
-  //               this, SLOT(exportParametersWithErrors()),
-  //               QKeySequence(tr("Ctrl+Shift+X")));
-  // ac->addAction("Export to output file", this, 
-  //               SLOT(exportToOutFile()),
-  //               QKeySequence(tr("Ctrl+O")));
-  // ac->addAction("Export to output file (w/errors)", this, 
-  //               SLOT(exportToOutFileWithErrors()),
-  //               QKeySequence(tr("Ctrl+Shift+O")));
-  // ac->addAction("Push with errors", 
-  //               this, SLOT(pushParametersWithErrors()));
-  // ac->addAction("Reset this to initial guess", this, 
-  //               SLOT(resetThisToInitialGuess()),
-  //               QKeySequence(tr("Ctrl+T")));
-  // ac->addAction("Reset all to initial guess !", this, 
-  //               SLOT(resetAllToInitialGuess()));
-  // ac->addAction("Reset to backup", &parameters, 
-  //               SLOT(resetToBackup()),
-  //               QKeySequence(tr("Ctrl+Shift+R")));
-  // ac->addAction("Show covariance matrix", this, 
-  //               SLOT(showCovarianceMatrix()),
-  //               QKeySequence(tr("Ctrl+M")));
-  //////////////////////////////////////////////////  
-
- //  // ActionCombo * ac;
- // if(bufferWeightEditor) {
- //   hb->addWidget(ac);
-    
- //    ac = new ActionCombo(tr("Weights"));
- //    ac->addAction("Reset all weights to 1", this, 
- //                  SLOT(resetWeights()),
- //                  QKeySequence(tr("Ctrl+Shift+W")));
- //    ac->addAction("Give equal importance to all buffers", this, 
- //                  SLOT(equalWeightsPerBuffer()),
- //                  QKeySequence(tr("Ctrl+Shift+B")));
- //    // ac->addAction("Give equal importance to all points", this, 
- //    //               SLOT(equalWeightsPerPoint()));
- //  }
- // hb->addWidget(ac);
-
-
-  // ac = new ActionCombo(tr("Print..."));
-  // ac->addAction("Save all as PDF", this, SLOT(saveAllPDF()));
-
-
-  // hb->addWidget(ac);
-  hb->addStretch(1);
+  // hb->addStretch(1);
 
   bt = new QPushButton(tr("Update curves (Ctrl+U)"));
   connect(bt, SIGNAL(clicked()), SLOT(compute()));
@@ -949,7 +875,7 @@ void FitDialog::onFitEnd(int ending)
     internalCompute(true);
   }
   catch (const Exception & e) {
-    appendToMessage(QString("Error while computing: ") + e.message());
+    message(msg + " -- error while computing: " + e.message(), true);
   }
 }
 
@@ -1031,7 +957,7 @@ void FitDialog::saveParameters()
     parameters.saveParameters(save, true);
   }
   catch(RuntimeError & e) {
-    message(e.message());
+    message(e.message(), true);
   }
 }
 
@@ -1047,8 +973,8 @@ void FitDialog::loadParameters()
       loadParametersFile(load);
     }
     catch (const Exception & e) {
-      message(QString("Could not load parameters from '%1':").
-              arg(load) + e.message());
+      message(QString("Could not load parameters from '%1': ").
+              arg(load) + e.message(), true);
     }
   }
 }
@@ -1065,8 +991,8 @@ void FitDialog::loadUsingZValues()
       loadParametersFile(load, -1, true, true);
     }
     catch (const Exception & e) {
-      message(QString("Could not load parameters from '%1':").
-              arg(load) + e.message());
+      message(QString("Could not load parameters from '%1': ").
+              arg(load) + e.message(), true);
     }
   }
 }
@@ -1085,8 +1011,8 @@ void FitDialog::loadParametersForCurrent()
       loadParametersFile(load, currentIndex);
     }
     catch (const Exception & e) {
-      message(QString("Could not load parameters from '%1':").
-              arg(load) + e.message());
+      message(QString("Could not load parameters from '%1': ").
+              arg(load) + e.message(), true);
     }
   }
 }
@@ -1095,6 +1021,7 @@ void FitDialog::loadParametersFile(const QString & file, int targetDS,
                                    bool recompute, bool onlyVals)
 {
   QString msg;
+  bool error = false;
   try {
     message(QString("Loading from file %1...").arg(file));
     if(onlyVals)
@@ -1108,11 +1035,12 @@ void FitDialog::loadParametersFile(const QString & file, int targetDS,
       arg(file).arg(onlyVals ? "values " : "");
   }
   catch (const Exception & e) {
-    msg = QString("Could not load parameters from '%1':").
+    msg = QString("Could not load parameters from '%1': ").
       arg(file) + e.message();
+    error = true;
   }
   Terminal::out << msg << endl;
-  message(msg);
+  message(msg, error);
 }
 
 void FitDialog::setParameterValue(const QString & name, double value, int ds)

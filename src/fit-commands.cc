@@ -147,6 +147,16 @@ static void loadCommand(const QString & /*name*/, QString file,
   if(excepted.size() > 0)
     params.remove(excepted.toSet());
 
+  bool onlyFixed;
+  updateFromOptions(opts, "fixed-only", onlyFixed);
+  if(onlyFixed)
+    params.removeFree();
+
+  bool onlyFree;
+  updateFromOptions(opts, "free-only", onlyFree);
+  if(onlyFree)
+    params.removeFixed();
+
   
   QStringList renameParams;
   updateFromOptions(opts, "rename", renameParams);
@@ -249,7 +259,14 @@ ArgumentList lO(QList<Argument*>()
                                               "loads all the parameters but the ones given here")
                 << (new SeveralStringsArgument("rename",
                                               "Rename",
-                                               "rename parameters before setting"))->describe("A comma-separated list of old->new parameter rename specifications")
+                                               "rename parameters before setting"))
+                ->describe("A comma-separated list of old->new parameter rename specifications")
+                << new BoolArgument("free-only",
+                                    "Free only",
+                                    "Loads only free parameters")
+                << new BoolArgument("fixed-only",
+                                    "Fixed only",
+                                    "Loads only fixed parameters")
                 );
 
 static Command 

@@ -106,6 +106,12 @@ public:
   /// Removes all the given parameters
   void remove(const QSet<QString> & parameters);
 
+  /// Removes all the fixed parameters
+  void removeFixed();
+
+  /// Removes all the free parameters
+  void removeFree();
+
   /// Renames the given parameter, replacing all existing instances of
   /// the target.
   void renameParameter(const QString & oldName, const QString & newName);

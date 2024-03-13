@@ -186,6 +186,21 @@ void FitParametersFile::remove(const QSet<QString> & remove)
   }
 }
 
+void FitParametersFile::removeFixed()
+{
+  for(int i = 0; i < parameters.size(); i++) {
+    if(parameters[i].value.endsWith("!\t0"))
+       parameters.takeAt(i--);
+  }
+}
+
+void FitParametersFile::removeFree()
+{
+  for(int i = 0; i < parameters.size(); i++) {
+    if(parameters[i].value.endsWith("!\t1"))
+       parameters.takeAt(i--);
+  }
+}
 
 void FitParametersFile::renameParameter(const QString & oldName, const QString & newName)
 {

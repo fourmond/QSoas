@@ -862,10 +862,10 @@ rfef("run-for-each", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+#include <datasetlist.hh>
 
 static void runForValuesCommand(const QString &,
                                 QString script,
-                                ColumnListSpecification columns,
                                 const CommandOptions & opts)
 {
   bool addToHistory = false;
@@ -875,18 +875,30 @@ static void runForValuesCommand(const QString &,
   updateFromOptions(opts, "silent", silent);
   CommandWidget::ScriptErrorMode mode = CommandWidget::Abort;
   updateFromOptions(opts, "error", mode);
+
+  ColumnListSpecification columns;
+  bool hasColumns = opts.contains("columns");
+  if(hasColumns)
+    updateFromOptions(opts, "columns", columns);
+
   
   WDisableUpdates eff(& soas().view(), silent);
 
-  const DataSet * ds = soas().currentDataSet();
+  DataSetList buffers(opts);
+  for(const DataSet * ds : buffers) {
 
-  QList<Vector> cols = columns.getColumns(ds);
-
-  for(int i = 0; i < ds->nbRows(); i++) {
-    QStringList a;
-    for(const Vector & v : cols)
-      a << QString::number(v[i]);
-    soas().prompt().runCommandFile(script, a, addToHistory, mode);
+    QList<Vector> cols;
+    if(hasColumns)
+      cols = columns.getColumns(ds);
+    else
+      cols = ds->allColumns();
+    
+    for(int i = 0; i < ds->nbRows(); i++) {
+      QStringList a;
+      for(const Vector & v : cols)
+        a << QString::number(v[i]);
+      soas().prompt().runCommandFile(script, a, addToHistory, mode);
+    }
   }
 }
 
@@ -895,14 +907,16 @@ rfvArgs(QList<Argument *>()
         << new FileArgument("script", 
                             "Script",
                             "The script file")
-        << new SeveralColumnsArgument("columns",
-                                      "Columns",
-                                      "The columns to use as arguments for the script", true, false, true)
         );
 
 static ArgumentList 
 rfvOpts(ArgumentList()
         << runOpts
+        << DataSetList::listOptions("Datasets to work on")
+        << new SeveralColumnsArgument("columns",
+                                      "Columns",
+                                      "The columns to use as arguments for the script",
+                                      true, true, true)
         );
 
 
@@ -914,16 +928,6 @@ rfv("run-for-values", // command name
     &rfvArgs, // arguments
     &rfvOpts, 
     "Runs a script with each row of a dataset");
-
-// static Command 
-// rfef("run-for-each", // command name
-//      effector(runForEachCommand), // action
-//      "file",  // group name
-//      &rfeArgs, // arguments
-//      &rfeOpts, 
-//      "Runs a script for several arguments",
-//      "Runs a script file repetitively with the given arguments",
-//      "", CommandContext::fitContext());
 
 //////////////////////////////////////////////////////////////////////
 

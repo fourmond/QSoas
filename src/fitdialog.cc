@@ -166,8 +166,6 @@ FitDialog::~FitDialog()
 void FitDialog::message(const QString & str, bool error)
 {
   if(progressReport) {
-    QTextStream o(stdout);
-    o << "Got that: " << str << " -- " << error << endl;
     progressText = str;
     progressError = error;
     QString s;

@@ -11,3 +11,24 @@ apply-formula y2=i**2 /extra-columns=1
 eval $nb=0
 run-for-values inline:test-rfv i,y2
 assert $nb-7 0
+
+generate-dataset 0 10
+
+eval $nb=0
+run-for-values inline:test-rfv i,y2 /buffers=1
+assert $nb-7 0
+
+
+# Same thing, but this time using all columns
+
+## INLINE: test-rfv-all-columns
+assert ${1}**2-${3}+${2}+2*${4} 0
+eval $nb+=1
+## INLINE END
+
+generate-dataset 0 10 /samples=7
+apply-formula x=i;y2=i**2;y3=x/2.0;y=-2*y3 /extra-columns=2
+
+eval $nb=0
+run-for-values inline:test-rfv-all-columns
+assert $nb-7 0

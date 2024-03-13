@@ -599,6 +599,11 @@ HEADERS += src/helpbrowser.hh
 SOURCES += src/helpbrowser.cc
 
 
+# A small wrapper around scrolled widgets
+HEADERS += src/scrolledwidget.hh
+SOURCES += src/scrolledwidget.cc
+
+
 # These are for QSoas's internal file handling
 HEADERS += src/file.hh src/fileinfo.hh
 SOURCES += src/file.cc src/fileinfo.cc

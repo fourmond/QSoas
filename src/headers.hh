@@ -71,6 +71,7 @@
 #include <QDialog>
 #include <QInputDialog>
 #include <QColorDialog>
+#include <QFontDialog>
 #include <QMessageBox>
 #include <QToolTip>
 #include <QDialogButtonBox>

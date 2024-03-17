@@ -77,8 +77,10 @@ static void applyFormulaCommand(const QString &, QString formula,
   DataSetList buffers(opts);
 
   DataStackHelper pusher(opts);
+  int idx = 0;
   for(const DataSet * ds : buffers) {
     DataSetExpression ex(ds);
+    Command::currentProgress(idx++, buffers.size());
     QStringList colNames;
 
     ex.useRealColNames = false;

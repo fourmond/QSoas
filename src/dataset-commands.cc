@@ -2102,6 +2102,7 @@ static void generateDSCommand(const QString &, double beg, double end,
   for(int k = 0; k < nb; k++) {
     Vector x = logSpace ? Vector::logarithmicallySpaced(beg, end, samples)
       : Vector::uniformlySpaced(beg, end, samples);
+    Command::currentProgress(k, nb);
     QList<Vector> cols;
     cols << x;
     Vector y = x;

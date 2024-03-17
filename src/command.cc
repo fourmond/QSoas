@@ -667,6 +667,8 @@ Command * Command::currentCommand = NULL;
 
 void Command::currentProgress(int step, int target)
 {
+  // QTextStream o(stdout);
+  // o << "Progress: " << step << "/" << target << endl;
   if(step != 0 || target != 0) {
     qint64 curTime = QDateTime::currentMSecsSinceEpoch();
     if(target < 0)                // Running from a CurveEventLoop

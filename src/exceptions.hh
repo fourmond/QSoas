@@ -130,9 +130,24 @@ public:
 /// implementation of control flow...
 class ControlFlowException : public Exception {
 public:
-  explicit ControlFlowException(const QString & msg) throw() : Exception(msg) {
+  explicit ControlFlowException(const QString & msg) throw() :
+    Exception(msg) {
   };
   virtual ~ControlFlowException() throw() {;};
+};
+
+
+/// This exception is a pendant to the ControlFlowException and allows
+/// one to break out of the current stack of commands back to the main
+/// QSoas command-line.
+///
+/// @question should we add the interrupted commands ?
+class CommandInterruptException : public Exception {
+public:
+  explicit CommandInterruptException(const QString & msg) throw() :
+    Exception(msg) {
+  };
+  virtual ~CommandInterruptException() throw() {;};
 };
 
 #endif

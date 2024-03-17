@@ -77,6 +77,11 @@ class CommandWidget : public QWidget {
   /// The restricted prompt:
   LineEdit * restrictedPrompt;
 
+  /// The "Stop" button
+  QPushButton * stopButton;
+
+  /// The stop button to the right
+
   /// The CommandWidget that will receive log (Terminal) messages, ie
   /// the first one to be created.
   static QPointer<CommandWidget> theCommandWidget;

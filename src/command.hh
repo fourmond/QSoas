@@ -65,6 +65,7 @@ protected:
   /// Registers this command
   void registerMe();
 
+
   friend class CommandContext;
 private:
   // Disable copy constructor
@@ -302,6 +303,73 @@ public:
   /// Checks that the options are consistent -- in particular, raise
   /// an exception when using an option with two times the name.
   void checkOptions() const;
+
+  /// @name Progress report and interruption
+  ///
+  /// Series of and functions related to the progress report and
+  /// possible interruption
+  ///
+  /// @{
+protected:
+
+  /// If true, the current command should be interrupted, going back
+  /// to the main QSoas prompt.
+  ///
+  /// That happens in the progress report
+  static bool shouldStop;
+
+
+  /// The current step in the progress
+  static int currentStep;
+
+  /// The current target
+  static int currentTarget;
+
+  /// Time to the last call to currentProgress()
+  static qint64 timeLastCall;
+
+  /// Last call to the event loop
+  static qint64 timeLastLoop;
+
+  /// The current command being run
+  static Command * currentCommand;
+
+public:
+
+  /// Records the progress of the current command. It also does the
+  /// following things:
+  /// * @li record the current time
+  /// * @li run the event loop if the last call to the event loop was
+  ///   too far away
+  /// * interrupts the current command back to the main QSoas loop if
+  /// interruption has been requested
+  ///
+  /// When the "duration" of the task is known both step and target
+  /// should be positive
+  ///
+  /// When the target duraction isn't known, step should be positive
+  /// and increase and target should be negative
+  ///
+  /// When the command is interactive, the two should be negative.
+  /// This is called automatically from the command loop.
+  ///
+  /// That function is called at the beginning of each function with
+  /// 0,0 as arguments. This will just trigger the check for cancellation.
+  ///
+  /// @todo We should have a way to know how much time has elapsed
+  /// since the last time the command prompt was available.
+  static void currentProgress(int step, int target);
+
+  /// Returns the currently running command.
+  /// Should be NULL when in the main loop
+  static Command * runningCommand();
+
+  /// Request to stop the current command stack and go back to the
+  /// main QSoas loop.
+  static void requestStop();
+
+  /// @}
+
 };
 
 #endif

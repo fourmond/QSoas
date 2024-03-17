@@ -37,6 +37,8 @@
 #include <mruby.hh>
 #include <terminal.hh>
 
+#include <idioms.hh>
+
 
 Command::Command(const QString & cn, 
                  CommandEffector * eff,
@@ -268,6 +270,8 @@ void Command::runCommand(const QString & commandName,
                          const CommandArguments & args,
                          const CommandOptions & options)
 {
+  TemporaryChange<Command*> tmp(currentCommand, this);
+  currentProgress(0, 0);
   if(effector->needsLoop()) {
     CurveEventLoop loop; /// @todo Find a way to provide context ?
     effector->runWithLoop(loop, commandName, args, options);
@@ -632,7 +636,6 @@ void Command::runCommand(int nb, mrb_value * args)
       op = commandOptions()->parseRubyOptions(hsh);
   }
 
-  
   // Now, parse arguments. No prompting.
   CommandArguments a;
   if(arguments)
@@ -642,3 +645,53 @@ void Command::runCommand(int nb, mrb_value * args)
   runCommand(cmdName, a, op);
 }
 
+////////////////////
+// Now the handling of progress report
+
+bool Command::shouldStop = false;
+
+int Command::currentStep = 0;
+
+int Command::currentTarget = 0;
+
+qint64 Command::timeLastCall = -1;
+
+qint64 Command::timeLastLoop = -1;
+
+Command * Command::currentCommand = NULL;
+
+// Hmmm. See QStatusBar::addPermanentWidget to add a progress bar to
+// the status bar ? Is it really useful ?
+
+
+
+void Command::currentProgress(int step, int target)
+{
+  if(step != 0 || target != 0) {
+    qint64 curTime = QDateTime::currentMSecsSinceEpoch();
+    if(target < 0)                // Running from a CurveEventLoop
+      timeLastLoop = curTime;
+    else {
+      if(curTime - timeLastLoop > 150) {
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+        timeLastLoop = curTime;
+      }
+    }
+  }
+
+  if(shouldStop) {
+    shouldStop = false;
+    throw CommandInterruptException("Breaking back to main command-line");
+  }
+}
+
+
+Command * Command::runningCommand()
+{
+  return currentCommand;
+}
+
+void Command::requestStop()
+{
+  shouldStop = true;
+}

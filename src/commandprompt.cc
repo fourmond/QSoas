@@ -252,8 +252,9 @@ QStringList CommandPrompt::getCompletions(const CompletionContext & c,
   return arg->proposeCompletion(c.word);
 }
 
-void CommandPrompt::busy(const QString & message)
+void CommandPrompt::busy(const QString & msg)
 {
+  message = msg;
   setText(message);
   if(message.isEmpty()) {
     setEnabled(true);
@@ -262,4 +263,9 @@ void CommandPrompt::busy(const QString & message)
   else {
     setEnabled(false);
   }
+}
+
+QString CommandPrompt::currentMessage() const
+{
+  return message;
 }

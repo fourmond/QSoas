@@ -36,13 +36,12 @@ protected:
 
   QString cmdName;
 
-  QString shortCmdName;
+  /// The list of aliases for the command
+  QStringList aliases;
 
   QString pubName;
 
   QString shortDesc;
-  
-  QString longDesc;
 
   QString groupName;
 
@@ -109,7 +108,18 @@ public:
           const ArgumentList * options,
           const QString & publicName,
           const QString & shortDescription = "", 
-          const QString & longDescription = "", 
+          const QString & alias = "", 
+          CommandContext * context = NULL,
+          bool autoRegister = true); 
+
+  Command(const QString & commandName,
+          CommandEffector * effector,
+          const QString & groupName,
+          const ArgumentList * arguments,
+          const ArgumentList * options,
+          const QString & publicName,
+          const QString & shortDescription,
+          const QStringList & aliases, 
           CommandContext * context = NULL,
           bool autoRegister = true); 
 
@@ -120,7 +130,7 @@ public:
           const ArgumentList & options,
           const QString & publicName,
           const QString & shortDescription = "", 
-          const QString & longDescription = "", 
+          const QString & alias = "", 
           CommandContext * context = NULL,
           bool autoRegister = true); 
 
@@ -129,45 +139,17 @@ public:
 
   /// The command name, the one that will be used from the command
   /// prompt.
-  ///
-  /// This name will not be translated.
-  ///
-  /// \warning If you reimplement this function, you should set the
-  /// the autoRegister parameter to false and do the registration
-  /// yourself.
-  QString commandName() const {
-    return cmdName;
-  };
+  QString commandName() const;
+  
+  /// All the aliases of the command
+  QStringList commandAliases() const;
 
-  /// A short command name to be used quickly from the prompt. Most
-  /// commands may leave this field empty. This name will not be
-  /// translated.
-  ///
-  /// \warning If you reimplement this function, you should set the
-  /// the autoRegister parameter to false and do the registration
-  /// yourself.
-  QString shortCommandName() const {
-    return shortCmdName;
-  };
-
-
-  /// The public name, the one to be used in the menus. This one gets
-  /// translated, which means that one should use QT_TRANSLATE_NOOP
-  /// macro for setting it.
-  QString publicName() const {
-    return pubName;
-  };
+  /// The public name, the one to be used in the menus.
+  QString publicName() const;
 
   /// A short description, typically to be used for the status bar.
-  QString shortDescription() const {
-    return shortDesc;
-  };
+  QString shortDescription() const;
 
-  /// A long informative description, such as a full help text,
-  /// possibly with examples too.
-  QString longDescription() const {
-    return longDesc;
-  };
 
   /// Returns the arguments to this command. This can be NULL !
   const ArgumentList * commandArguments() const {
@@ -289,9 +271,6 @@ public:
   ///
   /// The headings says which level of nesting is used for commands.
   QString & updateDocumentation(QString & str, int headings = 3) const;
-
-  /// Sets the long description
-  void setDocumentation(const QString & str);
 
   /// Returns a simple string describing the command, all its
   /// arguments and options and if it is interactive or not, in a

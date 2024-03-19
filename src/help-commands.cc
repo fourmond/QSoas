@@ -90,7 +90,7 @@ cmd2("commands", // command name
 QString docUrl("http://www.qsoas.org/manual.html");
 
 
-static void helpCommand(const QString & /*name*/,
+static void helpCommand(const QString & name,
                         const CommandOptions & opts)
 {
   bool dump = false;
@@ -114,14 +114,14 @@ static void helpCommand(const QString & /*name*/,
     HelpBrowser::browseLocation("doc/tutorial.html");
     return;
   }
-  bool showSyn = false;
+  bool showSyn = (name == "??");
   updateFromOptions(opts, "synopsis", showSyn);
 
   if(! showSyn) {
     if(Soas::versionString().contains("+"))
       Terminal::out << Terminal::bold << "Warning:" << flush
                     << " this is a development version, the help may be outdated, if you want to see the options effectively available, please run the command:\n"
-                    << "  help /synopsis=true " << cmd->commandName() << endl;
+                    << "  ?? " << cmd->commandName() << endl;
     HelpBrowser::browseCommand(cmd);
     return;
   }
@@ -152,7 +152,7 @@ hlpc("help", // command name
      &helpO, // options
      "Help on...",
      "Give help on command",
-     "?");
+     QStringList() << "?" << "??");
 
 static Command 
 hlp2("help", // command name
@@ -162,7 +162,8 @@ hlp2("help", // command name
      &helpO, // options
      "Help on...",
      "Give help on command",
-     "?", CommandContext::fitContext());
+     QStringList() << "?" << "??",
+     CommandContext::fitContext());
 
 //////////////////////////////////////////////////////////////////////
 

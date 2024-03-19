@@ -50,7 +50,7 @@ Command::Command(const QString & cn,
                  const QString & sc,
                  CommandContext * cxt,
                  bool autoRegister) : 
-  cmdName(cn), shortCmdName(sc), pubName(pn), 
+  cmdName(cn), pubName(pn), 
   shortDesc(sd), groupName(gn), 
   arguments(ar ? new ArgumentList(*ar) : NULL),
   options(op ? new ArgumentList(*op) : NULL),
@@ -61,6 +61,31 @@ Command::Command(const QString & cn,
 {
   // QTextStream o(stdout);
   // o << "Creating command: " << cn << endl;
+  if(! sc.isEmpty())
+    aliases << sc;
+  if(autoRegister)
+    registerMe();
+}
+
+Command::Command(const QString & cn, 
+                 CommandEffector * eff,
+                 const QString & gn, 
+                 const ArgumentList * ar,
+                 const ArgumentList * op,
+                 const QString & pn,
+                 const QString & sd, 
+                 const QStringList & als,
+                 CommandContext * cxt,
+                 bool autoRegister) : 
+  cmdName(cn), aliases(als), pubName(pn),
+  shortDesc(sd), groupName(gn), 
+  arguments(ar ? new ArgumentList(*ar) : NULL),
+  options(op ? new ArgumentList(*op) : NULL),
+  custom(CommandContext::finishedLoading),
+  context(cxt),
+  effector(eff), 
+  group(NULL)
+{
   if(autoRegister)
     registerMe();
 }
@@ -75,7 +100,7 @@ Command::Command(const QString & cn,
                  const QString & sc,
                  CommandContext * cxt,
                  bool autoRegister) : 
-  cmdName(cn), shortCmdName(sc), pubName(pn), 
+  cmdName(cn), pubName(pn), 
   shortDesc(sd), groupName(gn), 
   arguments(new ArgumentList(ar)),
   options(new ArgumentList(op)),
@@ -84,8 +109,8 @@ Command::Command(const QString & cn,
   effector(eff), 
   group(NULL)
 {
-  // QTextStream o(stdout);
-  // o << "Creating command: " << cn << endl;
+  if(! sc.isEmpty())
+    aliases << sc;
   if(autoRegister)
     registerMe();
 }
@@ -123,6 +148,30 @@ void Command::checkOptions() const
     }
   }
 }
+
+QString Command::commandName() const
+{
+  return cmdName;
+}
+
+QStringList Command::commandAliases() const
+{
+  return aliases;
+}
+
+QString Command::publicName() const
+{
+  return pubName;
+}
+
+
+QString Command::shortDescription() const
+{
+  return shortDesc;
+}
+
+
+
 
 
 
@@ -285,8 +334,8 @@ QAction * Command::actionForCommand(QObject * parent) const
 {
   QAction * action = new QAction(parent);
   QString str = publicName();
-  if(! shortCmdName.isEmpty())
-    str += QString(" (%1)").arg(shortCmdName);
+  if(aliases.size() > 0)
+    str += QString(" (%1)").arg(aliases[0]);
   action->setText(str);
   action->setStatusTip(QString("%1: %2").
                        arg(commandName()).
@@ -524,15 +573,22 @@ QString Command::synopsis(bool markup) const
   if(context != CommandContext::globalContext())
     synopsis << wrapIf("(fit command)", "**", markup);
 
-  if(! shortCmdName.isEmpty())
-    descs = "Other name: " + wrapIf(shortCmdName, "`", markup) + "\n\n" + descs;
+  if(aliases.size() > 0) {
+    QString pl = "";
+    QStringList als;
+    if(aliases.size() > 1)
+      pl = "s";
+    for(const QString & al : aliases)
+      als << wrapIf(al, "`", markup);
+    descs = "Other name" + pl + ": " + als.join(", ") + "\n\n" + descs;
+  }
 
   // We need to escape |, which comes in too many times
   if(markup)
     descs.replace(QString("|"), QString("\\|"));
 
   return wrapIf(cmdName,"`", markup) + " " + 
-    synopsis.join(" ") + "\n\n" + descs + "\n";
+    synopsis.join(" ") + "\n\n" + descs;
 }
 
 QString & Command::updateDocumentation(QString & str, int level) const
@@ -558,10 +614,6 @@ QString & Command::updateDocumentation(QString & str, int level) const
 }
 
 
-void Command::setDocumentation(const QString & str)
-{
-  longDesc = str;
-}
 
 
 bool Command::isInteractive() const
@@ -594,8 +646,8 @@ QString Command::commandSpec(bool full) const
     }
   }
   ret += "\n";
-  if(! shortCmdName.isEmpty())
-    ret += QString("  -> aliased as %1\n").arg(shortCmdName);
+  if(aliases.size() > 0)
+    ret += QString("  -> aliased as %1\n").arg(aliases.join(", "));
   if(arguments)
     for(int i = 0; i < arguments->size(); i++) {
       const Argument * arg = (*arguments)[i];

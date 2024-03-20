@@ -31,39 +31,81 @@ public:
   /// The number of bits
   int number;
 
-  /// Whether the bits have independent accessory parameters or not
-  bool independentBits;
+  enum {
+        Independent,
+        Linear,
+        Common
+  } mode;
 
   /// The number of parameters
   int realParameterNumber() const override {
-    return number*2 + (independentBits ? number : 1);
+    if(mode == Independent)
+      return number*3;
+    if(mode == Common)
+      return number*2+1;
+    return number*2+2;
   };
 
   /// Parameter definitions
   QList<ParameterDefinition> realParameters(const QString & prefix) const override {
     QList<ParameterDefinition> ret;
-    if(! independentBits)
+    if(mode == Common)
       ret << ParameterDefinition(prefix + "_tau");
-    for(int i = 0; i < number; i++) { 
+    for(int i = 0; i < number; i++) {
       ret << ParameterDefinition(QString("%2_%1").
                                  arg(i+1).arg(prefix), true);
       ret << ParameterDefinition(QString("%2_t_%1").
                                  arg(i+1).arg(prefix), true);
-      if(independentBits)
+      if(mode == Independent)
+        ret << ParameterDefinition(QString("%2_tau_%1").
+                                   arg(i+1).arg(prefix));
+      if(mode == Linear &&
+         (i == 0 || i == number - 1)
+         )
         ret << ParameterDefinition(QString("%2_tau_%1").
                                    arg(i+1).arg(prefix));
     }
     return ret;
   };
 
+  /// Base index for 
+  int baseFor(int i) const {
+      if(mode == Independent)
+        return 3*i;
+      if(mode == Common)
+        return 1+2*i;
+      if(mode == Linear) {
+        if(i == 0)
+          return 0;
+        else
+          return 1+2*i;
+      }
+      return 0;                 // Shouldn't be reached
+  };
+
   QList<int> sharedParameters() const override {
     QList<int> rv;
-    if(!independentBits)
+    if(mode == Common)
       rv << 0;
+   
     for(int i = 0; i < number; i++) {
-      rv << (independentBits ? i*3+1 : 2*i+2);
-      if(independentBits)
-        rv << i*3+2;
+      int base = baseFor(i);
+      if(mode == Common)
+        rv << base + 1;         // t0
+      else {
+        if(mode == Independent)
+          rv << base + 1 << base + 2;
+        else {
+          if(i > 0) {
+            rv << base + 1;     // t0
+            if(i == number - 1)
+              rv << base + 2;   // last tau
+          }
+          else {
+            rv << 1 << 2;
+          }
+        }
+      }
     }
     return rv;
   };
@@ -71,14 +113,32 @@ public:
   /// Returns the value at the given time...
   double realComputeValue(double t, const double * parameters) const override {
     double value = 0;
+    // QTextStream o(stdout);
+    // o << "Time: " << t << endl;
     for(int i = 0; i < number; i++) {
-      double t0   = parameters[baseIndex + (independentBits ? i*3+1 : 2*i+2)];
-      double conc = parameters[baseIndex + (independentBits ? i*3   : 2*i+1)];
-      double tau  = parameters[baseIndex + (independentBits ? i*3+2 : 0)];
+      int base = baseFor(i);
+      
+      double t0 = parameters[baseIndex + base + 1];
+      double conc = parameters[baseIndex + base];
+      double tau = 0;
+      if(mode == Independent)
+        tau = parameters[baseIndex + base + 2];
+      if(mode == Common)
+        tau = parameters[baseIndex];
+      if(mode == Linear) {
+        double tf = parameters[baseIndex + 2],
+          tl = parameters[baseIndex + 3 + 2*(number-1)];
+        tau = tf + (tl-tf)*i/(number-1);
+      }
+      // o << "#" << i
+      //   << "\tt0:\t" << t0
+      //   << "\tc:\t" << conc
+      //   << "\ttau:\t" << tau
+      //   << endl;
       if(tau < 0)             // Well, the check happens a lot, but
         // is less expensive than an
         // exponential anyway
-        throw RangeError("Negative tau value");
+        throw RangeError("Negative tau value: '%1'").arg(tau);
       if(t >= t0)
         value += conc * exp(-(t - t0)/tau);
     }
@@ -89,20 +149,28 @@ public:
   void realSetInitialGuess(double * parameters, const DataSet * ds) const override {
     double dx = ds->x().max() - ds->x().min();
     for(int i = 0; i < number; i++) {
-      double & t0   = parameters[baseIndex + (independentBits ? i*3+1 : 2*i+2)];
-      double & conc = parameters[baseIndex + (independentBits ? i*3   : 2*i+1)];
-      double & tau  = parameters[baseIndex + (independentBits ? i*3+2 : 0)];
-      tau = 20;
+      int base = baseFor(i);
+
+      double &t0 = parameters[baseIndex + base + 1];
+      double &conc = parameters[baseIndex + base];
       conc = 1;
       t0 = ds->x().min() + (i+1) * dx/(number+1);
+
+      if(mode == Independent ||
+         (mode == Linear && (i == 0 || i == number-1))) 
+        parameters[baseIndex + base + 2] = 20;
     }
+    if(mode == Common)
+      parameters[0] = 20;
   };
 
   /// Returns the time at which there are potential discontinuities
   Vector realDiscontinuities(const double * parameters) const override {
     Vector ret;
-    for(int i = 0; i < number; i++)
-      ret << parameters[baseIndex + (independentBits ? i*3+1 : 2*i+2)];
+    for(int i = 0; i < number; i++) {
+      int base = baseFor(i);
+      ret << parameters[baseIndex + base + 1];
+    }
     return ret;
   };
 
@@ -114,7 +182,11 @@ static TimeDependentParameter::TDPFactory ex("exp", [](int nb, const QStringList
       throw RuntimeError("exp parameter needs a strictly positive number, got %1").
         arg(nb);
     tdp->number = nb;
-    tdp->independentBits = ! extra.contains("common");
+    tdp->mode = ExponentialTDP::Independent;
+    if(extra.contains("common"))
+      tdp->mode = ExponentialTDP::Common;
+    if(extra.contains("linear"))
+      tdp->mode = ExponentialTDP::Linear;
     return tdp;
   }
 );

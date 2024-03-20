@@ -40,6 +40,15 @@ apply-formula y=0
 S 4 0
 assert $stats.y_norm 1e-14
 
+# 3 linear
+sim-tst parameters/tdp-1.params 0 /with=a:3,exp,linear /override=a_1=2;a_t_1=3;a_tau_1=4;a_2=0.5;a_t_2=7;a_3=0.2;a_t_3=9;a_tau_3=10
+apply-formula y=0
+@ inline:make-tdp-exp 3 2 4
+@ inline:make-tdp-exp 7 0.5 7
+@ inline:make-tdp-exp 9 0.2 10
+S 4 0
+assert $stats.y_norm 1e-14
+
 
 custom-fit /redefine=true tst2 a-b
 
@@ -59,8 +68,8 @@ assert $stats.y_0dev 4e-16
 # 3 independent
 sim-tst2 parameters/tdp-1.params 0 /with=a,b:3,exp /override=a_1=2;a_t_1=3;a_tau_1=4;b_1=0.5;a_2=0.5;a_t_2=7;a_tau_2=8;b_2=2;a_3=0.2;a_t_3=9;a_tau_3=10;b_3=3
 apply-formula y=0
-@ inline:make-tdp-exp-2 3 2 4 0.5
-@ inline:make-tdp-exp-2 7 0.5 8 2
+@ inline:make-tdp-exp-2 3 2   4  0.5
+@ inline:make-tdp-exp-2 7 0.5 8  2
 @ inline:make-tdp-exp-2 9 0.2 10 3
 S 4 0
 assert $stats.y_0dev 4e-16
@@ -72,5 +81,15 @@ apply-formula y=0
 @ inline:make-tdp-exp-2 3 2   4 0.5
 @ inline:make-tdp-exp-2 7 0.5 4 2
 @ inline:make-tdp-exp-2 9 0.2 4 3
+S 4 0
+assert $stats.y_0dev 4e-16
+
+
+# 3 linear
+sim-tst2 parameters/tdp-1.params 0 /with=a,b:3,exp,linear /override=a_1=2;a_t_1=3;a_tau_1=4;b_1=0.5;a_2=0.5;a_t_2=7;b_2=2;a_3=0.2;a_t_3=9;a_tau_3=10;b_3=3
+apply-formula y=0
+@ inline:make-tdp-exp-2 3 2   4  0.5
+@ inline:make-tdp-exp-2 7 0.5 7  2
+@ inline:make-tdp-exp-2 9 0.2 10 3
 S 4 0
 assert $stats.y_0dev 4e-16

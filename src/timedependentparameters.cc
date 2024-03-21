@@ -60,8 +60,16 @@ QList<ParameterDefinition> TimeDependentParameters::fitParameters() const
 
 void TimeDependentParameters::setInitialGuesses(double * target, const DataSet * ds) const
 {
-  for(const_iterator i = begin(); i != end(); ++i)
-    i.value()->setInitialGuess(target, ds);
+  // QTextStream o(stdout);
+  // for(const QString & v : parameterNames.keys())
+  //   o << " - " << v << " -> " << parameterNames[v] << " -> "
+  //     << (*this)[parameterNames[v]] << endl;
+  for(const_iterator i = begin(); i != end(); ++i) {
+    TimeDependentParameter * p = i.value();
+    // o << " --- " << p << endl;
+    p->setInitialGuess(target, ds);
+  }
+  // o << " -> end" << endl;
 }
 
 bool TimeDependentParameters::contains(const QString & name) const

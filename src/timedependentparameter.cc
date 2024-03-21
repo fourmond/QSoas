@@ -161,7 +161,7 @@ public:
         parameters[baseIndex + base + 2] = 20;
     }
     if(mode == Common)
-      parameters[0] = 20;
+      parameters[baseIndex] = 20;
   };
 
   /// Returns the time at which there are potential discontinuities
@@ -682,6 +682,8 @@ double TimeDependentParameter::computeValue(double t, const double * parameters)
 
 void TimeDependentParameter::setInitialGuess(double * parameters, const DataSet * ds) const
 {
+  // QTextStream o(stdout);
+  // o << "Initial guess for " << this << " -> index is: " << baseIndex << endl;
   if(baseTDP) {
     double v[realParameterNumber()];
     realSetInitialGuess(v-baseIndex, ds);
@@ -736,6 +738,11 @@ void TimeDependentParameter::spliceBackParameters(const double * spliced,
   int base = 0;
   int cur = 0;
   QList<int> lst = sharedParameters();
+  // QTextStream o(stdout);
+  // o << "Splicing back for " << this << ": ";
+  // for(int shr : lst)
+  //   o << shr << ", ";
+  // o << endl;
   for(int i = 0; i < nb; i++) {
     if(lst.value(base, -1) == i)
       ++base;

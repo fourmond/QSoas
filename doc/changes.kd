@@ -90,6 +90,70 @@ functions.
 
 See the full list of changes [below](#v2p0)
 
+# Changes in version 3.3 (22.03.2024) {#v3p3}
+
+## Fits
+
+ * a [fit: laplace] fit to fit reverse Laplace transforms of a formula
+ * a [cmd: define-reverse-laplace-fits] command to define reverse
+   Laplace fits;
+ * a [fit: pH] fit to fit pH titrations, just like the [fit: nernst]
+   fit for redox titrations;
+ * a [cmd: define-monotone-fit] command that defines a modified
+   version of a fit that only yiels monotonic evolutions (useful to
+   restrict the possibilities for some kinds of baselines).
+ * [cmd: combine-fits] now offers the possibility to not rename
+   parameters, or only those that are identical between the fits
+ * the [fit-cmd: load] fit command has gained some facilities to load
+   only a subset of parameters from a file
+ * the fit parameters that are marked by the fit as "linear" are now
+   displayed in blue (this has no effect as of now)
+ * it is possible to add and remove flag in fit trajectories (see 
+   [fit-cmd: browse-trajectories], and display a summary of
+   trajectories by flag. 
+ * other improvements in [fit-cmd: browse-trajectories], like the
+   possibility to set a trajectory as reference to color the others
+   based on the the distance from the reference
+
+## New commands
+
+ * a [cmd: pick] command to select one or a few rows from a dataset;
+ * a [cmd: convolve] command to convolve a dataset by a function;
+ * a [cmd: reverse-laplace] that computes the numerical reverse
+   Laplace transform of a function;
+ * a [cmd: average-duplicates] to average the Y values of rows in a
+   dataset that share the same X (within a certain tolerance);
+ * a [cmd: sv-decomp] command to perform singular value decomposition
+   on data;
+
+## Improvements of previous commands
+
+ * a `??` shortcut for `? /synopsis=true`
+ * a bandcut filter for [cmd: filter-fft], together with a linear power
+   spectrum display and facilities to look at aliased frequencies;
+ * a `/nup` option to the datasets browsers
+ * a reworked [cmd: edit] that makes it possible to add/remove
+   rows/columns, and directly edit perpendicular coordinates and
+   row/column names
+ * most of the commands working with column names now accept the `i`
+   column to designate the index column
+
+## Other improvements
+
+ * interruption of scripts via the the button at the right of the
+   prompt;
+ * automatically switching to drawing oints in more situations,
+   improving the drawing speed;
+ * better loading of fit parameter files as datasets;
+ * several bug fixes/small improvements.
+ * handling of `mruby` versions 3.0 and 3.1
+ * windows users can also use `/dev/null` to mean an empty file (it is
+   already the case on POSIX platforms)
+ * make sure the `C` locale is always used, in particular for `mruby`
+   and for the parsing of numbers in general
+ * a `tests/doc` directory containing more information about some of
+   the compuations behind some of the tests
+
 # Changes in version 3.2 (22.03.2023) {#v3p2}
 
 ## Fits

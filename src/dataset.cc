@@ -1,7 +1,7 @@
 /*
   dataset.cc: implementation of the DataSet class
   Copyright 2011 by Vincent Fourmond
-            2012, 2013, 2014 by CNRS/AMU
+            2012, 2013, 2014, 2024 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@
 OrderedList & OrderedList::operator=(const QList<int> & lst)
 {
   QList<int>::operator=(lst);
-  qSort(*this);
+  std::sort(begin(), end());
   return *this;
 }
 
@@ -59,7 +59,7 @@ void OrderedList::insert(int idx)
 {
   // The lazy-but-actually-smart-thing-to-do
   QList<int>::append(idx);
-  qSort(*this);
+  std::sort(begin(), end());
 }
 
 void OrderedList::shiftAbove(int idx, int delta)
@@ -124,7 +124,7 @@ QString DataSet::stringDescription(bool longDesc) const
       arg(name).arg(nbColumns()).arg(nbRows()).
       arg(segments.size() + 1).arg(index);
     QStringList flgs = QStringList::fromSet(flags);
-    qSort(flgs);
+    std::sort(flgs.begin(), flgs.end());
     val += QString("Flags: %1\n").arg(flgs.join(", "));
     val += "Meta-data:";
     val += metaData.prettyPrint(3, "\t", ",", true);
@@ -905,7 +905,7 @@ void DataSet::reverse()
   int sz = nbRows();
   for(int j = 0; j < segments.size(); j++)
     segments[j] = sz - segments[j];
-  qSort(segments);
+  std::sort(segments.begin(), segments.end());
 }
 
 
@@ -1194,9 +1194,9 @@ DataSet * DataSet::sort(bool reverse, int col) const
     vals << QPair<double, int>(xv[i], i);
   
   if(reverse)
-    qSort(vals.begin(), vals.end(), &greaterThan);
+    std::sort(vals.begin(), vals.end(), &greaterThan);
   else
-    qSort(vals.begin(), vals.end(), &lessThan);
+    std::sort(vals.begin(), vals.end(), &lessThan);
 
   /// Hmm.  @perf Make sure select works with iterators rather than
   /// with lists.
@@ -1953,7 +1953,7 @@ QList<DataSet *> DataSet::autoSplit(const QHash<int, QString> & cols,
   QHash<QVector<int>, DataSet *> rvs;
 
   QVector<int> cls = uniqueValues.keys().toVector();
-  qSort(cls);
+  std::sort(cls.begin(), cls.end());
 
   // A template for columns
   QList<Vector> tmplt;
@@ -2005,7 +2005,7 @@ QList<DataSet *> DataSet::autoSplit(const QHash<int, QString> & cols,
   }
 
   QList<QVector<int> > keys = rvs.keys();
-  qSort(keys.begin(), keys.end(), &cmpVectors);
+  std::sort(keys.begin(), keys.end(), &cmpVectors);
 
   for(int i = 0; i < keys.size(); i++) {
     DataSet * ds = rvs[keys[i]];
@@ -2085,6 +2085,88 @@ double DataSet::metaScanRate(bool * ok) const
 }
 
 
+// OK, this maybe isn't that great, let's forget that.
+/*
+Vector DataSet::convolveWith(const DataSet * kernel) const
+{
+  Vector rv = y();
+
+  int nbr = nbRows();
+  int kbr = kernel->nbRows();
+
+  double dmin = kernel->x().first();
+  if(dmin > 0)
+    throw RuntimeError("Trying to convolve with a kernel whose min x value > 0");
+  // double xmin = x().first();
+  double dmax = kernel->x().last();
+  if(dmax < 0)
+    throw RuntimeError("Trying to convolve with a kernel whose max x value < 0");
+
+
+  // Using directly the pointers to improve a bit the performance
+  double * target = rv.data();
+
+  const double * ds_x = x().data();
+  const double * ds_y = y().data();
+
+  const double * ke_x = kernel->x().data();
+  const double * ke_y = kernel->y().data();
+
+  int j_prev = 0;
+
+  // We deal with each element one by one
+  // QTextStream o(stdout);
+  // o << "Convolving: " << nbr << "/" << kbr << endl;
+  for(int i = 0; i < nbr; i++) {
+    double xv = ds_x[i];
+    // o << "Point #" << i << ": x = " << xv << endl;
+    // first look for the boundaries within this dataset
+
+    int j = j_prev;
+    // int j = 0;
+    while(j < nbr && ds_x[j] < xv - dmax)
+        j++;
+    j_prev = j;
+    // o << " -> starting at " << j << ": x = " << x()[j] << endl;
+    //j should be <= i
+    if(j > i)
+      throw RuntimeError("Confusion in convolve, are the datasets sorted ?");
+
+    double sum = 0;
+    double prev = 0;
+    double cur = 0;
+    int j0 = j;
+
+    int k_prev = kbr-2;
+
+    while(j < nbr && ds_x[j] < xv - dmin) {
+      // o << "\t dealing with " << j << "/" << nbr << endl;
+      // o << "\t -> x value is " << x()[j] << endl;
+      // First find the position in the kernel
+      double dx = xv - ds_x[j];
+      int k = k_prev;
+      while(ke_x[k] > dx && k > 0)
+        k --;
+      k_prev = k;
+      // o << "\t -> found kernel position #" << k << " for x = "
+      //   << kernel->x()[k] << endl;
+      // In principle we should have found
+      double alpha = (dx - ke_x[k])/
+        (ke_x[k+1] - ke_x[k]);
+      double ky = alpha * ke_y[k+1] + (1 - alpha) * ke_y[k];
+      cur = ds_y[j]*ky;
+      if(j > j0)
+        sum += 0.5 * (cur + prev) * (ds_x[j] - ds_x[j-1]);
+      prev = cur;
+      j++;
+    }
+    // o << "-> got value for" << i << ": " << sum <<  endl;
+    target[i] = sum;
+  }
+  
+  return rv;
+}
+*/
 
 
 //////////////////////////////////////////////////////////////////////

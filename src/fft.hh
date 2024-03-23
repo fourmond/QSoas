@@ -133,6 +133,17 @@ public:
   /// Returns a newly-allocated dataset.
   DataSet * transform(const DataSet * model) const;
 
+  /// Returns the maximum frequency
+  double maxFrequency() const;
+
+  /// Returns the wrapped-around value of the frequency, taking into
+  /// account aliasing.
+  double wrappedFrequency(double value) const;
+
+  /// Returns the index of the given frequency, accounting for the max
+  /// frequency. Returned as double in case one wants sub-point
+  /// precision, but, really, that should be rounded.
+  double frequencyIndex(double freq) const;
 
   /// @}
 
@@ -163,6 +174,11 @@ public:
   /// Apply a Gaussian filter with the given cutoff (frequencies range
   /// from 0 to 1)
   void applyGaussianFilter(double cutoff);
+
+
+  /// Apply a relatively smooth bandcut filter centered around the
+  /// given frequency and with the given width.
+  void applyBandCut(double band, double width);
 
   /// @}
 

@@ -8,3 +8,6 @@
 
 @ check-param-expansion.cmds 23
 @ check-parameters.cmds
+
+@ run-for-each.cmds
+@ run-for-values.cmds

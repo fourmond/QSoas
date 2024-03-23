@@ -38,6 +38,9 @@ class MRuby {
   struct RClass * cQSoasInterface;
 
 
+  /// The base class of exceptions.
+  struct RClass * cException;
+
   mrb_value soasInstance;
 
 public:
@@ -129,6 +132,10 @@ public:
   /// Returns the complex value. This is the unprotected version
   gsl_complex complexValue_up(mrb_value value);
 
+  /// Returns a pointer to the underlying complex.  This function @b
+  /// will @b crash if you're not feeding a QSoas complex to that.
+  gsl_complex * complexInternal(mrb_value value);
+
   /// Returns the value of the object as a double
   double floatValue(mrb_value fv);
 
@@ -148,12 +155,43 @@ public:
   void defineModuleFunction(struct RClass* cls, const char* name,
                             mrb_func_t func, mrb_aspec aspec);
 
-  /// Detects the "external parameters" for the given code.
+
+
+
+
+  /// Detects the "external parameters" for the given code, using a
+  /// native detection mode, i.e. asking mruby what it thinks the
+  /// parameters are.
+  QStringList detectParametersNative(const QByteArray & code,
+                                     QStringList * localVariables = NULL,
+                                     bool debug = false);
+
+  /// Detects the "external parameters" for the given code.  Unlike
+  /// the detectParameters, this does not rely on a deep understanding
+  /// of the code, but rather a rough parsing of it. It seems good
+  /// enough in fact.
+  static QStringList detectParametersApprox(const QByteArray & code,
+                                            QStringList * localVariables = NULL);
+
+  static QStringList detectParametersApprox(const QString & code,
+                                            QStringList * localVariables = NULL);
+
+  /// Returns a QByteArray with a size matching that of code, with the
+  /// "quoting status" of each character in the return value.
+  ///  status & 0x03 is 0 for unquoted, 1 for single and 2 for double
+  ///  status >> 2 is the level of nesting.
+  static QByteArray annotateQuotes(const QString & code);
+
+  /// Detects the "external parameters" for the given code. This may
+  /// either be detectParametersNative or detectParametersApprox
   QStringList detectParameters(const QByteArray & code,
                                QStringList * localVariables = NULL);
 
   /// Defines a module function
   void defineGlobalConstant(const char *name, mrb_value val);
+
+  /// Gets the value of a constant
+  mrb_value getConstant(const char *name);
 
   /// Returns the symbol for the given name
   mrb_sym intern(const char * symbol);
@@ -187,6 +225,9 @@ public:
   /// Iterates over the array, running the function.
   void arrayIterate(mrb_value array,
                     const std::function <void (mrb_value)> & func);
+
+  /// Creates an array of strings from a Qt string list.
+  mrb_value arrayFromStringList(const QStringList & lst);
 
   /// @}
 

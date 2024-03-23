@@ -201,6 +201,7 @@ RubyODESolver::~RubyODESolver()
 {
   delete initialization;
   delete derivatives;
+  delete reporters;
 }
 
 void RubyODESolver::initialize(double t)
@@ -461,8 +462,8 @@ public:
              RubyODESolver * sys,
              const QString & file
              ) : 
-    ODEFit(name.toLocal8Bit(), 
-           QString("Kinetic system of %1").arg(file).toLocal8Bit(),
+    ODEFit(name, 
+           QString("Fit of ODE system: '%1'").arg(file),
            "", 1, -1, false)
   {
     mySystem = sys;

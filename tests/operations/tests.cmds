@@ -4,7 +4,25 @@
 @ add.cmds
 @ mul.cmds
 @ merge.cmds
+@ cat.cmds
+
+@ unwrap.cmds
+
+
 @ crashes.cmds
 
 @ modes.cmds
 @ rotation.cmds
+
+# Singular value decomposition
+@ sv.cmds
+
+# Averaging duplicates
+@ average-duplicates.cmds
+
+# Convolution
+@ convolve.cmds
+
+# Reverse Laplace transforms
+@ laplace.cmds
+@ irreversible-steps.cmds

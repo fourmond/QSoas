@@ -97,7 +97,7 @@ public:
   BSplines(const Vector & xvalues, 
            const Vector & yvalues, int order = 4, int maxorder = 2);
 
-  BSplines(const DataSet * ds, int order = 4, int maxorder = 2);
+  explicit BSplines(const DataSet * ds, int order = 4, int maxorder = 2);
 
   ~BSplines();
 

@@ -48,7 +48,7 @@ class GraphicOutput : public QObject {
 public:
 
 
-  GraphicOutput(const QString & title);
+  explicit GraphicOutput(const QString & title);
   
   /// Sets the output size in natural units, i.e. 6cmx12in
   void setOutputSize(const QString & spec, int resolution = 288);

@@ -43,9 +43,20 @@ public:
   /// the same time.
   bool canBeBufferSpecific;
 
-  ParameterDefinition(const QString & n, bool fixed = false,
-                      bool cbs = true) :
-    name(n), defaultsToFixed(fixed), canBeBufferSpecific(cbs)
+  /// The parameter indicates whether the parameter is linear or not.
+  bool isIntrinsicallyLinear;
+
+  /// Whether or not the linear character has been forced manually
+  bool forceLinear;
+
+  bool isLinear() const {
+    return isIntrinsicallyLinear || forceLinear;
+  };
+
+  explicit ParameterDefinition(const QString & n, bool fixed = false,
+                               bool cbs = true, bool linear = false) :
+    name(n), defaultsToFixed(fixed), canBeBufferSpecific(cbs),
+    isIntrinsicallyLinear(linear), forceLinear(false)
   {
   };
 };
@@ -280,7 +291,9 @@ public:
 
   /// Copy the internal storage, for the target numbered dataset (-1
   /// to copy everything)
-  virtual FitInternalStorage * copyStorage(FitData * data, FitInternalStorage * source, int ds = -1) const;
+  virtual FitInternalStorage * copyStorage(FitData * data,
+                                           FitInternalStorage * source,
+                                           int ds = -1) const;
 
   /// This function returns the arguments to the fit, ie the stuff
   /// that have to be passed to the fit function.
@@ -308,7 +321,8 @@ public:
   /// This function processes the soft options, ie the ones returned
   /// by fitSoftOptions(). They MUST NOT change the number of
   /// parameters in the fit, else it will be a big mess.
-  virtual void processSoftOptions(const CommandOptions & opts, FitData * data) const;
+  virtual void processSoftOptions(const CommandOptions & opts,
+                                  FitData * data) const;
 
   /// @}
 

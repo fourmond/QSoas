@@ -1,7 +1,7 @@
 /**
    \file general-commands.cc various general purpose commands and groups
    Copyright 2011 by Vincent Fourmond
-             2012, 2013, 2014, 2016 by CNRS/AMU
+             2012, 2013, 2014, 2016, 2023 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -55,6 +55,7 @@
 
 #include <argument-templates.hh>
 
+#include <clocale>
 
 static Group file("file", 0,
                   "File",
@@ -636,6 +637,9 @@ noop("noop", // command name
 
 static ArgumentList 
 argList(QList<Argument *>() 
+        << new FileArgument("arg1", 
+                            "First argument",
+                            "First argument to the script")
         << new FileArgument("arg2", 
                             "Second argument",
                             "Second argument to the script")
@@ -711,9 +715,6 @@ rfdArgs(QList<Argument *>()
 static ArgumentList 
 rfdOpts(ArgumentList()
         << runOpts
-        << new FileArgument("arg1", 
-                            "First argument",
-                            "First argument to the script")
         << argList);
 
 static Command 
@@ -736,6 +737,9 @@ static void runForEachCommand(const QString &, QString script,
   bool addToHistory = false;
   updateFromOptions(opts, "add-to-history", addToHistory);
 
+  int target = 1;
+  updateFromOptions(opts, "target", target);
+
   bool silent = false;
   updateFromOptions(opts, "silent", silent);
   CommandWidget::ScriptErrorMode mode = CommandWidget::Abort;
@@ -743,17 +747,26 @@ static void runForEachCommand(const QString &, QString script,
   
   WDisableUpdates eff(& soas().view(), silent);
 
-  int nb = 1;
 
-  QStringList additionalArgs;
+  // Was never used ?
+  // int nb = 1;
 
-  for(int i = 2; i <= argList.size()+1; i++) {
+  QStringList arguments;
+
+  for(int i = 1; i <= argList.size()+1; i++) {
     QString on = QString("arg%1").arg(i);
     if(opts.contains(on))
-      additionalArgs << opts[on]->value<QString>();
-    else
-      break;
-  }  
+      arguments << opts[on]->value<QString>();
+    else {
+      if(target == i)
+        arguments << "";
+      else
+        break;
+    }
+  }
+  if(target > arguments.size() || target < 1)
+    throw RuntimeError("Invalid target: %1 -- please provide enough arguments").
+      arg(target);
 
   QStringList oa = args;
   QString type;
@@ -792,11 +805,12 @@ static void runForEachCommand(const QString &, QString script,
 
 
   while(args.size() > 0) {
-    QStringList a;
-    for(int i = 0; i < nb && args.size() > 0; i++)
-      a << args.takeFirst();
-    a << additionalArgs;
-    soas().prompt().runCommandFile(script, a, addToHistory, mode);
+    // QStringList a;
+    // for(int i = 0; i < nb && args.size() > 0; i++)
+    //   a << args.takeFirst();
+    // a << additionalArgs;
+    arguments[target-1] = args.takeFirst();
+    soas().prompt().runCommandFile(script, arguments, addToHistory, mode);
   }
 }
 
@@ -812,6 +826,9 @@ rfeArgs(QList<Argument *>()
 
 static ArgumentList 
 rfeOpts(ArgumentList()
+        << new IntegerArgument("target",
+                               "Target",
+                               "Argument number being changed")
         << argList
         << new ChoiceArgument(QStringList() << "lin" << "log",
                               "range-type",
@@ -845,10 +862,10 @@ rfef("run-for-each", // command name
 
 //////////////////////////////////////////////////////////////////////
 
+#include <datasetlist.hh>
 
 static void runForValuesCommand(const QString &,
                                 QString script,
-                                ColumnListSpecification columns,
                                 const CommandOptions & opts)
 {
   bool addToHistory = false;
@@ -858,18 +875,30 @@ static void runForValuesCommand(const QString &,
   updateFromOptions(opts, "silent", silent);
   CommandWidget::ScriptErrorMode mode = CommandWidget::Abort;
   updateFromOptions(opts, "error", mode);
+
+  ColumnListSpecification columns;
+  bool hasColumns = opts.contains("columns");
+  if(hasColumns)
+    updateFromOptions(opts, "columns", columns);
+
   
   WDisableUpdates eff(& soas().view(), silent);
 
-  const DataSet * ds = soas().currentDataSet();
+  DataSetList buffers(opts);
+  for(const DataSet * ds : buffers) {
 
-  QList<int> cols = columns.getValues(ds);
-
-  for(int i = 0; i < ds->nbRows(); i++) {
-    QStringList a;
-    for(int c : cols)
-      a << QString::number(ds->column(c)[i]);
-    soas().prompt().runCommandFile(script, a, addToHistory, mode);
+    QList<Vector> cols;
+    if(hasColumns)
+      cols = columns.getColumns(ds);
+    else
+      cols = ds->allColumns();
+    
+    for(int i = 0; i < ds->nbRows(); i++) {
+      QStringList a;
+      for(const Vector & v : cols)
+        a << QString::number(v[i]);
+      soas().prompt().runCommandFile(script, a, addToHistory, mode);
+    }
   }
 }
 
@@ -878,14 +907,16 @@ rfvArgs(QList<Argument *>()
         << new FileArgument("script", 
                             "Script",
                             "The script file")
-        << new SeveralColumnsArgument("columns",
-                                      "Columns",
-                                      "The columns to use as arguments for the script")
         );
 
 static ArgumentList 
 rfvOpts(ArgumentList()
         << runOpts
+        << DataSetList::listOptions("Datasets to work on")
+        << new SeveralColumnsArgument("columns",
+                                      "Columns",
+                                      "The columns to use as arguments for the script",
+                                      true, true, true)
         );
 
 
@@ -897,16 +928,6 @@ rfv("run-for-values", // command name
     &rfvArgs, // arguments
     &rfvOpts, 
     "Runs a script with each row of a dataset");
-
-// static Command 
-// rfef("run-for-each", // command name
-//      effector(runForEachCommand), // action
-//      "file",  // group name
-//      &rfeArgs, // arguments
-//      &rfeOpts, 
-//      "Runs a script for several arguments",
-//      "Runs a script file repetitively with the given arguments",
-//      "", CommandContext::fitContext());
 
 //////////////////////////////////////////////////////////////////////
 
@@ -1083,32 +1104,35 @@ void timerCommand(const QString &, const CommandOptions & opts)
 {
   static QDateTime time;
   static long kTime, uTime;
+  static long vCS, iCS;
   QString name;
   updateFromOptions(opts, "name", name);
   if(time.isValid()) {
     qint64 dt = time.msecsTo(QDateTime::currentDateTime());
     time = QDateTime();
 
-    long ut, kt;
-    Utils::processorUsed(&ut, &kt);
+    long ut, kt, vcs, ics;
+    Utils::processorUsed(&ut, &kt, &vcs, &ics);
 
     
 
     QString message;
     if(! name.isEmpty())
-      message = name + ": %1 tot, %2 proc, %3 us, %4 sys";
+      message = name + ": %1 tot, %2 proc, %3 us, %4 sys, %5 vcs, %6 ics";
     else
-      message = "%1 seconds elapsed since timer start, (%2 total processor time, %3 user, %4 system)";
+      message = "%1 seconds elapsed since timer start, (%2 total processor time, %3 user, %4 system, %5 voluntary CS, %6 involuntary CS)";
     message = message.
       arg(dt*0.001).arg((ut-uTime + kt - kTime)*0.001).
       arg((ut-uTime)*0.001).
-      arg((kt - kTime)*0.001);
+      arg((kt - kTime)*0.001).
+      arg(vcs - vCS).
+      arg(ics - iCS);
     Terminal::out << message << endl;
     Debug::debug() << message << endl;
   }
   else {
     time = QDateTime::currentDateTime();
-    Utils::processorUsed(&uTime, &kTime);
+    Utils::processorUsed(&uTime, &kTime, &vCS, &iCS);
     Terminal::out << "Starting timer " << name <<  endl;
     if(name.isEmpty())
       Debug::debug() << "Starting timer" << endl;
@@ -1292,6 +1316,8 @@ void versionCommand(const QString &, const CommandOptions & opts)
        << QCoreApplication::applicationDirPath()
        << "\n * application path: "
        << QCoreApplication::applicationFilePath()
+       << "\n * libraryinfo library path: "
+       << QLibraryInfo::location(QLibraryInfo::LibrariesPath)
        << "\n * library paths: ";
     for(const QString & p: QCoreApplication::libraryPaths())
       o << "\n    - " << p;
@@ -1303,6 +1329,16 @@ void versionCommand(const QString &, const CommandOptions & opts)
 #else
     o << "Not using libzip\n";
 #endif
+
+    o << "Locales:\n";
+#define DUMP_LOC(x) o << " * " << #x << ": " << std::setlocale(x, NULL) << "\n"
+    DUMP_LOC(LC_ALL);
+    DUMP_LOC(LC_CTYPE);
+    DUMP_LOC(LC_NUMERIC);
+    DUMP_LOC(LC_COLLATE);
+    DUMP_LOC(LC_MONETARY);
+    DUMP_LOC(LC_TIME);
+    
     QTextStream os(stdout);
     os << str << flush;
     Terminal::out << str << flush;

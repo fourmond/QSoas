@@ -40,7 +40,7 @@ class CommandEffectorCallback0OptionLess : public CommandEffector {
 
 public:
 
-  CommandEffectorCallback0OptionLess(Callback c, bool i = false) : 
+  explicit CommandEffectorCallback0OptionLess(Callback c, bool i = false) : 
     CommandEffector(i), callback(c) {;};
 
   inline virtual void runCommand(const QString & commandName, 
@@ -70,7 +70,7 @@ class CommandEffectorCallback1OptionLess : public CommandEffector {
 
 public:
 
-  CommandEffectorCallback1OptionLess(Callback c, bool i = false) : 
+  explicit CommandEffectorCallback1OptionLess(Callback c, bool i = false) : 
     CommandEffector(i), callback(c) {;};
 
   inline virtual void runCommand(const QString & commandName, 
@@ -104,7 +104,7 @@ class CommandEffectorCallback2OptionLess : public CommandEffector {
 
 public:
 
-  CommandEffectorCallback2OptionLess(Callback c, bool i = false) : 
+  explicit CommandEffectorCallback2OptionLess(Callback c, bool i = false) : 
     CommandEffector(i), callback(c) {;};
 
   inline virtual void runCommand(const QString & commandName, 
@@ -137,7 +137,7 @@ class CommandEffectorCallback0 : public CommandEffector {
 
 public:
 
-  CommandEffectorCallback0(Callback c, bool i = false) : 
+  explicit CommandEffectorCallback0(Callback c, bool i = false) : 
     CommandEffector(i), callback(c) {;};
 
   inline virtual void runCommand(const QString & commandName, 
@@ -169,7 +169,7 @@ class CommandEffectorCallback1 : public CommandEffector {
 
 public:
 
-  CommandEffectorCallback1(Callback c, bool i = false) : 
+  explicit CommandEffectorCallback1(Callback c, bool i = false) : 
     CommandEffector(i), callback(c) {;};
 
   inline virtual void runCommand(const QString & commandName, 
@@ -202,7 +202,7 @@ class CommandEffectorCallback2 : public CommandEffector {
 
 public:
 
-  CommandEffectorCallback2(Callback c, bool i = false) : 
+  explicit CommandEffectorCallback2(Callback c, bool i = false) : 
     CommandEffector(i), callback(c) {;};
 
   inline virtual void runCommand(const QString & commandName, 
@@ -237,7 +237,7 @@ class CommandEffectorCallback3 : public CommandEffector {
 
 public:
 
-  CommandEffectorCallback3(Callback c, bool i = false) : 
+  explicit CommandEffectorCallback3(Callback c, bool i = false) : 
     CommandEffector(i), callback(c) {;};
 
   inline virtual void runCommand(const QString & commandName, 
@@ -273,7 +273,7 @@ class CommandEffectorCallback4 : public CommandEffector {
 
 public:
 
-  CommandEffectorCallback4(Callback c, bool i = false) : 
+  explicit CommandEffectorCallback4(Callback c, bool i = false) : 
     CommandEffector(i), callback(c) {;};
 
   inline virtual void runCommand(const QString & commandName, 
@@ -310,7 +310,7 @@ class CommandEffectorCallback5 : public CommandEffector {
 
 public:
 
-  CommandEffectorCallback5(Callback c, bool i = false) : 
+  explicit CommandEffectorCallback5(Callback c, bool i = false) : 
     CommandEffector(i), callback(c) {;};
 
   inline virtual void runCommand(const QString & commandName, 
@@ -666,7 +666,7 @@ class InteractiveCommandEffectorCallback0OptionLess : public CommandEffector {
 
 public:
 
-  InteractiveCommandEffectorCallback0OptionLess(Callback c) : 
+  explicit InteractiveCommandEffectorCallback0OptionLess(Callback c) : 
     CommandEffector(true), callback(c) {;};
 
   inline virtual void runCommand(const QString & /*commandName*/, 
@@ -708,7 +708,7 @@ class InteractiveCommandEffectorCallback0 : public CommandEffector {
 
 public:
 
-  InteractiveCommandEffectorCallback0(Callback c) : 
+  explicit InteractiveCommandEffectorCallback0(Callback c) : 
     CommandEffector(true), callback(c) {;};
 
   inline virtual void runCommand(const QString & /*commandName*/, 
@@ -750,7 +750,7 @@ private:
   
 public:
 
-  RawCommandEffector(const EffectorCode & c) :
+  explicit RawCommandEffector(const EffectorCode & c) :
     CommandEffector(false),
     code(c) {
   }

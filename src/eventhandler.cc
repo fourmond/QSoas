@@ -158,7 +158,7 @@ int EventHandler::nextAction(const CurveEventLoop & loop) const
 QString EventHandler::buildHelpString(bool /*useHTML*/) const
 {
   QList<int> actions = helpTexts.keys();
-  qSort(actions);
+  std::sort(actions.begin(), actions.end());
 
   QString text;
 
@@ -187,29 +187,29 @@ QString EventHandler::buildHelpString(bool /*useHTML*/) const
 QString EventHandler::buildSpec() const
 {
   QList<int> actions = helpTexts.keys();
-  qSort(actions);
+  std::sort(actions.begin(), actions.end());
 
   QStringList sc;
+
+  QList<Qt::MouseButton> buttons = clickActions.keys();
+  std::sort(buttons.begin(), buttons.end());
+
+  QList<int> keys = keyActions.keys();
+  std::sort(keys.begin(), keys.end());
 
   for(int i = 0; i < actions.size(); i++) {
     // First get all the actions corresponding to 
     int action = actions[i];
     QStringList shortcuts;
-    
-    for(QHash<Qt::MouseButton, int>::const_iterator it = clickActions.begin();
-        it != clickActions.end(); ++it)
-      if(it.value() == action)
-        shortcuts << clickString(it.key());
 
-    QSet<int> ksc;
-    for(QHash<int, int>::const_iterator it = keyActions.begin();
-        it != keyActions.end(); ++it)
-      if(it.value() == action)
-        ksc.insert(it.key());
-    for(int k : ksc)
+    for(Qt::MouseButton bt : buttons)
+      if(clickActions[bt] == action)
+        shortcuts << clickString(bt);
+
+    for(int k : keys)
+      if(keyActions[k] == action)
         shortcuts << keyString(k);
-    
-    
+
     sc.append(QString("(%1: %2)").
                 arg(shortcuts.join(", ")).
                 arg(action));

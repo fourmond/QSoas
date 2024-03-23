@@ -71,7 +71,7 @@ else {
 }
 
 # We use a precompiled header everywhere but on macosX (it fails !)
-unix:!macx {
+!macx {
   CONFIG += precompile_header
   PRECOMPILED_HEADER = src/headers.hh
 }
@@ -153,6 +153,10 @@ gc {
   TARGET = $$join(TARGET,,,-gc)
 }
 
+# Linking against CoreFoundation on macos:
+macx {
+  LIBS += -framework CoreFoundation
+}
 
 
 
@@ -203,19 +207,48 @@ LIBS += -lgsl -lgslcblas -lm
 ! isEmpty(MRUBY_DIR) {
   # We add the directory to both the include path and the lib path:
   message("Building against MRUBY in directory: $$MRUBY_DIR")
-  exists($${MRUBY_DIR}/build/host-debug/lib) {
-    LIBS += -L$$MRUBY_DIR/build/host-debug/lib
-  } else {
-    LIBS += -L$$MRUBY_DIR/lib
+  exists($${MRUBY_DIR}/bin/mruby-config) {
+    message("Found mruby-config")
+    message("CFLAGS:  $$system($${MRUBY_DIR}/bin/mruby-config --cflags)")
+    QMAKE_CXXFLAGS += $$system($${MRUBY_DIR}/bin/mruby-config --cflags)
+    message("LDFLAGS: $$system($${MRUBY_DIR}/bin/mruby-config --ldflags)")
+    LIBS += $$system($${MRUBY_DIR}/bin/mruby-config --ldflags)
+    message("LIBS: $$system($${MRUBY_DIR}/bin/mruby-config --libs)")
+    LIBS += $$system($${MRUBY_DIR}/bin/mruby-config --libs)
+   }
+  else {
+      exists($${MRUBY_DIR}\bin\mruby-config.bat) {
+        message("Found mruby-config.bat")
+        message("CFLAGS:  $$system($${MRUBY_DIR}\bin\mruby-config.bat --cflags)")
+        QMAKE_CXXFLAGS += $$system($${MRUBY_DIR}\bin\mruby-config.bat --cflags)
+        message("LDFLAGS: $$system($${MRUBY_DIR}\bin\mruby-config.bat --ldflags)")
+        LIBS += $$system($${MRUBY_DIR}\bin\mruby-config.bat --ldflags)
+        message("LIBS: $$system($${MRUBY_DIR}\bin\mruby-config.bat --libs)")
+        LIBS += $$system($${MRUBY_DIR}\bin\mruby-config.bat --libs)
+    } else {
+      message("Did not find mruby-config")
+      exists($${MRUBY_DIR}/build/host-debug/lib) {
+        LIBS += -L$$MRUBY_DIR/build/host-debug/lib
+      } else {
+        LIBS += -L$$MRUBY_DIR/lib
+      }
+      INCLUDEPATH += $$MRUBY_DIR/include
+    }
   }
-  INCLUDEPATH += $$MRUBY_DIR/include
-
 # IMPORTANT NOTE: we need a recent version on mruby,
 # https://github.com/mruby/mruby/commit/7450a774a5f796f7e9d312ba9c9690097f4aa309,
 # seems to do the trick.
 }
+else {
+     # case of macos ?
+     exists(/opt/local/lib/mruby) {
+        LIBS += -L/opt/local/lib/mruby
+     }
+}
 
 LIBS += -lmruby
+
+
 ######################################################################
 
 
@@ -395,7 +428,9 @@ SOURCES += \
         src/contourlines.cc \
         src/settings-templates.cc \
         src/linearfunctions.cc \
-        src/indexedfit.cc
+        src/indexedfit.cc \
+        src/svd-command.cc \
+        src/monotonefit.cc
 
 
 # Fit engines, grouped in an easy way to disable them:
@@ -564,7 +599,12 @@ HEADERS += src/helpbrowser.hh
 SOURCES += src/helpbrowser.cc
 
 
-# These are for JSON meta-data files
+# A small wrapper around scrolled widgets
+HEADERS += src/scrolledwidget.hh
+SOURCES += src/scrolledwidget.cc
+
+
+# These are for QSoas's internal file handling
 HEADERS += src/file.hh src/fileinfo.hh
 SOURCES += src/file.cc src/fileinfo.cc
 
@@ -572,6 +612,17 @@ SOURCES += src/file.cc src/fileinfo.cc
 # These are for all the serialization of column
 HEADERS += src/columnbasedformat.hh
 SOURCES += src/columnbasedformat.cc
+
+# Synchronized table view
+HEADERS += src/synchronizedtables.hh
+SOURCES += src/synchronizedtables.cc
+
+# Expressions of a complex variable
+HEADERS += src/complexexpression.hh
+SOURCES += src/complexexpression.cc
+
+# Laplace fits
+SOURCES += src/laplace-fits.cc
 
 ######################################################################
 # Sources for the parameter space explorers
@@ -596,18 +647,18 @@ unix|macx {
 ######################################################################
 # Detection and handling of libzip
 
-# !win32 {
-#   exists(/usr/include/zip.h)|exists(/opt/local/include/zip.h) {
-#     DEFINES += HAS_LIBZIP
-#     LIBS += -lzip
-#     message("Found support for ZIP archives read/write")
-#     HEADERS += src/zipfile.hh
-#     SOURCES += src/zipfile.cc
-#   }
-#   else {
-#     message("Did not find libzip")
-#   }
-# }
+!win32 {
+  exists(/usr/include/zip.h)|exists(/opt/local/include/zip.h) {
+    DEFINES += HAS_LIBZIP
+    LIBS += -lzip
+    message("Found support for ZIP archives read/write")
+    HEADERS += src/zipfile.hh
+    SOURCES += src/zipfile.cc
+  }
+  else {
+    message("Did not find libzip")
+  }
+}
 
 
 

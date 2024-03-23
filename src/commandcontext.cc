@@ -79,20 +79,19 @@ void CommandContext::registerCommand(Command * cmd)
 
   commands[cmd->commandName()] = cmd;
 
-  if(cmd->shortCommandName().isEmpty())
-    return;
-  if(commands.contains(cmd->shortCommandName()))
-    throw InternalError(QObject::tr("Duplicate short command name : %1").
-                        arg(cmd->shortCommandName()));
-  commands[cmd->shortCommandName()] = cmd;
+  for(const QString & al : cmd->commandAliases()) {
+    if(commands.contains(al))
+      throw InternalError("Duplicate short command name : %1").
+        arg(al);
+    commands[al] = cmd;
+  }
 }
 
 void CommandContext::unregisterCommand(Command * cmd)
 {
   commands.remove(cmd->commandName());
-  if(! cmd->shortCommandName().isEmpty())
-    commands.remove(cmd->shortCommandName());
-
+  for(const QString & al : cmd->commandAliases())
+    commands.remove(al);
   // Is that all ?
 }
 
@@ -201,13 +200,13 @@ static bool cmpCommands(const Command * a, const Command * b)
 void CommandContext::writeSpecFile(QTextStream & out, bool full)
 {
   QList<Command *> lst = globalContext()->availableCommands().toList();
-  qSort(lst.begin(), lst.end(), ::cmpCommands);
+  std::sort(lst.begin(), lst.end(), ::cmpCommands);
   for(int i = 0; i < lst.size(); i++)
     out << lst[i]->commandSpec(full);
 
   out << "Fit commands" << endl;
   lst = fitContext()->availableCommands().toList();
-  qSort(lst.begin(), lst.end(), ::cmpCommands);
+  std::sort(lst.begin(), lst.end(), ::cmpCommands);
 
   for(int i = 0; i < lst.size(); i++)
     out << lst[i]->commandSpec(full);
@@ -226,37 +225,6 @@ void CommandContext::runCommand(const QStringList & cmd,
   command->runCommand(name, b, base);
 }
 
-QStringList CommandContext::loadDocumentation(const QString & str)
-{
-  QRegExp re("\\{::comment\\} description-(start|end):\\s*([0-9a-z-]+)\\s*\\{:/\\}\\s*");
-
-  QHash<QString, Command *> cmds;
-  for(Command * cmd : globalContext()->availableCommands())
-    cmds[cmd->commandName()] = cmd;
-
-  for(Command * cmd : fitContext()->availableCommands())
-    cmds["fit-" + cmd->commandName()] = cmd;
-
-  int idx = 0;
-  int nx = 0;
-
-  int beg = -1;
-  QString cur;
-  while(nx = re.indexIn(str, idx), nx >= 0) {
-    if(re.cap(1) == "start") {
-      beg = nx + re.matchedLength();
-      cur = re.cap(2);
-    } else {
-      if(beg >= 0 && cmds.contains(cur)) {
-        cmds[cur]->longDesc = str.mid(beg, nx - beg);
-        cmds.remove(cmds[cur]->shortCommandName());
-        cmds.remove(cur);
-      }
-    }
-    idx = nx + re.matchedLength();
-  }
-  return cmds.keys();
-}
 
 QSet<Command *> CommandContext::allAvailableCommands()
 {

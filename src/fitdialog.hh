@@ -2,7 +2,7 @@
    \file fitdialog.hh
    Dialog box handling fits in QSoas
    Copyright 2011 by Vincent Fourmond
-             2012, 2013, 2014 by CNRS/AMU
+             2012, 2013, 2014,...,2024 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -123,6 +123,14 @@ class FitDialog : public QDialog {
   /// A small text display to report current progress
   QLabel * progressReport;
 
+  /// The currently displayed text of the progress report
+  QString progressText;
+
+  /// Whether the currently displayed message is an error or not
+  bool progressError;
+
+  
+
   /// A small text right next to progressReport to display residuals.
   QLabel * residualsDisplay;
 
@@ -161,6 +169,12 @@ class FitDialog : public QDialog {
   /// A (guarded) pointer to the ParametersViewer
   QPointer<ParametersViewer> parametersViewer;
 
+  /// The menu bar
+  QMenuBar * menuBar;
+
+  /// The menus
+  PossessiveList<QMenu> menus;
+
 
 protected:
 
@@ -170,12 +184,14 @@ protected:
   void internalCompute(bool dontSend = false);
 
 
-  /// Writes a message, with immediate display
-  void message(const QString & str);
+  /// Writes a message, with immediate display If @a error is true,
+  /// then the error is an error message and should be emphasized one
+  /// way or another.
+  void message(const QString & str, bool error = false);
 
 
   /// Appends the given text to the current message
-  void appendToMessage(const QString & str, bool format = false);
+  void appendToMessage(const QString & str);
 
   /// Exports to a file after prompting for a name
   void promptExport(bool withErrors);

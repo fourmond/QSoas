@@ -71,6 +71,7 @@
 #include <QDialog>
 #include <QInputDialog>
 #include <QColorDialog>
+#include <QFontDialog>
 #include <QMessageBox>
 #include <QToolTip>
 #include <QDialogButtonBox>
@@ -159,6 +160,7 @@
 
 // Plugins
 #include <QLibrary>
+#include <QLibraryInfo>
 
 // Networking ?
 #include <QTcpSocket>
@@ -190,6 +192,13 @@
 
 #include <mruby.h>
 
+// OK, this is a patch, because I have to juggle between places in
+// which ::endl is deprecated and places in which Qt::endl is not
+// defined.
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,15,0)
+#define endl Qt::endl
+#endif
 
 
 

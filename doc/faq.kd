@@ -85,6 +85,14 @@ command, and you can use the `/style=` option to [commands generating
 several datasets](qsoas.html#several-datasets) to use gradients to
 display a set of datasets.
 
+## I want to make figures with QSoas {#figures}
+
+The current public version does not support to make figures, although
+it is possible to save a PDF file using [cmd: print]. However, our
+in-house version of QSoas already supports generating figures, and
+this will be made generally available to the public as soon as it is
+stable enough (and well enough documented).
+
 
 # File formats
 
@@ -232,35 +240,9 @@ try:
 QSoas> strip-if y<0
 ~~~
 
+# Bugs, support
 
-
-
-# Copyright
-
-## I have just bought QSoas, can I give it to my friends? How do you expect to make money if the program is not protected? 
-
-QSoas is distributed under the [GNU General Public license version
-2.0][gpl], which means among other things that you can redistribute
-the binaries so long as you can provide the source code for them.
-
-While you can get the binaries legally for free from a friend, think
-about it. Buying the fairly inexpensive binaries help the development
-of QSoas, and hence is a gift from you to the whole community of users
-of QSoas.
-
-
-## Why on earth do I have to pay for a free program ? {#why-pay}
-
-Well, you don't have to pay. You can grab the source code from the
-[download page][downloads] and compile it from the source; actually
-this is the only supported way to get the program under
-Linux. However, if you want to be spared the hassle to compile the
-application yourself, you can buy the pre-built binaries, and feel
-good because you are contributing to the further development of QSoas !
-
-# Bugs, updates
-
-## I believe I found a bug, can I report it ? Can I get my money back?
+## I believe I found a bug, can I report it ? {#report-bugs}
 
 The best way to report a bug is to signal it on the
 [github tracker][github-issues].
@@ -271,35 +253,11 @@ exact version of QSoas and the output on the terminal when
 applicable. If data confidentiality is not a problem, consider sending
 a binary stack saved using [cmd: save-stack].
 
-We don't offer refunds -- the license explicitly states that:
 
-> This program is distributed in the hope that it will be useful, but
-> WITHOUT ANY WARRANTY; without even the implied warranty of
-> MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
-
-However, if the information you provide us helps us identify and fix
-the bug, we'll try to provide you with an updated version.
-
-## I have bought QSoas 1.0, will I need to pay again each time a new version is released? {#upgrades}
-
-You purchased a single binary. Later versions are not included in the
-price. Consider the price of QSoas: most of the softwares that are
-orders of magnitudes more expensive than QSoas do not include updates
-either in the purchasing cost. If that isn't acceptable for you, you
-may consider [compiling QSoas from source](#why-pay).
-
-## Why isn't there a win64 binary version ? Will there ever be one ?
-
-There are currently no plans for a win64 version. However, QSoas, like
-all other 32 bit applications, works seamlessly in 64 bit versions of
-Windows, thanks to the so-called
-[WOW64 windows layer](https://msdn.microsoft.com/en-us/library/windows/desktop/aa384249.aspx).
-The only drawback is that you cannot use more than 3GB or so of memory
-from QSoas, which should seldom be a limitation.
 
 
 This file was written by Vincent Fourmond, and is copyright (c)
-2014-2020 by CNRS/AMU.
+2014-2023 by CNRS/AMU.
 
 [gpl]:https://www.gnu.org/licenses/gpl-2.0.html "General Public Licence 2.0"
 [github-issues]:https://github.com/fourmond/QSoas/issues

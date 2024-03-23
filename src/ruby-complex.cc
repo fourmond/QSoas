@@ -290,3 +290,8 @@ mrb_value MRuby::newComplex(const gsl_complex & z)
 {
   return co_create(mrb, cCplx, z);
 }
+
+gsl_complex * MRuby::complexInternal(mrb_value value)
+{
+  return co_get_c(mrb, value);
+}

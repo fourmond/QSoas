@@ -45,6 +45,8 @@
 #include <datasetlist.hh>
 #include <datastackhelper.hh>
 
+#include <curve-effectors.hh>
+
 
 #include <file.hh>
 
@@ -440,6 +442,8 @@ static void loadStackCommand(const QString &, QString fileName,
   bool merge = false;
   updateFromOptions(opts, "merge", merge);
 
+  Terminal::out << "Loading stack file: " << fileName << endl;
+
   QDataStream in(file);
   if(merge) {
     DataStack s(true);
@@ -490,7 +494,8 @@ static CommandLineOption sp("--load-stack", [](const QStringList & args) {
 //////////////////////////////////////////////////////////////////////
 
 
-static void ovCommand(const QString &,
+// This handles both overlaying and hiding
+static void ovhCommand(const QString &name,
                       const CommandOptions & opts)
 {
   // This is probably the only command that should not use
@@ -499,15 +504,24 @@ static void ovCommand(const QString &,
   QString style;
   updateFromOptions(opts, "style", style);
 
+  bool hiding = false;
+  if(name == "hide-buffer" || name =="H")
+    hiding = true;
+
   DataSetList datasets(opts);
   QScopedPointer<StyleGenerator> 
     gen(StyleGenerator::fromText(style, datasets.size()));
 
 
-  soas().view().disableUpdates();
-  for(const DataSet * ds : datasets)
-    soas().view().addDataSet(ds, gen.data());
-  soas().view().enableUpdates();
+  {
+    WDisableUpdates eff(& soas().view());
+    for(const DataSet * ds : datasets) {
+      if(hiding)
+        soas().view().removeDataSet(ds);
+      else
+        soas().view().addDataSet(ds, gen.data());
+    }
+  }
 }
 
 // static ArgumentList 
@@ -532,7 +546,7 @@ ovbOpts(ArgumentList()
 
 static Command 
 ovlb("overlay-buffer", // command name
-     effector(ovCommand), // action
+     effector(ovhCommand), // action
      "view",  // group name
      NULL, // arguments
      &ovbOpts, // options
@@ -543,27 +557,17 @@ ovlb("overlay-buffer", // command name
 //////////////////////////////////////////////////////////////////////
 
 
-static void hideCommand(const QString &, QList<const DataSet *> ds,
-                        const CommandOptions & )
-{
-  soas().view().disableUpdates();
-  for(int i = 0; i < ds.size(); i++)
-    soas().view().removeDataSet(ds[i]);
-  soas().view().enableUpdates();
-}
-
 static ArgumentList 
-hdArgs(QList<Argument *>() 
-       << new SeveralDataSetArgument("buffers", 
-                                     "Buffers",
-                                     "buffers to hide"));
+hdOpts(ArgumentList()
+        << DataSetList::listOptions("Buffers to hide")
+        );
 
 static Command 
 hide("hide-buffer", // command name
-     effector(hideCommand), // action
+     effector(ovhCommand), // action
      "view",  // group name
-     &hdArgs, // arguments
-     NULL, // options
+     NULL,    // arguments
+     &hdOpts, // options
      "Hide buffers",
      "hide buffers from the view",
      "H");
@@ -616,7 +620,7 @@ poiCmd("points", // command name
 
 static void browseStackCommand(const QString &, const CommandOptions & opts)
 {
-  DatasetBrowser dlg;
+  DatasetBrowser dlg(opts);
 
   DataSetList datasets(opts, true);
   
@@ -633,7 +637,8 @@ static void browseStackCommand(const QString &, const CommandOptions & opts)
 }
 
 static ArgumentList 
-bsOpts(QList<Argument *>() 
+bsOpts(QList<Argument *>()
+       << DatasetBrowser::browserOptions()
        << DataSetList::listOptions("Datasets to show")
        );
 

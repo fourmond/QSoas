@@ -43,7 +43,7 @@ void ValueHashEditor::setFromHash(const ValueHash & src)
 {
   QStringList keys = src.keys();
   // To look nicer a bit
-  qSort(keys);
+  std::sort(keys.begin(), keys.end());
   for(int i = 0; i < keys.size(); i++) {
     const QString & k = keys[i];
     // Primitive, but will work for what we want

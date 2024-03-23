@@ -205,6 +205,10 @@ public:
     double delta_E = xv[1] - xv[0];
     double E_vertex = 0;
     double scale = 1;
+    if(a[6] < 0)
+      throw RangeError("Negative time constant: %1").arg(a[6]);
+    if(a[4] < 0)
+      throw RangeError("Negative final activity: %1").arg(a[4]);
     if(s->scaling)
       scale = a[s->biExp ? 9 : 7];
     for(int i = 0; i < xv.size(); i++) {
@@ -806,10 +810,12 @@ public:
 
       /// Current of each species
       for(int j = 0; j < s->species; j++)
-        defs << ParameterDefinition(QString("I_%1%2").arg(j+1).arg(suffix));
+        defs << ParameterDefinition(QString("I_%1%2").arg(j+1).arg(suffix),
+                                    false, true, true);
 
       if(s->offset)
-        defs << ParameterDefinition(QString("I_off_%1").arg(suffix), true);
+        defs << ParameterDefinition(QString("I_off_%1").arg(suffix), true,
+                                    true, true);
 
       /// Reaction constants
       for(int j = 0; j < s->species; j++)

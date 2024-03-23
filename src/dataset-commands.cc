@@ -334,7 +334,7 @@ static void unwrapCommand(const QString &,
   
   const Vector & oldX = ds->x();
 
-  DataSet * nds;
+  DataSet * nds = NULL;
   if(reverse) {
     int cs = 0;                 // cur segment
     double sr = 1;
@@ -357,11 +357,12 @@ static void unwrapCommand(const QString &,
         double dx = oldX[i] - oldX[i-1];
         if(ds->segments.value(cs, -1) == i) {
           sign *= -1;
+          cs += 1;
         }
         ei += dx * sign *sr;
       }
       newX << ei;
-    }            
+    }
     nds = ds->derivedDataSet(ds->y(), "_rewrap.dat", newX);
   }
   else {
@@ -377,7 +378,8 @@ static void unwrapCommand(const QString &,
           segs.insert(i);
         }
         newX << newX.last() + fabs(dx);
-        olddx = dx;
+        if(dx != 0)
+          olddx = dx;
       }
       else
         newX << 0;
@@ -622,7 +624,7 @@ static void chopCommand(const QString &,
     if(lst.size() == 0)
       values << val.toDouble();
     else {
-      for(const QVariant v : lst)
+      for(const QVariant &v : lst)
         values << v.toDouble();
     }
   }
@@ -1898,6 +1900,7 @@ ave("average", // command name
 static void catCommand(const QString &, QList<const DataSet *> b, const CommandOptions & opts)
 {
   bool setSegs = true;
+  DataSetList buffers(opts, b);
   updateFromOptions(opts, "add-segments", setSegs);
   handleMissingDS(&b);
 
@@ -1905,12 +1908,12 @@ static void catCommand(const QString &, QList<const DataSet *> b, const CommandO
   updateFromOptions(opts, "contract-meta", meta);
 
   if(b.size() > 0) {
-    std::unique_ptr<DataSet> ds(DataSet::concatenateDataSets(b, setSegs));
-    ds->contractMeta(meta, b);
+    std::unique_ptr<DataSet> ds(DataSet::concatenateDataSets(buffers, setSegs));
+    ds->contractMeta(meta, buffers);
     soas().pushDataSet(ds.release());
   }
   else
-    throw RuntimeError("No dataets to concatenate");
+    throw RuntimeError("No datasets to concatenate");
 }
 
 static ArgumentList 
@@ -1926,6 +1929,7 @@ catOpts(QList<Argument *>()
                             "Add segments",
                             "If on (default) segments are added between "
                             "the old datasets")
+        << DataSetList::listOptions("...", false, true)
         << (new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                        "contract-meta",
                                        "Contract meta data",
@@ -1990,7 +1994,7 @@ static void statsOn(const DataSet * ds, const CommandOptions & opts,
   }
   else {
     os = os.select(sns);
-    Terminal::out << ds->name << os.toString(QString("\t")) << endl;
+    Terminal::out << ds->name << "\t" << os.toString(QString("\t"));
   }
 
   Terminal::out << endl;
@@ -2098,6 +2102,7 @@ static void generateDSCommand(const QString &, double beg, double end,
   for(int k = 0; k < nb; k++) {
     Vector x = logSpace ? Vector::logarithmicallySpaced(beg, end, samples)
       : Vector::uniformlySpaced(beg, end, samples);
+    Command::currentProgress(k, nb);
     QList<Vector> cols;
     cols << x;
     Vector y = x;
@@ -2215,7 +2220,7 @@ static void recordMetaCommand(const QString &, QString meta, QString value,
   bool remove = false;
   updateFromOptions(opts, "remove", remove);
 
-  for(const QString f : files) {
+  for(const QString &f : files) {
     if(MetaDataFile::isMetaDataFile(f)) {
       Terminal::out << "Skipping '" << f
                     << "', which is a meta-data file" << endl;
@@ -2486,14 +2491,12 @@ sP("set-perp", // command name
 
 static void editCommand(const QString &)
 {
-  const DataSet * ds = soas().currentDataSet();
+  const DataSet * ds = soas().currentDataSet(true);
   // this seems necessary to work around what appears to be a Qt bug,
   // a spurious crash on closing edit
-  static DatasetEditor * editor = NULL;
-  if(editor)
-    delete editor;
-  editor = new DatasetEditor(ds);
-  editor->exec();
+  DatasetEditor * editor = new DatasetEditor(ds);
+  editor->setAttribute(Qt::WA_DeleteOnClose, true);
+  editor->show();
 }
 
 static Command 
@@ -2532,7 +2535,7 @@ static void tweakColumnsCommand(const QString &,
   }
   else if(toRemove.columns.size() > 0) {
     QList<int> tr = toRemove.getValues(ds);
-    qSort(tr);
+    std::sort(tr.begin(), tr.end());
     for(int i = tr.size() - 1; i >= 0; i--)
       cols.removeAt(tr[i]);
   }
@@ -2769,7 +2772,7 @@ static void setRowNamesCommand(const QString &,
                                const CommandOptions & opts)
 {
   const DataSet * ds = soas().currentDataSet();
-  DataSet * nds = ds->derivedDataSet(".dat");
+  std::unique_ptr<DataSet> nds(ds->derivedDataSet(".dat"));
 
   QStringList names;
   updateFromOptions(opts, "names", names);
@@ -2785,7 +2788,7 @@ static void setRowNamesCommand(const QString &,
   for(int row : sp.keys())
     nds->setRowName(row, sp[row]);
   
-  soas().pushDataSet(nds);
+  soas().pushDataSet(nds.release());
 }
 
 static ArgumentList 
@@ -2984,3 +2987,50 @@ an("add-noise", // command name
    "Adds noise to the buffer");
 
 
+
+//////////////////////////////////////////////////////////////////////
+
+static void pickCommand(const QString &,
+                        QList<double> where,
+                        const CommandOptions &opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+
+  ColumnSpecification col("x");
+  updateFromOptions(opts, "column", col);
+  Vector v = col.getColumn(ds);
+
+  // Hmmm. How do we handle duplicates?.
+  QList<int> indices;
+  for(double xv : where) {
+    int point = v.closestPoint(xv);
+    indices << point;
+  }
+  DataSet * nds = ds->derivedDataSet("_pick.dat");
+  nds->selectRows(indices);
+  soas().pushDataSet(nds);
+}
+
+static ArgumentList 
+piA(QList<Argument *>() 
+    << new SeveralNumbersArgument("where", 
+                                  "Where",
+                                  "Which values to pick")
+    );
+
+static ArgumentList 
+piO(QList<Argument *>() 
+    << new ColumnArgument("column", 
+                          "Column",
+                          "Which column contains the values",
+                          false, false, true)
+    );
+
+
+static Command 
+pk("pick", // command name
+   effector(pickCommand), // action
+   "buffer",  // group name
+   &piA, // arguments
+   &piO, // options
+   "Pick rows");

@@ -446,7 +446,7 @@ ArgumentList DistribFit::fitSoftOptions() const
 
 DistribFit::DistribFit(const QString & name, const QString & param, 
                        PerDatasetFit *fit, const Distribution * defdist) :
-  PerDatasetFit(name.toLocal8Bit(), 
+  PerDatasetFit(name, 
                 "Distrib fit",
                 "Distrib fit", 1, -1, false),
   parameterName(param), underlyingFit(fit)

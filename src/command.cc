@@ -37,6 +37,8 @@
 #include <mruby.hh>
 #include <terminal.hh>
 
+#include <idioms.hh>
+
 
 Command::Command(const QString & cn, 
                  CommandEffector * eff,
@@ -48,7 +50,7 @@ Command::Command(const QString & cn,
                  const QString & sc,
                  CommandContext * cxt,
                  bool autoRegister) : 
-  cmdName(cn), shortCmdName(sc), pubName(pn), 
+  cmdName(cn), pubName(pn), 
   shortDesc(sd), groupName(gn), 
   arguments(ar ? new ArgumentList(*ar) : NULL),
   options(op ? new ArgumentList(*op) : NULL),
@@ -59,9 +61,34 @@ Command::Command(const QString & cn,
 {
   // QTextStream o(stdout);
   // o << "Creating command: " << cn << endl;
+  if(! sc.isEmpty())
+    aliases << sc;
   if(autoRegister)
     registerMe();
-}; 
+}
+
+Command::Command(const QString & cn, 
+                 CommandEffector * eff,
+                 const QString & gn, 
+                 const ArgumentList * ar,
+                 const ArgumentList * op,
+                 const QString & pn,
+                 const QString & sd, 
+                 const QStringList & als,
+                 CommandContext * cxt,
+                 bool autoRegister) : 
+  cmdName(cn), aliases(als), pubName(pn),
+  shortDesc(sd), groupName(gn), 
+  arguments(ar ? new ArgumentList(*ar) : NULL),
+  options(op ? new ArgumentList(*op) : NULL),
+  custom(CommandContext::finishedLoading),
+  context(cxt),
+  effector(eff), 
+  group(NULL)
+{
+  if(autoRegister)
+    registerMe();
+}
 
 Command::Command(const QString & cn, 
                  CommandEffector * eff,
@@ -73,7 +100,7 @@ Command::Command(const QString & cn,
                  const QString & sc,
                  CommandContext * cxt,
                  bool autoRegister) : 
-  cmdName(cn), shortCmdName(sc), pubName(pn), 
+  cmdName(cn), pubName(pn), 
   shortDesc(sd), groupName(gn), 
   arguments(new ArgumentList(ar)),
   options(new ArgumentList(op)),
@@ -82,11 +109,11 @@ Command::Command(const QString & cn,
   effector(eff), 
   group(NULL)
 {
-  // QTextStream o(stdout);
-  // o << "Creating command: " << cn << endl;
+  if(! sc.isEmpty())
+    aliases << sc;
   if(autoRegister)
     registerMe();
-}; 
+}
 
 Command::~Command()
 {
@@ -103,7 +130,49 @@ void Command::registerMe()
   if(! context)
     context = CommandContext::globalContext();
   context->registerCommand(this);
+  checkOptions();
 }
+
+
+void Command::checkOptions() const
+{
+  QSet<QString> opts;
+  if(options) {
+    for(int i = 0; i < options->size(); i++) {
+      const Argument * arg = (*options)[i];
+      QString a = arg->argumentName();
+      if(opts.contains(a))
+        throw InternalError("Duplicate option: %1 for command %2").
+          arg(a).arg(cmdName);
+      opts.insert(a);
+    }
+  }
+}
+
+QString Command::commandName() const
+{
+  return cmdName;
+}
+
+QStringList Command::commandAliases() const
+{
+  return aliases;
+}
+
+QString Command::publicName() const
+{
+  return pubName;
+}
+
+
+QString Command::shortDescription() const
+{
+  return shortDesc;
+}
+
+
+
+
 
 
 /// Dummy ArgumentList. @todo move somewhere else ?
@@ -129,7 +198,7 @@ CommandOptions Command::parseOptions(const QMultiHash<QString, QString> & opts,
   if(defaultOption) {
     const Argument * opt = options->defaultOption();
     ArgumentMarshaller * arg = NULL;
-    for(const QString a : *defaultOption) {
+    for(const QString & a : *defaultOption) {
       ArgumentMarshaller * na = opt->fromString(a);
       if(arg) {
         if(! opt->greedy)
@@ -250,6 +319,8 @@ void Command::runCommand(const QString & commandName,
                          const CommandArguments & args,
                          const CommandOptions & options)
 {
+  TemporaryChange<Command*> tmp(currentCommand, this);
+  currentProgress(0, 0);
   if(effector->needsLoop()) {
     CurveEventLoop loop; /// @todo Find a way to provide context ?
     effector->runWithLoop(loop, commandName, args, options);
@@ -263,8 +334,8 @@ QAction * Command::actionForCommand(QObject * parent) const
 {
   QAction * action = new QAction(parent);
   QString str = publicName();
-  if(! shortCmdName.isEmpty())
-    str += QString(" (%1)").arg(shortCmdName);
+  if(aliases.size() > 0)
+    str += QString(" (%1)").arg(aliases[0]);
   action->setText(str);
   action->setStatusTip(QString("%1: %2").
                        arg(commandName()).
@@ -502,15 +573,22 @@ QString Command::synopsis(bool markup) const
   if(context != CommandContext::globalContext())
     synopsis << wrapIf("(fit command)", "**", markup);
 
-  if(! shortCmdName.isEmpty())
-    descs = "Other name: " + wrapIf(shortCmdName, "`", markup) + "\n\n" + descs;
+  if(aliases.size() > 0) {
+    QString pl = "";
+    QStringList als;
+    if(aliases.size() > 1)
+      pl = "s";
+    for(const QString & al : aliases)
+      als << wrapIf(al, "`", markup);
+    descs = "Other name" + pl + ": " + als.join(", ") + "\n\n" + descs;
+  }
 
   // We need to escape |, which comes in too many times
   if(markup)
     descs.replace(QString("|"), QString("\\|"));
 
   return wrapIf(cmdName,"`", markup) + " " + 
-    synopsis.join(" ") + "\n\n" + descs + "\n";
+    synopsis.join(" ") + "\n\n" + descs;
 }
 
 QString & Command::updateDocumentation(QString & str, int level) const
@@ -536,10 +614,6 @@ QString & Command::updateDocumentation(QString & str, int level) const
 }
 
 
-void Command::setDocumentation(const QString & str)
-{
-  longDesc = str;
-}
 
 
 bool Command::isInteractive() const
@@ -572,8 +646,8 @@ QString Command::commandSpec(bool full) const
     }
   }
   ret += "\n";
-  if(! shortCmdName.isEmpty())
-    ret += QString("  -> aliased as %1\n").arg(shortCmdName);
+  if(aliases.size() > 0)
+    ret += QString("  -> aliased as %1\n").arg(aliases.join(", "));
   if(arguments)
     for(int i = 0; i < arguments->size(); i++) {
       const Argument * arg = (*arguments)[i];
@@ -585,7 +659,7 @@ QString Command::commandSpec(bool full) const
     }
   if(options) {
     QStringList an = options->argumentNames();
-    qSort(an);
+    std::sort(an.begin(), an.end());
     for(int i = 0; i < an.size(); i++) {
       const Argument * arg = options->namedArgument(an[i]);
       ret += " - /" + arg->argumentName() + 
@@ -614,7 +688,6 @@ void Command::runCommand(int nb, mrb_value * args)
       op = commandOptions()->parseRubyOptions(hsh);
   }
 
-  
   // Now, parse arguments. No prompting.
   CommandArguments a;
   if(arguments)
@@ -624,3 +697,55 @@ void Command::runCommand(int nb, mrb_value * args)
   runCommand(cmdName, a, op);
 }
 
+////////////////////
+// Now the handling of progress report
+
+bool Command::shouldStop = false;
+
+int Command::currentStep = 0;
+
+int Command::currentTarget = 0;
+
+qint64 Command::timeLastCall = -1;
+
+qint64 Command::timeLastLoop = -1;
+
+Command * Command::currentCommand = NULL;
+
+// Hmmm. See QStatusBar::addPermanentWidget to add a progress bar to
+// the status bar ? Is it really useful ?
+
+
+
+void Command::currentProgress(int step, int target)
+{
+  // QTextStream o(stdout);
+  // o << "Progress: " << step << "/" << target << endl;
+  if(step != 0 || target != 0) {
+    qint64 curTime = QDateTime::currentMSecsSinceEpoch();
+    if(target < 0)                // Running from a CurveEventLoop
+      timeLastLoop = curTime;
+    else {
+      if(curTime - timeLastLoop > 150) {
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+        timeLastLoop = curTime;
+      }
+    }
+  }
+
+  if(shouldStop) {
+    shouldStop = false;
+    throw CommandInterruptException("Breaking back to main command-line");
+  }
+}
+
+
+Command * Command::runningCommand()
+{
+  return currentCommand;
+}
+
+void Command::requestStop()
+{
+  shouldStop = true;
+}

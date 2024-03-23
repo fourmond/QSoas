@@ -108,8 +108,8 @@ void Credits::displayStartupMessage()
     }
   }
   Terminal::out << "Copyright 2011 by Vincent Fourmond\n"
-                << "          2012-2020 by CNRS/AMU\n\n"
-                << "Based on Christophe Leger's original Soas\n\n"
+                << "          2012-2023 by CNRS/AMU\n\n"
+                << "Based on Christophe Leger's original SOAS\n\n"
                 << "This program is free software, released under the terms of "
                 << "the GNU general public license (see http://www.gnu.org/copyleft/gpl.html)\n\n"
                 << "QSoas includes or links to code from the following projects: "

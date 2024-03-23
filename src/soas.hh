@@ -53,8 +53,23 @@ class Soas {
   /// interactive commands, prompting, and just waiting is disabled.
   bool headless;
 
-  
 public:
+  /// @a Storage space for the number of exceptions raised
+  /// @{ 
+
+  /// Number of runtime errors
+  int runtimeErrors = 0;
+
+  /// Number of internal errors
+  int internalErrors = 0;
+
+  /// Number of headless errors
+  int headlessErrors = 0;
+
+  /// Returns a string reporting on the current errors
+  QString errorReport() const;
+  /// @}
+  
 
   Soas();
   ~Soas();

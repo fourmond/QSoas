@@ -87,15 +87,32 @@ MRuby::MRuby()
   mrb = mrb_open();
   cQSoasInterface = NULL;
   cFancyHash = mrb_nil_value();
-  cTime = mrb_vm_const_get(mrb, mrb_intern_lit(mrb, "Time"));
+  cTime = getConstant("Time");
   sNew = mrb_intern_lit(mrb, "new");
   sToS = mrb_intern_lit(mrb, "to_s");
   sBrackets = mrb_intern_lit(mrb, "[]");
+
+  // Getting the exception class, seems dependent on
+
+#if MRUBY_RELEASE_MAJOR >= 2
+  mrb_value v = getConstant("Exception");
+  cException = mrb_class_ptr(v);
+#else
+  cException = mrb->eException_class;
+#endif
+  
 }
 
 MRuby::~MRuby()
 {
   mrb_close(mrb);
+}
+
+mrb_value MRuby::getConstant(const char *name)
+{
+  // return mrb_const_get(mrb, mrb_top_self(mrb),
+  //                      mrb_intern_cstr(mrb, name));
+  return eval(name);
 }
 
 
@@ -124,8 +141,7 @@ MRuby * MRuby::ruby()
     globalInterpreter->eval(&f);
 
     globalInterpreter->cFancyHash =
-      mrb_vm_const_get(globalInterpreter->mrb,
-                       mrb_intern_lit(globalInterpreter->mrb, "FancyHash"));
+      globalInterpreter->getConstant("FancyHash");
 
     globalInterpreter->initializeInterface();
     globalInterpreter->initializeRegexp();
@@ -180,7 +196,7 @@ mrb_value MRuby::protect(const std::function<mrb_value ()> &function)
 
 void MRuby::throwIfException(mrb_value obj)
 {
-  if(mrb_obj_is_kind_of(mrb, obj, mrb->eException_class)) {
+  if(mrb_obj_is_kind_of(mrb, obj, mrb_class_real(cException))) {
     throw RuntimeError("A ruby exception occurred: %1").arg(inspect(obj));
   }
 }
@@ -258,6 +274,8 @@ mrb_value MRuby::eval(const QByteArray & code,
                       const QString & fileName, int line)
 {
   STACK_DUMP;
+  // QTextStream o(stdout);
+  // o << "Eval: " << code << endl;
   MRubyArenaContext c(this);
   RProc * proc = generateCode(code, fileName, line);
   return protect([this, proc]() -> mrb_value {
@@ -286,11 +304,186 @@ mrb_value MRuby::eval(QIODevice * device)
 }
 
 
+QByteArray MRuby::annotateQuotes(const QString & code)
+{
+  unsigned nesting = 0;
+  unsigned quote = 0;
+  int next = -1;
+  // 0 = unquoted, 1 = single, 2 = double
+  bool esc = false;
+  bool hash = false;
+  QByteArray rv;
+  // QTextStream o(stdout);
+  // o << "Code:" << code << endl;
+  for(QChar c : code) {
+    if(next >= 0)
+      quote = next;
+    next = -1;
+    switch(c.toLatin1()) {
+    case '\'':
+      if(esc) {
+        esc = false;
+      }
+      else {
+        if(quote == 1)
+          next = 0;
+        else if(quote == 0)
+          quote = 1;
+      }
+      break;
+    case '"':
+      if(esc) {
+        esc = false;
+      }
+      else {
+        if(quote == 2)
+          next = 0;
+        else if(quote == 0)
+          quote = 2;
+      }
+      break;
+    case '\\':
+      esc = !esc;
+      break;
+    case '#':
+      hash = true;
+      break;
+    case '{':
+      if(esc)
+        esc = false;
+      else {
+        if(quote == 2 && hash) {
+          // nesting
+          nesting += 1;
+          quote = 0;
+        }
+      }
+      break;
+    case '}':
+      if(esc)
+        esc = false;
+      else {
+        if(quote == 0 && nesting > 0) {
+          --nesting;
+          next = 2;
+        }
+      }
+      break;
+    default:
+      if(esc)
+        esc = false;
+    }
+    // o << "c: " << c << " q: " << quote << endl;
+    unsigned val = nesting << 2;
+    val |= quote;
+    // o << " -> val: " << val;
+    rv.append(val);
+  }
+  return rv;
+}
+
+
+QStringList MRuby::detectParametersApprox(const QByteArray & code,
+                                          QStringList * locals)
+{
+  QString c = code;
+  return detectParametersApprox(c, locals);
+}
+
+
+// OK, this really doesn't work because it neglects completely quotes.
+// To make this useful, one needs to remove quoted text, but keep the
+// #{ } expansions.
+// Hmm.
+QStringList MRuby::detectParametersApprox(const QString & code,
+                                          QStringList * locals)
+{
+
+  // OK. We look for every word in the text.
+  // Starting with a lowercase
+  // If it is preceded by $, drop it.
+  // If it is preceded by a ., even long before, drop it too.
+  // If it is followed by a (, drop it
+  // If it is followed by an alnum number, it's likely a funcall
+  // If it is followed by a =, that's a local.
+  // Else, that's a parameter.
+
+  QString s = code;
+  QByteArray qts = annotateQuotes(code);
+  for(int i = 0; i < code.size(); i++) {
+    if(qts[i] & 0x03 > 0)       // Replace quoted stuff by spaces.
+                                // Should work fine.
+      s[i] = ' ';
+  }
+
+  QRegExp re("\\b([a-z_]\\w*)\\b");
+  int idx = 0;
+  int base = 0;
+  QSet<QString> vars;
+  QSet<QString> lcls;
+  while(true) {
+    idx = re.indexIn(s, base);
+    if(idx < 0)
+      break;
+    QString v = re.cap(1);
+    base = idx + v.size();
+    if(idx > 0 && s[idx-1] == '$')
+      continue;                 // global variable
+
+    int i = idx-1;
+    while(i >= 0 && (s[i].isSpace() && s[i] != '\n'))
+      i--;
+    if(i >= 0 && s[i] == '.')
+      continue;                 // A call to member
+    if(i >= 0 && s[i] == ':')
+      continue;                 // A symbol
+
+    i = base;
+    while(i < s.size() && (s[i].isSpace() && s[i] != '\n'))
+      i++;
+    if(i < s.size() && s[i] == '(')
+      continue;                 // A funcall
+    if(i < s.size() && (s[i].isLetterOrNumber() || s[i] == '_'))
+      continue;                 // A funcall
+    if(i < s.size() - 1 && s[i] == '=' && s[i+1] != '=')
+      lcls.insert(v);
+    // Detection of locals still
+    if(i < s.size() - 1 && s[i+1] == '=') {
+      if(s[i] == '*' ||
+         s[i] == '+' ||
+         s[i] == '-' ||
+         s[i] == '/' ||
+         s[i] == '~') {
+        lcls.insert(v);
+      }
+    }
+    if(i < s.size() - 2 && s[i+2] == '=') {
+      QString op;
+      op.append(s[i]);
+      op.append(s[i+1]);
+      if(op == "**" || op == "||" || op == ">>" || op == "<<")
+        lcls.insert(v);
+    }
+    vars.insert(v);
+  }
+
+  if(locals) {
+    *locals = lcls.toList();
+    for(const QString & s : lcls)
+      vars.remove(s);
+  }
+
+  return vars.toList();
+}
+  
+
+
 #if MRUBY_RELEASE_MAJOR == 1
 
 
-QStringList MRuby::detectParameters(const QByteArray & code,
-                                    QStringList * locals)
+QStringList MRuby::detectParametersNative(const QByteArray & code,
+                                          QStringList * locals,
+                                          bool debug)
 {
   STACK_DUMP;
   MRubyArenaContext c(this);
@@ -336,10 +529,16 @@ QStringList MRuby::detectParameters(const QByteArray & code,
 #elif MRUBY_RELEASE_MAJOR == 2
 
 
-#define CASE(insn,ops) case insn: FETCH_ ## ops (); L_ ## insn
+#define CASE(insn,ops) case insn: FETCH_ ## ops (); dump(#insn);/*o << "Got: " << #insn << endl; */L_ ## insn
 
-QStringList MRuby::detectParameters(const QByteArray & code,
-                                    QStringList * locals)
+// Note that the debug=true emulates the effect of running the code
+// using mruby 2.1.2 that way:
+//
+//  mruby --verbose -c -e 'y=(0.7071067811865476*exp(96500/8.31/298*x)-0.7071067811865476)'
+
+QStringList MRuby::detectParametersNative(const QByteArray & code,
+                                          QStringList * locals,
+                                          bool debug)
 {
   STACK_DUMP;
   MRubyArenaContext c(this);
@@ -370,6 +569,11 @@ QStringList MRuby::detectParameters(const QByteArray & code,
 
   pc = irep->iseq;
   pcend = pc + irep->ilen;
+  QTextStream * o = NULL;
+  if(debug) {
+    o = new QTextStream(stdout);
+    *o << "Detecting parameters for code: '" << code << "'" << endl;
+  }
   while (pc < pcend) {
     ptrdiff_t i;
     uint32_t a;
@@ -379,33 +583,70 @@ QStringList MRuby::detectParameters(const QByteArray & code,
     ai = mrb_gc_arena_save(mrb);
 
     i = pc - irep->iseq;
+    // I think I'm completely wrong on what is the top self here.
+    // Yes. a is the target register
+    auto cancel_cts = [&cur_top_self, &a] ()  {
+      // o << "Cancel: " << a << "/" << cur_top_self << endl;
+      if(cur_top_self == a)
+        cur_top_self = -1;
+    };
+
+    auto dump = [&i, &ins, &o, &a, &b, &c, &cur_top_self](const char * opcode) {
+      if(o)
+        *o << "# " << QString("%1").arg(i, -3)
+           << ": " << ins << "\t"
+           << QString("%1").arg(opcode, -12)
+           << "\tself = " <<  cur_top_self
+           << "\ta = " <<  QString::number(a, 16)
+           << "\tb = " <<  QString::number(b, 16)
+           << "\tc = " <<  QString::number(c, 16)
+           << endl;
+    };
+
+    auto store_sym = [&o, &a, &b, &c, &irep, this, &rv, &cur_top_self]() {
+                      if(o)
+                        *o << " ->  b is " << mrb_sym2name(mrb, irep->syms[b])
+                           << endl;
+                      if(cur_top_self == a && c == 0)
+                        rv.insert(mrb_sym2name(mrb, irep->syms[b]));
+                     };
 
     ins = READ_B();
     // We unfortunately need the full case from mruby/src/codedump.c,
     // since the opcodes now have variable lengths
     switch (ins) {
       CASE(OP_NOP, Z): break;
-      CASE(OP_MOVE, BB): break;
-      CASE(OP_LOADL, BB): break;
-      CASE(OP_LOADI, BB): break;
-      CASE(OP_LOADINEG, BB): break;
-      CASE(OP_LOADI__1, B): break;
-      CASE(OP_LOADI_0, B): break;
-      CASE(OP_LOADI_1, B): break;
-      CASE(OP_LOADI_2, B): break;
-      CASE(OP_LOADI_3, B): break;
-      CASE(OP_LOADI_4, B): break;
-      CASE(OP_LOADI_5, B): break;
-      CASE(OP_LOADI_6, B): break;
-      CASE(OP_LOADI_7, B): break;
-      CASE(OP_LOADSYM, BB): break;
-      CASE(OP_LOADNIL, B): break;
-      CASE(OP_LOADSELF, B):
+
+      // All these change some 
+      CASE(OP_MOVE, BB): cancel_cts(); break;
+      CASE(OP_LOADL, BB): cancel_cts(); break;
+      CASE(OP_LOADI, BB): cancel_cts(); break;
+      CASE(OP_LOADINEG, BB): cancel_cts(); break;
+      // mruby 2.1.2 specific
+#if MRUBY_RELEASE_MINOR == 1 && MRUBY_RELEASE_TEENY >= 2
+      CASE(OP_LOADI16, BS): cancel_cts(); break;
+#endif
+      CASE(OP_LOADI__1, B): cancel_cts(); break;
+      CASE(OP_LOADI_0, B): cancel_cts(); break;
+      CASE(OP_LOADI_1, B): cancel_cts(); break;
+      CASE(OP_LOADI_2, B): cancel_cts(); break;
+      CASE(OP_LOADI_3, B): cancel_cts(); break;
+      CASE(OP_LOADI_4, B): cancel_cts(); break;
+      CASE(OP_LOADI_5, B): cancel_cts(); break;
+      CASE(OP_LOADI_6, B): cancel_cts(); break;
+      CASE(OP_LOADI_7, B): cancel_cts(); break;
+      CASE(OP_LOADSYM, BB): cancel_cts(); break;
+      CASE(OP_LOADNIL, B): cancel_cts(); break;
+      // This changes to self
+      CASE(OP_LOADSELF, B): 
         cur_top_self = a;
       break;
       CASE(OP_LOADT, B): break;
       CASE(OP_LOADF, B): break;
-      CASE(OP_GETGV, BB): break;
+      CASE(OP_GETGV, BB):
+        cur_top_self = 0xeeff;
+      break;
+
       CASE(OP_SETGV, BB): break;
       CASE(OP_GETSV, BB): break;
       CASE(OP_SETSV, BB): break;
@@ -424,20 +665,20 @@ QStringList MRuby::detectParameters(const QByteArray & code,
       CASE(OP_JMPNOT, BS): break;
       CASE(OP_JMPNIL, BS): break;
       CASE(OP_SENDV, BB):
-        if(cur_top_self == a && c == 0)
-          rv.insert(mrb_sym2name(mrb, irep->syms[b]));
+        store_sym();
+        cancel_cts();
       break;
       CASE(OP_SENDVB, BB):
-        if(cur_top_self == a && c == 0)
-          rv.insert(mrb_sym2name(mrb, irep->syms[b]));
+        store_sym();
+        cancel_cts();
       break;
       CASE(OP_SEND, BBB):
-        if(cur_top_self == a && c == 0)
-          rv.insert(mrb_sym2name(mrb, irep->syms[b]));
+        store_sym();
+        cancel_cts();
       break;
       CASE(OP_SENDB, BBB):
-        if(cur_top_self == a && c == 0)
-          rv.insert(mrb_sym2name(mrb, irep->syms[b]));
+        store_sym();
+        cancel_cts();
       break;
       CASE(OP_CALL, Z): break;
       CASE(OP_SUPER, BB): break;
@@ -499,9 +740,33 @@ QStringList MRuby::detectParameters(const QByteArray & code,
       CASE(OP_EPOP, B): break;
       CASE(OP_DEBUG, BBB): break;
       CASE(OP_STOP, Z): break;
-      CASE(OP_EXT1, Z): break;
-      CASE(OP_EXT2, Z): break;
-      CASE(OP_EXT3, Z): break;
+      CASE(OP_EXT1, Z):
+        ins = READ_B();
+      i++;
+      switch (ins) {
+#define OPCODE(i,x) case OP_ ## i: FETCH_ ## x ## _1 (); dump("OP_" # i); goto L_OP_ ## i;
+#include "mruby/ops.h"
+#undef OPCODE
+      }
+      break;
+      CASE(OP_EXT2, Z):
+        ins = READ_B();
+      i++;
+      switch (ins) {
+#define OPCODE(i,x) case OP_ ## i: FETCH_ ## x ## _2 (); dump("OP_" #i); goto L_OP_ ## i;
+#include "mruby/ops.h"
+#undef OPCODE
+      }
+      break;
+      CASE(OP_EXT3, Z):
+        ins = READ_B();
+      i++;
+      switch (ins) {
+#define OPCODE(i,x) case OP_ ## i: FETCH_ ## x ## _3 (); dump("OP_" #i); goto L_OP_ ## i;
+#include "mruby/ops.h"
+#undef OPCODE
+      }
+      break;
       mrb_gc_arena_restore(mrb, ai);
     }
   }
@@ -515,7 +780,274 @@ QStringList MRuby::detectParameters(const QByteArray & code,
   return l;
 }
 
+#elif MRUBY_RELEASE_MAJOR == 3
+
+// The following code is based on the following command:
+// grep CASE src/codedump.c | sed s/'$/ break;/'
+
+#define CASE(insn,ops) case insn: FETCH_ ## ops (); dump(#insn); L_ ## insn 
+
+QStringList MRuby::detectParametersNative(const QByteArray & code,
+                                          QStringList * locals,
+                                          bool debug)
+{
+  STACK_DUMP;
+  MRubyArenaContext c(this);
+
+  // QTextStream o(stdout);
+  // o << "Detecting parameters for : '" << code << "'" << endl;
+  
+  RProc * proc = generateCode(code);
+  const struct mrb_irep * irep = proc->body.irep;
+
+  // The idea is just to scan the code and detect funcalls of single
+  // arguments from what seems to be top level self.
+  QSet<QString> rv;
+
+    // Detect local variables first:
+  if(locals) {
+    // Same as in mruby 1
+    // By why nlocals-1 ? Mystery.
+    for(int i = 0; i < irep->nlocals - 1; i++)
+      *locals << mrb_sym2name(mrb,irep->lv[i]);
+  }
+
+
+  const mrb_code *pc, *pcend;
+  mrb_code ins;
+  int ai;
+
+  pc = irep->iseq;
+  pcend = pc + irep->ilen;
+  QTextStream * o = NULL;
+  if(debug) {
+    o = new QTextStream(stdout);
+    *o << "Detecting parameters for code: '" << code << "'" << endl;
+  }
+
+  while (pc < pcend) {
+    ptrdiff_t i;
+    uint32_t a;
+    uint16_t b;
+    uint8_t c;
+
+    auto dump = [&i, &ins, &o, &a, &b, &c](const char * opcode) {
+      if(o)
+        *o << "# " << QString("%1").arg(i, -3)
+           << ": " << ins << "\t"
+           << QString("%1").arg(opcode, -12)
+           << "\ta = " <<  QString::number(a, 16)
+           << "\tb = " <<  QString::number(b, 16)
+           << "\tc = " <<  QString::number(c, 16)
+           << endl;
+    };
+
+
+    ai = mrb_gc_arena_save(mrb);
+
+    i = pc - irep->iseq;
+
+    ins = READ_B();
+    // We unfortunately need the full case from mruby/src/codedump.c,
+    // since the opcodes now have variable lengths
+    switch (ins) {
+      CASE(OP_NOP, Z): break;
+      CASE(OP_MOVE, BB): break;
+      CASE(OP_LOADL, BB): break;
+      CASE(OP_LOADI, BB): break;
+      CASE(OP_LOADINEG, BB): break;
+      CASE(OP_LOADI16, BS): break;
+      CASE(OP_LOADI32, BSS): break;
+      CASE(OP_LOADI__1, B): break;
+      CASE(OP_LOADI_0, B):  break;
+      CASE(OP_LOADI_1, B):  break;
+      CASE(OP_LOADI_2, B):  break;
+      CASE(OP_LOADI_3, B):  break;
+      CASE(OP_LOADI_4, B):  break;
+      CASE(OP_LOADI_5, B):  break;
+      CASE(OP_LOADI_6, B):  break;
+      CASE(OP_LOADI_7, B): break;
+      CASE(OP_LOADSYM, BB): break;
+      CASE(OP_LOADNIL, B): break;
+      CASE(OP_LOADSELF, B): break;
+      CASE(OP_LOADT, B): break;
+      CASE(OP_LOADF, B): break;
+      CASE(OP_GETGV, BB): break;
+      CASE(OP_SETGV, BB): break;
+      CASE(OP_GETSV, BB): break;
+      CASE(OP_SETSV, BB): break;
+      CASE(OP_GETCONST, BB): break;
+      CASE(OP_SETCONST, BB): break;
+      CASE(OP_GETMCNST, BB): break;
+      CASE(OP_SETMCNST, BB): break;
+      CASE(OP_GETIV, BB): break;
+      CASE(OP_SETIV, BB): break;
+      CASE(OP_GETUPVAR, BBB): break;
+      CASE(OP_SETUPVAR, BBB): break;
+      CASE(OP_GETCV, BB): break;
+      CASE(OP_SETCV, BB): break;
+      CASE(OP_GETIDX, B): break;
+      CASE(OP_SETIDX, B): break;
+      CASE(OP_JMP, S): break;
+      CASE(OP_JMPUW, S): break;
+      CASE(OP_JMPIF, BS): break;
+      CASE(OP_JMPNOT, BS): break;
+      CASE(OP_JMPNIL, BS): break;
+      CASE(OP_SSEND, BBB):
+        if(c == 0)
+          rv.insert(mrb_sym2name(mrb, irep->syms[b]));
+        break;
+      CASE(OP_SSENDB, BBB):
+        if(c == 0)
+          rv.insert(mrb_sym2name(mrb, irep->syms[b]));
+        break;
+      CASE(OP_SEND, BBB): break;
+      CASE(OP_SENDB, BBB): break;
+      CASE(OP_CALL, Z): break;
+      CASE(OP_SUPER, BB): break;
+      CASE(OP_ARGARY, BS): break;
+      CASE(OP_ENTER, W): break;
+      CASE(OP_KEY_P, BB): break;
+      CASE(OP_KEYEND, Z): break;
+      CASE(OP_KARG, BB): break;
+      CASE(OP_RETURN, B): break;
+      CASE(OP_RETURN_BLK, B): break;
+      CASE(OP_BREAK, B): break;
+      CASE(OP_BLKPUSH, BS): break;
+      CASE(OP_LAMBDA, BB): break;
+      CASE(OP_BLOCK, BB): break;
+      CASE(OP_METHOD, BB): break;
+      CASE(OP_RANGE_INC, B): break;
+      CASE(OP_RANGE_EXC, B): break;
+      CASE(OP_DEF, BB): break;
+      CASE(OP_UNDEF, B): break;
+      CASE(OP_ALIAS, BB): break;
+      CASE(OP_ADD, B): break;
+      CASE(OP_ADDI, BB): break;
+      CASE(OP_SUB, B): break;
+      CASE(OP_SUBI, BB): break;
+      CASE(OP_MUL, B): break;
+      CASE(OP_DIV, B): break;
+      CASE(OP_LT, B): break;
+      CASE(OP_LE, B): break;
+      CASE(OP_GT, B): break;
+      CASE(OP_GE, B): break;
+      CASE(OP_EQ, B): break;
+      CASE(OP_ARRAY, BB): break;
+      CASE(OP_ARRAY2, BBB): break;
+      CASE(OP_ARYCAT, B): break;
+      CASE(OP_ARYPUSH, BB): break;
+#if MRUBY_RELEASE_MINOR >= 2
+      CASE(OP_ARYSPLAT, B): break;
+#else
+      CASE(OP_ARYDUP, B): break;
 #endif
+      CASE(OP_AREF, BBB): break;
+      CASE(OP_ASET, BBB): break;
+      CASE(OP_APOST, BBB): break;
+      CASE(OP_INTERN, B): break;
+      CASE(OP_SYMBOL, BB): break;
+      CASE(OP_STRING, BB): break;
+      CASE(OP_STRCAT, B): break;
+      CASE(OP_HASH, BB): break;
+      CASE(OP_HASHADD, BB): break;
+      CASE(OP_HASHCAT, B): break;
+      CASE(OP_OCLASS, B): break;
+      CASE(OP_CLASS, BB): break;
+      CASE(OP_MODULE, BB): break;
+      CASE(OP_EXEC, BB): break;
+      CASE(OP_SCLASS, B): break;
+      CASE(OP_TCLASS, B): break;
+      CASE(OP_ERR, B): break;
+      CASE(OP_EXCEPT, B): break;
+      CASE(OP_RESCUE, BB): break;
+      CASE(OP_RAISEIF, B): break;
+      CASE(OP_DEBUG, BBB): break;
+      CASE(OP_STOP, Z): break;
+      CASE(OP_EXT1, Z):
+        ins = READ_B();
+      i++;
+      switch (ins) {
+#define OPCODE(i,x) case OP_ ## i: FETCH_ ## x ## _1 (); dump("OP_" # i); goto L_OP_ ## i;
+#include "mruby/ops.h"
+#undef OPCODE
+      }
+      break;
+      CASE(OP_EXT2, Z):
+        ins = READ_B();
+      i++;
+      switch (ins) {
+#define OPCODE(i,x) case OP_ ## i: FETCH_ ## x ## _2 (); dump("OP_" # i); goto L_OP_ ## i;
+#include "mruby/ops.h"
+#undef OPCODE
+      }
+        break;
+      CASE(OP_EXT3, Z):
+        ins = READ_B();
+      i++;
+      switch (ins) {
+#define OPCODE(i,x) case OP_ ## i: FETCH_ ## x ## _3 (); dump("OP_" # i); goto L_OP_ ## i;
+#include "mruby/ops.h"
+#undef OPCODE
+      }
+        break;
+      
+      mrb_gc_arena_restore(mrb, ai);
+    }
+  }
+  QStringList l;
+  QRegExp re("^\\w+$");
+  for(const QString & n : rv) {
+    if(re.indexIn(n,0) == 0)    // avoid unary operator names
+      l << n;
+  }
+  // o << " -> " << l.join(", ") << endl;
+  return l;
+}
+
+
+#else
+
+QStringList MRuby::detectParametersNative(const QByteArray & code,
+                                          QStringList * locals)
+{
+  if(locals)
+    *locals = QStringList();
+  return QStringList();
+}
+
+#endif
+
+
+
+
+QStringList MRuby::detectParameters(const QByteArray & code,
+                                    QStringList * locals)
+{
+  // QTextStream o(stdout);
+  // o << "Detect: '" << code << "' -- " << locals << endl;
+  
+  // OK, the case in which almsot all the possibilities are identical
+  // might seem weird, but I want to spell them out.
+#if MRUBY_RELEASE_MAJOR == 1
+  return detectParametersNative(code, locals);
+#elif MRUBY_RELEASE_MAJOR == 2
+  return detectParametersNative(code, locals);
+#elif MRUBY_RELEASE_MAJOR == 3
+  QStringList rv = detectParametersNative(code, locals);
+  /*if(locals) {
+    // Sometimes get detected twice...
+    QSet<QString> p = rv.toSet();
+    for(int i = 0; i < locals->size(); i++) {
+      if(p.contains((*locals)[i]))
+        locals->takeAt(i--);
+    }
+    }*/
+  return rv;
+#else
+  return detectParametersApprox(code, locals);
+#endif
+}
 
 struct RClass * MRuby::defineModule(const char * name)
 {
@@ -612,7 +1144,12 @@ double MRuby::floatValue(mrb_value value)
 
 double MRuby::floatValue_up(mrb_value value)
 {
+#if MRUBY_RELEASE_MAJOR == 3
+  mrb_value v = mrb_ensure_float_type(mrb, value);
+  return mrb_float(v);
+#else
   return mrb_to_flo(mrb, value);
+#endif
 }
 
 
@@ -675,6 +1212,13 @@ void MRuby::arrayIterate(mrb_value array,
   }
 }
 
+mrb_value MRuby::arrayFromStringList(const QStringList & lst)
+{
+  mrb_value v = newArray();
+  for(const QString & s : lst)
+    arrayPush(v, fromQString(s));
+  return v;
+}
 
 void MRuby::setGlobal(const char * name, mrb_value val)
 {
@@ -823,7 +1367,7 @@ bool MRuby::isInferior(mrb_value a, mrb_value b)
 }
 
 
-
+//////////////////////////////////////////////////////////////////////
 
 #include <command.hh>
 #include <group.hh>
@@ -834,13 +1378,42 @@ bool MRuby::isInferior(mrb_value a, mrb_value b)
 
 
 static void mRubyArgs(const QString &, QString code,
-                      const CommandOptions & )
+                      const CommandOptions & opts)
 {
   MRuby * r = MRuby::ruby();
+  bool native = true;
+  updateFromOptions(opts, "native", native);
+
+  bool dump = false;
+  updateFromOptions(opts, "dump", dump);
+
+  bool setGlobals = false;
+  updateFromOptions(opts, "set-globals", setGlobals);
   QStringList locals;
-  QStringList vars = r->detectParameters(code.toLocal8Bit(), &locals);
+  QStringList vars =
+    native ? r->detectParametersNative(code.toLocal8Bit(), &locals, dump) :
+    MRuby::detectParametersApprox(code.toLocal8Bit(), &locals);
+  std::sort(locals.begin(), locals.end());
+  std::sort(vars.begin(), vars.end());
   Terminal::out << " => " << vars.join(", ") << endl;
   Terminal::out << "Local variables: " << locals.join(", ") << endl;
+
+  QStringList v2 =
+    native ? r->detectParametersNative(code.toLocal8Bit()) :
+    MRuby::detectParametersApprox(code.toLocal8Bit());
+  std::sort(locals.begin(), locals.end());
+  std::sort(vars.begin(), vars.end());
+  Terminal::out << "Other vars: " << vars.join(", ") << endl;
+
+  if(setGlobals) {
+    Terminal::out << "Setting global variables" << endl;
+    mrb_value v = r->arrayFromStringList(vars);
+    r->setGlobal("$params", v);
+    v = r->arrayFromStringList(locals);
+    r->setGlobal("$locals", v);
+    v = r->arrayFromStringList(v2);
+    r->setGlobal("$ap", v);
+  }
 }
 
 static ArgumentList 
@@ -849,9 +1422,44 @@ eA(QList<Argument *>()
                          "Code",
                          "Ruby code"));
 
+static ArgumentList 
+eO(QList<Argument *>() 
+   << new BoolArgument("native", 
+                       "Native",
+                       "Use 'native' detection")
+   << new BoolArgument("set-globals", 
+                       "Set globals",
+                       "Set globals ")
+   << new BoolArgument("dump", 
+                       "Dump code",
+                       "Dumps the interpreted code")
+   );
+
 static Command 
 ar("mruby-detect-args", // command name
    effector(mRubyArgs), // action
+   "file",  // group name
+   &eA, // arguments
+   &eO,
+   "Ruby args",
+   "Detects the arguments within a Ruby expression", "");
+
+
+static void annotateQuotes(const QString &, QString code,
+                          const CommandOptions & )
+{
+  QByteArray ann = MRuby::annotateQuotes(code);
+  QString ann1;
+  for(char c : ann)
+    ann1 += QString::number((unsigned)(c & 0x03));
+  
+  Terminal::out << "Code : '" << code << "'\n"
+                << "        " << ann1 << endl;
+}
+
+static Command 
+ac("annotate-quotes", // command name
+   effector(annotateQuotes), // action
    "file",  // group name
    &eA, // arguments
    NULL,

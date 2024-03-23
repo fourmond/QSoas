@@ -1,4 +1,3 @@
 @ globs.cmds
 
-# Not necessary for now
-# @ zip.cmds
+@ zip.cmds

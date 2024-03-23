@@ -61,7 +61,7 @@ public:
   /// The list of meta-data we're writing at the moment...
   QStringList desiredMeta;
 
-  OutFile(const QString & name);
+  explicit OutFile(const QString & name);
 
   /// Change the underlying file
   void setFileName(const QString & name);

@@ -30,12 +30,22 @@
 
 BSplines::BSplines(const Vector & xvalues, 
                    const Vector & yvalues, int o, int mo) :
-  splinesWS(NULL), order(o), maxOrder(mo), x(xvalues), y(yvalues)
+  splinesWS(NULL),
+#if GSL_MAJOR_VERSION <  2
+  derivWS(NULL),
+#endif
+  fitWS(NULL), coeffs(NULL), storage(NULL), cov(NULL), nbCoeffs(-1), nb(-1),
+  order(o), maxOrder(mo), x(xvalues), y(yvalues)
 {
 }
 
 BSplines::BSplines(const DataSet * ds, int o, int mo) :
-  splinesWS(NULL), order(o), maxOrder(mo), x(ds->x()), y(ds->y())
+  splinesWS(NULL),
+#if GSL_MAJOR_VERSION <  2
+  derivWS(NULL),
+#endif
+  fitWS(NULL), coeffs(NULL), storage(NULL), cov(NULL), nbCoeffs(-1), nb(-1),
+  order(o), maxOrder(mo), x(ds->x()), y(ds->y())
 {
 }
 
@@ -102,7 +112,7 @@ void BSplines::setBreakPoints(const Vector & bps)
   int oldsize = breakPoints.size();
   breakPoints = bps;
 
-  qSort(breakPoints);
+  std::sort(breakPoints.begin(), breakPoints.end());
   if(breakPoints.min() > x.min())
     breakPoints.prepend(x.min());
   if(breakPoints.max() < x.max())
@@ -222,7 +232,7 @@ Vector BSplines::computeValues(const Vector & x, int order) const
 
 static int f(const gsl_vector * x, void * data, gsl_vector * f)
 {
-  BSplines * bs = (BSplines*) data;
+  BSplines * bs = static_cast<BSplines*>(data);
   Vector bps = bs->getBreakPoints();
   gsl_vector_view v = gsl_vector_view_array(bps.data() + 1, x->size);
   gsl_vector_memcpy(&v.vector, x);
@@ -240,7 +250,7 @@ static int f(const gsl_vector * x, void * data, gsl_vector * f)
 
 static int df(const gsl_vector * x, void * data, gsl_matrix * J)
 {
-  BSplines * bs = (BSplines*) data;
+  BSplines * bs = static_cast<BSplines*>(data);
   // I need a temporary storage vector
   gsl_vector * tmpStorage = gsl_vector_alloc(bs->yData().size());
 

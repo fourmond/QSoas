@@ -212,11 +212,13 @@ public:
     Storage * s = storage<Storage>(data);
 
     QList<ParameterDefinition> params;
-    params << ParameterDefinition("Y0"); // base line
+    params << ParameterDefinition("Y0",
+                                  false, true, true); // base line
     for(int j = 0; j < s->number; j++) {
       params << ParameterDefinition(QString("x_%1").arg(j+1))
              << ParameterDefinition(QString("%2_%1").arg(j+1).
-                                    arg(s->useSurface ? "S" : "A"));
+                                    arg(s->useSurface ? "S" : "A"),
+                                    false, true, true);
       for(int k = 0; k < accessoryNames.size(); k++) {
         params << ParameterDefinition(QString("%2_%1").arg(j+1).
                                       arg(accessoryNames[k]));

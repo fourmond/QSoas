@@ -247,7 +247,7 @@ static void kineticSystemCommand(const QString &, QString file,
       });
   }
   QStringList p = params.keys();
-  qSort(p);
+  std::sort(p.begin(), p.end());
 
   Terminal::out << "Parameter values: " << endl;
   for(int i = 0; i < p.size(); i++)
@@ -478,7 +478,7 @@ protected:
     QHash<QString, double> vals = evolver->parameterValues();
 
     QStringList ps = vals.keys();
-    qSort(ps);
+    std::sort(ps.begin(), ps.end());
 
     for(int i = 0; i < ps.size(); i++)
       Debug::debug()
@@ -575,7 +575,7 @@ public:
 
   KineticSystemFit() :
     ODEFit("kinetic-system", 
-                  "Full kinetic system",
+           "Full kinetic system",
            "", 1, -1, false), mySystem(NULL), myEvolver(NULL)
   { 
     makeCommands(ArgumentList(), 
@@ -588,8 +588,8 @@ public:
 
   KineticSystemFit(const QString & name, 
                    KineticSystem * sys) : 
-    ODEFit(name.toLocal8Bit(), 
-           QString("Kinetic system of %1").arg(sys->fileName).toLocal8Bit(),
+    ODEFit(name, 
+           QString("Kinetic system of %1").arg(sys->fileName),
            "", 1, -1, false)
   {
     mySystem = sys;

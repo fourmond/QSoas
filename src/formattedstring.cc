@@ -28,8 +28,8 @@ protected:
   QString text;
 
 public:
-  FSPlainText(const QString & s) : FormattedString(), 
-                                   text(s) {;};
+  explicit FSPlainText(const QString & s) : FormattedString(), 
+                                            text(s) {;};
   
   virtual QString toText() const override {
     return text;

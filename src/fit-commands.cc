@@ -92,7 +92,10 @@ static void saveCommand(const QString & /*name*/, QString file, const CommandOpt
   // updateFromOptions(opts, "rotate", rotation);
   // if(rotation != 0)
   //   Utils::rotateFile(file, rotation);
-  FitWorkspace::currentWorkspace()->saveParameters(file, false, opts);
+  QStringList comments;
+  updateFromOptions(opts, "comments", comments);
+  FitWorkspace::currentWorkspace()->saveParameters(file, false,
+                                                   comments, opts);
 }
 
 ArgumentList sA(QList<Argument*>() 
@@ -104,6 +107,9 @@ ArgumentList sA(QList<Argument*>()
 ArgumentList sO(QList<Argument*>() 
                 << File::fileOptions(File::OverwriteOption|
                                      File::RotationOption|File::MkPathOption)
+                << new SeveralStringsArgument(QRegExp("\n"),
+                                              "comments", "comments",
+                                              "Comments to include in the file")
 
                 );
 
@@ -135,6 +141,21 @@ static void loadCommand(const QString & /*name*/, QString file,
   updateFromOptions(opts, "only", keepOnly);
   if(keepOnly.size() > 0)
     params.keepOnly(keepOnly.toSet());
+
+  QStringList excepted;
+  updateFromOptions(opts, "excepted", excepted);
+  if(excepted.size() > 0)
+    params.remove(excepted.toSet());
+
+  bool onlyFixed;
+  updateFromOptions(opts, "fixed-only", onlyFixed);
+  if(onlyFixed)
+    params.removeFree();
+
+  bool onlyFree;
+  updateFromOptions(opts, "free-only", onlyFree);
+  if(onlyFree)
+    params.removeFixed();
 
   
   QStringList renameParams;
@@ -232,9 +253,20 @@ ArgumentList lO(QList<Argument*>()
                                               "only",
                                               "Only parameters",
                                               "loads only the given parameters")
+                << new SeveralStringsArgument(QRegExp(","),
+                                              "excepted",
+                                              "Excepted parameters",
+                                              "loads all the parameters but the ones given here")
                 << (new SeveralStringsArgument("rename",
                                               "Rename",
-                                               "rename parameters before setting"))->describe("A comma-separated list of old->new parameter rename specifications")
+                                               "rename parameters before setting"))
+                ->describe("A comma-separated list of old->new parameter rename specifications")
+                << new BoolArgument("free-only",
+                                    "Free only",
+                                    "Loads only free parameters")
+                << new BoolArgument("fixed-only",
+                                    "Fixed only",
+                                    "Loads only fixed parameters")
                 );
 
 static Command 
@@ -1621,6 +1653,9 @@ static void pickFromTrajectoriesCommand(const QString &,
   if(t == "initial")
     final = false;
 
+  QString mode = "local-best";
+  updateFromOptions(opts, "mode", mode);
+
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
 
   if(trajs.size() == 0)
@@ -1628,20 +1663,63 @@ static void pickFromTrajectoriesCommand(const QString &,
 
   Vector tgt = trajs[0].finalParameters;
   int nbds = trajs[0].pointResiduals.size();
+  int nbp = tgt.size() / nbds;
 
-  for(int i = 0; i < nbds; i++) {
-    int idx = 0;
-    double res = trajs[0].pointResiduals[i];
-    for(int j = 1; j < trajs.size(); j++) {
-      if(trajs[j].pointResiduals[i] < res) {
-        idx = j;
-        res = trajs[j].pointResiduals[i];
+  if(mode == "local-best") {
+    for(int i = 0; i < nbds; i++) {
+      int idx = 0;
+      double res = trajs[0].pointResiduals[i];
+      for(int j = 1; j < trajs.size(); j++) {
+        if(trajs[j].pointResiduals[i] < res) {
+          idx = j;
+          res = trajs[j].pointResiduals[i];
+        }
+      }
+      for(int j = i * nbp; j  < (i+1) * nbp; j++)
+        tgt[j] = (final ? trajs[idx].finalParameters :
+                  trajs[idx].initialParameters)[j];
+    }
+  }
+  if(mode == "local-average") {
+    tgt *= 0;
+    for(int i = 0; i < nbds; i++) {
+      int idx = 0;
+      double sum = 0;
+      for(int k = 0; k < trajs.size(); k++) {
+        double fct = 1/trajs[k].pointResiduals[i];
+        for(int j = i * nbp; j  < (i+1) * nbp; j++) {
+          tgt[j] += fct * (final ? trajs[idx].finalParameters :
+                           trajs[idx].initialParameters)[j];
+        }
+        sum += fct;
+      }
+      for(int j = i * nbp; j  < (i+1) * nbp; j++) {
+        tgt[j] /= sum;
       }
     }
-    int nbp = tgt.size() / nbds;
-    for(int j = i * nbp; j  < (i+1) * nbp; j++)
-      tgt[j] = (final ? trajs[idx].finalParameters :
-                trajs[idx].initialParameters)[j];
+  }
+  if(mode == "global-best") {
+    double res = 1 + trajs[0].residuals;
+    for(int k = 1; k < trajs.size(); k++) {
+      if(trajs[k].residuals < res) {
+        tgt = (final ? trajs[k].finalParameters :
+               trajs[k].initialParameters);
+        res = trajs[k].residuals;
+      }
+    }
+  }
+  if(mode == "global-average") {
+    tgt *= 0;
+    double sum = 0;
+    for(int k = 0; k < trajs.size(); k++) {
+      double fct = 1/trajs[k].residuals;
+      Vector v = (final ? trajs[k].finalParameters :
+                  trajs[k].initialParameters);
+      v *= fct;
+      tgt += v;
+      sum += fct;
+    }
+    tgt /= sum;
   }
   ws->restoreParameterValues(tgt);
 }
@@ -1653,6 +1731,13 @@ pftOpts(QList<Argument *>()
                               "parameters", 
                               "Parameters",
                               "which parameters to use")
+        << new ChoiceArgument(QStringList()
+                              << "local-best" << "local-average"
+                              << "global-best" << "global-average"
+                              ,
+                              "mode", 
+                              "Mode",
+                              "how to combine the parameters")
         );
 
 static ArgumentList 

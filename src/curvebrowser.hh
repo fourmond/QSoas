@@ -51,7 +51,7 @@ private:
 
 
 public:
-  CurveBrowser(int sz);
+  explicit CurveBrowser(int sz);
   ~CurveBrowser();
 
   /// Choose the number of views displayed

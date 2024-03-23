@@ -437,7 +437,11 @@ namespace Utils {
   /// Sets the @a user and @a system arguments to the CPU time (in
   /// milliseconds) used in user mode and kernel mode since the
   /// beginning of the program.
-  void processorUsed(long * user, long * system);
+  ///
+  /// It also provides the number of voluntary and involuntary context
+  /// switches.
+  void processorUsed(long * user, long * system,
+                     long * vCS = NULL, long * iCS = NULL);
 
   /// Reverses the order of the list, in place.
   template <class T> void reverseList(QList<T> & list) {

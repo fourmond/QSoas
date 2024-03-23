@@ -1,6 +1,6 @@
 /*
   fittrajectorydisplay.cc: display of fit trajectories
-  Copyright 2013, 2014, 2015, 2016, 2017, 2018 by CNRS/AMU
+  Copyright 2013, 2014, 2015, 2016, 2017, 2018, 2023 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -38,6 +38,10 @@
 #include <debug.hh>
 #include <file.hh>
 
+#include <synchronizedtables.hh>
+
+/// A model suitable to display the trajectories, displaying both the
+/// beginning and ending position.
 class TrajectoriesModel : public QAbstractTableModel {
   /// The list of trajectories
   FitTrajectories * trajectories;
@@ -63,54 +67,79 @@ class TrajectoriesModel : public QAbstractTableModel {
     /// The parameter index -- not unique, unlike index.
     int parameterIndex;
 
-    Item(const QString & n,     std::function<QVariant (const FitTrajectory* trj, int role, bool final)> f, int ds = -1, int idx = -1, int pidx = - 1) :
+    Item(const QString & n,
+         std::function<QVariant (const FitTrajectory* trj,
+                                 int role, bool fnal)> f,
+         int ds = -1, int idx = -1, int pidx = - 1) :
       name(n), fcn(f), dataset(ds), index(idx), parameterIndex(pidx) {;};
   };
 
-  
   QList<Item> columns;
 
+  /// Whether or not to color via flags
+  bool flagColor;
 
+  mutable QHash<QString, QColor> flagColors;
+  
 public:
+  
+  QColor getFlagColor(const QString & flag) const {
+    if(! flagColors.contains(flag)) {
+      int idx = flagColors.size();
+      flagColors[flag] = QColor::fromHsv((idx * 111)%360, 50, 150 +
+                                         ((idx+1) % 2)*100);
+    }
+    return flagColors[flag];
+  };
+
+
 
   /// A reference trajectory to color stuff
   const FitTrajectory * referenceTrajectory;
 
+  void setFlagColor(bool b) {
+    flagColor = b;
+    update();
+  };
+
   void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) {
     Debug::debug() << "sort by " << column << " -- " << order << endl;
 
-    qSort(trajectories->begin(), trajectories->end(), [this, order, column](FitTrajectory a, FitTrajectory b) -> bool {
-        QVariant va = data(&a, column, Qt::DisplayRole, true);
-        QVariant vb = data(&b, column, Qt::DisplayRole, true);
-        if(va.type() == QMetaType::QDateTime) {
-          QDateTime da = va.toDateTime();
-          QDateTime db = vb.toDateTime();
-          return (order == Qt::AscendingOrder ?
-                  da < db : db < da);
-        }
-        if(va.type() == QMetaType::Double) {
-          double da = va.toDouble();
-          double db = vb.toDouble();
-          // We put the nans always at the end regardless of the order.
-          if(std::isnan(da))
-            return false;
-          if(std::isnan(db))
-            return true;
-          return (order == Qt::AscendingOrder ?
-                  da < db : db < da);
-        }
-        if(va.type() == QMetaType::Int || va.type() == QMetaType::UInt ||
-           va.type() == QMetaType::Long || va.type() == QMetaType::ULong) {
-          qint64 da = va.toLongLong();
-          qint64 db = vb.toLongLong();
-          return (order == Qt::AscendingOrder ?
-                  da < db : db < da);
-        }
-        QString da = va.toString();
-        QString db = vb.toString();
-        return (order == Qt::AscendingOrder ?
-                da < db : db < da);
-      });
+    std::sort(trajectories->begin(), trajectories->end(),
+              [this, order, column](FitTrajectory a, FitTrajectory b) -> bool {
+                QVariant va = data(&a, column, Qt::DisplayRole, true);
+                QVariant vb = data(&b, column, Qt::DisplayRole, true);
+                if(va.type() == QMetaType::QDateTime) {
+                  QDateTime da = va.toDateTime();
+                  QDateTime db = vb.toDateTime();
+                  return (order == Qt::AscendingOrder ?
+                          da < db : db < da);
+                }
+                if(va.type() == QMetaType::Double) {
+                  double da = va.toDouble();
+                  double db = vb.toDouble();
+                  // We put the nans always at the end regardless of the order.
+                  if(std::isnan(da))
+                    return false;
+                  if(std::isnan(db))
+                    return true;
+                  return (order == Qt::AscendingOrder ?
+                          da < db : db < da);
+                }
+                if(va.type() == QMetaType::Int || va.type() ==
+                   QMetaType::UInt ||
+                   va.type() == QMetaType::Long || va.type() ==
+                   QMetaType::ULong) {
+                  qint64 da = va.toLongLong();
+                  qint64 db = vb.toLongLong();
+                  return (order == Qt::AscendingOrder ?
+                          da < db : db < da);
+                }
+                QString da = va.toString();
+                QString db = vb.toString();
+                return (order == Qt::AscendingOrder ?
+                        da < db : db < da);
+              });
     update();
   };
   
@@ -123,7 +152,8 @@ public:
     
 
   TrajectoriesModel(FitTrajectories * trj, const FitData * d) :
-    trajectories(trj), fitData(d), referenceTrajectory(NULL) {
+    trajectories(trj), fitData(d), flagColor(false),
+    referenceTrajectory(NULL) {
     columns << Item("status", [](const FitTrajectory* trj,
                                 int role, bool final) -> QVariant {
                      if(role == Qt::DisplayRole && final) {
@@ -161,20 +191,20 @@ public:
 
         int col = i*n+j;
         columns << Item(na, [this,j,i,n,col,colors](const FitTrajectory* trj,
-                                             int role, bool final) -> QVariant {
+                                             int role, bool fnl) -> QVariant {
                           if(role == Qt::DisplayRole || role == Qt::EditRole) {
-                            double val = final ? trj->finalParameters[col] :
+                            double val = fnl ? trj->finalParameters[col] :
                               trj->initialParameters[col];
                             return QVariant(val);
                           }
-                          if(role == Qt::ToolTipRole && final) {
+                          if(role == Qt::ToolTipRole && fnl) {
                             return QString("Error: %1 %").arg(100 * trj->parameterErrors[col]);
                           }
-                          if(role == Qt::BackgroundRole && !final) {
+                          if(role == Qt::BackgroundRole && !fnl) {
                             if(trj->fixed[col]) 
                               return QBrush(QColor(210,210,210));
                           }
-                          if(role == Qt::BackgroundRole && final && referenceTrajectory) {
+                          if(role == Qt::BackgroundRole && fnl && referenceTrajectory) {
                             if(trj == referenceTrajectory)
                               return QBrush(QColor(200,255,200));
                             double dv = trj->finalParameters[col]/
@@ -282,24 +312,31 @@ public:
 
   };
 
-  QVariant data(const FitTrajectory* trj, int col, int role, bool final) const {
-    QVariant v = columns[col].fcn(trj, role, final);
+  QVariant data(const FitTrajectory* trj, int col, int role, bool fnl) const {
+    QVariant v = columns[col].fcn(trj, role, fnl);
     if(! v.isValid()) {
       if(role == Qt::BackgroundRole) {
         QColor c;
-        if(final) {
-          // Now select a color for the bottom line
-          switch(trj->ending) {
-          case FitWorkspace::Converged:
-            c = QColor::fromHsv(120, 15, 255);
-            break;
-          case FitWorkspace::Cancelled:
-            c = QColor::fromHsv(270, 15, 255);
-            break;
-          case FitWorkspace::TimeOut:
-          default:
-            c = QColor::fromHsv(359, 15, 255);
-            break;
+        if(flagColor) {
+          QStringList flg = trj->flags.toList();
+          if(flg.size() == 1)
+            c = getFlagColor(flg[0]);
+        }
+        else {
+          if(fnl) {
+            // Now select a color for the bottom line
+            switch(trj->ending) {
+            case FitWorkspace::Converged:
+              c = QColor::fromHsv(120, 15, 255);
+              break;
+            case FitWorkspace::Cancelled:
+              c = QColor::fromHsv(270, 15, 255);
+              break;
+            case FitWorkspace::TimeOut:
+            default:
+              c = QColor::fromHsv(359, 15, 255);
+              break;
+            }
           }
         }
         if(c.isValid())
@@ -591,15 +628,16 @@ void TrajectoryParametersDisplay::displayRows(const QSet<int>& trjs)
 
 /// The class that displays both a table view of the trajectories and 
 class DoubleDisplay : public QWidget {
+public:
 
   TrajectoryParametersDisplay * display;
-public:
+  QTableView * tableView;
 
   DoubleDisplay(TrajectoriesModel * model, FitWorkspace * workspace)  {
     QSplitter * main = new QSplitter(Qt::Horizontal);
-    QTableView * view = new QTableView;
-    view->setModel(model);
-    main->addWidget(view);
+    tableView = new QTableView;
+    tableView->setModel(model);
+    main->addWidget(tableView);
 
     display = new TrajectoryParametersDisplay(workspace);
     main->addWidget(display);
@@ -607,13 +645,13 @@ public:
     QHBoxLayout * l = new QHBoxLayout(this);
     l->addWidget(main);
 
-    connect(view->selectionModel(), &QItemSelectionModel::selectionChanged,
+    connect(tableView->selectionModel(), &QItemSelectionModel::selectionChanged,
             this,
-            [this, view](const QItemSelection &selected,
-                         const QItemSelection &deselected) {
+            [this](const QItemSelection &selected,
+                   const QItemSelection &deselected) {
               QSet<int> d;
               for(const QModelIndex & cur :
-                    view->selectionModel()->selectedIndexes()) {
+                    tableView->selectionModel()->selectedIndexes()) {
                 int idx = cur.row();
                 d.insert(idx);
               }
@@ -622,6 +660,224 @@ public:
   };
   
 };
+
+
+//////////////////////////////////////////////////////////////////////
+
+/// A model for displaying all the "clusters" (the flagged trajectories)
+class FlaggedTrajectoriesModel : public QAbstractTableModel {
+  /// The list of trajectories
+  FitTrajectories * trajectories;
+
+  /// The underlying fit data...
+  const FitData * fitData;
+
+
+  class Item  {
+  public:
+    QString name;
+
+
+    std::function<QVariant (const QList<const FitTrajectory*> & trj,
+                            const QString & name,
+                            int role)> fcn;
+    
+    /// Number of the dataset
+    int dataset;
+
+    /// Index in the parameters vector
+    int index;
+
+    /// The parameter index -- not unique, unlike index.
+    int parameterIndex;
+
+    Item(const QString & n,
+         std::function<QVariant (const QList<const FitTrajectory*> & trj,
+                                 const QString & name,
+                                 int role)> f,
+         int ds = -1, int idx = -1, int pidx = - 1) :
+      name(n), fcn(f), dataset(ds), index(idx), parameterIndex(pidx) {;};
+  };
+
+  
+  QList<Item> columns;
+
+  /// The current list of flags. Always sorted (?)
+  QStringList flags;
+
+  QList<const FitTrajectory *> flaggedTrajectories(const QString & flag) const {
+    /// @todo setup some cache ?
+    QList<const FitTrajectory *> rv;
+    for(int i = 0; i < trajectories->size(); i++) {
+      if((*trajectories)[i].flagged(flag))
+        rv << &((*trajectories)[i]);
+    }
+    return rv;
+  };
+
+  /// The trajectories model, mainly for coloring the lines. Can be NULL
+  const TrajectoriesModel * trajectoriesModel;
+
+public:
+
+  // int col(const QString & n) {
+  //   for(int i = 0; i < columns.size(); i++)
+  //     if(columns[i].name == n)
+  //       return i;
+  //   return -1;
+  // };
+    
+
+  FlaggedTrajectoriesModel(FitTrajectories * trj, const FitData * d,
+                           const TrajectoriesModel * md = NULL) :
+    trajectories(trj), fitData(d), trajectoriesModel(md) {
+    columns << Item("flag", [](const QList<const FitTrajectory*> & /*trj*/,
+                               const QString & name,
+                               int role) -> QVariant {
+                              if(role == Qt::DisplayRole) {
+                                return name;
+                              }
+                              return QVariant();
+                            })
+            << Item("count",
+                    [](const QList<const FitTrajectory*> & trjs,
+                       const QString & /*name*/,
+                       int role) -> QVariant {
+                      if(role == Qt::DisplayRole) {
+                                 return trjs.size();
+                               }
+                               return QVariant();
+                             })
+            << Item("residuals",
+                    [](const QList<const FitTrajectory*> & trjs,
+                       const QString & /*name*/,
+                       int role) -> QVariant {
+                      if(role == Qt::DisplayRole) {
+                        double min = 0, max = 0, s = 0;
+                        int nb = 0;
+                        for(const FitTrajectory * trj : trjs) {
+                          double res = trj->residuals;
+                          if(nb == 0) {
+                            min = res;
+                            max = res;
+                          }
+                          min = std::min(res, min);
+                          max = std::max(res, max);
+                          s += res;
+                          nb += 1;
+                        }
+                        return QString("%1 to %2 (%3 avg)").
+                          arg(min).arg(max).arg(s/nb);
+                      }
+                      return QVariant();
+                    })
+      ;
+
+    int nbds = fitData->datasets.size();
+    int n = fitData->parametersPerDataset();
+    for(int i = 0; i < nbds; i++) {
+      for(int j = 0; j < n; j++) {
+        QString na = QString("%1[%2]").
+          arg(fitData->parameterDefinitions[j].name).
+          arg(i);
+
+        int col = i*n+j;
+        columns << Item(na,
+                        [this,j,i,n,col](const QList<const FitTrajectory*> & trjs,
+                                         const QString & /*name*/,
+                                         int role) -> QVariant {
+                          if(role == Qt::DisplayRole || role == Qt::EditRole) {
+                            int nb = 0;
+                            double sx = 0;
+                            double sxx = 0;
+                            for(const FitTrajectory * trj : trjs) {
+                              nb += 1;
+                              double x = trj->finalParameters[col];
+                              sx += x;
+                              sxx += x*x;
+                            }
+                            sx /= nb;
+                            sxx /= nb;
+                            return QString("%1 +- %2").
+                              arg(sx/nb).
+                              arg(sqrt(sxx - sx*sx));
+                          }
+                          return QVariant();
+                        }, i, col, j);
+      }
+      // Two dummy columns for matching the number of columns in the base model
+      columns << Item("XX",
+                        [](const QList<const FitTrajectory*> & trjs,
+                                         const QString & /*name*/,
+                           int role) -> QVariant {
+                          return QVariant();
+                        }, i);
+    }
+    update();
+  };
+
+  QVariant data(const QString & flag, int col, int role) const {
+    QList<const FitTrajectory *> lst = flaggedTrajectories(flag);
+    QVariant d = columns[col].fcn(lst, flag, role);
+    if(role == Qt::BackgroundRole && d.isNull() && trajectoriesModel)
+      d = trajectoriesModel->getFlagColor(flag);
+    return d;
+  };
+
+  /// @name Reimplemented interface
+  ///
+  /// @{
+  virtual int rowCount(const QModelIndex & parent = QModelIndex()) const {
+    return flags.size();
+  }
+
+  virtual int columnCount(const QModelIndex & parent = QModelIndex()) const {
+    return columns.size();
+  };
+
+  virtual QVariant data(const QModelIndex & index,
+                        int role) const {
+    if(! index.isValid())
+      return QVariant();
+    
+    if(index.column() < 0 || index.column() >= columns.size())
+      return QVariant();
+
+    if(index.row() < 0 || index.row() >= flags.size())
+      return QVariant();
+
+    return data(flags[index.row()], index.column(), role);
+  };
+
+  virtual QVariant headerData(int section, Qt::Orientation orientation,
+                              int role) const {
+    if(orientation == Qt::Horizontal) {
+      if(role == Qt::DisplayRole) {
+        return columns[section].name;
+      }
+      return QVariant();
+    }
+    if(orientation == Qt::Vertical) {
+      if(role == Qt::DisplayRole) {
+        return flags.value(section);
+      }
+    }
+    return QVariant();
+  }
+  /// @}
+
+  void update() {
+    flags = trajectories->allFlags().toList();
+    std::sort(flags.begin(), flags.end());
+    emit(layoutChanged());
+  };
+
+  QString flag(const QModelIndex & index) const {
+    return flags.value(index.row());
+  };
+
+};
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -661,6 +917,7 @@ void FitTrajectoryDisplay::setupFrame()
 
   //////////////////////////////
   // Tab1: table view + parameter ranges
+  parametersTables = new SynchronizedTables;
   parametersDisplay = new QTableView();
 
   QWidget * wdgt = new QWidget;
@@ -668,15 +925,16 @@ void FitTrajectoryDisplay::setupFrame()
   QVBoxLayout * l = new QVBoxLayout(wdgt);
 
   QSplitter * splt = new QSplitter(Qt::Vertical);
-  splt->addWidget(parametersDisplay);
+  parametersTables->addTable(parametersDisplay);
+  splt->addWidget(parametersTables);
 
   parametersDisplay->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(parametersDisplay, 
+          SIGNAL(customContextMenuRequested(const QPoint&)),
+          SLOT(contextMenuOnTable(const QPoint&)));
+
   connect(parametersDisplay, SIGNAL(doubleClicked(const QModelIndex &)),
           SLOT(onDoubleClick(const QModelIndex &)));
-
-  graphicalDisplay = new TrajectoryParametersDisplay(workspace);
-
-  // splt->addWidget(graphicalDisplay);
 
   l->addWidget(splt);
 
@@ -687,9 +945,6 @@ void FitTrajectoryDisplay::setupFrame()
   parametersDisplay->horizontalHeader()->
     setSortIndicator(model->col("date"), Qt::AscendingOrder);
 
-  connect(parametersDisplay, 
-          SIGNAL(customContextMenuRequested(const QPoint&)),
-          SLOT(contextMenuOnTable(const QPoint&)));
 
   connect(parametersDisplay->selectionModel(),
           SIGNAL(selectionChanged(const QItemSelection &,
@@ -697,19 +952,33 @@ void FitTrajectoryDisplay::setupFrame()
           this,
           SLOT(onSelectionChanged()));
 
+  referenceDisplay = new QTableView();
+  referenceDisplay->setModel(model);
+  parametersTables->addTable(referenceDisplay);
+
+  referenceDisplay->hide();
+
+
   QHBoxLayout * hb = new QHBoxLayout();
 
-  QPushButton * bt = new QPushButton(tr("Trim"));
+  QPushButton * bt = new QPushButton("Trim");
   connect(bt, SIGNAL(clicked()), SLOT(trim()));
   hb->addWidget(bt);
 
-  bt = new QPushButton(tr("Previous buffer"));
+  bt = new QPushButton("Previous buffer");
   connect(bt, SIGNAL(clicked()), SLOT(previousBuffer()));
   hb->addWidget(bt);
 
-  bt = new QPushButton(tr("Next buffer"));
+  bt = new QPushButton("Next buffer");
   connect(bt, SIGNAL(clicked()), SLOT(nextBuffer()));
   hb->addWidget(bt);
+
+  QCheckBox * check = new QCheckBox("Color by flag");
+  QObject::connect(check, &QCheckBox::clicked,
+                   this, [this, check]() {
+                           model->setFlagColor(check->isChecked());
+                         });
+  hb->addWidget(check);
 
   hb->addStretch();
 
@@ -725,6 +994,10 @@ void FitTrajectoryDisplay::setupFrame()
 
   //////////////////////////////
   // Setup of curve view
+
+
+  graphicalDisplay = new TrajectoryParametersDisplay(workspace);
+
   
   QWidget * viewtab = new QWidget;
   QVBoxLayout * vl = new QVBoxLayout(viewtab);
@@ -757,8 +1030,35 @@ void FitTrajectoryDisplay::setupFrame()
 
   //////////////////////////////
   // Setup of the mixed display
-  DoubleDisplay * dd = new DoubleDisplay(model, workspace);
-  tabs->addTab(dd, "Parameters");
+  doubleDisplay = new DoubleDisplay(model, workspace);
+  doubleDisplay->tableView->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(doubleDisplay->tableView, 
+          SIGNAL(customContextMenuRequested(const QPoint&)),
+          SLOT(contextMenuOnTable(const QPoint&)));
+  connect(doubleDisplay->tableView, SIGNAL(doubleClicked(const QModelIndex &)),
+          SLOT(onDoubleClick(const QModelIndex &)));
+
+  tabs->addTab(doubleDisplay, "Parameters");
+
+
+  //////////////////////////////
+  // Fourth tab
+  QWidget * fltab = new QWidget;
+  vl = new QVBoxLayout(fltab);
+  flagsView = new QTableView;
+  vl->addWidget(flagsView);
+  
+  flagsModel =
+    new FlaggedTrajectoriesModel(&workspace->trajectories, fitData, model);
+  flagsView->setModel(flagsModel);
+  flagsView->setContextMenuPolicy(Qt::CustomContextMenu);
+
+  connect(flagsView, 
+          SIGNAL(customContextMenuRequested(const QPoint&)),
+          SLOT(flagsViewContextMenu(const QPoint&)));
+
+  tabs->addTab(fltab, "Flags/clusters");
+
 
   /// Here the close button at the bottom:
   hb = new QHBoxLayout;
@@ -770,6 +1070,8 @@ void FitTrajectoryDisplay::setupFrame()
   hb->addWidget(box);
 
   t->addLayout(hb);
+
+
 
 
 
@@ -790,32 +1092,26 @@ void FitTrajectoryDisplay::setupFrame()
 
   
   addCMAction("Reuse parameters", this, SLOT(reuseCurrentParameters()),
-              QKeySequence(QString("Ctrl+Shift+U")));
+              QKeySequence(QString("Ctrl+Shift+U")), {0,2});
   addCMAction("Reuse parameters for this dataset", this,
               SLOT(reuseParametersForThisDataset()),
-              QKeySequence(QString("Ctrl+U")));
+              QKeySequence(QString("Ctrl+U")), {0,2});
 
-  QAction * a = new QAction(this);
-  a->setSeparator(true);
-  contextActions << a;
+  addCMSeparator();
 
   addCMAction("Set as Reference", this, SLOT(setAsReference()),
               QKeySequence(QString("Ctrl+R")));
   addCMAction("Clear reference", this, SLOT(clearReference()),
               QKeySequence(QString("Ctrl+Shift+R")));
 
-  a = new QAction(this);
-  a->setSeparator(true);
-  contextActions << a;
+  addCMSeparator();
 
   addCMAction("Next buffer", this, SLOT(nextBuffer()),
               QKeySequence(QString("Ctrl+PgDown")));
   addCMAction("Previous buffer", this, SLOT(previousBuffer()),
               QKeySequence(QString("Ctrl+PgUp")));
 
-  a = new QAction(this);
-  a->setSeparator(true);
-  contextActions << a;
+  addCMSeparator();
 
   addCMAction("Hide fixed", this, SLOT(hideFixed()),
               QKeySequence(QString("Ctrl+H")));
@@ -827,28 +1123,29 @@ void FitTrajectoryDisplay::setupFrame()
   addCMAction("Show all", this, SLOT(showAll()),
               QKeySequence(QString("Ctrl+Shift+H")));
 
-  a = new QAction(this);
-  a->setSeparator(true);
-  contextActions << a;
+  addCMSeparator();
 
   addCMAction("Sort", this, SLOT(sortByCurrentColumn()),
               QKeySequence(QString("Ctrl+S")));
   addCMAction("Reverse sort", this, SLOT(reverseSortByCurrentColumn()),
               QKeySequence(QString("Ctrl+Shift+S")));
 
-  a = new QAction(this);
-  a->setSeparator(true);
-  contextActions << a;
+  addCMSeparator();
 
   addCMAction("Delete trajectory", this, SLOT(deleteSelectedTrajectories()),
               QKeySequence(QString("Del")));
 }
 
+void FitTrajectoryDisplay::updateModels()
+{
+  model->update();
+  flagsModel->update();
+}
+
 void FitTrajectoryDisplay::update()
 {
-  
+  updateModels();
   // parametersDisplay->setRowCount(trajectories->size() * 2);
-  model->update();
   parametersDisplay->resizeColumnsToContents();
 }
 
@@ -859,34 +1156,167 @@ FitTrajectoryDisplay::~FitTrajectoryDisplay()
 void FitTrajectoryDisplay::addCMAction(const QString & name,
                                        QObject * receiver, 
                                        const char * slot,
-                                       const QKeySequence & shortCut)
+                                       const QKeySequence & shortCut,
+                                       const QSet<int> & tabs)
 {
   QString str = name;
   if(! shortCut.isEmpty())
     str += "   (" + shortCut.toString() + ")";
   QAction * ac = ActionCombo::createAction(name, receiver,
                                            slot, shortCut, this);
-  contextActions << ac;
+  for(int i : tabs) {
+    if(! contextActions.contains(i))
+      contextActions[i] = QList<QAction*>();
+    contextActions[i] << ac;
+  }
+  // or shall I add them to the widget of the tab ?
   QWidget::addAction(ac);
+}
+
+void FitTrajectoryDisplay::addCMSeparator(const QSet<int> & tabs)
+{
+  QAction * a = new QAction(this);
+  a->setSeparator(true);
+  for(int i : tabs) {
+    if(! contextActions.contains(i))
+      contextActions[i] = QList<QAction*>();
+    contextActions[i] << a;
+  }
 }
 
 
 void FitTrajectoryDisplay::contextMenuOnTable(const QPoint & pos)
 {
   QMenu menu;
-  for(int i = 0; i < contextActions.size(); i++)
-    menu.addAction(contextActions[i]);
+  int s = 0;
+  for(QAction * ac :  contextActions[tabs->currentIndex()]) {
+    s++;
+    menu.addAction(ac);
+  }
+  
+  if(s > 0)
+    menu.addSeparator();
 
-  // Triggered automatically, apparently...
+  QMenu s1("Add flags");
+  QSet<QString> flgs = workspace->trajectories.allFlags();
+
+  if(flgs.size() > 0) {
+    QStringList ls = flgs.toList();
+    std::sort(ls.begin(), ls.end());
+    for(QString fl : ls) {
+      QAction * ac = new QAction(fl, this);
+      QObject::connect(ac, &QAction::triggered,
+                       this, [fl, this] {
+                               addFlagToSelected(fl);
+                             });
+      s1.addAction(ac);
+    }
+    s1.addSeparator();
+  }
+  
+  QAction * ac = ActionCombo::createAction("New flag",
+                                           this,
+                                           SLOT(promptAddFlag()),
+                                           QKeySequence(), this);
+  s1.addAction(ac);
+  menu.addMenu(&s1);
+
+  
+  QMenu s2("Remove flags");
+  QSet<QString> rFl;
+  for(int i : selectedTrajectories())
+    rFl += workspace->trajectories[i].flags;
+
+  if(rFl.size() > 0) {
+    QStringList ls = rFl.toList();
+    std::sort(ls.begin(), ls.end());
+    for(QString fl : ls) {
+      QAction * ac = new QAction(fl, this);
+      QObject::connect(ac, &QAction::triggered,
+                       this, [fl, this] {
+                               removeFlagToSelected(fl);
+                             });
+      s2.addAction(ac);
+    }
+    s2.addSeparator();
+    QAction * ac = new QAction("All", this);
+    QObject::connect(ac, &QAction::triggered,
+                     this, [ls, this] {
+                       for(const QString & fl : ls)
+                         removeFlagToSelected(fl);
+                     });
+    s2.addAction(ac);
+
+  }
+  
+  menu.addMenu(&s2);
   menu.exec(view->viewport()->mapToGlobal(pos));
+}
+
+void FitTrajectoryDisplay::flagsViewContextMenu(const QPoint & pos)
+{
+  QMenu menu;
+  QAction * ac = new QAction("Reuse best", this);
+  QObject::connect(ac, &QAction::triggered,
+                   this,
+                   [this] {
+                     QString flg = flagsModel->flag(flagsView->currentIndex());
+                     if(! flg.isEmpty())
+                       reuseFlaggedParameters(flg, true);
+                   });
+  menu.addAction(ac);
+
+  ac = new QAction("Reuse average", this);
+  QObject::connect(ac, &QAction::triggered,
+                   this,
+                   [this] {
+                     QString flg = flagsModel->flag(flagsView->currentIndex());
+                     if(! flg.isEmpty())
+                       reuseFlaggedParameters(flg, false);
+                   });
+  menu.addAction(ac);
+  menu.exec(view->viewport()->mapToGlobal(pos));
+}
+
+
+void FitTrajectoryDisplay::reuseFlaggedParameters(const QString & flag,
+                                                  bool best)
+{
+  FitTrajectories trjs = workspace->trajectories.flaggedTrajectories(flag);
+  Vector v;
+  if(best)
+    v = trjs.best().finalParameters;
+  else {
+    int nb = 0;
+    for(const FitTrajectory & tr : trjs) {
+      if(nb == 0)
+        v = tr.finalParameters;
+      else
+        v += tr.finalParameters;
+    }
+    v *= (1.0/nb);
+  }
+    
+  
+  workspace->restoreParameterValues(v);
 }
 
 void FitTrajectoryDisplay::reuseCurrentParameters()
 {
   // Send back the given parameters to the fitdialog
-  int idx = parametersDisplay->currentIndex().row();
-  if(idx < 0)
+  QTableView * view = NULL;
+  if(tabs->currentIndex() == 0)
+    view = parametersDisplay;
+  if(tabs->currentIndex() == 2)
+    view = doubleDisplay->tableView;
+  if(! view)
     return;
+  
+  int idx = view->currentIndex().row();
+  if(idx < 0 || idx >= workspace->trajectories.size() * 2)
+    return;
+
+  
   Vector parameters;
   if(idx % 2)
     parameters = workspace->trajectories[idx/2].finalParameters;
@@ -898,8 +1328,19 @@ void FitTrajectoryDisplay::reuseCurrentParameters()
 void FitTrajectoryDisplay::reuseParametersForThisDataset()
 {
   // Send back the given parameters to the fitdialog
-  int idx = parametersDisplay->currentIndex().row();
-  int col = parametersDisplay->currentIndex().column();
+  QTableView * view = NULL;
+  if(tabs->currentIndex() == 0)
+    view = parametersDisplay;
+  if(tabs->currentIndex() == 2)
+    view = doubleDisplay->tableView;
+  if(! view)
+    return;
+
+  int idx = view->currentIndex().row();
+  if(idx < 0 || idx >= workspace->trajectories.size() * 2)
+    return;
+
+  int col = view->currentIndex().column();
   int ds = model->dataset(col);
   if(ds >= 0) {
     Vector parameters;
@@ -911,18 +1352,58 @@ void FitTrajectoryDisplay::reuseParametersForThisDataset()
   }
 }
 
-void FitTrajectoryDisplay::deleteSelectedTrajectories()
+QList<int> FitTrajectoryDisplay::selectedTrajectories() const
 {
   QSet<int> trjs;
-  QModelIndexList indexes =
-    parametersDisplay->selectionModel()->selectedIndexes();
+  QModelIndexList indexes;
+  if(tabs->currentIndex() == 0) // Normal view
+    indexes =
+      parametersDisplay->selectionModel()->selectedIndexes();
+
+  if(tabs->currentIndex() == 2) // Parameters view
+    indexes =
+      doubleDisplay->tableView->selectionModel()->selectedIndexes();
+
   for(const QModelIndex & idx : indexes)
     trjs.insert(idx.row()/2);
+  
   QList<int> l = trjs.toList();
   std::sort(l.begin(), l.end());
+  return l;
+}
+
+void FitTrajectoryDisplay::deleteSelectedTrajectories()
+{
+  QList<int> l = selectedTrajectories();
   while(l.size() > 0)
     workspace->trajectories.remove(l.takeLast());
-  model->update();
+  updateModels();
+}
+
+
+void FitTrajectoryDisplay::addFlagToSelected(const QString & flag)
+{
+  QList<int> l = selectedTrajectories();
+  for(int i : l)
+    workspace->trajectories[i].addFlag(flag);
+  updateModels();
+}
+
+void FitTrajectoryDisplay::removeFlagToSelected(const QString & flag)
+{
+  QList<int> l = selectedTrajectories();
+  for(int i : l)
+    workspace->trajectories[i].removeFlag(flag);
+  updateModels();
+}
+
+void FitTrajectoryDisplay::promptAddFlag()
+{
+  QString flag = QInputDialog::getText(this, "Flag name",
+                                       "New flag name to use");
+  if(! flag.isEmpty())
+    addFlagToSelected(flag);
+                                       
 }
 
 void FitTrajectoryDisplay::nextBuffer()
@@ -979,6 +1460,21 @@ void FitTrajectoryDisplay::trim()
     trim(thr);
 }
 
+void FitTrajectoryDisplay::hideColumn(int col)
+{
+  for(QTableView * view : {parametersDisplay, doubleDisplay->tableView,
+      flagsView})
+    view->hideColumn(col);
+}
+
+void FitTrajectoryDisplay::showColumn(int col)
+{
+  for(QTableView * view : {parametersDisplay, doubleDisplay->tableView,
+    flagsView})
+    view->showColumn(col);
+}
+
+
 void FitTrajectoryDisplay::hideFixed()
 {
   QModelIndex cur = parametersDisplay->currentIndex();
@@ -990,7 +1486,7 @@ void FitTrajectoryDisplay::hideFixed()
   const FitTrajectory * trj = &(workspace->trajectories[idx/2]);
   for(int i = 0; i < nbtot; i++) {
     if(model->isFixed(i, trj))
-      parametersDisplay->hideColumn(i);
+      hideColumn(i);
   }
 }
 
@@ -1002,7 +1498,7 @@ void FitTrajectoryDisplay::hideSelected()
     ->selectedIndexes();
   
   for(const QModelIndex & idx : selected)
-    parametersDisplay->hideColumn(idx.column());
+    hideColumn(idx.column());
 
 }
 
@@ -1036,7 +1532,7 @@ void FitTrajectoryDisplay::hideButSelected()
     int pid = model->parameterIndex(i);
     if(pid >= 0 && model->dataset(i) == ds
        && (! parameters.contains(pid)))
-      parametersDisplay->hideColumn(i);
+      hideColumn(i);
   }
 }
 
@@ -1061,7 +1557,7 @@ void FitTrajectoryDisplay::hideButSelectedEverywhere()
   for(int i = 0; i < nbtot; i++) {
     int pid = model->parameterIndex(i);
     if(pid >= 0 && (! parameters.contains(model->parameterIndex(i))))
-      parametersDisplay->hideColumn(i);
+      hideColumn(i);
   }
 }
 
@@ -1071,7 +1567,7 @@ void FitTrajectoryDisplay::showAll()
   QModelIndex idx = parametersDisplay->currentIndex();
   int nbtot = model->columnCount(idx);
   for(int i = 0; i < nbtot; i++)
-    parametersDisplay->showColumn(i);
+    showColumn(i);
 }
 
 
@@ -1094,8 +1590,17 @@ void FitTrajectoryDisplay::setAsReference()
   int idx = cur.row();
   if(idx < 0)
     return;
-  const FitTrajectory * trj = &(workspace->trajectories[idx/2]);
+  idx = idx/2;
+  const FitTrajectory * trj = &(workspace->trajectories[idx]);
   model->referenceTrajectory = trj;
+  referenceDisplay->show();
+  for(int i = 0; i < 2*workspace->trajectories.size(); i++) {
+    if(i == (idx * 2  + 1))
+      referenceDisplay->showRow(i);
+    else
+      referenceDisplay->hideRow(i);
+  }
+  
   model->update();
 }
 
@@ -1103,6 +1608,8 @@ void FitTrajectoryDisplay::clearReference()
 {
   model->referenceTrajectory = NULL;
   model->update();
+
+  referenceDisplay->hide();
 }
 
 void FitTrajectoryDisplay::browseTrajectories(FitWorkspace * ws)

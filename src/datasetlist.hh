@@ -53,7 +53,7 @@ public:
   /// If nothing is specified, the list defaults to either:
   /// @li the current buffer when @a all is false
   /// @li all the stack when @a all is true
-  DataSetList(const CommandOptions & opts, bool all = false);
+  explicit DataSetList(const CommandOptions & opts, bool all = false);
 
   /// In this command list, we look in all the stacks, but are only
   /// interested in the datasets provided in the

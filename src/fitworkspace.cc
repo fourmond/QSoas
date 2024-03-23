@@ -220,6 +220,12 @@ QString FitWorkspace::fitName(bool includeOptions) const
   return fitData->fit->fitName(includeOptions, fitData);
 }
 
+
+QString FitWorkspace::formatResiduals(double res)
+{
+  return QString::number(res, 'e', 7);
+}
+
 void FitWorkspace::computePerpendicularCoordinates(const QString & perpendicularMeta)
 {
   // Here, setup the perpendicular coordinates
@@ -709,7 +715,7 @@ void FitWorkspace::prepareInfo(QStringList * rowNames,
     for(int i = 1; i < datasets; i++)
       names.intersect(fitData->datasets[i]->getMetaData().extractDoubles().keys().toSet());
     *metaNames = names.toList();
-    qSort(*metaNames);
+    std::sort(metaNames->begin(), metaNames->end());
     metaValues->clear();
     for(const QString & n : *metaNames)
       *metaValues << Vector();
@@ -750,7 +756,7 @@ void FitWorkspace::prepareExport(QStringList & lst, QString & lines,
     for(int i = 1; i < datasets; i++)
       names.intersect(fitData->datasets[i]->getMetaData().extractDoubles().keys().toSet());
     meta = names.toList();
-    qSort(meta);
+    std::sort(meta.begin(), meta.end());
     lst << meta;
   }
 
@@ -774,10 +780,10 @@ void FitWorkspace::prepareExport(QStringList & lst, QString & lines,
     }
     ls2 << QString::number(fitData->datasets[i]->x().min());
     ls2 << QString::number(fitData->datasets[i]->x().max());
-    ls2 << QString::number(pointResiduals[i]) 
-        << QString::number(relativeResiduals[i]);
-    ls2 << QString::number(overallPointResiduals) 
-        << QString::number(overallRelativeResiduals);
+    ls2 << formatResiduals(pointResiduals[i])
+        << formatResiduals(relativeResiduals[i]);
+    ls2 << formatResiduals(overallPointResiduals) 
+        << formatResiduals(overallRelativeResiduals);
     ls2 << QString::number(fitData->weightsPerBuffer[i]);
 
     if(meta.size() > 0) {
@@ -810,7 +816,7 @@ void FitWorkspace::exportParameters(QIODevice * stream,
   QTextStream out(stream);
   QStringList lst;
   out << "# Fit used: " << fitName() 
-      << ", residuals: " << overallPointResiduals << endl;
+      << ", residuals: " << formatResiduals(overallPointResiduals) << endl;
 
   QString lines;
   prepareExport(lst, lines, exportErrors);
@@ -829,7 +835,8 @@ template <typename T> void FitWorkspace::writeText(T & target,
 
   // Writing down the goodness of fit
 
-  target << prefix << "Final residuals: " << overallPointResiduals << endl;
+  target << prefix << "Final residuals: "
+         << formatResiduals(overallPointResiduals) << endl;
   if(fitData->standardYErrors)
     target << prefix
            << "Final chi-squared: " << overallChiSquared << endl;
@@ -888,15 +895,20 @@ void FitWorkspace::writeToTerminal(bool writeMatrix)
   writeText(Terminal::out, writeMatrix);
 }
 
-void FitWorkspace::saveParameters(QIODevice * stream) const
+void FitWorkspace::saveParameters(QIODevice * stream,
+                                  const QStringList & comments) const
 {
   QTextStream out(stream);
   
-  out << "# The following information are comments, " 
-    "but Soas may make use of those if they are present" << endl;
-
+  out << "# QSoas saved parameters" << endl;
   out << "# Fit used: " << fitName() << endl;
   out << "# Command-line: " << soas().currentCommandLine() << endl;
+
+  if(comments.size() > 0) {
+    out << "# Comments:" << endl;
+    for(const QString & s: comments)
+      out << "#   " << s << endl;
+  }
 
   // A first pass to print out the global parameters
   for(int i = 0; i < nbParameters; i++) {
@@ -926,17 +938,16 @@ void FitWorkspace::saveParameters(QIODevice * stream) const
           << endl;
     }
   }
-  out << "# The following contains a more human-readable listing of the "
-    "parameters that is NEVER READ by QSoas" << endl;
   writeText(out, false, "# ");
 }
 
 void FitWorkspace::saveParameters(const QString & fileName,
                                   bool overwrite,
+                                  const QStringList & comments,
                                   const CommandOptions & opts) const
 {
   File f(fileName, (overwrite ? File::TextOverwrite : File::TextWrite), opts);
-  saveParameters(f);
+  saveParameters(f, comments);
   Terminal::out << "Saved fit parameters to file " << fileName << endl;
 }
 
@@ -1093,7 +1104,8 @@ void FitWorkspace::setValue(const QString & name, double value, int dsi)
     dsi = specRE.cap(2).toInt();
   }
   if(dsi >= datasets) {
-    Terminal::out << "Attempting to set parameter: '" << name << "' to a non-existent buffer:" << dsi << endl;
+    Terminal::out << "Attempting to set parameter: '" << name
+                  << "' to a non-existent buffer:" << dsi << endl;
     return;
   }
   if(p == "buffer_weight")
@@ -1783,7 +1795,7 @@ void FitWorkspace::startFit()
                 << params 
                 << " using the '" << fitData->engineFactory->name
                 << "' fit engine; initial residuals: "
-                << overallPointResiduals
+                << formatResiduals(overallPointResiduals)
                 << endl;
   fitEnding = Running;
   emit(startedFitting(freeParams));
@@ -1846,7 +1858,7 @@ void FitWorkspace::traceFit()
   ValueHash trace;
 
   trace << "iteration" << fitData->nbIterations;
-  trace << "residuals" << fitData->residuals();
+  trace << "residuals" << formatResiduals(fitData->residuals());
 
   // OK, I thought this would look better, but, weel.
   QList<const FitParameter *> ps;

@@ -73,7 +73,7 @@ public:
   QDateTime date;
 
   /// We use deep copy
-  CachedDataSets(const QList<DataSet*> & dss)  : 
+  explicit CachedDataSets(const QList<DataSet*> & dss)  : 
     datasets(deepCopy(dss)) {
     date = QDateTime::currentDateTime();
   };
@@ -417,7 +417,7 @@ static void pushOntoStack(const QList<const DataSet*> & lst)
 
 void browseFilesCommand(const QString &, const CommandOptions & opts)
 {
-  DatasetBrowser dlg;
+  DatasetBrowser dlg(opts);
   QString pattern = "*";
   updateFromOptions(opts, "pattern", pattern);
   QStringList files = File::glob(pattern);
@@ -476,6 +476,7 @@ void browseFilesCommand(const QString &, const CommandOptions & opts)
 
 static ArgumentList 
 bfOpts(QList<Argument*>()
+       << DatasetBrowser::browserOptions()
        << new StringArgument("pattern", 
                              "Pattern",
                              "Files to browse", true)
@@ -538,10 +539,9 @@ void DataBackend::registerBackendCommands()
 
     QString d1 = QString("Load files with backend '%1'").arg(b->name);
     Command * cmd =
-      new Command(name.toLocal8Bit(),
+      new Command(name,
                   effector(b, &DataBackend::loadDatasetCommand),
-                  "load", lst, opts, (const char*) d1.toLocal8Bit(), 
-                  (const char*) d1.toLocal8Bit());
+                  "load", lst, opts, d1, d1);
     *backendCommands << cmd;
   }
 

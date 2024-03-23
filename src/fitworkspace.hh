@@ -147,6 +147,9 @@ public:
   /// and the formulas...
   void loadParametersValues(FitParametersFile & params);
 
+  /// A function to format residuals in a consistent way
+  static QString formatResiduals(double res);
+
 private:
   /// This updates the parameters values, by packing from values and
   /// unpacking back to values.
@@ -274,7 +277,7 @@ public:
   bool hasPerpendicularCoordinates() const;
 
 
-  FitWorkspace(FitData * data);
+  explicit FitWorkspace(FitData * data);
   ~FitWorkspace();
 
   /// @name Parameter edition
@@ -541,13 +544,17 @@ public:
 
 protected:
   /// Save to the given stream
-  void saveParameters(QIODevice * out) const;
+  void saveParameters(QIODevice * out,
+                      const QStringList & comments) const;
 
 public:
 
   /// Save to the named file.
+  ///
+  /// The @a opts argument is given directly to File handling.
   void saveParameters(const QString & fileName,
                       bool overwrite = false,
+                      const QStringList & comments = QStringList(),
                       const CommandOptions & opts = CommandOptions()) const;
 
   /// Load from the given stream
@@ -817,7 +824,7 @@ class CovarianceMatrixDisplay : public QDialog {
 
   void setupFrame();
 public:
-  CovarianceMatrixDisplay(FitWorkspace * params, QWidget * parent = 0);
+  explicit CovarianceMatrixDisplay(FitWorkspace * params, QWidget * parent = 0);
 
 public slots:
 

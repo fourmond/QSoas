@@ -337,6 +337,89 @@ TextBackend text("/\\s+/",
                  "Text files",
                  "Backend to read plain text files");
 
+
+
+//////////////////////////////////////////////////////////////////////
+#include <linereader.hh>
+
+class QSoasBackend : public TextBackend {
+
+public:
+  QSoasBackend(const char * n, const char * pn, const char * d = "") :
+    TextBackend("\t", n, pn, d)
+  {
+    comments = Regex("/^#/");
+  };
+
+  int couldBeMine(const QByteArray & peek, 
+                  const QString & fileName) const override {
+    int val = TextBackend::couldBeMine(peek, fileName);
+    val -= 100;
+    QRegExp tryCmts2("(^|\n)\\s*##");
+    QString s = peek;
+    if(tryCmts2.indexIn(s) >= 0) {
+      val += 200;
+    }
+    return val;
+  };
+
+  virtual QList<DataSet *> readFromStream(QIODevice * stream,
+                                          const QString & fileName,
+                                          const CommandOptions & opts)
+    const override {
+    QByteArray bt = stream->peek(300);
+    QTextCodec * cd = Utils::autoDetectCodec(bt);
+    QTextStream s(stream);
+    s.setCodec(cd);
+
+    LineReader rd(&s);
+
+    QList<int> txtCols;
+
+    QRegExp cmtRE("^\\s*((#(# *)?).*)?$");
+    // QTextStream o(stdout);
+    while(! rd.atEnd()) {
+      QString ln = rd.readLine();
+      if(cmtRE.indexIn(ln, 0) == 0) {
+        // o << "L: " << ln << endl;
+        if(cmtRE.cap(2).size() >= 2) {
+          // the ## line
+          QStringList names = cmtRE.cap(1).mid(cmtRE.cap(2).size())
+            .split("\t");
+          // o << " -> " << names.join(", ") << endl;
+          // Try to find text columns
+          for(int i = 0; i < names.size(); i++) {
+            if(names[i] == "buffer" ||
+               names[i] == "Buffer" ||
+               names[i] == "row-names" ||
+               names[i] == "row-name" ||
+               names[i] == "names" ||
+               names[i] == "name"
+               )
+              txtCols << i+1;
+          }
+          break;
+        }
+      }
+      else
+        break;
+    }
+    stream->seek(0);
+
+    CommandOptions op = opts;
+    std::unique_ptr<ArgumentMarshaller> lst(new ArgumentMarshallerChild<QList<int> >(txtCols));
+    // We don't use updateOptions, since it leads to double free
+    op["text-columns"] = lst.get();
+    return TextBackend::readFromStream(stream, fileName, op);
+  };
+
+};
+
+
+static QSoasBackend qsoas("qsoas",
+                          "QSoas text files",
+                          "Backend to read QSoas's own text files");
+
 //////////////////////////////////////////////////////////////////////
 
 class CSVBackend : public TextBackend {
@@ -392,7 +475,7 @@ public:
                 
 
 
-CSVBackend csv("/[;,]/",
-               "csv",
-               "CSV files",
-               "Backend to read CSV files");
+static CSVBackend csv("/[;,]/",
+                      "csv",
+                      "CSV files",
+                      "Backend to read CSV files");

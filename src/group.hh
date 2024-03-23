@@ -106,9 +106,10 @@ public:
                            const CommandContext * context) const;
 
   /// Fills a menu with all the groups informations for the given
-  /// CommandContext
-  static void fillMenuBar(QMenuBar * menu,
-                          const CommandContext * context);
+  /// CommandContext.
+  /// It returns the list of created actions
+  static QList<QMenu*> fillMenuBar(QMenuBar * menu,
+                                   const CommandContext * context);
 
 };
 

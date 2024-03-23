@@ -39,9 +39,10 @@ assert '$stats["y_norm"]' 0
 assert '$stats["x_max"]' 20
 
 
+clear-stack
 ruby
 for x in 0..10
-  Soas.generate_buffer(0,x,:formula =>  "x**2")
+  Soas.generate_buffer(0,x,:formula =>  "x**2", :name => "Data-#{x}.dat")
   QSoas.apply_formula "y-=x**2"
   QSoas.assert '$stats["y_norm"]', :tolerance => 0
 end

@@ -71,18 +71,13 @@ DataSetList::DataSetList(const CommandOptions & opts,
 {
   // By default look in all the stack
   parseOptions(opts, true);
-  QHash<const DataSet *, int> indices;
-  for(int i = 0; i < pickFrom.size(); i++)
-    indices[pickFrom[i]] = i;
-  QList<const DataSet *> nl = datasets;
+  QSet<const DataSet *> nl = datasets.toSet();
   datasets.clear();
-  for(const DataSet * ds : nl) {
-    if(indices.contains(ds))
-      selectedIndices.insert(indices[ds]);
-  }
   for(int i = 0; i < pickFrom.size(); i++) {
-    if(selectedIndices.contains(i))
+    if(nl.contains(pickFrom[i])) {
+      selectedIndices.insert(i);
       datasets << pickFrom[i];
+    }
   }
 }
 

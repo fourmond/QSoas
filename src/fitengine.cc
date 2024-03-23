@@ -116,11 +116,11 @@ Command * FitEngine::createCommand(FitEngineFactoryItem * item)
 {
   QString n = item->name;
   QString cmdName = n + "-engine";
-  return new Command(cmdName.toLocal8Bit().data(),
+  return new Command(cmdName,
                      engineEffector(n), "fits",
                      NULL,
                      item->engineOptions,
-                     n.toLocal8Bit().data(),
+                     n,
                      "", "",
                      CommandContext::fitContext());
 }

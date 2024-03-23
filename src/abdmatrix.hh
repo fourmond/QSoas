@@ -63,6 +63,10 @@ class ABDMatrix {
   /// Returns the index of the matrix and the index within the matrix
   /// in which the given overall index lies
   void whereIndex(int overallIdx, int & mId, int & idx) const;
+
+  ABDMatrix(const ABDMatrix & a) = delete;
+
+  const ABDMatrix & operator=(const ABDMatrix & a) = delete;
 public:
   explicit ABDMatrix(const QList<int> & sizes);
   ~ABDMatrix();

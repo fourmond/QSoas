@@ -1,6 +1,6 @@
 /*
-  combinedfit.cc: fit with automatic fitting of the combined
-  Copyright 2012, 2013 by CNRS/AMU
+  combinedfit.cc: combine several fits with a formula
+  Copyright 2012, 2013, 2024 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,9 +28,20 @@
 #include <general-arguments.hh>
 #include <commandeffector-templates.hh>
 
+#include <argument-templates.hh>
+
 #include <debug.hh>
 
 #include <idioms.hh>
+
+
+static QHash<QString, CombinedFit::DuplicatesMode> duplicatesNames =
+  { {"suffix", CombinedFit::Suffix},
+    {"suffix-if-needed", CombinedFit::SuffixIfNeeded},
+    {"fail", CombinedFit::Fail},
+    {"merge", CombinedFit::Merge}
+  };
+
 
 /// The cache for a single buffer
 class BufferCache {
@@ -86,6 +97,7 @@ CombinedFit::Storage::~Storage()
 FitInternalStorage * CombinedFit::allocateStorage(FitData * data) const
 {
   Storage * s = new Storage;
+  s->duplicates = defaultMode;
   int sz = underlyingFits.size();
   for(int i = 0; i < sz; i++)
     s->subs << underlyingFits[i]->allocateStorage(data);
@@ -122,22 +134,58 @@ void CombinedFit::processOptions(const CommandOptions & opts, FitData * data) co
 
   s->overallParameters.clear();
   s->firstParameterIndex.clear();
-  // Now, handle the parameters
-  for(int i = 0; i < ownParameters.size(); i++)
-    s->overallParameters << ParameterDefinition(ownParameters[i]);
+  s->duplicates = defaultMode;
+  updateFromOptions(opts, "duplicates", s->duplicates);
+  if(s->duplicates == Merge)
+    throw RuntimeError("Merging duplicate parameters is not yet supported, sorry about that");
   
+  // // Now, handle the parameters
+
+  /// a hash parameter name -> list of fits in which that one is used,
+  /// with -1 designating the combination's own parameters
+  QHash<QString, QList<int> > definedParameters;
+  
+  for(const QString & n : ownParameters) {
+    definedParameters[n] = QList<int>( {-1});
+    s->overallParameters << ParameterDefinition(n);
+  }
+
+  QSet<QString> duplicates;
+
+  s->originalParameters.clear();
   for(int i = 0; i < underlyingFits.size(); i++) {
     PerDatasetFit * f = underlyingFits[i];
     TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
                                                       s->subs[i]);
-    QList<ParameterDefinition> params = f->parameters(data);
+    QList<ParameterDefinition> defs = f->parameters(data);
+    s->originalParameters << defs;
+    for(const ParameterDefinition & def : defs) {
+      if(! definedParameters.contains(def.name)) {
+        definedParameters[def.name] = QList<int>();
+      }
+      else {
+        duplicates.insert(def.name);
+      }
+      definedParameters[def.name] << i;
+    }
+  }
+
+  if(duplicates.size() > 0 && s->duplicates == Fail)
+    throw RuntimeError("The fail mode has been selected and "
+                       "these parameters are in duplicate '%1'").
+      arg(duplicates.toList().join("', '"));
+
+  
+  for(int i = 0; i < underlyingFits.size(); i++) {
     s->firstParameterIndex << s->overallParameters.size();
-    for(int j = 0; j < params.size(); j++) {
-      ParameterDefinition def = params[j];
-      def.name = QString("%1_f#%2").arg(def.name).arg(i+1);
+    for(ParameterDefinition def : s->originalParameters[i]) {
+      if((s->duplicates == Suffix) ||
+         duplicates.contains(def.name))
+        def.name = QString("%1_f#%2").arg(def.name).arg(i+1);
       s->overallParameters << def;
     }
   }
+
 }
 
 void CombinedFit::initialGuess(FitData * data, 
@@ -233,10 +281,11 @@ void CombinedFit::function(const double * parameters,
 }
 
 CombinedFit::CombinedFit(const QString & name, const QString & f, 
-                         QList<PerDatasetFit *> fits) :
-  PerDatasetFit(name.toLocal8Bit(), 
+                         QList<PerDatasetFit *> fits, DuplicatesMode dup) :
+  PerDatasetFit(name, 
                 "Combined fit",
-                "Combined fit", 1, -1, false), 
+                "Combined fit", 1, -1, false),
+  defaultMode(dup),
   underlyingFits(fits), formula(f)
 
 {
@@ -258,62 +307,60 @@ CombinedFit::CombinedFit(const QString & name, const QString & f,
   ownParameters = params.mid(1 + fits.size());
 
 
-  /// @hack This should be replaced by the right thing !
-  ArgumentList opts;
-
   for(int i = 0; i < underlyingFits.size(); i++) {
     PerDatasetFit *f = underlyingFits[i];
     Command * cmd = CommandContext::globalContext()->
       namedCommand("fit-" + f->fitName(false));
-    opts << *cmd->commandOptions();
+    softOptions.mergeOptions(f->fitSoftOptions());
+    hardOptions.mergeOptions(f->fitHardOptions());
   }
 
-  /// @todo Global register of options for fits...
+  // the choice of the duplication mode
+  hardOptions << new TemplateChoiceArgument<DuplicatesMode>
+    (::duplicatesNames, "duplicates", "Duplicates",
+     "how duplicate parameters are handled");
 
-  makeCommands(ArgumentList(), NULL, NULL, opts);
+
+  makeCommands();
+}
+
+ArgumentList CombinedFit::fitHardOptions() const
+{
+  return hardOptions;
+}
+
+ArgumentList CombinedFit::fitSoftOptions() const
+{
+  return softOptions;
+}
+
+void CombinedFit::processSoftOptions(const CommandOptions & opts,
+                                     FitData * data) const
+{
+  Storage * s = storage<Storage>(data);
+
+  for(int i = 0; i < underlyingFits.size(); i++) {
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
+                                                      s->subs[i]);
+    underlyingFits[i]->processSoftOptions(opts, data);
+  }
 }
 
 
-// int CombinedFit::splicedIndex(FitData * data, int fit) const
-// {
-//   return firstParameterIndex[fit] * data->datasets.size();
-// }
+CommandOptions CombinedFit::currentSoftOptions(FitData * data) const
+{
+  CommandOptions opts;
+  Storage * s = storage<Storage>(data);
 
-// void CombinedFit::spliceParameters(FitData * data, double * target, 
-//                                    const double * source)
-// {
-//   int nbds = data->datasets.size();
-//   int tparams = overallParameters.size();
+  for(int i = 0; i < underlyingFits.size(); i++) {
+    TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
+                                                      s->subs[i]);
+    opts.unite(underlyingFits[i]->currentSoftOptions(data));
+  }
+  return opts;
+}
 
-//   for(int i = 0; i < underlyingFits.size(); i++) {
-//     int base = firstParameterIndex[i];
-//     int nbparams = firstParameterIndex.value(i+1, tparams) - base;
-//     for(int j = 0; j < nbds; j++) {
-//       for(int k = 0; k < nbparams; k++)
-//         target[base * nbds + nbparams * j + k] = 
-//           source[tparams * j + base + k];
-//     }
-//   }
 
-// }
-
-// void CombinedFit::unspliceParameters(FitData * data, double * target, 
-//                                      const double * source)
-// {
-//   int nbds = data->datasets.size();
-//   int tparams = overallParameters.size();
-
-//   /// @todo rewrite both functions using lambdas !
-//   for(int i = 0; i < underlyingFits.size(); i++) {
-//     int base = firstParameterIndex[i];
-//     int nbparams = firstParameterIndex.value(i+1, tparams) - base;
-//     for(int j = 0; j < nbds; j++) {
-//       for(int k = 0; k < nbparams; k++)
-//         target[tparams * j + base + k] = 
-//           source[base * nbds + nbparams * j + k];
-//     }
-//   }
-// }
 
 //////////////////////////////////////////////////////////////////////
 // Now, the command !
@@ -329,11 +376,13 @@ static void combineFits(const QString &, QString newName,
   updateFromOptions(opts, "redefine", overwrite);
   Fit::safelyRedefineFit(newName, overwrite);
 
+  CombinedFit::DuplicatesMode duplicates= CombinedFit::Suffix;
+  updateFromOptions(opts, "duplicates", duplicates);
+
   for(int i = 0; i < fits.size(); i++) {
       QString fitName = fits[i];
       PerDatasetFit * fit = 
         dynamic_cast<PerDatasetFit *>(Fit::namedFit(fitName));
-      
       if(! fit)
         throw RuntimeError("The fit " + fitName + " isn't working "
                            "buffer-by-buffer: impossible to combine "
@@ -342,7 +391,7 @@ static void combineFits(const QString &, QString newName,
         throw RuntimeError("Cannot use combine-fits with fits taking arguments, here '%1'").arg(fit->fitName(false));
       fts << fit;
   }
-  new CombinedFit(newName, formula, fts);
+  new CombinedFit(newName, formula, fts, duplicates);
 }
 
 
@@ -360,6 +409,10 @@ cfO(QList<Argument *>()
     << new BoolArgument("redefine", 
                         "Redefine",
                         "If the new fit already exists, redefines it")
+    << new TemplateChoiceArgument<CombinedFit::DuplicatesMode>
+    (::duplicatesNames,
+     "duplicates", "Duplicates",
+     "how duplicate parameters are handled")
     );
 
 static Command 

@@ -41,7 +41,7 @@ protected:
 
   class Storage : public FitInternalStorage {
   public:
-    /// The number of species
+    /// The number of redox states
     QList<int> number;
 
     QStringList speciesNames;
@@ -50,7 +50,8 @@ protected:
 
 
 
-  virtual void processOptions(const CommandOptions & opts, FitData * data) const override
+  virtual void processOptions(const CommandOptions & opts,
+                              FitData * data) const override
   {
     int species = -1;
     Storage * s = storage<Storage>(data);
@@ -119,7 +120,8 @@ public:
       for(int j = 0; j < nb; j++)
         defs << ParameterDefinition(QString("A_%1_%2").arg(id).
                                     arg(stateName(j, nb)),
-                                    (j == 0 && i > 0));
+                                    (j == 0 && i > 0),
+                                    true, true);
     
       for(int j = 0; j < nb-1; j++) {
         defs << ParameterDefinition(QString("E_%1_%2/%3").arg(id).
@@ -222,6 +224,186 @@ public:
 // DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
 // Its name doesn't matter.
 NernstFit fit_nernst;
+
+//////////////////////////////////////////////////////////////////////
+
+/// A fit very similar to the Nernst one, but for pH titrations.
+///
+/// @todo Maybe the two could be merged to some extent ?
+class pHFit : public FunctionFit {
+protected:
+
+  class Storage : public FitInternalStorage {
+  public:
+    /// The number of protonations
+    QList<int> number;
+
+    QStringList speciesNames;
+
+  };
+
+
+
+  virtual void processOptions(const CommandOptions & opts,
+                              FitData * data) const override
+  {
+    int species = -1;
+    Storage * s = storage<Storage>(data);
+    s->number.clear();
+    s->number << 1;
+    if(opts.contains("protonations"))
+      updateFromOptions(opts, "protonations", s->number);
+    updateFromOptions(opts, "species", species);
+    s->speciesNames.clear();
+    updateFromOptions(opts, "species-names", s->speciesNames);
+    if(species > 1) {
+      if(s->number.size() != 1)
+        Terminal::out << "/species specified, but /protonations already gives several species, ignoring" << endl;
+      else {
+        while(--species > 0)
+          s->number << s->number[0];
+      }
+    }
+  }
+
+  
+  virtual QString optionsString(FitData * data) const override {
+    Storage * s = storage<Storage>(data);
+    return QString("%1 species: %2").
+      arg(s->number.size()).arg("??");
+  }
+
+  /// Returns a name suitable for the given redox state of the numbered state
+  static QString stateName(int st, int nb) {
+    int nbp= nb - st - 1;
+    if(nbp > 1)
+      return QString("H%1").arg(nbp);
+    if(nbp == 1)
+      return "H";
+    return "";
+  };
+
+public:
+  virtual FitInternalStorage * allocateStorage(FitData * /*data*/) const override {
+    return new Storage;
+  };
+
+  virtual FitInternalStorage * copyStorage(FitData * /*data*/, FitInternalStorage * source, int /*ds = -1*/) const override {
+    return deepCopy<Storage>(source);
+  };
+
+
+
+  /// Numbering: 0 is the most reduced species.
+  virtual QList<ParameterDefinition> parameters(FitData * data) const override {
+    Storage * s = storage<Storage>(data);
+    QList<ParameterDefinition> defs;
+
+    for(int i = 0; i < s->number.size(); i++) {
+      int nb = s->number[i]+1;
+      QString id;
+      if(i < s->speciesNames.size())
+        id = s->speciesNames[i];
+      else
+        id = QChar('a' + i);
+
+      // Absorbances
+      for(int j = 0; j < nb; j++)
+        defs << ParameterDefinition(QString("A_%1%2").arg(id).
+                                    arg(stateName(j, nb)),
+                                    (j == 0 && i > 0),
+                                    true, true);
+    
+      for(int j = 0; j < nb-1; j++)
+        defs << ParameterDefinition(QString("pK_%1_%2").arg(id).
+                                    arg(j+1));
+    }
+    return defs;
+  };
+
+  virtual double function(const double * a,
+                          FitData * data, double x) const override {
+    Storage * s = storage<Storage>(data);
+
+    double rv = 0;
+    int offset = 0;
+    int nbs = s->number.size();
+    for(int j = 0; j < nbs; j++) {
+      int nb = s->number[j];
+      const double * ampl = a+offset;
+      const double * couples = ampl + nb + 1;
+      offset += 2*nb + 1;
+
+      double rel = 1;
+      double numer = 0;
+      double denom = 0;
+      for(int i = 0; i <= nb; i++) {
+        if(i > 0) {
+          rel *= pow(10, x - *couples);
+          ++couples;
+        }
+        denom += rel;
+        numer += *ampl * rel;
+        ++ampl;
+      }
+      rv += numer/denom;
+    }
+    return rv;
+  };
+
+  virtual void initialGuess(FitData * data, 
+                            const DataSet *ds,
+                            double * a) const override
+  {
+    Storage * s = storage<Storage>(data);
+    const double ymin = ds->y().min();
+    const double ymax = ds->y().max();
+    const double xmin = ds->x().min();
+    const double xmax = ds->x().max();
+
+    double *t = a-1;
+
+    for(int j = 0; j < s->number.size(); j++) {
+      int nb = s->number[j];
+      // Absorbances
+      for(int i = 0; i <= nb; i++)
+        *(++t) = (j == 0 || i != 0 ? ymin + i *(ymax - ymin)/(nb) : 0);
+
+      // pKa
+      for(int i = 0; i < nb; i++) {
+        *(++t) = xmin + (i+0.5) *(xmax - xmin)/nb;
+      }
+    }
+  };
+  
+  virtual ArgumentList fitHardOptions() const override {
+    return
+      ArgumentList(QList<Argument *>()
+                   << new SeveralIntegersArgument("protonations", 
+                                                  "Number of protonations",
+                                                  "Number of protonations for each species")
+                   << new IntegerArgument("species", 
+                                          "Number of distinct species",
+                                          "Number of distinct species (regardless of their redox state)")
+                   
+                   << new SeveralStringsArgument(QRegExp(","),
+                                                 "species-names", 
+                                                 "Species names",
+                                                 "Names of the species")
+                   );
+  };
+  
+  pHFit() : FunctionFit("pH", 
+                        "pH",
+                        "pH speciation fit", 1, -1, false)
+  {
+    makeCommands();
+  };
+};
+
+// DO NOT FORGET TO CREATE AN INSTANCE OF THE CLASS !!
+// Its name doesn't matter.
+static pHFit fit_pH;
 
 //////////////////////////////////////////////////////////////////////
 

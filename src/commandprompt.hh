@@ -81,11 +81,16 @@ class CommandPrompt : public LineEdit {
   /// Performs automatic completion.
   void doCompletion();
 
+  QString message;
   
 public:
 
   CommandPrompt();
   virtual ~CommandPrompt();
+
+  /// The currently displayed message if disabled using the busy()
+  /// function.
+  QString currentMessage() const;
 
 
 protected:

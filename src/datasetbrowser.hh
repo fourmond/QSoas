@@ -24,6 +24,8 @@
 #include <dataset.hh>
 #include <curveview.hh>
 
+#include <argument.hh>
+
 class CheckableWidget;
 class NupWidget;
 
@@ -58,7 +60,7 @@ private:
   /// THe horizontal bottom layout
   QHBoxLayout * bottomLayout;
 
-  void setupFrame();
+  void setupFrame(const QString & nup);
   void setupGrid();
 
   void cleanupViews();
@@ -67,7 +69,8 @@ private:
   bool extendedSelection;
 
 public:
-  DatasetBrowser();
+  explicit DatasetBrowser(const CommandOptions & opts =
+                          CommandOptions());
   ~DatasetBrowser();
 
 signals:
@@ -105,6 +108,9 @@ public:
 
   /// Adds a button with the given hook.
   void addButton(QString name, ActOnSelected hook);
+
+  /// Returns the options for the browser.
+  static QList<Argument *> browserOptions();
 
 protected:
 

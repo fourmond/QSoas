@@ -314,16 +314,9 @@ DerivativeFit::DerivativeFit(PerDatasetFit * source, DerivativeFit::Mode m) :
 
 {
   underlyingFitName = source->fitName(false);
-  // How to remove the "parameters" argument ?
-  Command * cmd = CommandContext::globalContext()->
-    namedCommand("fit-" + underlyingFitName );
-
-  /// @hack But shouldn't this simply be fitSoftOptions + fitHardOptions();
-  ArgumentList opts = *cmd->commandOptions();
-
   /// @todo Add own options.
 
-  makeCommands(ArgumentList(), NULL, NULL, opts);
+  makeCommands();
 }
 
 FitInternalStorage * DerivativeFit::allocateStorage(FitData * data) const
@@ -600,20 +593,14 @@ public:
 
   /// Creates (and registers) the derivative fit based on the given
   /// fit
-  CombinedDerivativeFit(PerDatasetFit * source) :
-      PerDatasetFit(DerivativeFit::derivativeFitName(source, DerivativeFit::Combined).
-          toLocal8Bit(), 
-          "Derived fit",
-          "(derived fit)", 1 , -1, false) {
+  explicit CombinedDerivativeFit(PerDatasetFit * source) :
+      PerDatasetFit(DerivativeFit::derivativeFitName(source,
+                                                     DerivativeFit::Combined), 
+                    "Derived fit",
+                    "(derived fit)", 1 , -1, false) {
     underlyingFitName = source->fitName(false);
-    // How to remove the "parameters" argument ?
-    Command * cmd = CommandContext::globalContext()->
-      namedCommand("fit-" + underlyingFitName );
-    ArgumentList opts = ArgumentList(*cmd->commandOptions());
 
-    /// @todo Add own options.
-
-    makeCommands(ArgumentList(), NULL, NULL, opts);
+    makeCommands();
   };
 
 };

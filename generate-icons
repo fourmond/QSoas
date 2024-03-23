@@ -4,6 +4,13 @@
 # This script is intended to be run from a Linux machine with convert
 # on.
 
+# Handling the two ways to export from inkscape
+if inkscape --version | grep -F 0.92; then
+    opt='-e'
+else
+    opt='-o'
+fi
+
 # convert QSoas-logo.svg QSoas.ico
 inkscape -w 256 -e QSoas-logo.png QSoas-logo.svg
 
@@ -12,6 +19,7 @@ inkscape -w 256 -e QSoas-logo.png QSoas-logo.svg
 
 mkdir -p tmp-icons
 for res in 16 32 48 64 96 128 256 512; do
+    echo "Generating icon at $res"x"$res"
     inkscape -w $res -e tmp-icons/QSoas-$res.png QSoas-logo.svg
 done
 convert tmp-icons/*.png QSoas.ico

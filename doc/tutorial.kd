@@ -1629,14 +1629,16 @@ The `qsoas-start.cmd` file will be executed each time you start QSoas.
 
 # Report a bug or a crash, or ask for a new feature.
 
-To report a bug/crash or ask for a new feature, please [file a
-ticket](http://sourceforge.net/p/qsoas/tickets/) at the [sourceforge
-project page](http://sf.net/p/qsoas). We don't guarantee a timely reply,
-but at least, it won't go unnoticed.
+
+The best way to report a bug, ask for a new feature or even just ask
+for support is to use the [github
+tracker][github-issues]. 
+
 
 This file was written by Christophe Leger and Vincent Fourmond, and is
-copyright (c) 2013-2020 by CNRS/AMU.
+copyright (c) 2013-2023 by CNRS/AMU.
 
+[github-issues]:https://github.com/fourmond/QSoas/issues
 [examples]:https://github.com/fourmond/QSoasExampleFiles/ "GitHub repository for the example files"
 [examples-zip]:https://github.com/fourmond/QSoasExampleFiles/archive/data.zip "ZIP archive of the example files"
 

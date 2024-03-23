@@ -2,7 +2,7 @@
    \file data-processing-commands.cc
    Commands to extract information from datasets
    Copyright 2011 by Vincent Fourmond
-             2011,2013,2014,2015 by CNRS/AMU
+             2011,2013,2014,2015,2024 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -337,11 +337,12 @@ namespace __reg {
           
           if(i_hw >= 0) {
             Terminal::out << "\n  hw = " << d.xvalues[i_hw];
+            /* 
             y = reg.first * xleft + reg.second + d.yvalues[i_pk] * 0.5;
             hp.p1 = QPointF(xleft, y);
             y = reg.first * xright + reg.second + d.yvalues[i_pk] * 0.5;
             hp.p2 = QPointF(xright, y);
-            hp.hidden = false;
+            hp.hidden = false;*/
 
             double y = reg.first * ds->x()[i_hw] + reg.second;
             hp.p1 = QPointF(ds->x()[i_hw], y);
@@ -835,6 +836,7 @@ static void baselineCommand(CurveEventLoop &loop, const QString &)
           }
           needCompute = true;
         }
+        break;
       }
       case CycleSplineType:
         type = Spline::nextType(type);
@@ -1268,13 +1270,10 @@ namespace __bs {
     splines.autoBreakPoints(nbSegments-1);
 
     {
-      int weights = -1;
       ColumnSpecification cl;
       updateFromOptions(opts, "weight-column", cl);
-      if(cl.isValid()) {
-        weights = cl.getValue(ds);
-        splines.setWeights(ds->column(weights));
-      }
+      if(cl.isValid())
+        splines.setWeights(cl.getColumn(ds));
     }
     x = splines.getBreakPoints();
 
@@ -1424,7 +1423,8 @@ namespace __bs {
   bsOpts(QList<Argument *>() 
       << new ColumnArgument("weight-column", 
                             "Weights",
-                            "Use the weights in the given column")
+                            "Use the weights in the given column",
+                            false, false, true)
         );
 
   static Command 
@@ -1443,29 +1443,57 @@ namespace __fft {
 
   typedef enum {
     IncreaseSetCutoff,
+    IncreaseCutoff,
     DecreaseCutoff,
+    EnterCutoff,
     ToggleDerivative,
     ToggleBaseline,
+    ToggleBandcut,
     TogglePowerSpectrum,
+    ToggleFreqLog,
     QuitPushingTransform,
     ChangeAlpha,
     Replace,
+    Alias1 = 100,
+    Alias2 = Alias1 + 1,
+    Alias3 = Alias1 + 2,
+    Alias4 = Alias1 + 3,
+    Alias5 = Alias1 + 4,
+    Alias6 = Alias1 + 5,
+    Alias7 = Alias1 + 6,
+    Alias8 = Alias1 + 7,
     Abort
   } FFTActions;
 
   static EventHandler fftHandler = EventHandler("filter-fft").
     addKey(Qt::Key_Escape, Abort, "abort").
     conventionalAccept(Replace, "replace with filtered data").
-    addClick(Qt::LeftButton, IncreaseSetCutoff, "increase/set cutoff").
+    addClick(Qt::LeftButton, IncreaseSetCutoff, "increase/set cutoff, pick band ceter").
+    addKey('+', IncreaseCutoff, "increase cutoff").
     addClick(Qt::RightButton, DecreaseCutoff, "decrease cutoff").
+    alsoKey('-').
+    addKey('c', EnterCutoff, "manually set cutoff").
+    alsoKey('C').
+    addKey('B', ToggleBandcut, "toggle the use of bandcut filters").
     addKey('d', ToggleDerivative, "toggle display of derivative").
     alsoKey('D').
     addKey('b', ToggleBaseline, "toggle display of baseline").
     addKey('a', ChangeAlpha, "change alpha").
     alsoKey('A').
-    addKey('T', QuitPushingTransform, "replace with transform").
     addKey('p', TogglePowerSpectrum, "display power spectrum").
-    alsoKey('P');
+    alsoKey('P').
+    addKey('T', QuitPushingTransform, "replace with transform").
+    addKey('l', ToggleFreqLog, "toggle the lin/log scale for frequencies").
+    addKey('1', Alias1, "show 1st aliasing range").
+    addKey('2', Alias2, "show 2nd aliasing range").
+    addKey('3', Alias3, "show 3rd aliasing range").
+    addKey('4', Alias4, "show 4th aliasing range").
+    addKey('5', Alias5, "show 5th aliasing range").
+    addKey('6', Alias6, "show 6th aliasing range").
+    addKey('7', Alias7, "show 7th aliasing range").
+    addKey('8', Alias8, "show 8th aliasing range")
+    ;
+
 
 
   /// @todo Add windowing function change, bandcut filters, highpass filter ?
@@ -1479,7 +1507,7 @@ namespace __fft {
   CurvePanel bottom;
   CurvePanel spectrum;
 
-  CurveItem * dsDisplay = view.mainPanel()->items().first();
+  CurveDataSet * dsDisplay = view.getCurrentDataSet();
 
   CEHideAll ha(view.mainPanel(), false);
 
@@ -1490,9 +1518,13 @@ namespace __fft {
   CurveData spec2;
   CurveVerticalLine lim;
 
+  // Position of the band 
+  CurveVerticalLine bandPos;
+
 
   double ap = 0.05;
   bool recomputeForward = true;
+
   FFT orig(ds->x(), ds->y());
 
   double dmin, dmax;
@@ -1539,14 +1571,24 @@ namespace __fft {
 
 
   // **************************************************
-  // Setup of the "power" panel
+  // Setup of the "power spectrum" panel
+  bool freqLogScale = true;
 
+  Vector freqLog, freqLin, freqAlias;
+  int nbFreqs = orig.frequencies() - 1;
+  freqLog = Vector(nbFreqs,0);
+  freqLin = freqLog;
 
   spec1.pen = gs.dataSetPen(0);
   // We don't display the 0th frequency !
-  spec1.xvalues = Vector(orig.frequencies() - 1,0);
-  for(int i = 0; i < spec1.xvalues.size(); i++)
-    spec1.xvalues[i] = log10((i+1)*0.5/(spec1.xvalues.size() * fabs(orig.deltaX)));
+  for(int i = 0; i < nbFreqs; i++) {
+    freqLin[i] = (i+1)*0.5/(freqLog.size() *
+                         fabs(orig.deltaX));
+    freqLog[i] = log10(freqLin[i]);
+  }
+  // Just for aliasing
+  freqAlias = freqLin;
+  spec1.xvalues = freqLog;
   spec1.yvalues = spec1.xvalues;
   spec1.countBB = true;
   spec1.histogram = true;
@@ -1570,15 +1612,45 @@ namespace __fft {
   spectrum.addItem(&lim);
 
 
+  bandPos.pen = gs.getPen(GraphicsSettings::PeaksPen);
+  spectrum.addItem(&bandPos);
+  bandPos.hidden = true;
 
 
-  /// Position of the segments
-  Vector x;
+
+
+  // State variables 
   bool needUpdate = false;
+  bool updateCutoff = false;
   bool showSpectrum = false;
   bool needCompute = true;
 
+
   int cutoff = 20;
+
+  // Bandcut handling
+  bool bandCut = false;
+  int band = 0;
+
+  /// Converts the X values of the spectrum to 
+  auto freqToIndex =
+    [&orig, &freqLogScale, &nbFreqs] (double x) -> double
+    {
+      if(freqLogScale)
+        x = pow(10, x);
+      return orig.frequencyIndex(x);
+    };
+  
+  auto indexToFreq =
+    [&orig, &freqLogScale, &nbFreqs] (double idx, bool lin = false) -> double
+    {
+      double v = idx /(2 * fabs(orig.deltaX) * nbFreqs);
+      if(freqLogScale)
+        return log10(v);
+      else
+        return v;
+    };
+  
   dsDisplay->hidden = order > 0;
 
 
@@ -1600,7 +1672,8 @@ namespace __fft {
   loop.setHelpString("FFT filtering:\n"
                        + fftHandler.buildHelpString());
   do {
-    switch(fftHandler.nextAction(loop)) {
+    int action = fftHandler.nextAction(loop);
+    switch(action) {
     case Replace:
       soas().pushDataSet(ds->derivedDataSet(d.yvalues, "_filtered.dat"));
       return;
@@ -1608,25 +1681,39 @@ namespace __fft {
     case IncreaseSetCutoff:
       if(loop.currentPanel() == &spectrum) {
         double x = loop.position(&spectrum).x();
-        cutoff = 0.5/(pow(10.0, x) * orig.deltaX);
+        if(bandCut) {
+          // Terminal::out << "X = " << x << "/" << orig.deltaX << endl;
+          band = freqToIndex(x);
+        }
+        else {
+          cutoff = spec1.xvalues.size()*1.0/(freqToIndex(x));
+        }
+        Terminal::out << "Picked: " << x << " -> index: "
+                      << freqToIndex(x) << "\tcutoff: " << cutoff << endl;
       }
       else {                                 // +/- decrease.
         cutoff++;
-        if(cutoff > ds->x().size()/2 - 2)
-          cutoff = ds->x().size()/2 - 2;
       }
-      Terminal::out << "Now using a cutoff of " << cutoff << " points ("
-                    << cutoff * orig.deltaX << " in X values)" << endl;
-      needCompute = true;
+      updateCutoff = true;
+      break;
+    case IncreaseCutoff:
+      cutoff++;
+      updateCutoff = true;
       break;
     case DecreaseCutoff:
       cutoff--;
-      if(cutoff < 2)
-        cutoff = 2;
-      Terminal::out << "Now using a cutoff of " << cutoff << " points ("
-                    << cutoff * orig.deltaX << " in X values)" << endl;
-      needCompute = true;
+      updateCutoff = true;
       break;
+    case EnterCutoff: {
+      QString str = loop.promptForString("Cutoff value:");
+      bool ok = false;
+      int val = str.toInt(&ok);
+      if(ok) {
+        cutoff = val;
+        updateCutoff = true;
+      }
+      break;
+    }
     case Abort:
       return;
     case QuitPushingTransform: {
@@ -1635,6 +1722,21 @@ namespace __fft {
     }
     case ToggleBaseline:
       baseline.hidden = ! baseline.hidden;
+      break;
+    case ToggleBandcut:
+      if(bandCut) {
+        bandCut = false;
+        lim.hidden = false;
+        bandPos.hidden = true;
+        Terminal::out << "Switching back to standard lowpass filter" << endl;
+      }
+      else {
+        bandCut = true;
+        lim.hidden = true;
+        bandPos.hidden = false;
+        Terminal::out << "Switching to bandcut filter" << endl;
+      }
+      needCompute = true;
       break;
     case ToggleDerivative:
       if(order > 0)
@@ -1653,6 +1755,43 @@ namespace __fft {
       needUpdate = true;
       needCompute = true;
       break;
+    case ToggleFreqLog:
+      freqLogScale = ! freqLogScale;
+      spec1.xvalues = freqLogScale ? freqLog : freqLin;
+      spec2.xvalues = spec1.xvalues;
+      spec1.histogram = freqLogScale;
+      spec2.histogram = freqLogScale;
+      spectrum.xLabel = freqLogScale ? "Frequency (log)": "Frequency";
+      spectrum.resetZoom();
+      break;
+    case Alias1:
+    case Alias2:
+    case Alias3:
+    case Alias4:
+    case Alias5:
+    case Alias6:
+    case Alias7:
+    case Alias8: {
+      int idx = action - Alias1 + 1;
+      double mf = orig.maxFrequency();
+      if(idx % 2 == 0) {
+        for(int i = 0; i < nbFreqs; i++)
+          freqAlias[i] = freqLin[i] + idx * mf;
+      }
+      else {
+        for(int i = 0; i < nbFreqs; i++)
+          freqAlias[i] = (idx + 1)* mf - freqLin[i];
+      }
+      freqLogScale = false;
+      spec1.xvalues = freqAlias;
+      spec2.xvalues = spec1.xvalues;
+      spec1.histogram = false;
+      spec2.histogram = false;
+
+      spectrum.xLabel = "Frequency";
+      spectrum.resetZoom();
+      break;
+    }
     case ChangeAlpha: {
       bool ok = false;
       QString na = loop.promptForString("new value of alpha (%):", 
@@ -1677,6 +1816,23 @@ namespace __fft {
       else
         view.setPanel(0, &bottom);
     }
+    if(updateCutoff) {
+      if(cutoff > ds->x().size()/2 - 2)
+        cutoff = ds->x().size()/2 - 2;
+      if(cutoff < 2)
+        cutoff = 2;
+      if(bandCut) {
+        bandPos.x = indexToFreq(band);
+        Terminal::out << "Bandcut centered around frequency: " << bandPos.x << ", with a cutoff of: " << cutoff << endl;
+      }
+      else {
+        lim.x = indexToFreq(spec1.xvalues.size()*1.0/cutoff);
+        Terminal::out << "Now using a cutoff of " << cutoff << " points ("
+                      << cutoff * orig.deltaX << " in X values)" << endl;
+      }
+      updateCutoff = false;
+      needCompute = true;
+    }
     if(needCompute) {
       if(recomputeForward) {
         orig.initialize(ds->x(), ds->y(), true, ap);
@@ -1687,8 +1843,11 @@ namespace __fft {
           spec1.yvalues[i] = 2*log10(orig.magnitude(i+1));
       }
       FFT trans = orig;
-      lim.x = log10(0.5/(cutoff*orig.deltaX));
-      trans.applyGaussianFilter(cutoff);
+      if(bandCut) {
+        trans.applyBandCut(band, cutoff);
+      }
+      else
+        trans.applyGaussianFilter(cutoff);
 
       if(order > 0)             /// @todo and the second derivative ?
         trans.differentiate();
@@ -1750,7 +1909,6 @@ static void autoFilterBSCommand(const QString &, const CommandOptions & opts)
   int nb = 12;
   int order = 4;
   int derivatives = 0;
-  int weights = -1;
   int optimize = 15;
 
 
@@ -1768,17 +1926,15 @@ static void autoFilterBSCommand(const QString &, const CommandOptions & opts)
   DataStackHelper pusher(opts);
 
   for(const DataSet * ds : buffers) {
-
+    Vector weights;
     if(cl.isValid())
-      weights = cl.getValue(ds);
-    else
-      weights = -1;
+      weights = cl.getColumn(ds);
 
   BSplines splines(ds, order, derivatives);
   splines.autoBreakPoints(nb);
-  if(weights >= 0) {
-    splines.setWeights(ds->column(weights));
-  }
+  if(! weights.isEmpty())
+    splines.setWeights(weights);
+
   if(optimize > 0)
     splines.optimize(optimize, false);
   double value = splines.computeCoefficients();
@@ -1805,7 +1961,8 @@ afbsOps(QList<Argument *>()
                                "number of iterations to optimize the position of the nodes (defaults to 15, set to 0 or less to disable)")
         << new ColumnArgument("weight-column", 
                               "Weights",
-                              "uses the weights in the given column")
+                              "uses the weights in the given column",
+                              false, false, true)
         << new IntegerArgument("derivatives", 
                                "Derivative order",
                                "computes derivatives up to this number")
@@ -1833,9 +1990,16 @@ static void autoFilterFFTCommand(const QString &, const CommandOptions & opts)
   int derivatives = 0;
   bool transform = false;
 
+  bool bc = false;
+  double bcf = 0;
+
   updateFromOptions(opts, "cutoff", cutoff);
   updateFromOptions(opts, "derive", derivatives);
   updateFromOptions(opts, "transform", transform);
+  if(opts.contains("bandcut")) {
+    bc = true;
+    updateFromOptions(opts, "bandcut", bcf);
+  }
 
 
   DataSetList buffers(opts);
@@ -1861,7 +2025,10 @@ static void autoFilterFFTCommand(const QString &, const CommandOptions & opts)
       soas().pushDataSet(orig.transform(ds));
       return;
     }
-    orig.applyGaussianFilter(cutoff);
+    if(bc)
+      orig.applyBandCut(orig.frequencyIndex(bcf), cutoff);
+    else
+      orig.applyGaussianFilter(cutoff);
   
     for(int i = 0; i < derivatives; i++)
       orig.differentiate();
@@ -1888,6 +2055,9 @@ afftOps(QList<Argument *>()
         << new IntegerArgument("derive", 
                                "Derive",
                                "differentiate to the given order")
+        << new NumberArgument("bandcut", 
+                              "Bandcut",
+                              "if present, does a bandcut around that frequency")
       );
 
 
@@ -2663,7 +2833,7 @@ dsOpts(QList<Argument *>()
        );
 
 static Command 
-ds("downsample", // command name
+dsc("downsample", // command name
     effector(downsampleCommand), // action
     "buffer",  // group name
     NULL, // arguments
@@ -2691,7 +2861,7 @@ static void dxCommand(const QString &,
 
 
 static Command 
-dx("dx", // command name
+dxC("dx", // command name
     effector(dxCommand), // action
     "math",  // group name
     NULL, // arguments
@@ -2720,7 +2890,7 @@ static void dyCommand(const QString &,
 
 
 static Command 
-dy("dy", // command name
+dyC("dy", // command name
     effector(dyCommand), // action
     "math",  // group name
     NULL, // arguments
@@ -2886,3 +3056,215 @@ kernFilter("kernel-filter", // command name
            "Kernel filter",
            "Filters data using a kernel");
 
+
+//////////////////////////////////////////////////////////////////////
+
+/// @todo Convert to multibuffer later on
+static void averageDupsCommand(const QString &,
+                               const CommandOptions& opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+
+  ColumnListSpecification columns;
+  updateFromOptions(opts, "columns", columns);
+  double tolerance = 0;
+  updateFromOptions(opts, "tolerance", tolerance);  
+
+  QList<Vector> base, sums, errors;
+  Vector numbers;
+
+  base = ds->allColumns();         // to complement later
+  QStringList oldNames = ds->mainColumnNames();
+  if(columns.columns.size() > 0) {
+    QList<int> nc = columns.getValues(ds);
+    QStringList nn;
+    QList<Vector> nb;
+    for(int i : nc) {
+      nb << base[i];
+      nn << oldNames[i];
+    }
+    base = nb;
+    oldNames = nn;
+  }
+
+  for(const Vector & v : base)
+    sums << Vector();
+  errors = sums;
+
+  const Vector & x = base.first();
+  for(int i = 0; i < x.size(); i++) {
+    double xv = x[i];
+    int idx = 0;
+    for(; idx < numbers.size(); idx++) {
+      double cv = sums[0][idx]/numbers[idx];
+      if(fabs(cv - xv) <= tolerance * fabs(xv))
+        break;
+    }
+    if(idx == numbers.size()) {
+      for(Vector & v : sums)
+        v << 0;
+      for(Vector & v : errors)
+        v << 0;
+      numbers << 0;
+    }
+    numbers[idx] += 1;
+    for(int j = 0; j < base.size(); j++) {
+      double v = base[j][i];
+      sums[j][idx] += v;
+      errors[j][idx] += v*v;
+    }
+  }
+  
+  for(int j = 0; j < base.size(); j++) {
+    sums[j] /= numbers;
+    Vector s2 = sums[j];
+    errors[j] /= numbers;
+    s2 *= s2;
+    errors[j] -= s2;
+    for(double & v : errors[j])
+      v = sqrt(v);
+  }
+
+  QList<Vector> cols;
+  QStringList names;
+  for(int j = 0; j < base.size(); j++) {
+    cols << sums[j] << errors[j];
+    names << oldNames[j] << oldNames[j] + "_err";
+  }
+  cols << numbers;
+  names << "number";
+  DataSet * nds = ds->derivedDataSet(cols, "_avgd.dat");
+  nds->setColumnName(0, "dummy");
+  nds->columnNames[0] = names;
+  soas().pushDataSet(nds);
+}
+
+static ArgumentList 
+avgdOps(QList<Argument *>()
+        << new SeveralColumnsArgument("columns", "columns", "Column to be averaged (defaults to all)")
+        << new NumberArgument("tolerance", "tolerance",
+                              "Tolerance in comparing the X values (defaults to 0)")
+        );
+
+
+static Command 
+avgd("average-duplicates", // command name
+     effector(averageDupsCommand), // action
+     "math",  // group name
+     NULL, // arguments
+     &avgdOps, // options
+     "Average duplicates");
+
+
+//////////////////////////////////////////////////////////////////////
+#include <expression.hh>
+
+static void convolveCommand(const QString &,
+                            QString formula,
+                            const CommandOptions& opts)
+{
+  const DataSet * ds = soas().currentDataSet();
+  Expression expression(formula);
+  QStringList nv = expression.naturalVariables();
+  // We're allowing convolution by a constant
+  if(nv.size() > 1 || (nv.size() == 1 && nv.first() != "x"))
+    throw RuntimeError("Convolution expression '%1' should be a "
+                       "function of only x").arg(formula);
+
+  // This code is based on the computations in doc/computations.tex
+  // section "convolution"
+  int nb = ds->nbRows();
+
+  /// @todo Check uniformity
+
+  bool symmetric = true;
+  updateFromOptions(opts, "symmetric", symmetric);
+
+  Vector buffer(nb*4, 0);
+
+  std::function<double (double)> fnl = [&expression](double x) -> double {
+    return expression.evaluate(&x);
+  };
+
+  Vector ny = ds->y();
+  Vector::convolve(ds->y().data(), nb, ny.data(),
+                   ds->x().first(), 
+                   ds->x().last(),
+                   fnl,
+                   symmetric,
+                   buffer.data()
+                   );
+  DataSet * nds = ds->derivedDataSet(ny, "_conv.dat");
+  soas().pushDataSet(nds);
+}
+
+static ArgumentList 
+convArgs(QList<Argument *>()
+         << new StringArgument("formula", "formula",
+                                "the convolution formula (function of x)")
+         );
+
+static ArgumentList 
+convOpts(QList<Argument *>()
+         << new BoolArgument("symmetric", "symmetric",
+                             "whether convolution formula is symmetric "
+                             "(-inf < x < inf) or not (0 <= x < inf)")
+         );
+
+
+static Command 
+conv("convolve", // command name
+     effector(convolveCommand), // action
+     "math",  // group name
+     &convArgs, // arguments
+     &convOpts,
+     "Convolve");
+
+//////////////////////////////////////////////////////////////////////
+
+#include <complexexpression.hh>
+
+static void reverseLaplaceCommand(const QString &,
+                                  QString formula,
+                                  const CommandOptions& opts)
+{
+  // We'll implement a parabola
+  const DataSet * ds = soas().currentDataSet();
+  QStringList nv = Expression::variablesNeeded(formula);
+  // We're allowing convolution by a constant
+  if(nv.size() > 1 || (nv.size() == 1 && nv.first() != "s"))
+    throw RuntimeError("Laplace '%1' should be a "
+                       "function of only s").arg(formula);
+
+  ComplexExpression expression("s", formula);
+
+  int steps = 35;
+  updateFromOptions(opts, "steps", steps);
+  Vector ny(ds->nbRows(), 0);
+  double val = 0;
+  expression.reverseLaplace(&val, ds->x().data(),
+                            ny, steps);
+  DataSet * nds = ds->derivedDataSet(ny, "_rev_laplace.dat");
+  soas().pushDataSet(nds);
+}
+
+static ArgumentList 
+rLArgs(QList<Argument *>()
+       << new StringArgument("formula", "formula",
+                             "the formula of the Laplace transform "
+                             "(Laplace variable is s)")
+       );
+
+static ArgumentList 
+rLOpts(QList<Argument *>()
+       << new IntegerArgument("steps", "steps",
+                              "number integration steps")
+       );
+
+static Command 
+rlap("reverse-laplace", // command name
+     effector(reverseLaplaceCommand), // action
+     "math",  // group name
+     &rLArgs, // arguments
+     &rLOpts, // options
+     "Reverse Laplace");

@@ -130,6 +130,13 @@ public:
   /// Returns the total distance (ie sum of absolute value of deltas).
   double deltaSum() const;
 
+
+  /// Returns true if the sum of the variations of the vector exceed
+  /// threshold times the min to max distance.
+  /// @sa DatasetOptions::isJaggy
+  bool isJaggy(double threshold) const;
+
+
   /// Looks for the indice of the first point crossing the given
   /// value, starting from the given index and going in the direction
   /// given by di (only the sign matters). It returns the index of the
@@ -228,6 +235,26 @@ public:
   /// the elements from @a i to @a i + @a delta, wrapping around.
   void rotate(int delta);
 
+  /// This function is a low-level convolution function in which the
+  /// vector @a vector containing @a nb elements assumed to be equally
+  /// spaced between @a xmin and @a xmax are convolved by the function
+  /// @a function.
+  ///
+  /// That function is either symmetric (defined for positive and
+  /// negative values of x) or not (defined only for positive values
+  /// of x)
+  ///
+  /// The @a buffer is a buffer for storing values it must be large
+  /// enough to contain 4*nb values.
+  static void convolve(const double * vector,
+                       int nb,
+                       double * target,
+                       double xmin,
+                       double xmax,
+                       std::function<double (double)> function,
+                       bool symmetric,
+                       double * buffer);
+
 
   /// @}
 
@@ -322,6 +349,9 @@ public:
   /// @todo Write the same function with log transform ?
   /// With *any* Bijection, for that matter ?
   static Vector uniformlySpaced(double min, double max, int nb);
+
+  /// Returns a vector containing the indices, from 0 to nb-1.
+  static Vector indexVector(int nb);
 
   /// Returns a vector with nb values spaced logarithmically on the
   /// [min:max] segment.

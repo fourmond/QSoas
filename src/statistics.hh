@@ -91,7 +91,7 @@ class Statistics {
 
 public:
 
-  Statistics(const DataSet * s);
+  explicit Statistics(const DataSet * s);
   ~Statistics();
 
   /// Returns the overall statistics

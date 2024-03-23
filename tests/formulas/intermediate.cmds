@@ -1,0 +1,12 @@
+# In this file, we try the use of intermediate variables in computations
+
+generate-dataset -0.5 0.5
+apply-formula e=exp(F*x/(R*298));y=e/(1+e)
+apply-formula y-=exp(F*x/(R*298))/(1+exp(F*x/(R*298)))
+assert $stats.y_norm 0
+
+
+generate-dataset 0 10 0.5-0.2*abs(x-5)
+apply-formula /extra-columns=1 y2=y;e=exp(F*y/(R*298));y=e/(1+e)
+apply-formula y-=exp(F*y2/(R*298))/(1+exp(F*y2/(R*298)))
+assert $stats.y_norm 0

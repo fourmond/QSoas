@@ -31,7 +31,7 @@ bool PeakInfo::comparePeakMagnitude(const PeakInfo &a, const PeakInfo & b)
 
 void PeakInfo::sortByMagnitude(QList<PeakInfo> & peaks)
 {
-  qSort(peaks.begin(), peaks.end(), &PeakInfo::comparePeakMagnitude);
+  std::sort(peaks.begin(), peaks.end(), &PeakInfo::comparePeakMagnitude);
 }
 
 bool PeakInfo::comparePeakPosition(const PeakInfo &a, const PeakInfo & b)
@@ -41,7 +41,7 @@ bool PeakInfo::comparePeakPosition(const PeakInfo &a, const PeakInfo & b)
 
 void PeakInfo::sortByPosition(QList<PeakInfo> & peaks)
 {
-  qSort(peaks.begin(), peaks.end(), &PeakInfo::comparePeakPosition);
+  std::sort(peaks.begin(), peaks.end(), &PeakInfo::comparePeakPosition);
 }
 
 void PeakInfo::removeMinMax(QList<PeakInfo> & peaks, bool removeMax)

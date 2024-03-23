@@ -134,11 +134,11 @@ static void defineAliasCommand(const QString &, QString alias,
   QString sh = QString("Alias for %1").arg(cmd->commandName());
 
   QString groupName = (cmd->group ? cmd->group->groupName() : "");
-  new Command(alias.toLocal8Bit(), a, 
-              groupName.toLocal8Bit(),
+  new Command(alias, a, 
+              groupName,
               const_cast<ArgumentList*>(cmd->commandArguments()),
               const_cast<ArgumentList*>(cmd->commandOptions()),
-              sh.toLocal8Bit(), sh.toLocal8Bit(), QByteArray(),
+              sh, sh, NULL,
               &soas().commandContext());
 }
 
@@ -170,7 +170,7 @@ hlpc("define-alias", // command name
 static void displayAliasesCommand(const QString &)
 {
   QStringList aliases = definedAliases.keys();
-  qSort(aliases);
+  std::sort(aliases.begin(), aliases.end());
 
   Terminal::out << "Defined aliases:" << endl;
   for(int i = 0; i < aliases.size(); i++) {

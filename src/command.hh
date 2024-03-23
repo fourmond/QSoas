@@ -31,17 +31,17 @@ class CommandContext;
 
 /// The class representing a command.
 class Command {
+  Command & operator=(const Command & cmd) = delete;
 protected:
 
   QString cmdName;
 
-  QString shortCmdName;
+  /// The list of aliases for the command
+  QStringList aliases;
 
   QString pubName;
 
   QString shortDesc;
-  
-  QString longDesc;
 
   QString groupName;
 
@@ -64,7 +64,11 @@ protected:
   /// Registers this command
   void registerMe();
 
+
   friend class CommandContext;
+private:
+  // Disable copy constructor
+  Command(const Command & cmd) = delete;
 
 public:
 
@@ -104,7 +108,18 @@ public:
           const ArgumentList * options,
           const QString & publicName,
           const QString & shortDescription = "", 
-          const QString & longDescription = "", 
+          const QString & alias = "", 
+          CommandContext * context = NULL,
+          bool autoRegister = true); 
+
+  Command(const QString & commandName,
+          CommandEffector * effector,
+          const QString & groupName,
+          const ArgumentList * arguments,
+          const ArgumentList * options,
+          const QString & publicName,
+          const QString & shortDescription,
+          const QStringList & aliases, 
           CommandContext * context = NULL,
           bool autoRegister = true); 
 
@@ -115,7 +130,7 @@ public:
           const ArgumentList & options,
           const QString & publicName,
           const QString & shortDescription = "", 
-          const QString & longDescription = "", 
+          const QString & alias = "", 
           CommandContext * context = NULL,
           bool autoRegister = true); 
 
@@ -124,45 +139,17 @@ public:
 
   /// The command name, the one that will be used from the command
   /// prompt.
-  ///
-  /// This name will not be translated.
-  ///
-  /// \warning If you reimplement this function, you should set the
-  /// the autoRegister parameter to false and do the registration
-  /// yourself.
-  QString commandName() const {
-    return cmdName;
-  };
+  QString commandName() const;
+  
+  /// All the aliases of the command
+  QStringList commandAliases() const;
 
-  /// A short command name to be used quickly from the prompt. Most
-  /// commands may leave this field empty. This name will not be
-  /// translated.
-  ///
-  /// \warning If you reimplement this function, you should set the
-  /// the autoRegister parameter to false and do the registration
-  /// yourself.
-  QString shortCommandName() const {
-    return shortCmdName;
-  };
-
-
-  /// The public name, the one to be used in the menus. This one gets
-  /// translated, which means that one should use QT_TRANSLATE_NOOP
-  /// macro for setting it.
-  QString publicName() const {
-    return pubName;
-  };
+  /// The public name, the one to be used in the menus.
+  QString publicName() const;
 
   /// A short description, typically to be used for the status bar.
-  QString shortDescription() const {
-    return shortDesc;
-  };
+  QString shortDescription() const;
 
-  /// A long informative description, such as a full help text,
-  /// possibly with examples too.
-  QString longDescription() const {
-    return longDesc;
-  };
 
   /// Returns the arguments to this command. This can be NULL !
   const ArgumentList * commandArguments() const {
@@ -285,14 +272,83 @@ public:
   /// The headings says which level of nesting is used for commands.
   QString & updateDocumentation(QString & str, int headings = 3) const;
 
-  /// Sets the long description
-  void setDocumentation(const QString & str);
-
   /// Returns a simple string describing the command, all its
   /// arguments and options and if it is interactive or not, in a
   /// specification-like fashion (ie, things that can be
   /// compared). Not for use for a help string. Should be \b stable.
   QString commandSpec(bool full) const;
+
+
+  /// Checks that the options are consistent -- in particular, raise
+  /// an exception when using an option with two times the name.
+  void checkOptions() const;
+
+  /// @name Progress report and interruption
+  ///
+  /// Series of and functions related to the progress report and
+  /// possible interruption
+  ///
+  /// @{
+protected:
+
+  /// If true, the current command should be interrupted, going back
+  /// to the main QSoas prompt.
+  ///
+  /// That happens in the progress report
+  static bool shouldStop;
+
+
+  /// The current step in the progress
+  static int currentStep;
+
+  /// The current target
+  static int currentTarget;
+
+  /// Time to the last call to currentProgress()
+  static qint64 timeLastCall;
+
+  /// Last call to the event loop
+  static qint64 timeLastLoop;
+
+  /// The current command being run
+  static Command * currentCommand;
+
+public:
+
+  /// Records the progress of the current command. It also does the
+  /// following things:
+  /// * @li record the current time
+  /// * @li run the event loop if the last call to the event loop was
+  ///   too far away
+  /// * interrupts the current command back to the main QSoas loop if
+  /// interruption has been requested
+  ///
+  /// When the "duration" of the task is known both step and target
+  /// should be positive
+  ///
+  /// When the target duraction isn't known, step should be positive
+  /// and increase and target should be negative
+  ///
+  /// When the command is interactive, the two should be negative.
+  /// This is called automatically from the command loop.
+  ///
+  /// That function is called at the beginning of each function with
+  /// 0,0 as arguments. This will just trigger the check for cancellation.
+  ///
+  /// @todo We should have a way to know how much time has elapsed
+  /// since the last time the command prompt was available.
+  static void currentProgress(int step, int target);
+
+  /// Returns the currently running command.
+  /// Should be NULL when in the main loop
+  static Command * runningCommand();
+
+  /// Request to stop the current command stack and go back to the
+  /// main QSoas loop.
+  static void requestStop();
+
+  /// @}
+
 };
 
 #endif

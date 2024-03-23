@@ -50,12 +50,14 @@ protected:
   /// The functions here just redirect to the wrapped fit
   /// 
   /// @{
-  virtual void processOptions(const CommandOptions & opts, FitData * data) const override;
+  virtual void processOptions(const CommandOptions & opts,
+                              FitData * data) const override;
   virtual QString optionsString(FitData * data) const override;
   virtual ArgumentList fitHardOptions() const override;
   virtual ArgumentList fitSoftOptions() const override;
   virtual CommandOptions currentSoftOptions(FitData * data) const override;
-  virtual void processSoftOptions(const CommandOptions & opts, FitData * data) const override;
+  virtual void processSoftOptions(const CommandOptions & opts,
+                                  FitData * data) const override;
 
   /// @}
 
@@ -136,7 +138,7 @@ public:
 
   /// Creates (and registers) the derivative fit based on the given
   /// fit
-  DerivativeFit(PerDatasetFit * fit, Mode m = Separated);
+  explicit DerivativeFit(PerDatasetFit * fit, Mode m = Separated);
   virtual ~DerivativeFit();
 
   static QString derivativeFitName(PerDatasetFit * source,

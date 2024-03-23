@@ -60,7 +60,7 @@ public:
   int substeps;
 
   ODEStepperOptions(const gsl_odeiv2_step_type * t = gsl_odeiv2_step_rkf45,
-                    double hs = 0.01, double ea = 1e-16, 
+                    double hs = 0.0, double ea = 1e-16, 
                     // Should always be safe ?
                     double er = 1e-3, bool fixed = false);
 
@@ -96,6 +96,10 @@ class ODEStepper {
   /// The configuration options.
   ODEStepperOptions options;
 
+  /// The size of the last successful step done, or the size of the
+  /// first planned step if no step was performed so far.
+  double lastStep;
+
   /// Returns the effective step size
   double effectiveInitialStepSize() const;
 
@@ -104,7 +108,7 @@ public:
   ~ODEStepper();
   
   /// Initializes the stepper to work on the target system.
-  void initialize(gsl_odeiv2_system * system);
+  void initialize(gsl_odeiv2_system * system, double FirstStep);
 
   /// Resets the system (necessary to restart evolution ?)
   void reset();
@@ -140,6 +144,12 @@ class ODESolver {
 
   /// Initialize the driver function.
   void initializeDriver();
+
+  bool stepperInitialized;
+
+  /// This is a last minute initialization that has to be done once we
+  /// are starting to step
+  void initializeStepper(double firstStep);
 
   /// Frees the driver
   void freeDriver();

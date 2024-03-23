@@ -60,3 +60,12 @@ your mruby source code:
   conf.gem :core => "mruby-error"
 ~~~
 
+
+## Compilation from git
+
+On top of the packages require for the compilation from the tarball,
+you'll need some additional tools to generate the various files:
+
+ * for the icons, `inkscape` and `png2icns`
+ * for the documentation `dvipng` and `kramdown`, and of course the Qt
+   help system

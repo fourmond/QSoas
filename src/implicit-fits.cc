@@ -1,7 +1,7 @@
 /**
-   \file custom-fits.cc custom fits
+   \file implicit-fits.cc implicit fits
    Copyright 2011 by Vincent Fourmond
-             2012, 2013 by CNRS/AMU
+             2012, 2013,  by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -96,6 +96,10 @@ public:
   {
     if(! o.formula.isEmpty())
       parseFormula(o.formula);
+  };
+
+  ~ImplicitFitBase() {
+    delete expression;
   };
 
   static ArgumentList hardOptions() {
@@ -522,9 +526,10 @@ public:
   /// This alternative constructor is to help create named fits based
   /// on formulas.
   ImplicitFit(const QString & name, const QString & formula) : 
-    PerDatasetFit(name.toLocal8Bit(), 
-        QString("Fit: %1").arg(formula).toLocal8Bit(),
-                  QString("Fit of the formula %1").arg(formula).toLocal8Bit(), 1, -1, false)
+    PerDatasetFit(name, 
+                  QString("Fit: %1").arg(formula),
+                  QString("Fit of the formula %1").arg(formula),
+                  1, -1, false)
   { 
     formulaString = formula;
     makeCommands();

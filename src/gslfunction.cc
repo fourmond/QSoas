@@ -69,7 +69,7 @@ static bool cmpFunctions(GSLFunction * a, GSLFunction * b)
 QStringList GSLFunction::availableFunctions()
 {
   QList<GSLFunction *> sorted = *functions;
-  qSort(sorted.begin(), sorted.end(),  &cmpFunctions);
+  std::sort(sorted.begin(), sorted.end(),  &cmpFunctions);
 
   QStringList rv;
   for(int i = 0; i < sorted.size(); i++)
@@ -83,7 +83,7 @@ QString GSLFunction::functionDocumentation()
   if(! functions)
     return QString();
   QList<GSLFunction *> sorted = *functions;
-  qSort(sorted.begin(), sorted.end(),  &cmpFunctions);
+  std::sort(sorted.begin(), sorted.end(),  &cmpFunctions);
 
   QString retval;
   for(int i = 0; i < sorted.size(); i++) {
@@ -291,7 +291,7 @@ atanhc("atanhc(x)", "$$\\frac{\\tanh^{-1} x}{x}$$");
 // static GSLSimpleFunction<::fabs> 
 // abs_func("abs(x)", "$$|x|$$");
 
-static GSLSimpleFunction<::log1p> 
+static GSLSimpleFunction< ::log1p> 
 log1p_func("log1p(x)", "$$\\ln (1 + x)$$, but accurate for $$x$$ close to 0");
 
 
@@ -328,10 +328,10 @@ public:
 
 };
 
-static GSLDualFunction<::exp, ::gsl_complex_exp> 
+static GSLDualFunction< ::exp, ::gsl_complex_exp> 
 d_exp_func("exp(x)", "$$\\exp x$$, works on complex numbers too");
 
-static GSLDualFunction<::log, ::gsl_complex_log> 
+static GSLDualFunction< ::log, ::gsl_complex_log> 
 d_log_func("log(x)", "$$\\log x$$, works on complex numbers too");
 
 //////////////////////////////////////////////////////////////////////
@@ -370,7 +370,7 @@ public:
 
 };
 
-static GSLDDualFunction<::fabs, ::gsl_complex_abs> 
+static GSLDDualFunction< ::fabs, ::gsl_complex_abs> 
 d_abs_func("abs(x)", "$$\\left| x\\right|$$, works on complex numbers too");
 
 static double rarg(double)
@@ -378,7 +378,7 @@ static double rarg(double)
   return 0;
 }
 
-static GSLDDualFunction<::rarg, ::gsl_complex_arg> 
+static GSLDDualFunction< ::rarg, ::gsl_complex_arg> 
 d_arg_func("arg(x)", "$$\\arg  x$$, the argument of the complex number");
 
 
@@ -686,7 +686,7 @@ QStringList GSLConstant::availableConstants()
   if(! constants)
     return QStringList();
   QList<GSLConstant *> sorted = *constants;
-  qSort(sorted.begin(), sorted.end(),  &cmpConstants);
+  std::sort(sorted.begin(), sorted.end(),  &cmpConstants);
 
   QStringList retval;
   
@@ -700,7 +700,7 @@ QString GSLConstant::constantsDocumentation()
   if(! constants)
     return QString();
   QList<GSLConstant *> sorted = *constants;
-  qSort(sorted.begin(), sorted.end(),  &cmpConstants);
+  std::sort(sorted.begin(), sorted.end(),  &cmpConstants);
 
   QString retval;
   

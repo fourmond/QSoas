@@ -67,7 +67,7 @@ public:
   };
 
 
-  virtual void computeCovarianceMatrix(gsl_matrix * target) const {
+  virtual void computeCovarianceMatrix(gsl_matrix * target) const override {
     gsl_matrix_set_zero(target);
   };
 

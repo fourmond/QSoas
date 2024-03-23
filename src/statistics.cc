@@ -138,7 +138,7 @@ public:
     return var;
   };
 
-  virtual QString description() const {
+  virtual QString description() const override {
     QString pref = name;
     if(! isGlobal) {
       if(needX)
@@ -198,7 +198,7 @@ public:
     return function(ds, col);
   };
 
-  virtual QString description() const {
+  virtual QString description() const override {
     QStringList prefs;
     for(QString pref : names) {
       if(! isGlobal) {
@@ -236,7 +236,8 @@ static MultiLambdaStat avg(QStringList()
                            << "sum"
                            << "average"
                            << "var"
-                           << "stddev", false, false,
+                           << "stddev"
+                           << "0dev", false, false,
                            [](const DataSet * ds, int c) -> QList<QVariant>
                            {
                              QList<QVariant> rv;
@@ -245,9 +246,10 @@ static MultiLambdaStat avg(QStringList()
                              rv << s
                                 << a
                                 << v
-                                << sqrt(v);
+                                << sqrt(v)
+                                << sqrt(v + a*a);
                              return rv;
-                           }, "the sum, the average, the variance and the standard deviation of the values of the column.");
+                           }, "the sum, the average, the variance, the standard deviation of the values of the column, together with the square root of the average of the squares.");
 
 
 static MultiLambdaStat global(QStringList()
@@ -317,7 +319,7 @@ static SingleLambdaStat nrm("norm", false, false,
                             [](const DataSet * ds, int c) -> QVariant
                             {
                               return ds->column(c).norm();
-                            }, "the norm of the column, that is $$\\sqrt{\\sum {x_i}^2}$$.");
+                            }, "the norm of the column, that is $$\\sqrt{\\sum {x_i}^2}$$ (see also 0dev).");
 
 
 static SingleLambdaStat inte("int", false, true,
@@ -336,7 +338,7 @@ static MultiLambdaStat med(QStringList()
                            {
                              QList<QVariant> rv;
                              Vector v = ds->column(c);
-                             qSort(v);
+                             std::sort(v.begin(), v.end());
                              int nb = v.size();
                              rv << v[0.5 * nb]
                                 << v[0.1 * nb]

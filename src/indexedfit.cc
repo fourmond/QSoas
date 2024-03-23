@@ -17,7 +17,6 @@
 */
 
 #include <headers.hh>
-#include <combinedfit.hh>
 
 #include <fit.hh>
 #include <expression.hh>
@@ -234,7 +233,7 @@ public:
       so = " (options: " + so + ")";
 
     QStringList defs = indexedParameters;
-    qSort(defs);
+    std::sort(defs.begin(), defs.end());
 
     return QString("fit: %1%2, with %3 indexed").
       arg(underlyingFit->fitName(false)).arg(so).
@@ -325,7 +324,7 @@ public:
              const QStringList & indexed,
              const QString & mn,
              PerDatasetFit * under) :
-  PerDatasetFit(name.toLocal8Bit(), 
+    PerDatasetFit(name, 
                 "Indexed fit",
                 "Indexed fit", 1, -1, false),
   underlyingFit(under),

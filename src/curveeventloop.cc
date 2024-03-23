@@ -136,6 +136,7 @@ void CurveEventLoop::processKeyEvent(QKeyEvent * event)
 
 bool CurveEventLoop::finished()
 {
+  Command::currentProgress(-1, -1);
   if(done)
     return true;
 

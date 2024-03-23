@@ -273,7 +273,8 @@ public:
   ///
   /// @{
 
-  /// Returns the perpendicular coordinates
+  /// Returns the perpendicular coordinates.
+  /// The return value can be empty.
   const Vector & perpendicularCoordinates() const;
 
   /// Sets perpendicular coordinates
@@ -326,7 +327,7 @@ public:
   /// @}
 
   DataSet() {;};
-  DataSet(const QList<Vector> & cols) : columns(cols) {;};
+  explicit DataSet(const QList<Vector> & cols) : columns(cols) {;};
   DataSet(const Vector & x, const Vector & y) {
     columns << x << y;
   };

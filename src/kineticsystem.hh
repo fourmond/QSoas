@@ -114,10 +114,6 @@ public:
     /// Returns true when:
     /// * the stoechiometry is one for each reactant
     /// * the rate constants do not depend on anything starting with `c_`
-    ///
-    /// @todo In time, this will have to include the case when a rate
-    /// constant is not a constant, but does not depend on the
-    /// concentrations.
     virtual bool isLinear() const;
 
     Reaction(const QString & fd, const QString & bd = "" );

@@ -77,8 +77,10 @@ static void applyFormulaCommand(const QString &, QString formula,
   DataSetList buffers(opts);
 
   DataStackHelper pusher(opts);
+  int idx = 0;
   for(const DataSet * ds : buffers) {
     DataSetExpression ex(ds);
+    Command::currentProgress(idx++, buffers.size());
     QStringList colNames;
 
     ex.useRealColNames = false;
@@ -118,7 +120,6 @@ static void applyFormulaCommand(const QString &, QString formula,
         else
           indexInEval[i] = -1;
       }
-
       int nbm = modified.size();
 
     
@@ -126,6 +127,11 @@ static void applyFormulaCommand(const QString &, QString formula,
       QString finalFormula = QString(nbm != 1 ? "%2\n[%1]" : "%2\n%1").
         arg(modified.join(",")).
         arg(formula);
+      if(Debug::debugLevel() > 0)
+        Debug::debug() << "apply-formula, '" << formula
+                       << "'\n -> locals: " << locals.join(", ")
+                       << "\n -> modified: " << modified.join(", ")
+                       << "\n -> converted into '" << finalFormula << endl;
 
       // QTextStream o(stdout);
       // o << "Found targets: " << modified.join(", ") << endl;
@@ -157,7 +163,7 @@ static void applyFormulaCommand(const QString &, QString formula,
             
           }
           catch (const RuntimeError & er) {
-            if(er.message().contains("LocalJumpError:") &&
+            if(er.message().contains("LocalJumpError") &&
                er.message().contains("break")) {
               Terminal::out << "Found break at X = " << ds->x()[idx]
                             << " (#" << idx << "): " << endl;
@@ -224,7 +230,7 @@ static void applyFormulaCommand(const QString &, QString formula,
               evaluateNoLock(args.data());
           }
           catch (const RuntimeError & er) {
-            if(er.message().contains("LocalJumpError:") &&
+            if(er.message().contains("LocalJumpError") &&
                er.message().contains("break")) {
               Terminal::out << "Found break at X = " << ds->x()[idx]
                             << " (#" << idx << "): " << endl;
@@ -911,7 +917,12 @@ static void linearLeastSquaresCommand(const QString &, QString formula,
   updateFromOptions(opts, "mode", mode);
   
 
-  DataStackHelper pusher(opts);
+  DataStackHelper pusher(opts, false, true,
+                         DataStackHelper::HelperFeatures(DataStackHelper::All^
+                                                         DataStackHelper::SetMeta));
+  ColumnSpecification col("y");
+  updateFromOptions(opts, "column", col);
+  
   for(const DataSet * ds : buffers) {
     DataSetExpression ex(ds);
 
@@ -931,7 +942,8 @@ static void linearLeastSquaresCommand(const QString &, QString formula,
     GSLVector res(fcn.parameters());
     GSLVector errs(fcn.parameters());
     /// @todo Hmmm... Is really solve the best name for this ?
-    double chisq = fcn.solve(ds->y(), res, errs);
+    Vector v = col.getColumn(ds);
+    double chisq = fcn.solve(v, res, errs);
     ValueHash results;
     for(int i = 0; i < fcn.parameters(); i++)
         results << fcn.parameterNames()[i] << res[i]
@@ -960,14 +972,18 @@ static void linearLeastSquaresCommand(const QString &, QString formula,
     }
     if(mode == "fits") {
       DataSet * nds = ds->derivedDataSet("_lls_fits.dat");
-      fcn.computeFunction(res, nds->y().toGSLVector());
+      fcn.computeFunction(res, v.toGSLVector());
       pusher << nds;
     }
     if(mode == "residuals") {
       DataSet * nds = ds->derivedDataSet("_lls_res.dat");
-      fcn.computeFunction(res, nds->y().toGSLVector());
-      nds->y() -= ds->y();
-      nds->y() *= -1;
+      fcn.computeFunction(res, v.toGSLVector());
+      int idx = col.getValue(ds);
+      if(idx < 0)
+        throw RuntimeError("Could not set the target column: '%1'").
+          arg(col.specification());
+      nds->column(idx) -= v;
+      nds->column(idx) *= -1;
       pusher << nds;
     }
   }
@@ -996,9 +1012,12 @@ llO(QList<Argument *>()
                           "mode",
                           "Operation mode",
                           "Whether to just compute the parameters or also push residuals or fits")
+    << new ColumnArgument("column", 
+                          "Y column",
+                          "the column to run the regression against (defaults to Y)")
     << DataSetList::listOptions("Buffers to work on")
     << ValueHash::outputOptions()
-    << DataStackHelper::helperOptions()
+    << DataStackHelper::helperOptions(DataStackHelper::HelperFeatures(DataStackHelper::All^DataStackHelper::SetMeta))
     );
 
 
@@ -1027,16 +1046,21 @@ public:
   /// total number
   int total;
 
+  /// number imprecision
+  int imprecisions;
+
   /// number failed (not true)
   int failed;
 
   /// number for which there was an exception raised
   int exceptions;
 
-  AssertionsList() : total(0), failed(0), exceptions(0) {;};
+  AssertionsList() : total(0), imprecisions(0),
+                     failed(0), exceptions(0) {;};
 
   void add(const AssertionsList & o) {
     total += o.total;
+    imprecisions += o.imprecisions;
     failed += o.failed;
     exceptions += o.exceptions;
   };
@@ -1050,12 +1074,16 @@ public:
 
   enum AssertionResult {
     Pass,
+    Imprecision,
     Failed,
     Exception
   };
 
   /// Whether or not a tolerance was specified
   bool useTolerance;
+
+  /// Whether the tolerance is tweaked by OS
+  bool osSpecific;
 
   /// The tolerance value
   double tolerance;
@@ -1078,8 +1106,10 @@ public:
   /// The current fine context
   QString fineContext;
 
-  SingleAssertion(bool tol) :
-    useTolerance(tol), 
+  SingleAssertion(bool tol, bool os = false) :
+    useTolerance(tol),
+    osSpecific(os),
+    tolerance(-1), value(-1),
     commandContext(soas().prompt().currentContext()),
     context(assertContext), fineContext(assertFineContext)
   {
@@ -1094,6 +1124,9 @@ public:
     switch(result) {
     case Pass:
       res = "pass";
+      break;
+    case Imprecision:
+      res = "imprecision";
       break;
     case Exception:
       res = "exception";
@@ -1111,7 +1144,7 @@ public:
       o << "\t" << "message: " << exceptionMessage << "\n";
     else {
       if(useTolerance)
-        o << "\tvalue:" << value << " for " << tolerance << "\n";
+        o << "\tvalue:" << value << "\n\ttarget:" << tolerance << "\n";
     }
     return rv;
   };
@@ -1137,9 +1170,11 @@ static void doAssert(QString code,
 
   bool useTol = false;
   double tolerance = 0.0;
+  double orgTol = 0.0;
   bool pf = false;
   if(opts.contains("tolerance")) {
     updateFromOptions(opts, "tolerance", tolerance);
+    orgTol = tolerance;
     useTol = true;
     updateFromOptions(opts, "platform-precision", pf);
     int fct = pf ? 1 : 0;
@@ -1169,7 +1204,7 @@ static void doAssert(QString code,
       AssertionsList totl;
       if(code == "all") {
         keys = assertResults.keys();
-        qSort(keys);
+        std::sort(keys.begin(), keys.end());
       }
       else
         keys = code.split(QRegExp("\\s+"));
@@ -1180,18 +1215,22 @@ static void doAssert(QString code,
         const AssertionsList & as = assertResults[key];
         Terminal::out << key << ": " << as.total << " total, "
                       << as.failed << " failed, " 
+                      << as.imprecisions << " imprecisions, " 
                       << as.exceptions << " exceptions." << endl;
         Debug::debug() << key << ": " << as.total << " total, "
                        << as.failed << " failed, " 
+                       << as.imprecisions << " imprecisions, " 
                        << as.exceptions << " exceptions." << endl;
         totl.add(as);
       }
       if(keys.size() > 0) {
         Terminal::out << "Overall: " << totl.total << " total, "
                       << totl.failed << " failed, " 
+                      << totl.imprecisions << " imprecisions, " 
                       << totl.exceptions << " exceptions." << endl;
         Debug::debug() << "Overall: " << totl.total << " total, "
                        << totl.failed << " failed, " 
+                       << totl.imprecisions << " imprecisions, " 
                        << totl.exceptions << " exceptions." << endl;
       }
 
@@ -1223,14 +1262,25 @@ static void doAssert(QString code,
   QString context = "";
   if(! assertFineContext.isEmpty())
     context = QString(" (%1)").arg(assertFineContext);
-  SingleAssertion as(useTol);
+  SingleAssertion as(useTol, pf);
   try {
     value = eval();
 
     bool check;
+    bool imp = false;
     if(useTol) {
       double v = mr->floatValue(value);
       check = fabs(v) <= tolerance;
+      if(! check) {
+        if(tolerance > 0) {
+          if(fabs(v) <= 100 * tolerance)
+            imp = true;
+        }
+        else {
+          if(fabs(v) <= 1e-13)  // completely arbitrary
+            imp = true;
+        }
+      }
       as.value = v;
       as.tolerance = tolerance;
     }
@@ -1243,20 +1293,36 @@ static void doAssert(QString code,
       as.result = SingleAssertion::Pass;
     }
     else {
-      cur->failed++;
-      as.result = SingleAssertion::Failed;
+      QString let;
+      QString adj;
+      if(imp) {
+        let = "I";
+        adj = "imprecise";
+        cur->imprecisions++;
+        as.result = SingleAssertion::Imprecision;
+      }
+      else {
+        let = "F";
+        adj = "failed";
+        cur->failed++;
+        as.result = SingleAssertion::Failed;
+      }
+      QString sctx = QString("%1:%2").arg(as.commandContext.scriptFile).
+        arg(as.commandContext.lineNumber);
       if(useTol) {
-        Terminal::out << "assertion failed: " << code
+        Terminal::out << "assertion " << adj << ": " << code
                       << " (should be below: " << tolerance
                       << " but is: " << mr->floatValue(value) << ")" << endl;
-        Debug::debug() << "F: " << code
+        Debug::debug() << let << "(" << sctx
+                       << ") : " << code
                        << " (should be below: " << tolerance
                        << " but is: " << mr->floatValue(value) << ")"
                        << context << endl;
       }
       else {
         Terminal::out << "assertion failed: " << code  << endl;
-        Debug::debug() << "F: " << code  << context << endl;
+        Debug::debug() << let << "(" << sctx
+                       << ") : " << code  << context << endl;
       }
     }
   }
@@ -1266,7 +1332,8 @@ static void doAssert(QString code,
     as.exceptionMessage = e.message();
     Terminal::out << "assertion failed with exception: " << code  << ":\n";
     Terminal::out << e.message() << endl;
-    Debug::debug() << "E: " << code  << " -- "
+    Debug::debug() << "E(" << as.commandContext.scriptFile
+                   << ") : " << code  << " -- "
                    << e.message() << context << endl;
   }
   allAssertions << as;

@@ -1,0 +1,12 @@
+# Use of if/then/else in apply-formula
+
+generate-dataset 0 10 /samples=101
+apply-formula 'if i%2 == 0; then y=x**2; else y=x; end'
+strip-if i%2==0
+apply-formula y-=x
+assert $stats.y_norm 0
+
+drop 0,1
+strip-if i%2==1
+apply-formula y-=x**2
+assert $stats.y_norm 0

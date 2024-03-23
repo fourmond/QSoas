@@ -238,11 +238,19 @@ CommandWidget::CommandWidget(CommandContext * c) :
     terminalDisplay->connect(commandLine, SIGNAL(shouldCopyTerminal()), 
                              SLOT(copy()));
   
-  h1->addWidget(commandLine);
+  h1->addWidget(commandLine, 1);
 
   restrictedPrompt = new LineEdit;
-  h1->addWidget(restrictedPrompt);
+  h1->addWidget(restrictedPrompt, 1);
+
+  stopButton = new QPushButton(Utils::standardIcon(QStyle::SP_DialogCancelButton), "");
+  stopButton->setEnabled(false);
   
+  h1->addWidget(stopButton);
+  connect(stopButton, &QPushButton::clicked,
+          this, [] {
+            Command::requestStop();
+          });
 
   layout->addLayout(h1);
 
@@ -288,6 +296,8 @@ bool CommandWidget::runCommand(const QStringList & raw, bool doFullPrompt)
   bool status = true;
   if(raw.isEmpty())
     return true;                     // Nothing to do here.
+
+  QString lastMessage = commandLine->currentMessage();
   
   bool wroteCmdline = false;
   try {
@@ -326,8 +336,12 @@ bool CommandWidget::runCommand(const QStringList & raw, bool doFullPrompt)
     if(addToHistory)
       commandLine->addHistoryItem(cmd);
     wroteCmdline = true;
-    
-    commandLine->busy(QString("Running: %1").arg(cmd));
+
+    {
+      // These two things should be grouped
+      commandLine->busy(QString("Running: %1").arg(cmd));
+      stopButton->setEnabled(true);
+    }
     
     soas().showMessage(tr("Running: %1").arg(cmd));
 
@@ -360,6 +374,7 @@ bool CommandWidget::runCommand(const QStringList & raw, bool doFullPrompt)
       Debug::debug() << "Error: " << error.message() << endl
                      << "\nBacktrace:\n\t"
                      << error.exceptionBacktrace().join("\n\t") << endl;
+    ++(soas().runtimeErrors);
   }
   catch(const InternalError & error) {
     Terminal::out << "Internal error: "
@@ -370,16 +385,25 @@ bool CommandWidget::runCommand(const QStringList & raw, bool doFullPrompt)
     if(Debug::debugLevel() > 0)
       Debug::debug() << "Internal error: "
                      << error.message() << endl;
+    ++(soas().internalErrors);
   }
   catch(const ControlFlowException & flow) {
     /// @todo This should be implemented as an idiom when clang
     /// supports std::function
-    commandLine->busy();
+    commandLine->busy(lastMessage);
     throw;                      // rethrow
+  }
+  catch(const CommandInterruptException & fl) {
+    Terminal::out << "Interrupting command: " << raw.first() << endl;
+    if(Command::runningCommand()) {
+      commandLine->busy(lastMessage);
+      throw;                      // rethrow
+    }
   }
   catch(HeadlessError he) {
     he.appendMessage(QString("\nCommand stack: %1").
                      arg(raw.join(" ")));
+    ++(soas().headlessErrors);
     throw he;
   }
   catch(const std::bad_alloc & alc) {
@@ -387,7 +411,8 @@ bool CommandWidget::runCommand(const QStringList & raw, bool doFullPrompt)
                   << "\nThis is probably not going to end well" << endl;
   }
   Debug::debug().endCommand(raw);
-  commandLine->busy();
+  commandLine->busy(lastMessage);
+  stopButton->setEnabled(! lastMessage.isEmpty());
   return status;
 }
 

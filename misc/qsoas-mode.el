@@ -39,7 +39,7 @@
   (if qsoas-available-commands
       ()
     (setq qsoas-available-commands 
-          (process-lines "QSoas" "--list-commands"))
+          (process-lines "QSoas" "-platform" "offscreen" "--list-commands"))
     )
   qsoas-available-commands
   )

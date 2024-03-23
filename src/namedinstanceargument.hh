@@ -71,7 +71,7 @@ public:
 
   virtual QStringList toString(const ArgumentMarshaller * arg) const override {
     QStringList lst;
-    for(const QString n : T::availableItems()) {
+    for(const QString &n : T::availableItems()) {
       if(T::namedItem(n) == arg->value<T*>()) {
         lst << n;
         break;
@@ -90,7 +90,7 @@ public:
     QComboBox * cb = new QComboBox(parent);
 
     QStringList keys = T::availableItems();
-    qSort(keys);
+    std::sort(keys.begin(), keys.end());
     for(int i = 0; i < keys.size(); i++)
       cb->addItem(keys[i]);
     return cb;

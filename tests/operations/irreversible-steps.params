@@ -1,0 +1,14 @@
+# QSoas saved parameters
+# Fit used: kinetic-system (system: ./irreversible-steps.qsys)
+# Command-line: fit-kinetic-system irreversible-steps.qsys
+y_C0	1	!	1
+y_C1	0	!	0
+y_C2	0	!	0
+y_C3	0	!	0
+c0_C0	1	!	0
+c0_C1	0	!	0
+c0_C2	0	!	0
+c0_C3	0	!	0
+k0	1	!	1
+k1	2	!	1
+k2	3	!	1

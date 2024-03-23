@@ -1,7 +1,14 @@
 @ simple.cmds
+@ scaling.cmds rkf45
+@ scaling.cmds rk4imp
+@ scaling.cmds bsimp
+
+
 @ fast-equilibrium.cmds
 @ conservation.cmds
 @ bimol.cmds
 @ cycles.cmds
 @ auto-catalytic.cmds
 @ invariance.cmds
+
+@ cache.cmds

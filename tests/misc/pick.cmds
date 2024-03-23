@@ -1,0 +1,16 @@
+# Test for the pick command
+
+generate-dataset 0 10 /samples=11
+
+pick 0 3 8
+assert $stats.rows-3 0
+assert $stats.x_max-8 0
+assert $stats.x_sum-11 0
+
+
+generate-dataset 0 20 /samples=11
+
+pick 0 3 8 /column=i
+assert $stats.rows-3 0
+assert $stats.x_max-16 0
+assert $stats.x_sum-22 0

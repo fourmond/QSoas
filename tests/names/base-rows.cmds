@@ -21,8 +21,10 @@ assert '$row_names[2]=="c"'
 assert '$row_names[3]=="d"'
 assert '$row_names[4]==""'
 
-generate-buffer 0 10 /samples=5
-apply-formula '$row_name="test_#{i}"'
+generate-dataset 0 10 /samples=5
+# to_i is necessary because in some versions of mruby, the float will
+# render as 1.0 and not 1
+apply-formula '$row_name="test_#{i.to_i}"'
 assert '$row_names[0]=="test_0"'
 assert '$row_names[1]=="test_1"'
 assert '$row_names[2]=="test_2"'

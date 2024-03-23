@@ -298,7 +298,45 @@ void FFT::applyGaussianFilter(double cutoff)
   for(int i = 0; i < nb; i++) { 
     double freq = i/(nb*1.0);
     double xx = freq*freq;
-    double fact = exp(-1*xx*cutoff*cutoff/2.);
+    double fact = exp(-0.5*xx*cutoff*cutoff);
     scaleFrequency(i, fact);
   }
 }
+
+
+void FFT::applyBandCut(double band, double width)
+{
+  int nb = frequencies();
+  for(int i = 0; i < nb; i++) {
+    // Anything more than 1 in absolute 
+    double nrm = (i - band)/width;
+    nrm *= nrm;
+    double fact = 0;
+    if(nrm > 0)
+      fact = exp(-1/nrm);
+    scaleFrequency(i, fact);
+  }
+}
+
+double FFT::maxFrequency() const
+{
+  int nb = frequencies();
+  return 0.5/fabs(deltaX);
+}
+
+double FFT::wrappedFrequency(double freq) const
+{
+  double mf = maxFrequency();
+  double res = std::fmod(freq, 2*mf);
+  if(res > mf)
+    res = 2*mf - res;
+  return res;
+}
+
+double FFT::frequencyIndex(double freq) const
+{
+  freq = wrappedFrequency(freq);
+  int nb = frequencies();
+  return freq * (2 * (nb - 1) * fabs(deltaX));
+}
+

@@ -41,8 +41,8 @@ class CheckableWidget : public QFrame {
   /// The index for the @a present member.
   int index;
 public:
-  CheckableWidget(QWidget * sub,
-                  QWidget * parent = NULL);
+  explicit CheckableWidget(QWidget * sub,
+                           QWidget * parent = NULL);
 
   /// when this is used, then the QSet and the check state of the
   /// widget are bound together.

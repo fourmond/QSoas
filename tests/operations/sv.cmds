@@ -1,0 +1,29 @@
+clear-stack
+generate-dataset /flags=g 0 10 /number=20 "a=number/19;(1-a)**2*exp(-x/3)+a*exp(-x/4)+(1+a)**3*exp(-x)"
+contract flagged-:g
+a sv-base.dat
+
+## INLINE: check-norm
+assert $stats.y_norm ${1}
+## INLINE END
+
+sv-decomp /components=3 /filter=true
+S 1 0
+
+expand /flags=tst
+run-for-datasets inline:check-norm flagged:tst /arg1=2e-13
+drop flagged:tst
+
+fetch named:sv-base.dat
+
+sv-decomp /components=2 /residuals=true /filter=true
+add 0 1
+S 3 0
+
+# Somehow I expected a better deviation once we take into account the
+# residuals, but it really seems that the 3 components reproduce
+# essentially all the features of the data.
+expand /flags=tst
+run-for-datasets inline:check-norm flagged:tst /arg1=2e-13
+drop flagged:tst
+

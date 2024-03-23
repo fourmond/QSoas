@@ -1,0 +1,44 @@
+# Verifying the function of cat
+generate-dataset 0 1 /samples=1500
+generate-dataset 1 3 /samples=1500
+cat 1 0
+assert $stats.x_first-0 0
+assert $stats.x_last-3 0
+assert $stats.rows==3000
+
+# Verifying the use of for-which
+generate-dataset 0 1 /samples=1500
+generate-dataset 1 2 /samples=1500
+generate-dataset 2 3 /samples=1500
+cat 2,1,0 /for-which=$stats.x_min!=1
+
+assert $stats.x_first-0 0
+assert $stats.x_last-3 0
+assert $stats.rows==3000
+strip-if x<1||x>2
+assert $stats.rows==2
+drop 0,1
+
+
+# We are also verifying that the basic assumptions about lists work
+generate-dataset 0 1 /samples=1500
+generate-dataset 1 3 /samples=1500
+cat 0 1
+assert $stats.x_first-1 0
+assert $stats.x_last-1 0
+assert $stats.rows==3000
+
+clear-stack
+generate-dataset 0 1 /samples=1500
+cat 0 0 0
+assert $stats.x_first-0 0
+assert $stats.x_last-1 0
+assert $stats.rows==4500
+
+# Not quite in its place here, but OK
+generate-dataset 0 2
+sim-arb a*x|a*x**2 /dev/null 0 0 /override=a=2
+assert $stats.y_last-4 0
+drop
+assert $stats.y_last-8 0
+drop

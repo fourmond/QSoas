@@ -133,8 +133,14 @@ bool FileInfo::isDir() const
     if(! (stat.valid & ZIP_STAT_NAME)) {
       QExplicitlySharedDataPointer<ZipFile> arch =
         ZipFile::openArchive(zipArchive);
+      // QTextStream o(stdout);
+      // o << "Path: " << originalPath << endl;
+      // o << " -> " << zipArchive << endl;
+      // o << " -> " << subPath << endl;
       if(arch->silentDirectories.contains(subPath))
         return true;            // Silent directory
+      if(subPath == "..")       // Vicious but OK
+        return true;
       throw InternalError("Somehow could not get the name ?");
     }
     QString n(stat.name);

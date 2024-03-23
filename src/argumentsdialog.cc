@@ -26,6 +26,8 @@
 #include <debug.hh>
 #include <helpbrowser.hh>
 
+#include <scrolledwidget.hh>
+
 ArgumentEditor::ArgumentEditor(const Argument * arg, bool opt) :
   argument(arg),
   isOption(opt),
@@ -96,13 +98,23 @@ ArgumentsWidget::ArgumentsWidget(const ArgumentList & args, bool opt,
   QWidget(parent), arguments(args), optional(opt)
 {
   QGridLayout * grid = new QGridLayout(this);
-  
+
   for(int i = 0; i < arguments.size(); i++) {
     const Argument * arg = arguments[i];
     ArgumentEditor * ed = new ArgumentEditor(arg, optional);
-    ed->addToGrid(grid, editors.size());
     editors << ed;
   }
+
+  if(optional)
+    std::sort(editors.begin(), editors.end(),
+              [](const ArgumentEditor * a,
+                 const ArgumentEditor * b) -> bool {
+                return a->argumentName() < b->argumentName();
+              });
+
+  for(int i = 0; i < editors.size(); i++)
+    editors[i]->addToGrid(grid, i);
+
 }
 
 ArgumentsWidget::~ArgumentsWidget()
@@ -139,43 +151,6 @@ void ArgumentsWidget::setFromOptions(const CommandOptions & opts)
 
 //////////////////////////////////////////////////////////////////////
 
-/// @todo In real, this should be a more general class, shouldn't it ?
-class ScrolledOptions : public QScrollArea {
-protected:
-
-  ArgumentsWidget * widget;
-public:
-  ScrolledOptions(ArgumentsWidget * w, QWidget * parent = NULL) :
-    QScrollArea(parent), widget(w)
-  {
-    setWidget(widget);
-    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
-  }
-
-  virtual QSize sizeHint() const override {
-    QSize sz2 = widget->sizeHint();
-    QSize sz3 = verticalScrollBar()->sizeHint();
-    // sz2.setWidth(sz2.width() + sz3.width());
-    return sz2 + sz3;
-  }
-
-  void resizeEvent(QResizeEvent *event) override {
-    QSize sz = QScrollArea::sizeHint();
-    QSize sz2 = widget->sizeHint();
-    QSize sz3 = verticalScrollBar()->sizeHint();
-    sz2.setWidth(event->size().width() - sz3.width());
-    widget->resize(sz2);
-
-    QScrollArea::resizeEvent(event);
-  };
-
-  
-};
-
-
-//////////////////////////////////////////////////////////////////////
-
-
 ArgumentsDialog::ArgumentsDialog(const Command * cmd) :
   QDialog(),
   command(cmd),
@@ -199,7 +174,7 @@ ArgumentsDialog::ArgumentsDialog(const Command * cmd) :
   if(args && args->size() > 0) {
     global->addWidget(new QLabel("<b>Options:</b>"));
     options = new ArgumentsWidget(*args, true);
-    global->addWidget(new ScrolledOptions(options));
+    global->addWidget(new ScrolledWidget(options));
   }
 
   QDialogButtonBox * buttons =

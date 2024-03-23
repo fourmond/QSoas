@@ -1,7 +1,7 @@
 /**
    \file fittrajectorydisplay.hh
    Displays of fit trajectories display.
-   Copyright 2013, 2014, 2015, 2016, 2017, 2018 by CNRS/AMU
+   Copyright 2013, 2014, 2015, 2016, 2017, 2018, 2023 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -63,7 +63,7 @@ class TrajectoryParametersDisplay : public QWidget {
   
 public:
 
-  TrajectoryParametersDisplay(FitWorkspace * workspace);
+  explicit TrajectoryParametersDisplay(FitWorkspace * workspace);
 
 public slots:
 
@@ -71,6 +71,9 @@ public slots:
 };
 
 class TrajectoriesModel;
+class FlaggedTrajectoriesModel;
+class DoubleDisplay;
+class SynchronizedTables;
 
 /// A dialog box displaying a set of FitTrajectory objects.
 ///
@@ -87,8 +90,15 @@ class FitTrajectoryDisplay : public QDialog {
   /// The main tabs representing the trajectories.
   QTabWidget * tabs;
 
+  /// The first synchronized table, including a table view for the
+  /// reference.
+  SynchronizedTables * parametersTables;
+
   /// The main display of the parameters
   QTableView * parametersDisplay;
+
+  /// The display of the reference
+  QTableView * referenceDisplay;
 
 
   /// The parameters display in the first tab
@@ -106,6 +116,14 @@ class FitTrajectoryDisplay : public QDialog {
 
   /// The underlying item model
   TrajectoriesModel * model;
+
+  DoubleDisplay * doubleDisplay;
+
+  /// The model for displaying the flags
+  FlaggedTrajectoriesModel * flagsModel;
+
+  /// The table view for displaying the flags/clusters
+  QTableView * flagsView;
 
 
   /// The heads of the display
@@ -126,16 +144,21 @@ class FitTrajectoryDisplay : public QDialog {
   /// Whether we have done at least one iteration
   bool doneOne;
 
-  QList<QAction *> contextActions;
+  /// A hash of
+  QHash<int, QList<QAction *>> contextActions;
+  // QList<QAction *> contextActions;
 
   void addCMAction(const QString & name, QObject * receiver, 
                    const char * slot, 
-                   const QKeySequence & shortCut = QKeySequence());
-  
+                   const QKeySequence & shortCut = QKeySequence(),
+                   const QSet<int> & tabs = {0});
+
+  void addCMSeparator(const QSet<int> & tabs = {0});
+
 
 public:
 
-  FitTrajectoryDisplay(FitWorkspace * workspace);
+  explicit FitTrajectoryDisplay(FitWorkspace * workspace);
   ~FitTrajectoryDisplay();
 
   /// Brings a dialog box to browse the trajectories of the given
@@ -192,14 +215,36 @@ public slots:
 
   /// (reverse) sortByCurrentColumn()
   void reverseSortByCurrentColumn();
-                                                        
+
+protected:
+
+  /// Returns the list of the indices of the currently selected
+  /// trajectories. Sorted.
+  QList<int> selectedTrajectories() const;
+
+  void updateModels();
+
+  /// Hides a column in the various tables
+  void hideColumn(int col);
+
+  /// Shows a column in the various tables
+  void showColumn(int col);
+
 
 protected slots:
 
+
   void contextMenuOnTable(const QPoint & pos);
+
+  
+  void flagsViewContextMenu(const QPoint & pos);
 
   /// Send the currently selected parameters to the FitWorkspace
   void reuseCurrentParameters();
+
+  /// Reuse the current flagged parameters
+  void reuseFlaggedParameters(const QString & flag,
+                              bool best);
 
   /// Send the currently selected parameters for the current dataset
   /// to the FitWorkspace.
@@ -213,6 +258,15 @@ protected slots:
 
   /// Called whenever the user double clicks on an item
   void onDoubleClick(const QModelIndex & index);
+
+  /// Asks for a new tag name and add it
+  void promptAddFlag();
+
+  /// Adds a given flag to the selected trajectories
+  void addFlagToSelected(const QString & flag);
+
+  /// Removes a given flag to the selected trajectories
+  void removeFlagToSelected(const QString & flag);
 };
 
 

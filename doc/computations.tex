@@ -1,0 +1,172 @@
+% -*- coding: utf-8; -*-
+\documentclass{article}
+
+%% This helper document is part of QSoas, it's purpose is to make
+%% the computations involved in some parts of the code more explicit
+%% 
+%% Copyright 2024 by CNRS/AMU
+
+%% This program is free software; you can redistribute it and/or
+%% modify it under the terms of the GNU General Public License as
+%% published by the Free Software Foundation; either version 2 of the
+%% License, or (at your option) any later version.
+
+%% This program is distributed in the hope that it will be useful, but
+%% WITHOUT ANY WARRANTY; without even the implied warranty of
+%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+%% General Public License for more details.
+
+%% You should have received a copy of the GNU General Public License
+%% along with this program.  If not, see
+%% <http://www.gnu.org/licenses/>.
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage{amsmath}
+
+\usepackage[svgnames]{xcolor}
+\usepackage[colorlinks, urlcolor=blue, citecolor=DarkGreen,
+linkcolor=blue]{hyperref}
+
+\usepackage{graphicx}
+
+\usepackage[a4paper,landscape=false,showframe=false,
+margin=1.8cm]{geometry}
+
+\usepackage[version=3]{mhchem}
+
+\usepackage{siunitx}
+\usepackage{booktabs}
+
+\usepackage{mathpazo}
+\usepackage[scaled]{helvet}
+\usepackage{courier}
+
+\usepackage{cite}
+\usepackage{pifont}
+
+
+
+%% A series of useful macros:
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\pa}[1]{\left(#1\right)}
+\newcommand{\pab}[1]{\left[#1\right]}
+\newcommand{\obs}[2]{\textbf{Note: #1 --} #2}
+
+
+\begin{document}
+
+\begin{abstract}
+  This document contains a number of computations underlying some of
+  the algorithms used in the code of QSoas. It serves both as a helper
+  to write the code and a justification of how it works. See also the
+  file \texttt{tests/doc/computations.tex} for the pendant of this
+  file for the tests.
+\end{abstract}
+
+\section{Convolutions}
+
+Here are the computations for the way \texttt{QSoas} convolves a
+\emph{dataset} $f$ with a \emph{function} $g$. The convolution product
+is given by the following integral:
+%
+\begin{equation}
+  (f*g)(t) = \int_{t' = -\infty}^{\infty} f(t') g(t-t')\:\dd t'
+\end{equation}
+%
+Assuming that the data points of $f$ are uniformly spread over $n$
+intervals of length $\Delta t$ starting at $t_0$ (this means $n+1$
+data points), this integral can be rewritten this way:
+%
+\begin{equation}
+  (f*g)(t) = \sum_{i = 0}^{n-1}
+  \int_{t_0 + i \Delta t}^{t_0 + (i+1) \Delta t}
+  f(t') g(t-t')\:\dd t'
+\end{equation}
+%
+The convolution process will produce a \emph{dataset} with the same
+number and position of points as $f$. For all points $0 \leq i \leq n$, we have
+therefore:
+%
+\begin{equation}
+  (f*g)_i = (f*g)(t_0 + i\Delta t) = 
+  \sum_{j = 0}^{n-1} \int_{t_0 + j \Delta t}^{t_0 + (j+1) \Delta t}
+  f(t') g(t_0 + i\Delta t-t')\:\dd t'
+\end{equation}
+
+Lets look at the following integral defined for $0\leq j < n$ and $0
+\leq i \leq n$:
+%
+\begin{equation}
+  I_{i,j} = 
+  \int_{t_0 + j \Delta t}^{t_0 + (j+1) \Delta t}
+  f(t') g(t_0 + i\Delta t-t')\:\dd t'
+\end{equation}
+%
+We will assume linear interpolation of the datapoints over each of the
+intervals between data points, so that the following integral is in
+fact:
+%
+\begin{equation}
+  I_{i,j}  =
+\int_{t_0 + j \Delta t}^{t_0 + (j+1) \Delta t}
+\pab{f_j + \frac{t' - \pa{t_0 + j \Delta t}}{\Delta t} \pa{f_{j+1} - f_j}}
+g(t_0 + i\Delta t-t')\:\dd t'
+\end{equation}
+%
+Shifting the integral by $t_0 + j\Delta t$ yields:
+%
+\begin{align}
+  I_{i,j}  &=
+  \int_{0}^{ \Delta t}
+  \pab{f_j + \frac{t'}{\Delta t} \pa{f_{j+1} - f_j}}
+  g(\pab{i-j}\Delta t -t')\:\dd t'\\
+  & = f_j \int_{0}^{\Delta t} g(\pab{i-j}\Delta t -t')\:\dd t'
+  + \pa{f_{j+1} - f_j}
+  \int_{0}^{\Delta t}
+  \frac{t'}{\Delta t} g(\pab{i-j}\Delta t -t')\:\dd t'
+\end{align}
+%
+Hence, the element $i$ of the convolution product can be written thus:
+%
+\begin{equation}
+  (f*g)_i = \sum_{j = 0}^{n-1}
+  \pab{
+    A_{i-j}\, f_j + B_{i-j}\pa{f_{j+1} - f_j}
+  }
+  =
+  \sum_{j = 0}^{n-1}
+  \pab{
+    \pa{A_{i-j}- B_{i-j}}f_j + B_{i-j}\,f_{j+1}
+  }
+\end{equation}
+%
+in which, for $-n < k \leq n$:
+%
+\begin{align}
+  A_k &= \int_{0}^{\Delta t} g(k\Delta t -t')\:\dd t' =
+  \int_{\pa{k-1} \Delta t}^{k \Delta t} g(t') \:\dd t'\\[4mm]
+  B_k &= \int_{0}^{\Delta t}
+  \frac{t'}{\Delta t} g(k\Delta t - t')\:\dd t'
+\end{align}
+%
+\obs{16.01.2024}{it may be better to parametrize from the end of
+  the interval to cancel singularities on 0 for the first moment ?}
+
+In any case, not all the integrals $A_k$ and $B_k$ have to be defined,
+those who fall outside of the domain of definition of $g$ simply will
+be assumed to be 0.
+
+Not that in the case that $g$ is only defined for $x \geq 0$, then $0
+< k \leq n$.
+
+\paragraph{Computation of the integrals}
+For now, let's just do an adaptive ``divide by two'' approach, it's
+not a Gauss-Kronrod approach, but it will do (for now).
+
+
+
+
+\end{document}

@@ -2607,15 +2607,18 @@ static void correlationMatrixCommand(const QString &,
     }
   }
 
-
   DataSet * nds = ds->derivedDataSet(mat, "_cm.dat");
+  nds->rowNames.clear();
+  if(ds->columnNames.size() > 0 && ds->columnNames[0].size() == sz)
+    nds->rowNames << ds->columnNames[0];
+
   soas().pushDataSet(nds);
 }
 
-static ArgumentList 
+static ArgumentList
 cmA;
 
-static ArgumentList 
+static ArgumentList
 cmO;
 
 

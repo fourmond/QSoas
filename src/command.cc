@@ -607,7 +607,7 @@ QString & Command::updateDocumentation(QString & str, int level) const
   QString syn = "\n\n" +
     headings + " `" + cmdName + "` - " + pubName + 
     " {#" + pref + "cmd-" + cmdName + "}\n\n" + 
-    synopsis(true);
+    synopsis(true) + "\n";
 
   Utils::updateWithin(str, beg, end, syn);
   return str;

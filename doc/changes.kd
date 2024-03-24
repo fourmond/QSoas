@@ -125,6 +125,8 @@ See the full list of changes [below](#v2p0)
    dataset that share the same X (within a certain tolerance);
  * a [cmd: sv-decomp] command to perform singular value decomposition
    on data;
+ * a [cmd: correlation-matrix] command that makes the correlation
+   matrix of the columns
 
 ## Improvements of previous commands
 
@@ -137,6 +139,12 @@ See the full list of changes [below](#v2p0)
    row/column names
  * most of the commands working with column names now accept the `i`
    column to designate the index column
+ * [cmd: run-for-each] can now also change other arguments than the
+   first one
+ * the [cmd: auto-filter-fft] command can now also do bandcut filters
+ * the [cmd: run-for-values] can now work on more than one dataset
+ * the commands [cmd: cat] and [cmd: hide-buffer] now accept the
+   `/for-which` option
 
 ## Other improvements
 

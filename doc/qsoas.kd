@@ -113,7 +113,7 @@ alternatively using the menus.
 Most commands have arguments and options. Arguments and options are
 separated by spaces:
 
-~~~ 
+~~~
 QSoas> command argument1 argument2 "argument 3" /option=option /option2="with spaces"
 ~~~
 
@@ -122,7 +122,7 @@ sure you quote them using `"` or `'`, like in the above example. The
 `=` sign for the options can be replaced by a space, so that the
 command above could also have been run thus:
 
-~~~ 
+~~~
 QSoas> command argument1 argument2 "argument 3" /option option /option2 "with spaces"
 ~~~
 
@@ -141,7 +141,7 @@ The order of the arguments must absolutely be respected. On the other
 hand, the options can come at any place in the command line. For
 instance, the two following commands are equivalent:
 
-~~~ 
+~~~
 QSoas> load file.dat /columns=2,3
 QSoas> load /columns=2,3 file.dat
 ~~~
@@ -1848,7 +1848,7 @@ Permanently deletes the current dataset (or the ones specified in the
 
 ~~~~
 QSoas> drop 3..16
-~~~~ 
+~~~~
 
 drops all the datasets from 3 to 16 included. 
 
@@ -1978,185 +1978,6 @@ using [cmd: save-stack].
 
 # Basic data manipulation at the dataset level
 
-{::comment} synopsis-start: apply-formula {:/}
-
-### `apply-formula` - Apply formula {#cmd-apply-formula}
-
-`apply-formula` _formula_{:title="a piece of [Ruby code](#ruby)"} (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/extra-columns=`_integer_{:title="an integer"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/keep-on-error=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/mode=`_choice_{:title="one of: `add-column`, `xyy2`, `xyz`"} `/name=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-names=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
-
-Other name: `F`
-
-  * _formula_{:title="a piece of [Ruby code](#ruby)"}: formula -- values: a piece of [Ruby code](#ruby)
-  * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): Datasets to work on -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
-  * `/extra-columns=`_integer_{:title="an integer"}: number of extra columns to create -- values: an integer
-  * `/flags=`_flags_{:title="a comma-separated list of flags"}: Flags to set on the newly created datasets -- values: a comma-separated list of flags
-  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
-  * `/keep-on-error=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, the points where the Ruby expression returns a  error are kept, as invalid numbers -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/mode=`_choice_{:title="one of: `add-column`, `xyy2`, `xyz`"}: operating mode used by apply-formula -- values: one of: `add-column`, `xyy2`, `xyz`
-  * `/name=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: name of the new column (only in 'add-column' mode) -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
-  * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created datasets -- values: one or more meta=value assignements
-  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
-  * `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on (by default), you can use `$meta` to refer to the dataset meta-data -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/use-names=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on the columns will not be called x,y, and so on, but will take their name based on the column names -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on (by default), you can use `$stats` to refer to statistics (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-
-{::comment} synopsis-end: apply-formula {:/}
-{::comment} description-start: apply-formula {:/}
-Applies a formula to the current dataset. It should specify how the
-`x` and/or `y` values of the dataset are modified:
-
-~~~~
-QSoas> apply-formula x=x**2
-QSoas> apply-formula y=sin(x**2)
-QSoas> apply-formula x,y=y,x
-~~~~
-
-The last bit swaps the $$x$$ and $$y$$ values of the dataset. The
-formula must be valid [ruby](#ruby) code.
-
-In addition to `x` and `y` (note the lowercase !), the formula can
-refer to: 
-
-  * `i`, the index of the data point
-  * `seg`, the number of the current segment (starting from 0)
-  * `x_0`, the value of $$x$$ of the first point of the current
-    [segment](#segments)
-  * `i_0`, the index of the first point in the current
-    [segment](#segments)
-  * `y2`, `y3`, etc when there are more than 2 columns in the dataset
-  * `$c.name` refers the value of the column named `name`, see
-    [there](#row-and-column-names)
-
-It is possible to modify all of these variables, but only the
-modifications in `x`, `y`, `y2` and so on are taken in to account. In
-particular, the `$c.name` cannot be used to modify the value of the
-column `name` (but see below).
-
-Here is how you can use `i` to have even points draw a sine wave and
-odd points a cosine:
-
-~~~~
-QSoas> apply-formula y=(i%2==0?sin(x):cos(x))
-~~~~
-
-`%` is the modulo operator. The construction with `?` and `:` (called
-the [ternary operator](https://en.wikipedia.org/wiki/%3F:) means:
-if `i%2==0` is true, then the value is `sin(x)`, else `cos(x)`.
-
-You can use several instructions by separating them with `;`:
-
-~~~~
-QSoas> apply-formula x=x**2;y=x**2
-~~~~
-
-This results in `x` values that are the squares of the old values, and
-`y` values that are the square of the new `x` values.
-
-
-Extra columns initially filled with 0 can be created by using the
-`/extra-columns` option:
-
-~~~~
-QSoas> apply-formula /extra-columns=1 y2=y**2
-~~~~
-
-This creates a third column (a second `y` column) containing the
-square of the values of the Y column.
-
-If `/use-stats=true` is used, a global variable `$stats` can be used
-in the [Ruby expression](#ruby). It contains all the statistics displayed
-by [cmd: stats]. For instance, to normalize the Y values by dividing
-by the median, one would use:
-
-~~~ 
-QSoas> apply-formula /use-stats=true y=y/$stats.y_med
-~~~
-
-Note that you can make use of the special `/=` operator to shorten
-that into:
-
-~~~ 
-QSoas> apply-formula /use-stats=true y/=$stats.y_med
-~~~
-
-Statistics by segments (see more about segments [there](#segments))
-are available too, which means if you want to normalize by the medians
-of the first segment, you could do
-
-~~~ 
-QSoas> apply-formula /use-stats=true y/=$stats[0].y_med
-~~~
-
-If `/use-meta` is `true` (the default), then a global variable `$meta`
-is defined that contains the value of the [meta-data](#meta-data)
-(what is shown by [cmd: show]). What you make of this will greatly
-depend of the meta-data QSoas has gathered from your file (and those
-you have set manually using [cmd: set-meta]).
-
-Some results will give "invalid numbers", such as `sqrt(-1)`. By
-default, `QSoas` strips the points corresponding to the invalid
-results, but you can keep them (as invalid numbers) using
-`/keep-on-error=true` (but be aware that working with invalid numbers
-is a real pain !).
-
-It is now possible to work with several datasets using the `/buffers`
-option, and control the resulting datasets using the commands described
-[there](#several-datasets).
-
-
-If the Ruby code uses the Ruby keyword `break`, then the processing of
-the dataset ends at that moment, keeping all the data points that have
-been calculated so far.
-
-
-#### Using column and row names
-
-It is possible to use column and row names:
-
-* The syntax `$c.name` refers to the value of the column `name`.
-* `$row_name` is the name of the current value of the row name. It
-  **can** be used to modify the row names of the dataset.
-* It is possible to set the value of a named column directly. This
-  requires using the `/use-names=true` option which **replaces** all
-  the standard `x`, `y`, `y2` names by their real names. **Note:**
-  this will only work if column names are unique and
-  [correct Ruby](#ruby) names. The following command modifies the
-  column names to ensure this is the case:
-
-~~~
-QSoas> set-column-names /sanitize-names=true
-~~~
-
-#### Other modes
-
-`apply-formula` offers two other modes in addition to what is
-described above, in which all columns have to be modified using either
-`x`, `y`, or their real names.
-
-With `/mode=add-column`, the value of the expression is used to create
-a single new column. The other columns are not modified. You can
-specify the name of the new column using the `/name=` option.
-
-For instance, the following commands adds a new column name `product`
-that contains the product of the columns `a` and `b`:
-
-~~~
-QSoas> apply-formula /mode=add-column $c.a*$c.b /name=product
-~~~
-
-This is very useful to create a named column in datasets where the
-number of columns is not known (but their names are).
-
-With `/mode=xyz`, the whole data is considered as a single
-$$y = f(x,z)$$ table. `x` is the usual value, and `z` corresponds to
-the [perpendicular coordinates](#meta-data). This mode modifies *all
-but the first column*. There is no need to specify `y=` in the
-formula.
-
-{::comment} description-end: apply-formula {:/}
-
-
 {::comment} synopsis-start: dx {:/}
 
 ### `dx` - DX {#cmd-dx}
@@ -2229,7 +2050,7 @@ Normalizes the current dataset by dividing by its maximum value, or, if
 If the `/map-to` option is specified, the original dataset is mapped
 linearly to the given interval: 
 
-~~~~ 
+~~~~
 norm /map-to=2:4
 ~~~~
 
@@ -2358,13 +2179,13 @@ can be used for quite advanced data selection:
 
 ~~~~
 QSoas> strip-if x>4
-~~~~ 
+~~~~
 
 This removes all points whose X value is greater than 4.
 
 ~~~~
 QSoas> strip-if x>4||x<2
-~~~~ 
+~~~~
 
 This removes all points whose X value is greater than 4 or whose X
 value is lower than 2. The `||` bit means OR. In other terms, it
@@ -2868,7 +2689,7 @@ exist in the list of dataset's meta-data.
 The actual type of the meta-data can be specified using the `/type`
 option. For now, it is mostly useful to specify lists of numbers:
 
-~~~ 
+~~~
 QSoas> set-meta injection-times 100,200,300 /type=number-list
 ~~~
 
@@ -2901,7 +2722,7 @@ effect as running [cmd: record-meta] on the original file.
 meta-data permanently for a series of **files** (and not datasets as in
 the case of [cmd: set-meta]). For instance, after running
 
-~~~ 
+~~~
 QSoas> record-meta pH 7 experiment.dat another.dat
 ~~~
 
@@ -2920,7 +2741,7 @@ being added. **Important note:** you still must provide a value, which
 **will not be used**. This way, to remove the meta data added by the
 previous command, you could use:
 
-~~~ 
+~~~
 QSoas> record-meta /remove=true pH whatever experiment.dat another.dat
 ~~~
 
@@ -3035,6 +2856,251 @@ from the newly created datasets and the values are used to set the
 meta-data _meta_. There must be as many comma-separated names in
 _meta_ as there are colunm names in _columns_. 
 {::comment} description-end: split-on-values {:/}
+
+
+# Mathematical operations
+
+{::comment} synopsis-start: apply-formula {:/}
+
+### `apply-formula` - Apply formula {#cmd-apply-formula}
+
+`apply-formula` _formula_{:title="a piece of [Ruby code](#ruby)"} (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/extra-columns=`_integer_{:title="an integer"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/keep-on-error=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/mode=`_choice_{:title="one of: `add-column`, `xyy2`, `xyz`"} `/name=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-names=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+
+Other name: `F`
+
+  * _formula_{:title="a piece of [Ruby code](#ruby)"}: formula -- values: a piece of [Ruby code](#ruby)
+  * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): Datasets to work on -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * `/extra-columns=`_integer_{:title="an integer"}: number of extra columns to create -- values: an integer
+  * `/flags=`_flags_{:title="a comma-separated list of flags"}: Flags to set on the newly created datasets -- values: a comma-separated list of flags
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
+  * `/keep-on-error=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, the points where the Ruby expression returns a  error are kept, as invalid numbers -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/mode=`_choice_{:title="one of: `add-column`, `xyy2`, `xyz`"}: operating mode used by apply-formula -- values: one of: `add-column`, `xyy2`, `xyz`
+  * `/name=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: name of the new column (only in 'add-column' mode) -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created datasets -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
+  * `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on (by default), you can use `$meta` to refer to the dataset meta-data -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/use-names=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on the columns will not be called x,y, and so on, but will take their name based on the column names -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on (by default), you can use `$stats` to refer to statistics (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+
+{::comment} synopsis-end: apply-formula {:/}
+{::comment} description-start: apply-formula {:/}
+Applies a formula to the current dataset. It should specify how the
+`x` and/or `y` values of the dataset are modified:
+
+~~~~
+QSoas> apply-formula x=x**2
+QSoas> apply-formula y=sin(x**2)
+QSoas> apply-formula x,y=y,x
+~~~~
+
+The last bit swaps the $$x$$ and $$y$$ values of the dataset. The
+formula must be valid [ruby](#ruby) code.
+
+In addition to `x` and `y` (note the lowercase !), the formula can
+refer to: 
+
+  * `i`, the index of the data point
+  * `seg`, the number of the current segment (starting from 0)
+  * `x_0`, the value of $$x$$ of the first point of the current
+    [segment](#segments)
+  * `i_0`, the index of the first point in the current
+    [segment](#segments)
+  * `y2`, `y3`, etc when there are more than 2 columns in the dataset
+  * `$c.name` refers the value of the column named `name`, see
+    [there](#row-and-column-names)
+
+It is possible to modify all of these variables, but only the
+modifications in `x`, `y`, `y2` and so on are taken in to account. In
+particular, the `$c.name` cannot be used to modify the value of the
+column `name` (but see below).
+
+Here is how you can use `i` to have even points draw a sine wave and
+odd points a cosine:
+
+~~~~
+QSoas> apply-formula y=(i%2==0?sin(x):cos(x))
+~~~~
+
+`%` is the modulo operator. The construction with `?` and `:` (called
+the [ternary operator](https://en.wikipedia.org/wiki/%3F:) means:
+if `i%2==0` is true, then the value is `sin(x)`, else `cos(x)`.
+
+You can use several instructions by separating them with `;`:
+
+~~~~
+QSoas> apply-formula x=x**2;y=x**2
+~~~~
+
+This results in `x` values that are the squares of the old values, and
+`y` values that are the square of the new `x` values.
+
+
+Extra columns initially filled with 0 can be created by using the
+`/extra-columns` option:
+
+~~~~
+QSoas> apply-formula /extra-columns=1 y2=y**2
+~~~~
+
+This creates a third column (a second `y` column) containing the
+square of the values of the Y column.
+
+If `/use-stats=true` is used, a global variable `$stats` can be used
+in the [Ruby expression](#ruby). It contains all the statistics displayed
+by [cmd: stats]. For instance, to normalize the Y values by dividing
+by the median, one would use:
+
+~~~
+QSoas> apply-formula /use-stats=true y=y/$stats.y_med
+~~~
+
+Note that you can make use of the special `/=` operator to shorten
+that into:
+
+~~~
+QSoas> apply-formula /use-stats=true y/=$stats.y_med
+~~~
+
+Statistics by segments (see more about segments [there](#segments))
+are available too, which means if you want to normalize by the medians
+of the first segment, you could do
+
+~~~
+QSoas> apply-formula /use-stats=true y/=$stats[0].y_med
+~~~
+
+If `/use-meta` is `true` (the default), then a global variable `$meta`
+is defined that contains the value of the [meta-data](#meta-data)
+(what is shown by [cmd: show]). What you make of this will greatly
+depend of the meta-data QSoas has gathered from your file (and those
+you have set manually using [cmd: set-meta]).
+
+Some results will give "invalid numbers", such as `sqrt(-1)`. By
+default, `QSoas` strips the points corresponding to the invalid
+results, but you can keep them (as invalid numbers) using
+`/keep-on-error=true` (but be aware that working with invalid numbers
+is a real pain !).
+
+It is now possible to work with several datasets using the `/buffers`
+option, and control the resulting datasets using the commands described
+[there](#several-datasets).
+
+
+If the Ruby code uses the Ruby keyword `break`, then the processing of
+the dataset ends at that moment, keeping all the data points that have
+been calculated so far.
+
+
+#### Using column and row names
+
+It is possible to use column and row names:
+
+* The syntax `$c.name` refers to the value of the column `name`.
+* `$row_name` is the name of the current value of the row name. It
+  **can** be used to modify the row names of the dataset.
+* It is possible to set the value of a named column directly. This
+  requires using the `/use-names=true` option which **replaces** all
+  the standard `x`, `y`, `y2` names by their real names. **Note:**
+  this will only work if column names are unique and
+  [correct Ruby](#ruby) names. The following command modifies the
+  column names to ensure this is the case:
+
+~~~
+QSoas> set-column-names /sanitize-names=true
+~~~
+
+#### Other modes
+
+`apply-formula` offers two other modes in addition to what is
+described above, in which all columns have to be modified using either
+`x`, `y`, or their real names.
+
+With `/mode=add-column`, the value of the expression is used to create
+a single new column. The other columns are not modified. You can
+specify the name of the new column using the `/name=` option.
+
+For instance, the following commands adds a new column name `product`
+that contains the product of the columns `a` and `b`:
+
+~~~
+QSoas> apply-formula /mode=add-column $c.a*$c.b /name=product
+~~~
+
+This is very useful to create a named column in datasets where the
+number of columns is not known (but their names are).
+
+With `/mode=xyz`, the whole data is considered as a single
+$$y = f(x,z)$$ table. `x` is the usual value, and `z` corresponds to
+the [perpendicular coordinates](#meta-data). This mode modifies *all
+but the first column*. There is no need to specify `y=` in the
+formula.
+
+{::comment} description-end: apply-formula {:/}
+
+{::comment} synopsis-start: reverse-laplace {:/}
+
+### `reverse-laplace` - Reverse Laplace {#cmd-reverse-laplace}
+
+`reverse-laplace` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/steps=`_integer_{:title="an integer"}
+
+  * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: the formula of the Laplace transform (Laplace variable is s) -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/steps=`_integer_{:title="an integer"}: number integration steps -- values: an integer
+
+{::comment} synopsis-end: reverse-laplace {:/}
+{::comment} description-start: reverse-laplace {:/}
+Computes the reverse Laplace transform of the given formula. The
+Laplace variable is `s`. The current dataset is only used as a
+template for the target X ($$t$$ in fact) values.
+
+The reverse Laplace transform is computed by means of the Bromwhich
+integral, see [Weidemann and Trefethen, **Mathematics of
+Computation**, *2007*](https://doi.org/10.1090/S0025-5718-07-01945-X).
+
+For instance:
+
+~~~
+QSoas> generate-dataset 0 10
+QSoas> reverse-laplace 1/(1+s)
+~~~
+
+This gives a decreasing exponential.
+
+{::comment} description-start: reverse-laplace {:/}
+
+{::comment} synopsis-start: solve {:/}
+
+### `solve` - Solves an equation {#cmd-solve}
+
+`solve` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/iterations=`_integer_{:title="an integer"} `/max=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/min=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"}
+
+  * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: An expression of the y variable -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/iterations=`_integer_{:title="an integer"}: Maximum number of iterations before giving up -- values: an integer
+  * `/max=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: An expression giving the upper boundary for dichotomy approaches -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/min=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: An expression giving the lower boundary for dichotomy approaches -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/prec-absolute=`_number_{:title="a floating-point number"}: absolute precision required -- values: a floating-point number
+  * `/prec-relative=`_number_{:title="a floating-point number"}: relative precision required -- values: a floating-point number
+
+{::comment} synopsis-end: solve {:/}
+{::comment} description-start: solve {:/}
+Solves an equation on $$y$$ on the current dataset. For instance, 
+
+~~~
+QSoas> solve y**2-x
+~~~
+
+solves for $$y$$ the equation $$y^2 - x = 0$$.
+
+By default, the algorithm used is an iterative process starting from
+the current value of $$y$$ (i.e. the value before the command
+starts). You can use a dichotomy approch by specifying upper and lower
+bounds using the `/min=` and `/max=` options:
+
+~~~
+QSoas> solve y**2-x /min=0 /max=x
+~~~
+
+{::comment} description-end: solve {:/}
 
 
 
@@ -3372,39 +3438,6 @@ There are two baselines implemented for now:
 {::comment} description-end: catalytic-baseline {:/}
 
 
-{::comment} synopsis-start: solve {:/}
-
-### `solve` - Solves an equation {#cmd-solve}
-
-`solve` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/iterations=`_integer_{:title="an integer"} `/max=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/min=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/prec-absolute=`_number_{:title="a floating-point number"} `/prec-relative=`_number_{:title="a floating-point number"}
-
-  * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: An expression of the y variable -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
-  * `/iterations=`_integer_{:title="an integer"}: Maximum number of iterations before giving up -- values: an integer
-  * `/max=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: An expression giving the upper boundary for dichotomy approaches -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
-  * `/min=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: An expression giving the lower boundary for dichotomy approaches -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
-  * `/prec-absolute=`_number_{:title="a floating-point number"}: absolute precision required -- values: a floating-point number
-  * `/prec-relative=`_number_{:title="a floating-point number"}: relative precision required -- values: a floating-point number
-
-{::comment} synopsis-end: solve {:/}
-{::comment} description-start: solve {:/}
-Solves an equation on $$y$$ on the current dataset. For instance, 
-
-~~~ 
-QSoas> solve y**2-x
-~~~
-
-solves for $$y$$ the equation $$y^2 - x = 0$$.
-
-By default, the algorithm used is an iterative process starting from
-the current value of $$y$$ (i.e. the value before the command
-starts). You can use a dichotomy approch by specifying upper and lower
-bounds using the `/min=` and `/max=` options:
-
-~~~ 
-QSoas> solve y**2-x /min=0 /max=x
-~~~
-
-{::comment} description-end: solve {:/}
 
 
 {::comment} synopsis-start: auto-correlation {:/}
@@ -3974,6 +4007,7 @@ With `/status=yes`, this command just shows the current status of the
 hidden dataset.
 {::comment} description-end: pop {:/}
 
+## Peak detection commands
 
 
 {::comment} synopsis-start: find-peaks {:/}
@@ -4096,6 +4130,7 @@ QSoas> find-peaks /peaks=2 /output=true
 ~~~~
 {::comment} description-end: 2 {:/}
 
+## Statistics
 
 {::comment} synopsis-start: stats {:/}
 
@@ -7337,7 +7372,7 @@ the parameters spreadsheet.
 {::comment} description-start: fit-fix {:/}
 Fix the parameters, given by their names:
 
-~~~ 
+~~~
 QSoas.fit> fix a
 QSoas.fit> fix b[#3]
 ~~~
@@ -8069,7 +8104,7 @@ Selected parameter space explorer: 'monte-carlo'
 Setting up monte-carlo explorator with: 20 iterations and 50 fit iterations
   * A_inf[#0]: -10 to 10 lin
 QSoas.fit> iterate-explorer
-~~~ 
+~~~
 
 The first command sets up the explorer, here the
 [fit-cmd: monte-carlo-explorer], and the second iterates the explorer,
@@ -9273,7 +9308,7 @@ For instance, to subtract the average to the y column:
 
 ~~~
 QSoas> apply-formula y-=$stats.y_average
-~~~ 
+~~~
 
 To show the name of the original file of the current dataset.
 

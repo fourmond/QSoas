@@ -1,7 +1,8 @@
 @ simple.cmds
 @ scaling.cmds rkf45
 @ scaling.cmds rk4imp
-@ scaling.cmds bsimp
+# Not satisfactory unfortunately
+# @ scaling.cmds bsimp
 
 
 @ fast-equilibrium.cmds

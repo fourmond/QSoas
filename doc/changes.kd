@@ -145,6 +145,8 @@ See the full list of changes [below](#v2p0)
  * the [cmd: run-for-values] can now work on more than one dataset
  * the commands [cmd: cat] and [cmd: hide-buffer] now accept the
    `/for-which` option
+ * `changelog` is now an alias for `? /location=doc/changes.html`,
+   which shows this page
 
 ## Other improvements
 

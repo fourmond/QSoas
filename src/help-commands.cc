@@ -101,6 +101,8 @@ static void helpCommand(const QString & name,
   }
 
   QString location;
+  if(name == "changelog")
+    location = "doc/changes.html";
   updateFromOptions(opts, "location", location);
   if(! location.isEmpty()) {
     HelpBrowser::browseLocation(location);
@@ -152,7 +154,7 @@ hlpc("help", // command name
      &helpO, // options
      "Help on...",
      "Give help on command",
-     QStringList() << "?" << "??");
+     QStringList() << "?" << "??" << "changelog");
 
 static Command 
 hlp2("help", // command name

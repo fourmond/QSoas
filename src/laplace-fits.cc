@@ -208,12 +208,12 @@ static ReverseLaplaceFit rf;
 
 static ArgumentList 
 dRLArgs(QList<Argument *>() 
-         << new StringArgument("formula", 
-                               "Formula",
-                               "The formula in Laplace space (variable: s)")
          << new StringArgument("name", 
                                "Name",
                                "Name of the newly created fit")
+         << new StringArgument("formula", 
+                               "Formula",
+                               "The formula in Laplace space (variable: s)")
          );
 
 
@@ -224,8 +224,8 @@ dRLOpts(QList<Argument *>()
                              "If the fit already exists, redefines it")
          );
 
-static void defineRLFitCommand(const QString &, QString formula, 
-                               QString name, const CommandOptions & opts)
+static void defineRLFitCommand(const QString &, QString name, 
+                               QString formula, const CommandOptions & opts)
 {
   bool overwrite = false;
   updateFromOptions(opts, "redefine", overwrite);
@@ -236,7 +236,7 @@ static void defineRLFitCommand(const QString &, QString formula,
 
 
 static Command 
-dlwf("define-reverse-laplace-fit", // command name
+dlwf("define-laplace-fit", // command name
      effector(defineRLFitCommand), // action
      "fits",                       // group name
      &dRLArgs,                     // arguments

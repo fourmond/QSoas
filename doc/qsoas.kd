@@ -3066,7 +3066,7 @@ QSoas> reverse-laplace 1/(1+s)
 
 This gives a decreasing exponential.
 
-{::comment} description-start: reverse-laplace {:/}
+{::comment} description-end: reverse-laplace {:/}
 
 {::comment} synopsis-start: solve {:/}
 
@@ -5403,9 +5403,9 @@ Multidataset variant of [cmd: fit-implicit].
   * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: biexp, exp, ramps, rexp, steps"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: biexp, exp, ramps, rexp, steps
 
 {::comment} synopsis-end: sim-implicit {:/}
-{::comment} description-start: mfit-implicit {:/}
+{::comment} description-start: sim-implicit {:/}
 [Simulation command](#sim-commands) for the  [cmd: fit-implicit] fit.
-{::comment} description-end: mfit-implicit {:/}
+{::comment} description-end: sim-implicit {:/}
 
 {::comment} synopsis-start: define-implicit-fit {:/}
 
@@ -5421,6 +5421,112 @@ Multidataset variant of [cmd: fit-implicit].
 {::comment} description-start: define-implicit-fit {:/}
 This is the equivalent of [cmd: custom-fit] but for [fit: implicit] fits.
 {::comment} description-end: define-implicit-fit {:/}
+
+
+## Reverse Laplace fits
+
+{::comment} synopsis-start: fit-laplace {:/}
+
+### `fit-laplace` - Fit: Reverse Laplace transform {#cmd-fit-laplace}
+
+`fit-laplace` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_parameters-meta-data (see [there](#fits))_{:title="comma-separated list of *parameter*`=`*meta* speficiations"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
+
+  * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: formula of the Laplace transform (the variable is s) -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/arg1=`_file_{:title="name of a file"}: first argument of the script file -- values: name of a file
+  * `/arg2=`_file_{:title="name of a file"}: second argument of the script file -- values: name of a file
+  * `/arg3=`_file_{:title="name of a file"}: third argument of the script file -- values: name of a file
+  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
+  * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
+  * `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: runs the fit in expert mode -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/script=`_file_{:title="name of a file"}: runs a script file -- values: name of a file
+  * `/set-from-meta=`_parameters-meta-data (see [there](#fits))_{:title="comma-separated list of *parameter*`=`*meta* speficiations"}: sets parameter values from meta-data -- values: comma-separated list of *parameter*`=`*meta* speficiations
+  * `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines the title of the fit window -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+
+{::comment} synopsis-end: fit-laplace {:/}
+{::comment} description-start: fit-laplace {:/}
+Fits the reverse Laplace transform of _formula_, which must be a
+function of the Laplace variable `s`. It does the equivalent of the
+[cmd: reverse-laplace] command, but for fits.
+{::comment} description-end: fit-laplace {:/}
+
+{::comment} synopsis-start: mfit-laplace {:/}
+
+### `mfit-laplace` - Multi fit: Reverse Laplace transform {#cmd-mfit-laplace}
+
+`mfit-laplace` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_parameters-meta-data (see [there](#fits))_{:title="comma-separated list of *parameter*`=`*meta* speficiations"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
+
+  * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: formula of the Laplace transform (the variable is s) -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: datasets that will be fitted to -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * `/arg1=`_file_{:title="name of a file"}: first argument of the script file -- values: name of a file
+  * `/arg2=`_file_{:title="name of a file"}: second argument of the script file -- values: name of a file
+  * `/arg3=`_file_{:title="name of a file"}: third argument of the script file -- values: name of a file
+  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
+  * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
+  * `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: runs the fit in expert mode -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: if specified, it is the name of a meta-data that holds the perpendicular coordinates -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/script=`_file_{:title="name of a file"}: runs a script file -- values: name of a file
+  * `/set-from-meta=`_parameters-meta-data (see [there](#fits))_{:title="comma-separated list of *parameter*`=`*meta* speficiations"}: sets parameter values from meta-data -- values: comma-separated list of *parameter*`=`*meta* speficiations
+  * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight datasets (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines the title of the fit window -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+
+{::comment} synopsis-end: mfit-laplace {:/}
+{::comment} description-start: mfit-laplace {:/}
+Multidataset variant of [cmd: fit-laplace].
+{::comment} description-end: mfit-laplace {:/}
+
+
+{::comment} synopsis-start: sim-laplace {:/}
+
+### `sim-laplace` - Simulation: Reverse Laplace transform {#cmd-sim-laplace}
+
+`sim-laplace` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+
+  * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: formula of the Laplace transform (the variable is s) -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
+  * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: the datasets whose X values will be used for simulations -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
+  * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/flags=`_flags_{:title="a comma-separated list of flags"}: Flags to set on the newly created datasets -- values: a comma-separated list of flags
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
+  * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`
+  * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
+  * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created datasets -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
+
+{::comment} synopsis-end: sim-laplace {:/}
+{::comment} description-start: sim-laplace {:/}
+[Simulation command](#sim-commands) for the  [cmd: fit-laplace] fit.
+{::comment} description-end: sim-laplace {:/}
+
+{::comment} synopsis-start: define-laplace-fit {:/}
+
+### `define-laplace-fit` - Define a reverse Laplace fit based on a formula {#cmd-define-laplace-fit}
+
+`define-laplace-fit` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+
+  * _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Name of the newly created fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: The formula in Laplace space (variable: s) -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If the fit already exists, redefines it -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+
+{::comment} synopsis-end: define-laplace-fit {:/}
+
+{::comment} description-start: define-laplace-fit {:/}
+This command is the equivalent of [cmd: custom-fit] for reverse
+Laplace transform fits ([fit: laplace]).
+
+For instance:
+
+~~~
+QSoas> define-laplace-fit exp a/(b+s)
+~~~
+{::comment} description-end: define-laplace-fit {:/}
+
 
 
 ## Peak fits
@@ -7040,9 +7146,9 @@ Multidataset version of the [fit: eeci-wave] fit.
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
 
 {::comment} synopsis-end: sim-eeci-wave {:/}
-{::comment} description-start: mfit-eeci-wave {:/}
+{::comment} description-start: sim-eeci-wave {:/}
 [Simulation command](#sim-commands) for the [fit: eeci-wave] fit.
-{::comment} description-end: mfit-eeci-wave {:/}
+{::comment} description-end: sim-eeci-wave {:/}
 
 
 {::comment} synopsis-start: fit-eecr-wave {:/}

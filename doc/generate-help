@@ -259,6 +259,7 @@ def parse_file(info)
   # used in an example.
   info['used-commands'] = {}
   info['used-fit-commands'] = {}
+  info['described'] = {}
     
   sec_h = []
   cur_code = false
@@ -278,6 +279,12 @@ def parse_file(info)
       cur_code = ! cur_code
     end
     if ! cur_code
+
+      if l =~ /^{::comment}\s*((synopsis|description)-(start|end)):\s*(\S+)/
+        info['described'][$4] ||= {}
+        info['described'][$4][$1] ||= 0
+        info['described'][$4][$1] += 1
+      end        
 
       if l =~ /^{::comment}\s*description-end/
         if cur_cmd
@@ -416,6 +423,20 @@ def parse_file(info)
     if info['commands'].size > 0
       $target = info['file']
     end
+  end
+
+  # Try to make a summary of all the commands described:
+  for cmd in info['described'].keys.sort
+    dsc = info['described'][cmd]
+    if dsc.size != 4
+      puts "Command: #{cmd} has only #{dsc.keys.join(", ")}"
+    end
+    nb = 0
+    dsc.values.each {|n| nb += n}
+    if nb != 4
+      puts "Command: #{cmd} has #{nb} sections..."
+    end
+      
   end
 
 end

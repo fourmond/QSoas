@@ -70,6 +70,9 @@ public:
   /// standard output.
   static void dumpHelp();
 
+  /// Returns the list of available URLs by loaded collection files
+  static QHash<QString, QStringList> availableURLs();
+
 public slots:
   /// Shows the given location, i.e. a relative file path, with
   /// optionally a #position

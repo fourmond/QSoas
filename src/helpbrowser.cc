@@ -93,7 +93,7 @@ public:
 
     // Commands in the selection
     QStringList selCmds;
-    int idx = 0;
+    // int idx = 0;
     // QTextStream o(stdout);
     // o << "Sel: " << sel.size() << " ->  '" << sel << "'" << endl;
     // for(QChar c : sel)
@@ -331,6 +331,19 @@ void HelpBrowser::dumpHelp()
       Terminal::out << " |- " << f.toString() << endl;
   }
   Terminal::out << "Last error was: " << engine->error() << endl;
+}
+
+QHash<QString, QStringList> HelpBrowser::availableURLs()
+{
+  QHelpEngine * engine = getEngine();
+  QHash<QString, QStringList> rv;
+  for(const QString & s : engine->registeredDocumentations()) {
+    rv[s] = QStringList();
+    QStringList & fl = rv[s];
+    for(const QUrl & f : engine->files(s, QStringList()))
+      fl << f.toString();
+  }
+  return rv;
 }
 
 HelpBrowser::HelpBrowser() :

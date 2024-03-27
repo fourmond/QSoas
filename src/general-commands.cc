@@ -1323,6 +1323,9 @@ void versionCommand(const QString &, const CommandOptions & opts)
       o << "\n    - " << p;
     o << "\n * documentation file: " << HelpBrowser::collectionFile()
       << endl;
+    QHash<QString, QStringList> docURLs = HelpBrowser::availableURLs();
+    for(const QString &s : docURLs.keys())
+      o << "    - " << s << ": " << docURLs[s].size() << " URLs\n";
 #ifdef HAS_LIBZIP
     o << "Built with libzip, runtime version: " << ZipFile::libzipVersion()
       << "\n";

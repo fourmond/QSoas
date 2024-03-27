@@ -38,8 +38,8 @@
 static QHash<QString, CombinedFit::DuplicatesMode> duplicatesNames =
   { {"suffix", CombinedFit::Suffix},
     {"suffix-if-needed", CombinedFit::SuffixIfNeeded},
-    {"fail", CombinedFit::Fail},
-    {"merge", CombinedFit::Merge}
+    {"fail", CombinedFit::Fail}/*,
+                                 {"merge", CombinedFit::Merge}*/
   };
 
 

@@ -657,7 +657,7 @@ argList(QList<Argument *>()
                             "Sixth argument to the script"));
 
 static void runForDatasetsCommand(const QString &, QString script,
-                                  QList<const DataSet*> datasets, 
+                                  QList<const DataSet*> origDatasets, 
                                   const CommandOptions & opts)
 {
   // First, copy
@@ -680,10 +680,21 @@ static void runForDatasetsCommand(const QString &, QString script,
       a << opts[on]->value<QString>();
     else
       break;
-  }  
+  }
+
+  ConstGuardedList<DataSet> datasets(origDatasets);
+  QStringList originalNames;
+  for(const DataSet * ds: origDatasets)
+    originalNames << ds->name;
 
   while(datasets.size() > 0) {
     const DataSet * ds = datasets.takeLast();
+    if(! ds) {
+      Terminal::out << Terminal::bold << "Warning: " << flush
+                    << "dataset " << originalNames[datasets.size()]
+                    << " disappeared before being used" << endl;
+      continue;
+    }
     Terminal::out << "Running '" << script << "' using dataset: '"
                   << ds->name
                   << QString("', %1 cols, %2 rows, %3 segments").
@@ -885,7 +896,18 @@ static void runForValuesCommand(const QString &,
   WDisableUpdates eff(& soas().view(), silent);
 
   DataSetList buffers(opts);
-  for(const DataSet * ds : buffers) {
+  ConstGuardedList<DataSet> datasets(buffers);
+  QStringList originalNames;
+  for(const DataSet * ds: buffers)
+    originalNames << ds->name;
+
+  for(const DataSet * ds : datasets) {
+    if(! ds) {
+      Terminal::out << Terminal::bold << "Warning: " << flush
+                    << "dataset " << originalNames[datasets.size()]
+                    << " disappeared before being used" << endl;
+      continue;
+    }
 
     QList<Vector> cols;
     if(hasColumns)

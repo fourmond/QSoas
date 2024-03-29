@@ -285,6 +285,21 @@ void FitDialog::setupFrame(bool expert)
   progressReport->setTextFormat(Qt::RichText);
   hb->addWidget(progressReport, 3);
 
+  // Fit engine selection
+  hb->addWidget(new QLabel("Engine:"));
+  
+  fitEngineSelection = new QComboBox;
+  {
+    QStringList fengines = FitEngine::availableEngines();
+    for(int i = 0; i < fengines.size(); i++) {
+      FitEngineFactoryItem * it = FitEngine::namedFactoryItem(fengines[i]);
+      fitEngineSelection->addItem(it->description, it->name);
+    }
+    connect(fitEngineSelection, SIGNAL(activated(int)), 
+            SLOT(engineSelected(int)));
+  }
+  hb->addWidget(fitEngineSelection);
+
 
   layout->addLayout(hb);
 
@@ -406,25 +421,10 @@ void FitDialog::setupFrame(bool expert)
 
   hb = new QHBoxLayout;
   residualsDisplay = new QLabel(" ");
+  residualsDisplay->setWordWrap(true);
   hb->addWidget(residualsDisplay, 1);
 
-  // Fit engine selection
-  hb->addWidget(new QLabel("Fit engine:"));
-
-  fitEngineSelection = new QComboBox;
-  {
-    QStringList fengines = FitEngine::availableEngines();
-    for(int i = 0; i < fengines.size(); i++) {
-      FitEngineFactoryItem * it = FitEngine::namedFactoryItem(fengines[i]);
-      fitEngineSelection->addItem(it->description, it->name);
-    }
-    connect(fitEngineSelection, SIGNAL(activated(int)), 
-            SLOT(engineSelected(int)));
-  }
-  hb->addWidget(fitEngineSelection);
-
-
-  
+ 
 
   {
     auto addMenu = [this](QMenu * menu) {

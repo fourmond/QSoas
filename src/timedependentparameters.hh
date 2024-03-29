@@ -42,10 +42,18 @@ class TimeDependentParameters : public QHash<int, TimeDependentParameter*> {
   /// Set at initialization, to make sure computeValues() is never
   /// called upon an initialized TDPs
   bool initialized;
+
+  /// Storage of the specs for copying
+  QStringList underlyingSpecs;
+
+  /// Storage of the indices
+  QHash<QString, int> underlyingIndices;
 public:
 
   TimeDependentParameters();
   ~TimeDependentParameters();
+
+  TimeDependentParameters(const TimeDependentParameters & o);
   
   /// Clears
   void clear();

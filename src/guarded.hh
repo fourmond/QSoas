@@ -131,4 +131,13 @@ public:
 };
 
 
+template <class T> class ConstGuardedList : public QList<ConstGuardedPointer<T> >  {
+public:
+  ConstGuardedList(const QList<const T*> &lst) {
+    for(const T * elem : lst)
+      (*this) << elem;
+  };
+};
+
+
 #endif

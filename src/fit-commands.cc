@@ -1744,7 +1744,7 @@ static ArgumentList
 pftArgs(QList<Argument *>() 
         << new TrajectoriesArgument("trajectories", 
                                     "Trajectories",
-                                    "trajectories to run", true)
+                                    "trajectories to pick from", true)
 
         );
 

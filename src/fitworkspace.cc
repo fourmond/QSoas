@@ -223,7 +223,7 @@ QString FitWorkspace::fitName(bool includeOptions) const
 
 QString FitWorkspace::formatResiduals(double res)
 {
-  return QString::number(res, 'e', 7);
+  return QString::number(res, 'e', 6);
 }
 
 void FitWorkspace::computePerpendicularCoordinates(const QString & perpendicularMeta)

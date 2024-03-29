@@ -551,7 +551,7 @@ file and aliases.
 
 `help` (`/command=`)_command_{:title="the name of one of QSoas's commands"} `/dump=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/location=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/synopsis=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
-Other name: `?`
+Other names: `?`, `??`, `changelog`
 
   * (`/command=`)_command_{:title="the name of one of QSoas's commands"} [(default option)](#default-option): The command on which to give help -- values: the name of one of QSoas's commands
   * `/dump=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Shows information about the contents of the help files -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -569,6 +569,8 @@ the command together with its arguments and options. By construction,
 this small text is **always up-to-date**.
 
 If you don't know what the `/location` option does, you don't need it.
+
+`??` is equivalent to `help /synopsis=true`.
 {::comment} description-end: help {:/}
 
 {::comment} synopsis-start: tips {:/}
@@ -929,7 +931,7 @@ The main command for loading data is [cmd: load].
 
 ### `load` - Load {#cmd-load}
 
-`load` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
+`load` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column-or-none_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
 
 Other name: `l`
 
@@ -950,7 +952,7 @@ Other name: `l`
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/text-columns=`_integers_{:title="a comma-separated list of integers"}: text columns  -- values: a comma-separated list of integers
-  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
+  * `/yerrors=`_column-or-none_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
 
 {::comment} synopsis-end: load {:/}
 {::comment} description-start: load {:/}
@@ -1047,7 +1049,7 @@ for scripts, to abort the script when a file is missing, see
 
 ### `load-as-text` - Load files with backend 'text' {#cmd-load-as-text}
 
-`load-as-text` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
+`load-as-text` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column-or-none_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -1065,7 +1067,7 @@ for scripts, to abort the script when a file is missing, see
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/text-columns=`_integers_{:title="a comma-separated list of integers"}: text columns  -- values: a comma-separated list of integers
-  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
+  * `/yerrors=`_column-or-none_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
 
 {::comment} synopsis-end: load-as-text {:/}
 {::comment} description-start: load-as-text {:/}
@@ -1110,7 +1112,7 @@ interpreted:
 
 ### `load-as-csv` - Load files with backend 'csv' {#cmd-load-as-csv}
 
-`load-as-csv` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
+`load-as-csv` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column-or-none_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -1128,7 +1130,7 @@ interpreted:
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/text-columns=`_integers_{:title="a comma-separated list of integers"}: text columns  -- values: a comma-separated list of integers
-  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
+  * `/yerrors=`_column-or-none_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
 
 {::comment} synopsis-end: load-as-csv {:/}
 {::comment} description-start: load-as-csv {:/}
@@ -1141,7 +1143,7 @@ Hence, the options have the same meaning as for [cmd: load-as-text].
 
 ### `load-as-chi-txt` - Load files with backend 'chi-txt' {#cmd-load-as-chi-txt}
 
-`load-as-chi-txt` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
+`load-as-chi-txt` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column-or-none_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -1159,7 +1161,7 @@ Hence, the options have the same meaning as for [cmd: load-as-text].
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/text-columns=`_integers_{:title="a comma-separated list of integers"}: text columns  -- values: a comma-separated list of integers
-  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
+  * `/yerrors=`_column-or-none_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
 
 {::comment} synopsis-end: load-as-chi-txt {:/}
 {::comment} description-start: load-as-chi-txt {:/}
@@ -1172,7 +1174,7 @@ able to detect at least some of their meta-data).
 
 ### `load-as-eclab-ascii` - Load files with backend 'eclab-ascii' {#cmd-load-as-eclab-ascii}
 
-`load-as-eclab-ascii` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
+`load-as-eclab-ascii` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column-or-none_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -1190,7 +1192,7 @@ able to detect at least some of their meta-data).
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/text-columns=`_integers_{:title="a comma-separated list of integers"}: text columns  -- values: a comma-separated list of integers
-  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
+  * `/yerrors=`_column-or-none_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
 
 {::comment} synopsis-end: load-as-eclab-ascii {:/}
 {::comment} description-start: load-as-eclab-ascii {:/}
@@ -1202,7 +1204,7 @@ handles better ASCII files exported from Biologic potentiostats.
 
 ### `load-as-parameters` - Load files with backend 'parameters' {#cmd-load-as-parameters}
 
-`load-as-parameters` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/expected=`_integer_{:title="an integer"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
+`load-as-parameters` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/expected=`_integer_{:title="an integer"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/yerrors=`_column-or-none_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
 
   * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/expected=`_integer_{:title="an integer"}: Expected number of loaded datasets -- values: an integer
@@ -1213,7 +1215,7 @@ handles better ASCII files exported from Biologic potentiostats.
   * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created datasets -- values: one or more meta=value assignements
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
-  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
+  * `/yerrors=`_column-or-none_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
 
 {::comment} synopsis-end: load-as-parameters {:/}
 {::comment} description-start: load-as-parameters {:/}
@@ -1435,7 +1437,7 @@ QSoas> save-datasets /format=non-existing-directory/buffer-%03d.dat 0..100 /mkpa
 
 ### `browse` - Browse files {#cmd-browse}
 
-`browse` (`/pattern=`)_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/skip=`_integer_{:title="an integer"} `/text-columns=`_integers_{:title="a comma-separated list of integers"}
+`browse` (`/pattern=`)_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/nup=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/skip=`_integer_{:title="an integer"} `/text-columns=`_integers_{:title="a comma-separated list of integers"}
 
 Other name: `W`
 
@@ -1445,6 +1447,7 @@ Other name: `W`
   * `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: pattern for comment lines -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
   * `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: decimal separator -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Select on formula -- values: a piece of [Ruby code](#ruby)
+  * `/nup=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Initial n-up for the browser -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: separator between columns -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
   * `/text-columns=`_integers_{:title="a comma-separated list of integers"}: text columns  -- values: a comma-separated list of integers
@@ -1462,6 +1465,9 @@ files based on their meta-data and/or statistics. See the
 
 This command also takes all the fine-tuning option for loading files
 available to the [cmd: load] command.
+
+The (initial) layout of the datasets can be changed via the `/nup`
+option, like in `/nup=2x2`.
 
 {::comment} description-end: browse {:/}
 
@@ -1491,11 +1497,12 @@ See [cmd: load] for the description of the `/style` option.
 
 ### `hide-buffer` - Hide buffers {#cmd-hide-buffer}
 
-`hide-buffer` _buffers..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}
+`hide-buffer` (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}
 
 Other name: `H`
 
-  * _buffers..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: buffers to hide -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): Buffers to hide -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
 
 {::comment} synopsis-end: hide-buffer {:/}
 {::comment} description-start: hide-buffer {:/}
@@ -1509,7 +1516,7 @@ of passing it non-visible datasets, QSoas won't shout at you if you do.
 
 ### `overlay` - Overlay {#cmd-overlay}
 
-`overlay` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
+`overlay` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-cache=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column-or-none_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
 
 Other name: `v`
 
@@ -1530,7 +1537,7 @@ Other name: `v`
   * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/text-columns=`_integers_{:title="a comma-separated list of integers"}: text columns  -- values: a comma-separated list of integers
-  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
+  * `/yerrors=`_column-or-none_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
 
 {::comment} synopsis-end: overlay {:/}
 {::comment} description-start: overlay {:/}
@@ -1665,12 +1672,13 @@ ways:
 
 ### `browse-stack` - Browse stack {#cmd-browse-stack}
 
-`browse-stack` (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} **(interactive)**
+`browse-stack` (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/nup=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
 Other name: `K`
 
   * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): Datasets to show -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
   * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
+  * `/nup=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Initial n-up for the browser -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
 
 {::comment} synopsis-end: browse-stack {:/}
 {::comment} description-start: browse-stack {:/}
@@ -1684,6 +1692,9 @@ It is possible to fine-tune the datasets to browse using:
 
 If the option `/meta=` is specified, the command also lists the values
 of the given, comma-separated, [meta data](#meta-data).
+
+The (initial) layout of the datasets can be changed via the `/nup`
+option, like in `/nup=2x2`.
 
 {::comment} description-end: browse-stack {:/}
 
@@ -2286,10 +2297,10 @@ The same warnings apply as for [cmd: diff].
 
 ### `dataset-options` - Options {#cmd-dataset-options}
 
-`dataset-options` `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
+`dataset-options` `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/yerrors=`_column-or-none_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
 
   * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * `/yerrors=`_column_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
+  * `/yerrors=`_column-or-none_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
 
 {::comment} synopsis-end: dataset-options {:/}
 {::comment} description-start: dataset-options {:/}
@@ -2524,13 +2535,14 @@ position of the segments to reconstruct the original data.
 
 ### `cat` - Concatenate {#cmd-cat}
 
-`cat` _buffers..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/add-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/contract-meta=`_meta-data_{:title="comma-separated list of meta-data to group into lists, see [there](#meta-data-expansion)"}
+`cat` _buffers..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/add-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/contract-meta=`_meta-data_{:title="comma-separated list of meta-data to group into lists, see [there](#meta-data-expansion)"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}
 
 Other name: `i`
 
   * _buffers..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: Datasets to concatenate -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
   * `/add-segments=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on (default) segments are added between the old datasets -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/contract-meta=`_meta-data_{:title="comma-separated list of meta-data to group into lists, see [there](#meta-data-expansion)"}: Contracts all the named meta data meta-data lists -- values: comma-separated list of meta-data to group into lists, see [there](#meta-data-expansion)
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
 
 {::comment} synopsis-end: cat {:/}
 {::comment} description-start: cat {:/}
@@ -3066,7 +3078,7 @@ QSoas> reverse-laplace 1/(1+s)
 
 This gives a decreasing exponential.
 
-{::comment} description-start: reverse-laplace {:/}
+{::comment} description-end: reverse-laplace {:/}
 
 {::comment} synopsis-start: solve {:/}
 
@@ -3152,16 +3164,26 @@ value and 0 derivative on both sides. This greatly reduces artifacts
 at the extremities of the dataset. This baseline is computed using a
 small heuristic. You can display it using the `b` key.
 
-If you want to do that non-interactively, look at [cmd: auto-filter-fft].
+In the power spectrum display, it is possible to toggle between the
+log/lin display of frequencies using `l`, and pressing the numbers
+make it possible to interpret the frequencies as aliased frequencies.
+
+Using `B` switches to a bandcut filter, select the frequency by
+clicking on the corresponding position in the power spectrum.
+
+Using `c` makes it possible to chose manually the cutoff (always
+expressed in number of points).
+
+If you want to filter non-interactively, look at [cmd: auto-filter-fft].
 {::comment} description-end: filter-fft {:/}
 
 {::comment} synopsis-start: filter-bsplines {:/}
 
 ### `filter-bsplines` - B-Splines filter {#cmd-filter-bsplines}
 
-`filter-bsplines` `/weight-column=`_column_{:title="the [number/name of a column](#column-names) in a dataset"} **(interactive)**
+`filter-bsplines` `/weight-column=`_column_{:title="the [number/name of a column](#column-names) in a dataset (including the index column i)"} **(interactive)**
 
-  * `/weight-column=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}: Use the weights in the given column -- values: the [number/name of a column](#column-names) in a dataset
+  * `/weight-column=`_column_{:title="the [number/name of a column](#column-names) in a dataset (including the index column i)"}: Use the weights in the given column -- values: the [number/name of a column](#column-names) in a dataset (including the index column i)
 
 {::comment} synopsis-end: filter-bsplines {:/}
 {::comment} description-start: filter-bsplines {:/}
@@ -3196,7 +3218,7 @@ If you want to do that non-interactively, look at [cmd: auto-filter-bs].
 
 ### `auto-filter-bs` - Auto B-splines {#cmd-auto-filter-bs}
 
-`auto-filter-bs` (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/derivatives=`_integer_{:title="an integer"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/number=`_integer_{:title="an integer"} `/optimize=`_integer_{:title="an integer"} `/order=`_integer_{:title="an integer"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/weight-column=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}
+`auto-filter-bs` (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/derivatives=`_integer_{:title="an integer"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/number=`_integer_{:title="an integer"} `/optimize=`_integer_{:title="an integer"} `/order=`_integer_{:title="an integer"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/weight-column=`_column_{:title="the [number/name of a column](#column-names) in a dataset (including the index column i)"}
 
 Other name: `afbs`
 
@@ -3210,7 +3232,7 @@ Other name: `afbs`
   * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created datasets -- values: one or more meta=value assignements
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
-  * `/weight-column=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}: uses the weights in the given column -- values: the [number/name of a column](#column-names) in a dataset
+  * `/weight-column=`_column_{:title="the [number/name of a column](#column-names) in a dataset (including the index column i)"}: uses the weights in the given column -- values: the [number/name of a column](#column-names) in a dataset (including the index column i)
 
 {::comment} synopsis-end: auto-filter-bs {:/}
 {::comment} description-start: auto-filter-bs {:/}
@@ -3227,11 +3249,12 @@ This is mostly useful in scripts.
 
 ### `auto-filter-fft` - Auto FFT {#cmd-auto-filter-fft}
 
-`auto-filter-fft` (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/cutoff=`_integer_{:title="an integer"} `/derive=`_integer_{:title="an integer"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/transform=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`auto-filter-fft` (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/bandcut=`_number_{:title="a floating-point number"} `/cutoff=`_integer_{:title="an integer"} `/derive=`_integer_{:title="an integer"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/transform=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
 Other name: `afft`
 
   * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): Datasets to filter -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * `/bandcut=`_number_{:title="a floating-point number"}: if present, does a bandcut around that frequency -- values: a floating-point number
   * `/cutoff=`_integer_{:title="an integer"}: value of the cutoff -- values: an integer
   * `/derive=`_integer_{:title="an integer"}: differentiate to the given order -- values: an integer
   * `/flags=`_flags_{:title="a comma-separated list of flags"}: Flags to set on the newly created datasets -- values: a comma-separated list of flags
@@ -3507,11 +3530,12 @@ parameter.
 
 ### `linear-least-squares` - Linear least squares {#cmd-linear-least-squares}
 
-`linear-least-squares` _formula_{:title="a piece of [Ruby code](#ruby)"} (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/accumulate=`_value-names_{:title="comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"} `/mode=`_choice_{:title="one of: `compute-only`, `fits`, `residuals`"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-global=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-names=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`linear-least-squares` _formula_{:title="a piece of [Ruby code](#ruby)"} (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/accumulate=`_value-names_{:title="comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)"} `/column=`_column_{:title="the [number/name of a column](#column-names) in a dataset"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"} `/mode=`_choice_{:title="one of: `compute-only`, `fits`, `residuals`"} `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-global=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)"} `/set-meta=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-meta)"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-names=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-stats=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _formula_{:title="a piece of [Ruby code](#ruby)"}: formula -- values: a piece of [Ruby code](#ruby)
   * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): Buffers to work on -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
   * `/accumulate=`_value-names_{:title="comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)"}: accumulate the given data into a dataset -- values: comma separated list of names of values or meta-data to accumulate, see [here](#output-accumulate)
+  * `/column=`_column_{:title="the [number/name of a column](#column-names) in a dataset"}: the column to run the regression against (defaults to Y) -- values: the [number/name of a column](#column-names) in a dataset
   * `/flags=`_flags_{:title="a comma-separated list of flags"}: Flags to set on the newly created datasets -- values: a comma-separated list of flags
   * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/meta=`_meta-data_{:title="comma-separated list of names of meta-data"}: when writing to output file, also prints the listed meta-data -- values: comma-separated list of names of meta-data
@@ -3519,7 +3543,7 @@ parameter.
   * `/output=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to write data to output file (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-global=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)"}: saves the results of the command into the $values global variable -- values: comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-global)
-  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created datasets -- values: one or more meta=value assignements
+  * `/set-meta=`_value-names_{:title="comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-meta)"}: saves the results of the command as meta-data rather than/in addition to saving to the output file -- values: comma separated list of names of values (or meta-data), or `a->b` specifications, see [here](#output-set-meta)
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
   * `/use-meta=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on (by default), you can use `$meta` to refer to the dataset meta-data -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/use-names=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on the columns will not be called x,y, and so on, but will take their name based on the column names -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
@@ -3552,6 +3576,7 @@ It is possible also to generate the datasets corresponding either to
 the computed fits using `/mode=fits` or the residuals using
 `/mode=residuals`.
 
+You can fit against another column than Y by using the `/column=` option.
 
 **Important warning** QSoas does not try to check that the dependency
 of the formula on the parameters is truly linear. If that is not the
@@ -4155,11 +4180,11 @@ specified by the `/buffer` option). The following statistics are available:
 {::comment} statistics-start {:/}
 
 * `buffer`, `rows`, `columns`, `segments`: the buffer name, and the row, column and segment counts.
-* `_sum`, `_average`, `_var`, `_stddev`: the sum, the average, the variance and the standard deviation of the values of the column.
+* `_sum`, `_average`, `_var`, `_stddev`, `_0dev`: the sum, the average, the variance, the standard deviation of the values of the column, together with the square root of the average of the squares.
 * `all_average`, `all_sum`, `yall_average`, `yall_sum`: the average and sum of all columns or just of the y columns
 * `_first`, `_last`: the first and last values of the column.
 * `_min`, `_max`: the minimum and maximum values of the column.
-* `_norm`: the norm of the column, that is $$\sqrt{\sum {x_i}^2}$$.
+* `_norm`: the norm of the column, that is $$\sqrt{\sum {x_i}^2}$$ (see also 0dev).
 * `y_int`: the integral of the Y values over the X values.
 * `_med`, `_q10`, `_q25`, `_q75`, `_q90`: the median, and the 10th, 25th, 75th and 90th percentiles.
 * `_delta_min`, `_delta_max`: the min and max values of the difference between two successive values.
@@ -4438,11 +4463,12 @@ fits:
 
 ### `combine-fits` - Combine fits {#cmd-combine-fits}
 
-`combine-fits` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _fits..._{:title="a series of names of a fit (without the fit- prefix), separated by spaces"} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`combine-fits` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _fits..._{:title="a series of names of a fit (without the fit- prefix), separated by spaces"} `/duplicates=`_choice_{:title="one of: `fail`, `merge`, `suffix`, `suffix-if-needed`"} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: name of the new fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: how to combine the various fits -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * _fits..._{:title="a series of names of a fit (without the fit- prefix), separated by spaces"}: the fits to combine together -- values: a series of names of a fit (without the fit- prefix), separated by spaces
+  * `/duplicates=`_choice_{:title="one of: `fail`, `merge`, `suffix`, `suffix-if-needed`"}: how duplicate parameters are handled -- values: one of: `fail`, `merge`, `suffix`, `suffix-if-needed`
   * `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If the new fit already exists, redefines it -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: combine-fits {:/}
@@ -4469,7 +4495,18 @@ using [cmd: startup-files].
 
 If you try to redefine an existing fit, the command will stop, unless
 you use `/redefine=true` (not by default), in which case existing
-(custom) fits are silently redefined. You cannot redefine built-in fits.
+(custom) fits are silently redefined. You cannot redefine built-in
+fits.
+
+Using the `/duplicates` option, you can chose how the duplicate
+parameter names are handled:
+ * `suffix` (the default): all parameters are suffixed with the number
+   of the fit;
+ * `suffix-if-needed`: only suffix the names that are shared between
+   the fits, keep the other names unmodified;
+ * `fail`: does not rename any parameter, but fail if there are
+   parameters with the same name in the different fits.
+
 {::comment} description-end: combine-fits {:/}
 
 {::comment} synopsis-start: define-derived-fit {:/}
@@ -5403,9 +5440,9 @@ Multidataset variant of [cmd: fit-implicit].
   * `/with=`_time-dependent parameters_{:title="several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: biexp, exp, ramps, rexp, steps"}: Make certain parameters depend upon time -- values: several specifications of [time dependent parameters](#time-dependent-parameters) (like `co:2,exp`), seperated by ';'. Available types: biexp, exp, ramps, rexp, steps
 
 {::comment} synopsis-end: sim-implicit {:/}
-{::comment} description-start: mfit-implicit {:/}
+{::comment} description-start: sim-implicit {:/}
 [Simulation command](#sim-commands) for the  [cmd: fit-implicit] fit.
-{::comment} description-end: mfit-implicit {:/}
+{::comment} description-end: sim-implicit {:/}
 
 {::comment} synopsis-start: define-implicit-fit {:/}
 
@@ -5421,6 +5458,112 @@ Multidataset variant of [cmd: fit-implicit].
 {::comment} description-start: define-implicit-fit {:/}
 This is the equivalent of [cmd: custom-fit] but for [fit: implicit] fits.
 {::comment} description-end: define-implicit-fit {:/}
+
+
+## Reverse Laplace fits
+
+{::comment} synopsis-start: fit-laplace {:/}
+
+### `fit-laplace` - Fit: Reverse Laplace transform {#cmd-fit-laplace}
+
+`fit-laplace` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_parameters-meta-data (see [there](#fits))_{:title="comma-separated list of *parameter*`=`*meta* speficiations"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
+
+  * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: formula of the Laplace transform (the variable is s) -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/arg1=`_file_{:title="name of a file"}: first argument of the script file -- values: name of a file
+  * `/arg2=`_file_{:title="name of a file"}: second argument of the script file -- values: name of a file
+  * `/arg3=`_file_{:title="name of a file"}: third argument of the script file -- values: name of a file
+  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
+  * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
+  * `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: runs the fit in expert mode -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/script=`_file_{:title="name of a file"}: runs a script file -- values: name of a file
+  * `/set-from-meta=`_parameters-meta-data (see [there](#fits))_{:title="comma-separated list of *parameter*`=`*meta* speficiations"}: sets parameter values from meta-data -- values: comma-separated list of *parameter*`=`*meta* speficiations
+  * `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines the title of the fit window -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+
+{::comment} synopsis-end: fit-laplace {:/}
+{::comment} description-start: fit-laplace {:/}
+Fits the reverse Laplace transform of _formula_, which must be a
+function of the Laplace variable `s`. It does the equivalent of the
+[cmd: reverse-laplace] command, but for fits.
+{::comment} description-end: fit-laplace {:/}
+
+{::comment} synopsis-start: mfit-laplace {:/}
+
+### `mfit-laplace` - Multi fit: Reverse Laplace transform {#cmd-mfit-laplace}
+
+`mfit-laplace` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_parameters-meta-data (see [there](#fits))_{:title="comma-separated list of *parameter*`=`*meta* speficiations"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
+
+  * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: formula of the Laplace transform (the variable is s) -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: datasets that will be fitted to -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * `/arg1=`_file_{:title="name of a file"}: first argument of the script file -- values: name of a file
+  * `/arg2=`_file_{:title="name of a file"}: second argument of the script file -- values: name of a file
+  * `/arg3=`_file_{:title="name of a file"}: third argument of the script file -- values: name of a file
+  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
+  * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
+  * `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: runs the fit in expert mode -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: if specified, it is the name of a meta-data that holds the perpendicular coordinates -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/script=`_file_{:title="name of a file"}: runs a script file -- values: name of a file
+  * `/set-from-meta=`_parameters-meta-data (see [there](#fits))_{:title="comma-separated list of *parameter*`=`*meta* speficiations"}: sets parameter values from meta-data -- values: comma-separated list of *parameter*`=`*meta* speficiations
+  * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight datasets (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines the title of the fit window -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+
+{::comment} synopsis-end: mfit-laplace {:/}
+{::comment} description-start: mfit-laplace {:/}
+Multidataset variant of [cmd: fit-laplace].
+{::comment} description-end: mfit-laplace {:/}
+
+
+{::comment} synopsis-start: sim-laplace {:/}
+
+### `sim-laplace` - Simulation: Reverse Laplace transform {#cmd-sim-laplace}
+
+`sim-laplace` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+
+  * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: formula of the Laplace transform (the variable is s) -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
+  * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: the datasets whose X values will be used for simulations -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
+  * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/flags=`_flags_{:title="a comma-separated list of flags"}: Flags to set on the newly created datasets -- values: a comma-separated list of flags
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
+  * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`
+  * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
+  * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created datasets -- values: one or more meta=value assignements
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
+
+{::comment} synopsis-end: sim-laplace {:/}
+{::comment} description-start: sim-laplace {:/}
+[Simulation command](#sim-commands) for the  [cmd: fit-laplace] fit.
+{::comment} description-end: sim-laplace {:/}
+
+{::comment} synopsis-start: define-laplace-fit {:/}
+
+### `define-laplace-fit` - Define a reverse Laplace fit based on a formula {#cmd-define-laplace-fit}
+
+`define-laplace-fit` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+
+  * _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: Name of the newly created fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: The formula in Laplace space (variable: s) -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If the fit already exists, redefines it -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+
+{::comment} synopsis-end: define-laplace-fit {:/}
+
+{::comment} description-start: define-laplace-fit {:/}
+This command is the equivalent of [cmd: custom-fit] for reverse
+Laplace transform fits ([fit: laplace]).
+
+For instance:
+
+~~~
+QSoas> define-laplace-fit exp a/(b+s)
+~~~
+{::comment} description-end: define-laplace-fit {:/}
+
 
 
 ## Peak fits
@@ -7040,9 +7183,9 @@ Multidataset version of the [fit: eeci-wave] fit.
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
 
 {::comment} synopsis-end: sim-eeci-wave {:/}
-{::comment} description-start: mfit-eeci-wave {:/}
+{::comment} description-start: sim-eeci-wave {:/}
 [Simulation command](#sim-commands) for the [fit: eeci-wave] fit.
-{::comment} description-end: mfit-eeci-wave {:/}
+{::comment} description-end: sim-eeci-wave {:/}
 
 
 {::comment} synopsis-start: fit-eecr-wave {:/}
@@ -7161,7 +7304,7 @@ Simulation for the [`eecr-wave`](#cmd-fit-eecr-wave) fit.
 
 ### `fit-eecr-relay-wave` - Fit: Fit of an EECR+relay catalytic wave {#cmd-fit-eecr-relay-wave}
 
-`fit-eecr-relay-wave` `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_parameters-meta-data (see [there](#fits))_{:title="comma-separated list of *parameter*`=`*meta* speficiations"} `/use-potentials=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
+`fit-eecr-relay-wave` `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_parameters-meta-data (see [there](#fits))_{:title="comma-separated list of *parameter*`=`*meta* speficiations"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-potentials=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
   * `/arg1=`_file_{:title="name of a file"}: first argument of the script file -- values: name of a file
   * `/arg2=`_file_{:title="name of a file"}: second argument of the script file -- values: name of a file
@@ -7173,6 +7316,7 @@ Simulation for the [`eecr-wave`](#cmd-fit-eecr-wave) fit.
   * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
   * `/script=`_file_{:title="name of a file"}: runs a script file -- values: name of a file
   * `/set-from-meta=`_parameters-meta-data (see [there](#fits))_{:title="comma-separated list of *parameter*`=`*meta* speficiations"}: sets parameter values from meta-data -- values: comma-separated list of *parameter*`=`*meta* speficiations
+  * `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use explicitly the bias or compute it using the open circuit potential (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/use-potentials=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use the potentials of the active site electronic transitions rather than the equilibrium constants -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines the title of the fit window -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
 
@@ -7186,7 +7330,7 @@ Fits the so-called EEC with relay model in [Fourmond _et al_,
 
 ### `mfit-eecr-relay-wave` - Multi fit: Fit of an EECR+relay catalytic wave {#cmd-mfit-eecr-relay-wave}
 
-`mfit-eecr-relay-wave` _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_parameters-meta-data (see [there](#fits))_{:title="comma-separated list of *parameter*`=`*meta* speficiations"} `/use-potentials=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
+`mfit-eecr-relay-wave` _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_parameters-meta-data (see [there](#fits))_{:title="comma-separated list of *parameter*`=`*meta* speficiations"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-potentials=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
 
   * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: datasets that will be fitted to -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
   * `/arg1=`_file_{:title="name of a file"}: first argument of the script file -- values: name of a file
@@ -7200,6 +7344,7 @@ Fits the so-called EEC with relay model in [Fourmond _et al_,
   * `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: if specified, it is the name of a meta-data that holds the perpendicular coordinates -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * `/script=`_file_{:title="name of a file"}: runs a script file -- values: name of a file
   * `/set-from-meta=`_parameters-meta-data (see [there](#fits))_{:title="comma-separated list of *parameter*`=`*meta* speficiations"}: sets parameter values from meta-data -- values: comma-separated list of *parameter*`=`*meta* speficiations
+  * `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use explicitly the bias or compute it using the open circuit potential (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/use-potentials=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use the potentials of the active site electronic transitions rather than the equilibrium constants -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight datasets (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines the title of the fit window -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
@@ -7212,7 +7357,7 @@ Multi-dataset version of the [`eecr-relay-wave`](#cmd-fit-eecr-relay-wave) fit.
 
 ### `sim-eecr-relay-wave` - Simulation: Fit of an EECR+relay catalytic wave {#cmd-sim-eecr-relay-wave}
 
-`sim-eecr-relay-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-potentials=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`sim-eecr-relay-wave` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/use-potentials=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
   * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: the datasets whose X values will be used for simulations -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
@@ -7226,6 +7371,7 @@ Multi-dataset version of the [`eecr-relay-wave`](#cmd-fit-eecr-relay-wave) fit.
   * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created datasets -- values: one or more meta=value assignements
   * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
+  * `/use-eoc=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to use explicitly the bias or compute it using the open circuit potential (default: false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/use-potentials=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, use the potentials of the active site electronic transitions rather than the equilibrium constants -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: sim-eecr-relay-wave {:/}
@@ -7472,9 +7618,13 @@ Makes the given parameter global.
 
 ### `save` - Save {#fit-cmd-save}
 
-`save` _file_{:title="name of a file"} `/mkpath=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/rotate=`_integer_{:title="an integer"} **(fit command)**
+`save` _file_{:title="name of a file"} `/comments=`_words_{:title="several words, separated by '
+'"} `/mkpath=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/rotate=`_integer_{:title="an integer"} **(fit command)**
 
   * _file_{:title="name of a file"}: name of the file for saving the parameters -- values: name of a file
+  * `/comments=`_words_{:title="several words, separated by '
+'"}: Comments to include in the file -- values: several words, separated by '
+'
   * `/mkpath=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true, creates all necessary directories -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/overwrite=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If true, overwrite without prompting -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/rotate=`_integer_{:title="an integer"}: if not zero, performs a file rotation before writing -- values: an integer
@@ -7488,9 +7638,12 @@ Saves the current parameters to the given file, as one would with
 
 ### `load` - Load {#fit-cmd-load}
 
-`load` _file_{:title="name of a file"} `/mode=`_choice_{:title="one of: `buffer-name`, `closest-Z`, `normal`"} `/only=`_words_{:title="several words, separated by ','"} `/rename=`_words_{:title="a comma-separated list of old->new parameter rename specifications"} **(fit command)**
+`load` _file_{:title="name of a file"} `/excepted=`_words_{:title="several words, separated by ','"} `/fixed-only=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/free-only=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/mode=`_choice_{:title="one of: `buffer-name`, `closest-Z`, `normal`"} `/only=`_words_{:title="several words, separated by ','"} `/rename=`_words_{:title="a comma-separated list of old->new parameter rename specifications"} **(fit command)**
 
   * _file_{:title="name of a file"}: name of the file to load the parameters from -- values: name of a file
+  * `/excepted=`_words_{:title="several words, separated by ','"}: loads all the parameters but the ones given here -- values: several words, separated by ','
+  * `/fixed-only=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Loads only fixed parameters -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/free-only=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Loads only free parameters -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
   * `/mode=`_choice_{:title="one of: `buffer-name`, `closest-Z`, `normal`"}:  -- values: one of: `buffer-name`, `closest-Z`, `normal`
   * `/only=`_words_{:title="several words, separated by ','"}: loads only the given parameters -- values: several words, separated by ','
   * `/rename=`_words_{:title="a comma-separated list of old->new parameter rename specifications"}: rename parameters before setting -- values: a comma-separated list of old->new parameter rename specifications
@@ -7520,7 +7673,10 @@ the `/perp-meta` option to the `mfit-` command, and the current fit
 need also to have relevant perpendicular coordinates.
 
 You can load only specifically named parameters by passing the
-comma-separated list of their names to the `/only=` option.
+comma-separated list of their names to the `/only=` option, load only
+the fixed parameters by passing `/fixed-only=true` (or conversely only
+the free ones by using `/free-only=true`), or exclude specific
+parameters from the file using the `/excepted=` option.
 
 You can also rename the parameters upon loading using the `/rename=`
 option, which takes a *old*`->`*new* specification, like for instance
@@ -7807,15 +7963,26 @@ the criteria (`date` or `residuals`) before running the script.
 
 ### `pick-from-trajectories` - Pick parameters from trajectories {#fit-cmd-pick-from-trajectories}
 
-`pick-from-trajectories` _trajectories_{:title="fit Trajectories"} `/parameters=`_choice_{:title="one of: `final`, `initial`"} **(fit command)**
+`pick-from-trajectories` _trajectories_{:title="fit Trajectories"} `/mode=`_choice_{:title="one of: `global-average`, `global-best`, `local-average`, `local-best`"} `/parameters=`_choice_{:title="one of: `final`, `initial`"} **(fit command)**
 
   * _trajectories_{:title="fit Trajectories"}: trajectories to run -- values: fit Trajectories
+  * `/mode=`_choice_{:title="one of: `global-average`, `global-best`, `local-average`, `local-best`"}: how to combine the parameters -- values: one of: `global-average`, `global-best`, `local-average`, `local-best`
   * `/parameters=`_choice_{:title="one of: `final`, `initial`"}: which parameters to use -- values: one of: `final`, `initial`
 
 {::comment} synopsis-end: fit-pick-from-trajectories {:/}
 {::comment} description-start: fit-pick-from-trajectories {:/}
-For each dataset, picks the parameters according to the trajectory
-giving the best residuals **for this dataset**.
+Combine the parameters from the given trajectories (use `all` for all
+trajectories) according to the `/mode` option:
+
+ * `/mode=global-average`: average weighted by the inverse of the
+   global residuals;
+ * `/mode=local-average`: average weighted by the inverse of the
+   residuals per dataset;
+ * `/mode=global-best`: parameters corresponding to the best global
+   residuals;
+ * `/mode=local-best` (default): parameters corresponding to the best
+   dataset 
+   residuals.
 {::comment} description-end: fit-pick-from-trajectories {:/}
 
 

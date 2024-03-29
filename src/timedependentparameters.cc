@@ -37,8 +37,12 @@ TimeDependentParameters::~TimeDependentParameters()
 
 void TimeDependentParameters::clear()
 {
-  for(iterator i = begin(); i != end(); ++i)
+  QTextStream o(stdout);
+  // o << "Clearing TDPs" << endl;
+  for(iterator i = begin(); i != end(); ++i) {
+    // o << " -> " << i.key() << " -- " << i.value() << endl;
     delete i.value();
+  }
   QHash<int, TimeDependentParameter*>::clear();
   parameters.clear();
   parameterNames.clear();
@@ -95,12 +99,22 @@ void TimeDependentParameters::initialize(const double * params)
   initialized = true;
 }
 
+TimeDependentParameters::TimeDependentParameters(const TimeDependentParameters & o)
+{
+  // Reparse from string
+  clear();
+  parseFromStrings(o.underlyingSpecs, [&o](const QString & s) -> int {
+                                        return o.underlyingIndices.value(s, -1);
+                                      });
+}
+
 void TimeDependentParameters::parseFromStrings(const QStringList & specs, const std::function<int (const QString &)> & indices)
 {
   int baseIndex = 0;
   
   for(int i = 0; i < specs.size(); i++) {
-    Terminal::out << "Parsing spec: " << specs[i] << endl;
+    // Terminal::out << "Parsing spec: " << specs[i] << endl;
+    underlyingSpecs << specs[i];
     QStringList s2 = specs[i].split(":");
     if(s2.size() != 2)
       throw RuntimeError("Time-dependent parameter '%1' "
@@ -113,6 +127,7 @@ void TimeDependentParameters::parseFromStrings(const QStringList & specs, const 
       int idx = indices(p);
       if(idx < 0)
         throw RuntimeError("Unknown parameter: %1").arg(p);
+      underlyingIndices[p] = idx;
     
       TimeDependentParameter * param = TimeDependentParameter::parseFromString(s2[1]);
       (*this)[idx] = param;

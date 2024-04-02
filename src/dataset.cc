@@ -1895,14 +1895,20 @@ mrb_value DataSet::evaluateWithMeta(const QString & expression, bool useStats,  
     metaData.setFromRuby(mr->getGlobal("$meta"));
     // We also get the column names:
     mrb_value n = mr->getGlobal("$col_names");
-    if(mr->isArray(n) && mr->arrayLength(n) == nbColumns()) {
-      for(int i = 0; i < nbColumns(); i++)
-        setColumnName(i, mr->toQString(mr->arrayRef(n, i)));
+    if(mr->isArray(n)) {
+      int ln = mr->arrayLength(n);
+      if(ln <= nbColumns()) {
+        for(int i = 0; i < ln; i++)
+          setColumnName(i, mr->toQString(mr->arrayRef(n, i)));
+      }
     }
     n = mr->getGlobal("$row_names");
-    if(mr->isArray(n) && mr->arrayLength(n) == nbRows()) {
-      for(int i = 0; i < nbRows(); i++)
-        setRowName(i, mr->toQString(mr->arrayRef(n, i)));
+    if(mr->isArray(n)) {
+      int ln = mr->arrayLength(n);
+      if(ln <= nbRows()) {
+        for(int i = 0; i < ln; i++)
+          setRowName(i, mr->toQString(mr->arrayRef(n, i)));
+      }
     }
   }
   return v;

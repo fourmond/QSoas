@@ -8676,10 +8676,7 @@ by modifying the `$row_names` and `$col_names` variables:
 QSoas> eval /modify-meta=true "$col_names[1]='my_y'"
 ~~~
 
-This sets the name of the first Y column to `my_y`. Watch out, this
-will only work for setting row names if some row names already exist
-in the given datasets.
-
+This sets the name of the first Y column to `my_y`. 
 {::comment} description-end: eval {:/}
 {::comment} synopsis-start: verify {:/}
 

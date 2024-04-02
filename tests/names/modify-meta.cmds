@@ -1,0 +1,22 @@
+# Verify that we can modify the row/column names with eval
+generate-dataset 0 10
+eval "$row_names[1]='bb'" /modify-meta=true
+assert "$row_names[1]=='bb'"
+
+
+eval "$row_names[100]='cc'" /modify-meta=true
+assert "$row_names[1]=='bb'"
+assert "$row_names[100]=='cc'"
+
+
+eval "$row_names[1]='dd'" 
+assert "$row_names[1]=='bb'"
+
+
+generate-dataset 0 10
+eval "$col_names[1]='bb'" /modify-meta=true
+assert "$col_names[1]=='bb'"
+
+
+eval "$col_names[1]='dd'" 
+assert "$col_names[1]=='bb'"

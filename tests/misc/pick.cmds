@@ -14,3 +14,17 @@ pick 0 3 8 /column=i
 assert $stats.rows-3 0
 assert $stats.x_max-16 0
 assert $stats.x_sum-22 0
+
+
+
+
+generate-dataset 0 12 x**3 /samples=13
+generate-dataset 0 23 x**2 /samples=24
+
+drop flagged:pick-tst
+pick 0 3 8 /buffers=0,1 /flags=pick-tst
+cat flagged:pick-tst
+
+assert $stats.rows-6 0
+assert $stats.x_max-8 0
+assert $stats.y_max-512 0

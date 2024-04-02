@@ -2997,21 +2997,26 @@ static void pickCommand(const QString &,
                         QList<double> where,
                         const CommandOptions &opts)
 {
-  const DataSet * ds = soas().currentDataSet();
+  DataStackHelper pusher(opts);
+  DataSetList buffers(opts);
 
   ColumnSpecification col("x");
   updateFromOptions(opts, "column", col);
-  Vector v = col.getColumn(ds);
+  for(const DataSet * ds : buffers) {
+    Vector v = col.getColumn(ds);
 
-  // Hmmm. How do we handle duplicates?.
-  QList<int> indices;
-  for(double xv : where) {
-    int point = v.closestPoint(xv);
-    indices << point;
+    // Hmmm. How do we handle duplicates?.
+    QList<int> indices;
+    for(double xv : where) {
+      int point = v.closestPoint(xv);
+      indices << point;
+    }
+    DataSet * nds = ds->derivedDataSet("_pick.dat");
+    nds->selectRows(indices);
+    
+    pusher << nds;
   }
-  DataSet * nds = ds->derivedDataSet("_pick.dat");
-  nds->selectRows(indices);
-  soas().pushDataSet(nds);
+
 }
 
 static ArgumentList 
@@ -3023,6 +3028,8 @@ piA(QList<Argument *>()
 
 static ArgumentList 
 piO(QList<Argument *>() 
+    << DataStackHelper::helperOptions()
+    << DataSetList::listOptions("Datasets to pick from")
     << new ColumnArgument("column", 
                           "Column",
                           "Which column contains the values",

@@ -3676,7 +3676,68 @@ QSoas> contour 0
 ~~~
 
 {::comment} description-end: contour {:/}
+{::comment} synopsis-start: average-duplicates {:/}
 
+### `average-duplicates` - Average duplicates {#cmd-average-duplicates}
+
+`average-duplicates` `/columns=`_columns_{:title="a comma-separated list of [columns names](#column-names)"} `/tolerance=`_number_{:title="a floating-point number"}
+
+  * `/columns=`_columns_{:title="a comma-separated list of [columns names](#column-names)"}: Column to be averaged (defaults to all) -- values: a comma-separated list of [columns names](#column-names)
+  * `/tolerance=`_number_{:title="a floating-point number"}: Tolerance in comparing the X values (defaults to 0) -- values: a floating-point number
+
+{::comment} synopsis-end: average-duplicates {:/}
+{::comment} description-start: average-duplicates {:/}
+Loops through all the rows, regroups the ones that have the same values
+of x (or of the first column given to `/columns`), and averages them.
+
+The resulting dataset has twice the number of columns, an average and
+standard deviation for each original column, plus a `number` column
+containing the number of averaged items.
+
+If `/tolerance` is given, then the X values have to match only, within
+that tolerance (take as a relative variation).
+{::comment} description-end: average-duplicates {:/}
+
+{::comment} synopsis-start: convolve {:/}
+
+### `convolve` - Convolve {#cmd-convolve}
+
+`convolve` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/symmetric=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+
+  * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: the convolution formula (function of x) -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/symmetric=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether convolution formula is symmetric (-inf < x < inf) or not (0 <= x < inf) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+
+{::comment} synopsis-end: convolve {:/}
+{::comment} description-start: convolve {:/}
+Convolves the dataset with the given function (a function of `x`). 
+By default, the convolution kernel is assumed to be symmetric around
+0, unless `/symmetric=false` is specified.
+
+To convolve a dataset by a gaussian, try this:
+
+~~~
+QSoas> convolve exp(-x**2)
+~~~
+
+The kernel is not automatically normalized.
+
+{::comment} description-end: convolve {:/}
+
+{::comment} synopsis-start: correlation-matrix {:/}
+
+### `correlation-matrix` - Correlation matrix {#cmd-correlation-matrix}
+
+`correlation-matrix` 
+
+
+{::comment} synopsis-end: correlation-matrix {:/}
+{::comment} description-start: correlation-matrix {:/}
+This function computes the correlation matrix of the columns of the
+current dataset, i.e for columns $$x$$ and $$y$$: 
+$$v_{x,y} = \frac{<x y> - <x><y>}{\sqrt{(<x^2>-<x>^2)(<y^2>-<y>^2)}}$$
+
+The result has as many rows and columns as the initial dataset has columns.
+{::comment} description-end: correlation-matrix {:/}
 
 
 
@@ -9256,12 +9317,12 @@ The `/error=` option controls how the scripts handle errors. See
 
 ### `run-for-values` - Runs a script with each row of a dataset {#cmd-run-for-values}
 
-`run-for-values` _script_{:title="name of a file"} (`/columns=`)_columns_{:title="a comma-separated list of [columns names](#column-names), including the index column"} `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`run-for-values` _script_{:title="name of a file"} (`/columns=`)_columns_{:title="a comma-separated list of [columns names](#column-names), including the index column"} `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _script_{:title="name of a file"}: The script file -- values: name of a file
   * (`/columns=`)_columns_{:title="a comma-separated list of [columns names](#column-names), including the index column"} [(default option)](#default-option): The columns to use as arguments for the script -- values: a comma-separated list of [columns names](#column-names), including the index column
   * `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the commands run are added to the history (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
-  * (`/buffers=`)_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} [(default option)](#default-option): Datasets to work on -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: Datasets to work on -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
   * `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"}: Behaviour to adopt on error -- values: one of: `abort`, `delete`, `except`, `ignore`
   * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to switch off display updates during the script (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`

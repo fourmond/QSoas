@@ -1,0 +1,21 @@
+# QSoas saved parameters
+# Fit used: arb (formula: itrprt(s,km,nFAm,nFAmu))
+# Command-line: fit-arb itrprt(s,km,nFAm,nFAmu) /with=s:1,exp
+km	0.1	!	1
+nFAm	0.5	!	1
+nFAmu	1	!	1
+s_1	1	!	0
+s_t_1	2	!	0
+s_tau_1	1	!	1
+buffer_weight[#0]	1
+buffer_name[#0]	generated_fit_implicit_mod.dat
+# Final residuals: 3.217951e-02
+# Buffer-local parameters: 
+# 
+# Buffer: generated_fit_implicit_mod.dat (weight: 1)
+# km	=	0.1	+- 0	+- 0%
+# nFAm	=	0.5	+- 0	+- 0%
+# nFAmu	=	1	+- 0	+- 0%
+# s_1	=	1	(fixed)
+# s_t_1	=	2	(fixed)
+# s_tau_1	=	1	+- 0	+- 0%

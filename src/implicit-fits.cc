@@ -55,8 +55,12 @@ public:
   /// The formula
   QString formula;
 
-  /// The expressions being used !
+  /// The expression being used 
   Expression * expression;
+
+  /// Reporter expression, if the fitted variable isn't the one
+  /// directly determined by the solver
+  Expression * reporterExpression;
 
   /// The parameters (the final ones)
   QStringList params;
@@ -86,12 +90,14 @@ public:
 
   ImplicitFitBase() :
     expression(NULL),
+    reporterExpression(NULL),
     solver(0)
   {
   };
 
   ImplicitFitBase(const ImplicitFitBase & o) :
     expression(NULL),
+    reporterExpression(NULL),
     solver(o.solver)
   {
     if(! o.formula.isEmpty())
@@ -100,6 +106,7 @@ public:
 
   ~ImplicitFitBase() {
     delete expression;
+    delete reporterExpression;
   };
 
   static ArgumentList hardOptions() {
@@ -126,10 +133,33 @@ public:
     fixedParameters.clear();
 
     delete expression;
+    delete reporterExpression;
+    expression = NULL;
+    reporterExpression = NULL;
 
     QStringList naturalParameters;
-    Expression s(formula);
-    naturalParameters =  s.naturalVariables();
+
+    QRegExp re(";fit=(.*)");
+    QString reporter, equation;
+    int idx = re.indexIn(formula);
+    if(idx >= 0) {
+      equation = formula.left(idx);
+      reporter = re.cap(1);
+    }
+    else
+      equation = formula;
+    
+    {
+      Expression s(equation);
+      QSet<QString> strs = s.naturalVariables().toSet();
+      if(! reporter.isEmpty()) {
+        Expression s2(reporter);
+        strs += s2.naturalVariables().toSet();
+      }
+      naturalParameters = strs.toList();
+    }
+
+    
 
 
     std::sort(naturalParameters.begin(), naturalParameters.end());
@@ -146,7 +176,10 @@ public:
     params += naturalParameters;
 
     Utils::makeUnique(params);
-    expression = new Expression(formula, params);
+    expression = new Expression(equation, params);
+
+    if(! reporter.isEmpty())
+      reporterExpression = new Expression(reporter, params);
 
     for(int i = 0; i < (hasTemperature ? 5 : 4); i++)
       params.takeFirst();
@@ -319,9 +352,13 @@ public:
 
 
       double val = 0;
-      auto tryVal = [this,&val](double seed) -> bool {
+      auto tryVal = [this,&val, &args](double seed) -> bool {
                       try {
                         val = solver.solve(seed);
+                        if(reporterExpression) {
+                          args[3] = val;
+                          val = reporterExpression->evaluate(args.data());
+                        }
                       }
                       catch(const RuntimeError & re) {
                         return false;
@@ -368,7 +405,13 @@ public:
         }
       }
       try {
-        gsl_vector_set(target, j, solver.solve(seed));
+        /// @hack Code duplication with above
+        double val = solver.solve(seed);
+        if(reporterExpression) {
+          args[3] = val;
+          val = reporterExpression->evaluate(args.data());
+        }
+        gsl_vector_set(target, j, val);
       }
       catch(const RuntimeError & re) {
         throw RuntimeError("Could not solve at X = %1: %2").
@@ -409,7 +452,11 @@ protected:
 
   virtual QString optionsString(FitData * data) const override {
     ImplicitFitBase * f = getFb(data);
-    return "formula: " + f->formula;
+    QString rv;
+    rv = "equation: " + f->expression->formula() + " = 0";
+    if(f->reporterExpression)
+      rv += " (reporter: " + f->reporterExpression->formula() + ")";
+    return rv;
   };
 
   /// @hack get rid of the const-cast, this isn't very clean
@@ -433,6 +480,14 @@ protected:
                   Terminal::out << "Fitting using formula '" << formula
                                 << "'" << endl;
                   f->parseFormula(formula);
+                  Terminal::out << " -> equation: "
+                                << f->expression->formula()
+                                << " = 0"
+                                << endl;
+                  if(f->reporterExpression)
+                    Terminal::out << " -> reporter: "
+                                  << f->reporterExpression->formula()
+                                  << endl;
                   Terminal::out << " -> detected parameters:  "
                                 << f->params.join(", ") 
                                 << endl;
@@ -449,6 +504,14 @@ protected:
                       Terminal::out << "Computing using formula '"
                                     << formula << "'" << endl;
                       f->parseFormula(formula);
+                      Terminal::out << " -> equation: "
+                                    << f->expression->formula()
+                                    << "  = 0"
+                                    << endl;
+                      if(f->reporterExpression)
+                        Terminal::out << " -> reporter: "
+                                      << f->reporterExpression->formula()
+                                      << endl;
                       Terminal::out << " -> detected parameters:  "
                                     << f->params.join(", ") 
                                     << endl;
@@ -513,7 +576,7 @@ public:
       ArgumentList(QList<Argument *>()
                    << new StringArgument("formula", 
                                          "Formula",
-                                         "formula for the fit (y is the variable)"));
+                                         "formula for the fit (y is the variable); add `;fit=f(y)` if you want to fit a function of `y`"));
 
     makeCommands(al, effector(this, &ImplicitFit::runFitCurrentDataSet, true),
                  effector(this, &ImplicitFit::runFit, true),

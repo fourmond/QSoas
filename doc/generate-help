@@ -187,8 +187,11 @@ def convert_equation(eq)
       end
     end
   end
+  eq2 = eq.gsub('|','')
+  eq2.gsub!('<', '&gt;')
+  eq2.gsub!('>', '&lt;')
   # Unfortunately not used by Qt... but that's already a start !
-  return "![#{eq.gsub('|','')}](#{info['file']}){:style='vertical-align: #{-(info['depth']||0)}px'}"
+  return "![#{eq2}](#{info['file']}){:style='vertical-align: #{-(info['depth']||0)}px'}"
 end
 
 # Returns the example text for the given example hash tag

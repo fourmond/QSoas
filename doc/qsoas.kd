@@ -967,6 +967,7 @@ can also be done via the numerous options to `load`, which are
 forwarded to the appropriate backend). Currently available backends:
 
  * [`text`](#cmd-load-as-text) for plain space-separated text
+ * [`qsoas`](#cmd-load-as-qsoas) for the files written out by QSoas
  * [`csv`](#cmd-load-as-csv) for CSV data
  * [`chi-txt`](#cmd-load-as-chi-txt) for file from CH Instruments potentiostats
  * [`eclab-ascii`](#cmd-load-as-eclab-ascii) for ASCII files exported
@@ -1107,6 +1108,45 @@ interpreted:
 
 {::comment} description-end: load-as-text {:/}
 
+{::comment} synopsis-start: load-as-qsoas {:/}
+
+### `load-as-qsoas` - Load files with backend 'qsoas' {#cmd-load-as-qsoas}
+
+`load-as-qsoas` _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/columns=`_integers_{:title="a comma-separated list of integers"} `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/expected=`_integer_{:title="an integer"} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/skip=`_integer_{:title="an integer"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"} `/text-columns=`_integers_{:title="a comma-separated list of integers"} `/yerrors=`_column-or-none_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}
+
+  * _file..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: the files to load -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
+  * `/auto-split=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, create a new dataset at every fully blank line (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/columns=`_integers_{:title="a comma-separated list of integers"}: columns loaded from the file -- values: a comma-separated list of integers
+  * `/comments=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: pattern for comment lines -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
+  * `/decimal=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: decimal separator -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/expected=`_integer_{:title="an integer"}: Expected number of loaded datasets -- values: an integer
+  * `/flags=`_flags_{:title="a comma-separated list of flags"}: Flags to set on the newly created datasets -- values: a comma-separated list of flags
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Select on formula -- values: a piece of [Ruby code](#ruby)
+  * `/histogram=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether to show as a histogram (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/ignore-empty=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: if on, skips empty files (default on) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/separator=`_pattern_{:title="plain text, or [regular expressions](#regexps) enclosed within / / delimiters"}: separator between columns -- values: plain text, or [regular expressions](#regexps) enclosed within / / delimiters
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created datasets -- values: one or more meta=value assignements
+  * `/skip=`_integer_{:title="an integer"}: skip that many lines at beginning -- values: an integer
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
+  * `/text-columns=`_integers_{:title="a comma-separated list of integers"}: text columns  -- values: a comma-separated list of integers
+  * `/yerrors=`_column-or-none_{:title="the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'"}: name of the column containing y errors -- values: the [number/name of a column](#column-names) in a dataset, or 'none' to mean 'no column'
+
+{::comment} synopsis-end: load-as-qsoas {:/}
+{::comment} description-start: load-as-qsoas {:/}
+This command is a specialized version of [cmd: load-as-text] that
+reads the files written by QSoas. It recognizes column names, and also
+reads the row names from columns named `buffer`, `Buffer`, `row-name`,
+`row-names`, `name`, `names`.
+
+The files are TAB-delimited, with comments starting with `#` and the
+column name line with `##`.
+
+This is in particular useful for reading back the [output
+file](#output-file), though if you do that often, you might want to
+look at the `/accumulate=` options and [cmd: pop], see
+[there](#output-accumulate).
+{::comment} description-end: load-as-qsoas {:/}
 
 {::comment} synopsis-start: load-as-csv {:/}
 
@@ -2331,6 +2371,24 @@ set the errors within the bounds with `i` and outside with `o`. This
 is typically used to crudely exclude some bits of the dataset from
 fitting, by setting much larger errors for the bits than for the rest.
 {::comment} description-end: edit-errors {:/}
+{::comment} synopsis-start: pick {:/}
+
+### `pick` - Pick rows {#cmd-pick}
+
+`pick` _where..._{:title="several floating-point numbers, separated by ,"} `/column=`_column_{:title="the [number/name of a column](#column-names) in a dataset (including the index column i)"}
+
+  * _where..._{:title="several floating-point numbers, separated by ,"}: Which values to pick -- values: several floating-point numbers, separated by ,
+  * `/column=`_column_{:title="the [number/name of a column](#column-names) in a dataset (including the index column i)"}: Which column contains the values -- values: the [number/name of a column](#column-names) in a dataset (including the index column i)
+
+{::comment} synopsis-end: pick {:/}
+{::comment} description-start: pick {:/}
+This command removes all the points from the current dataset excepted
+the ones that have the X values (or whatever `/column` is) to each of
+the parameters. The final dataset has as many points as there are
+arguments to the `pick` command.
+{::comment} description-end: pick {:/}
+
+
 
 {::comment} synopsis-start: set-row-names {:/}
 
@@ -3618,7 +3676,103 @@ QSoas> contour 0
 ~~~
 
 {::comment} description-end: contour {:/}
+{::comment} synopsis-start: average-duplicates {:/}
 
+### `average-duplicates` - Average duplicates {#cmd-average-duplicates}
+
+`average-duplicates` `/columns=`_columns_{:title="a comma-separated list of [columns names](#column-names)"} `/tolerance=`_number_{:title="a floating-point number"}
+
+  * `/columns=`_columns_{:title="a comma-separated list of [columns names](#column-names)"}: Column to be averaged (defaults to all) -- values: a comma-separated list of [columns names](#column-names)
+  * `/tolerance=`_number_{:title="a floating-point number"}: Tolerance in comparing the X values (defaults to 0) -- values: a floating-point number
+
+{::comment} synopsis-end: average-duplicates {:/}
+{::comment} description-start: average-duplicates {:/}
+Loops through all the rows, regroups the ones that have the same values
+of x (or of the first column given to `/columns`), and averages them.
+
+The resulting dataset has twice the number of columns, an average and
+standard deviation for each original column, plus a `number` column
+containing the number of averaged items.
+
+If `/tolerance` is given, then the X values have to match only, within
+that tolerance (take as a relative variation).
+{::comment} description-end: average-duplicates {:/}
+
+{::comment} synopsis-start: convolve {:/}
+
+### `convolve` - Convolve {#cmd-convolve}
+
+`convolve` _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/symmetric=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+
+  * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: the convolution formula (function of x) -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/symmetric=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether convolution formula is symmetric (-inf < x < inf) or not (0 <= x < inf) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+
+{::comment} synopsis-end: convolve {:/}
+{::comment} description-start: convolve {:/}
+Convolves the dataset with the given function (a function of `x`). 
+By default, the convolution kernel is assumed to be symmetric around
+0, unless `/symmetric=false` is specified.
+
+To convolve a dataset by a gaussian, try this:
+
+~~~
+QSoas> convolve exp(-x**2)
+~~~
+
+The kernel is not automatically normalized.
+
+{::comment} description-end: convolve {:/}
+
+{::comment} synopsis-start: correlation-matrix {:/}
+
+### `correlation-matrix` - Correlation matrix {#cmd-correlation-matrix}
+
+`correlation-matrix` 
+
+
+{::comment} synopsis-end: correlation-matrix {:/}
+{::comment} description-start: correlation-matrix {:/}
+This function computes the correlation matrix of the columns of the
+current dataset, i.e for columns $$x$$ and $$y$$: 
+
+$$v_{x,y} = \frac{<x y> - <x><y>}{\sqrt{(<x^2>-<x>^2)(<y^2>-<y>^2)}}$$
+
+The result has as many rows and columns as the initial dataset has columns.
+{::comment} description-end: correlation-matrix {:/}
+{::comment} synopsis-start: sv-decomp {:/}
+
+### `sv-decomp` - SV decomposition {#cmd-sv-decomp}
+
+`sv-decomp` `/components=`_integer_{:title="an integer"} `/filter=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/residuals=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+
+  * `/components=`_integer_{:title="an integer"}: If specified, keeps only that many components -- values: an integer
+  * `/filter=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, does not decompose, only filter -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/residuals=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, creates a dataset with the data not taken by the components -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+
+{::comment} synopsis-end: sv-decomp {:/}
+
+{::comment} description-start: sv-decomp {:/}
+Performs a singular value decomposition on the Y columns of the
+dataset (the X column is left untouched).
+
+If `/components` is not specified, the command just writes out the
+amplitudes of the components (as many as there are Y columns).
+
+If a number of components is specified via the `/components` option,
+then the command creates two datasets: a `_components.dat` dataset
+containing the components, with the same X values as the original
+dataset and the number of components of Y columns, and an
+`_amplitudes.dat` dataset containing the amplitudes of the components
+necessary to reproduce the original data: the y values of the _ith_ row
+corresponds to the amplitudes of each component necessary to rebuild
+the original _ith_ `y` column.
+
+Using `/filter=true` reconstructs the original dataset just keeping the
+given number of components, which can be useful for filtering.
+
+Using `/residuals=true` produces a dataset that corresponds to the
+difference between the original dataset and the reconstructed dataset.
+{::comment} description-end: sv-decomp {:/}
 
 
 
@@ -4025,7 +4179,7 @@ A number of commands can accumulate data to a "hidden" dataset using
 the `/accumulate=` options. The [cmd: pop] command takes that dataset,
 pushes it to the stack, and clears the "hidden" dataset.
 
-With `/drop=yes`, the "hidden" dataset is just clear, it is not pushed
+With `/drop=yes`, the "hidden" dataset is just cleared, not pushed
 onto the stack.
 
 With `/status=yes`, this command just shows the current status of the
@@ -4458,17 +4612,21 @@ fits:
     use [cmd: define-distribution-fit]
   * to change the parameters of a fit and impose additional
     restrictions on them, use [cmd: reparametrize-fit]
+  * to have "partially global" parameters based on the values of
+    meta-data in the fits, see [cmd: define-indexed-fit]
+  * to restrict to fitting monotonically increasing/decreasing
+    functions, see [cmd: define-monotone-fit]
 
 {::comment} synopsis-start: combine-fits {:/}
 
 ### `combine-fits` - Combine fits {#cmd-combine-fits}
 
-`combine-fits` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _fits..._{:title="a series of names of a fit (without the fit- prefix), separated by spaces"} `/duplicates=`_choice_{:title="one of: `fail`, `merge`, `suffix`, `suffix-if-needed`"} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`combine-fits` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _fits..._{:title="a series of names of a fit (without the fit- prefix), separated by spaces"} `/duplicates=`_choice_{:title="one of: `fail`, `suffix`, `suffix-if-needed`"} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: name of the new fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * _formula_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: how to combine the various fits -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
   * _fits..._{:title="a series of names of a fit (without the fit- prefix), separated by spaces"}: the fits to combine together -- values: a series of names of a fit (without the fit- prefix), separated by spaces
-  * `/duplicates=`_choice_{:title="one of: `fail`, `merge`, `suffix`, `suffix-if-needed`"}: how duplicate parameters are handled -- values: one of: `fail`, `merge`, `suffix`, `suffix-if-needed`
+  * `/duplicates=`_choice_{:title="one of: `fail`, `suffix`, `suffix-if-needed`"}: how duplicate parameters are handled -- values: one of: `fail`, `suffix`, `suffix-if-needed`
   * `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If the new fit already exists, redefines it -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: combine-fits {:/}
@@ -4681,6 +4839,23 @@ The purpose of this command is to create fits with "semi-global"
 parameters that are common to only a subset of the datasets that share
 the sames values of a given meta-data.
 {::comment} description-end: define-indexed-fit {:/}
+
+{::comment} synopsis-start: define-monotone-fit {:/}
+
+### `define-monotone-fit` - Define a monotone fit {#cmd-define-monotone-fit}
+
+`define-monotone-fit` _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} _fit_{:title="the name of a fit (without the fit- prefix)"} `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+
+  * _name_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: name of the new fit -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * _fit_{:title="the name of a fit (without the fit- prefix)"}: the fit to modify -- values: the name of a fit (without the fit- prefix)
+  * `/redefine=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If the new fit already exists, redefines it -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+
+{::comment} synopsis-end: define-monotone-fit {:/}
+{::comment} description-start: define-monotone-fit {:/}
+Creates a new fit of name _name_ which behaves exactly like the
+original _fit_, but will now allow the function to have changes in the
+sign of the first derivative.
+{::comment} description-end: define-monotone-fit {:/}
 
 
 
@@ -5972,6 +6147,91 @@ for fitting multi-wavelength redox titrations.
 [Simulation command](#sim-commands) for the [cmd: fit-nernst] fit.
 {::comment} description-end: sim-nernst {:/}
 
+## pH titration fits
+
+{::comment} synopsis-start: fit-pH {:/}
+
+### `fit-pH` - Fit: pH {#cmd-fit-pH}
+
+`fit-pH` `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/protonations=`_integers_{:title="a comma-separated list of integers"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_parameters-meta-data (see [there](#fits))_{:title="comma-separated list of *parameter*`=`*meta* speficiations"} `/species=`_integer_{:title="an integer"} `/species-names=`_words_{:title="several words, separated by ','"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
+
+  * `/arg1=`_file_{:title="name of a file"}: first argument of the script file -- values: name of a file
+  * `/arg2=`_file_{:title="name of a file"}: second argument of the script file -- values: name of a file
+  * `/arg3=`_file_{:title="name of a file"}: third argument of the script file -- values: name of a file
+  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
+  * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
+  * `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: runs the fit in expert mode -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/protonations=`_integers_{:title="a comma-separated list of integers"}: Number of protonations for each species -- values: a comma-separated list of integers
+  * `/script=`_file_{:title="name of a file"}: runs a script file -- values: name of a file
+  * `/set-from-meta=`_parameters-meta-data (see [there](#fits))_{:title="comma-separated list of *parameter*`=`*meta* speficiations"}: sets parameter values from meta-data -- values: comma-separated list of *parameter*`=`*meta* speficiations
+  * `/species=`_integer_{:title="an integer"}: Number of distinct species (regardless of their redox state) -- values: an integer
+  * `/species-names=`_words_{:title="several words, separated by ','"}: Names of the species -- values: several words, separated by ','
+  * `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines the title of the fit window -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+
+{::comment} synopsis-end: fit-pH {:/}
+{::comment} description-start: fit-pH {:/}
+The `pH` fit is exactly like the [fit: nernst] fit, but for
+protonation events rather than reduction events. The options are the
+same as the [fit: nernst], and have the same signification.
+{::comment} description-end: fit-pH {:/}
+
+{::comment} synopsis-start: mfit-pH {:/}
+
+### `mfit-pH` - Multi fit: pH {#cmd-mfit-pH}
+
+`mfit-pH` _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/parameters=`_file_{:title="name of a file"} `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/protonations=`_integers_{:title="a comma-separated list of integers"} `/script=`_file_{:title="name of a file"} `/set-from-meta=`_parameters-meta-data (see [there](#fits))_{:title="comma-separated list of *parameter*`=`*meta* speficiations"} `/species=`_integer_{:title="an integer"} `/species-names=`_words_{:title="several words, separated by ','"} `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} **(interactive)**
+
+  * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: datasets that will be fitted to -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * `/arg1=`_file_{:title="name of a file"}: first argument of the script file -- values: name of a file
+  * `/arg2=`_file_{:title="name of a file"}: second argument of the script file -- values: name of a file
+  * `/arg3=`_file_{:title="name of a file"}: third argument of the script file -- values: name of a file
+  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
+  * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
+  * `/expert=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: runs the fit in expert mode -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/parameters=`_file_{:title="name of a file"}: pre-loads parameters -- values: name of a file
+  * `/perp-meta=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: if specified, it is the name of a meta-data that holds the perpendicular coordinates -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/protonations=`_integers_{:title="a comma-separated list of integers"}: Number of protonations for each species -- values: a comma-separated list of integers
+  * `/script=`_file_{:title="name of a file"}: runs a script file -- values: name of a file
+  * `/set-from-meta=`_parameters-meta-data (see [there](#fits))_{:title="comma-separated list of *parameter*`=`*meta* speficiations"}: sets parameter values from meta-data -- values: comma-separated list of *parameter*`=`*meta* speficiations
+  * `/species=`_integer_{:title="an integer"}: Number of distinct species (regardless of their redox state) -- values: an integer
+  * `/species-names=`_words_{:title="several words, separated by ','"}: Names of the species -- values: several words, separated by ','
+  * `/weight-buffers=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to weight datasets (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/window-title=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines the title of the fit window -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+
+{::comment} synopsis-end: mfit-pH {:/}
+{::comment} description-start: mfit-pH {:/}
+Multi-dataset version of the [fit: pH] fit.
+{::comment} description-end: mfit-pH {:/}
+
+{::comment} synopsis-start: sim-pH {:/}
+
+### `sim-pH` - Simulation: pH {#cmd-sim-pH}
+
+`sim-pH` _parameters_{:title="name of a file"} _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/debug=`_integer_{:title="an integer"} `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"} `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""} `/flags=`_flags_{:title="a comma-separated list of flags"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"} `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"} `/protonations=`_integers_{:title="a comma-separated list of integers"} `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/set-meta=`_meta-data_{:title="one or more meta=value assignements"} `/species=`_integer_{:title="an integer"} `/species-names=`_words_{:title="several words, separated by ','"} `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}
+
+  * _parameters_{:title="name of a file"}: file to load parameters from -- values: name of a file
+  * _datasets..._{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: the datasets whose X values will be used for simulations -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
+  * `/debug=`_integer_{:title="an integer"}: Debug level: 0 means no debug output, increasing values mean increasing details -- values: an integer
+  * `/engine=`_engine_{:title="[Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`"}: The startup fit engine -- values: [Fit engine](#fit-engines), one of: `gsl-simplex`, `lmder`, `lmniel`, `lmsder`, `multi`, `odrpack`, `pso`, `qsoas`, `simplex`
+  * `/extra-parameters=`_text_{:title="arbitrary text. If you need spaces, do not forget to quote them with ' or ""}: defines supplementary parameters -- values: arbitrary text. If you need spaces, do not forget to quote them with ' or "
+  * `/flags=`_flags_{:title="a comma-separated list of flags"}: Flags to set on the newly created datasets -- values: a comma-separated list of flags
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
+  * `/operation=`_choice_{:title="one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`"}: Whether to just compute the function, the full jacobian, reexport parameters with errors or just annotate datasets -- values: one of: `annotate`, `compute`, `jacobian`, `push`, `reexport`, `residuals`, `subfunctions`
+  * `/override=`_overrides_{:title="several parameter=value assignments, separated by , or ;"}: a comma-separated list of parameters to override -- values: several parameter=value assignments, separated by , or ;
+  * `/protonations=`_integers_{:title="a comma-separated list of integers"}: Number of protonations for each species -- values: a comma-separated list of integers
+  * `/reversed=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: Push the datasets in reverse order -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/set-meta=`_meta-data_{:title="one or more meta=value assignements"}: Meta-data to add to the newly created datasets -- values: one or more meta=value assignements
+  * `/species=`_integer_{:title="an integer"}: Number of distinct species (regardless of their redox state) -- values: an integer
+  * `/species-names=`_words_{:title="several words, separated by ','"}: Names of the species -- values: several words, separated by ','
+  * `/style=`_style_{:title="one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`"}: Style for the displayed curves -- values: one of: `brown-green`, `red-blue`, `red-green`, `red-to-blue`, `red-yellow-green`
+
+{::comment} synopsis-end: sim-pH {:/}
+{::comment} description-start: sim-pH {:/}
+Simulation command for the [fit: pH] fit.
+{::comment} description-end: sim-pH {:/}
 
 ## Adsorbed redox species
 
@@ -6650,9 +6910,9 @@ potential.
 
 Formula:
 
-$$ i_{forward} = (a + b \times E) \left[\left(\alpha_0 - \alpha_e\right) \times \exp\left\{-(E -E_1)/(\nu \tau)\right\} + \alpha_e\right]  $$
+$$ i_{forward} = (a \times E + b) \left[\left(\alpha_0 - \alpha_e\right) \times \exp\left\{-(E -E_1)/(\nu \tau)\right\} + \alpha_e\right]  $$
 
-$$ i_{backward} = (a + b \times E) \left[\left(\alpha_0 - \alpha_e\right) \times \exp\left\{-(2E_v-E_1-E)/(\nu \tau)\right\} + \alpha_e\right]  $$
+$$ i_{backward} = (a \times E + b) \left[\left(\alpha_0 - \alpha_e\right) \times \exp\left\{-(2E_v-E_1-E)/(\nu \tau)\right\} + \alpha_e\right]  $$
 
 where $$E_v$$ is the vertex potential, $$E_1$$ is the initial potential,
 $$\tau$$ the rate constant of decrease, $$\alpha_0$$ the amount of initially
@@ -7965,7 +8225,7 @@ the criteria (`date` or `residuals`) before running the script.
 
 `pick-from-trajectories` _trajectories_{:title="fit Trajectories"} `/mode=`_choice_{:title="one of: `global-average`, `global-best`, `local-average`, `local-best`"} `/parameters=`_choice_{:title="one of: `final`, `initial`"} **(fit command)**
 
-  * _trajectories_{:title="fit Trajectories"}: trajectories to run -- values: fit Trajectories
+  * _trajectories_{:title="fit Trajectories"}: trajectories to pick from -- values: fit Trajectories
   * `/mode=`_choice_{:title="one of: `global-average`, `global-best`, `local-average`, `local-best`"}: how to combine the parameters -- values: one of: `global-average`, `global-best`, `local-average`, `local-best`
   * `/parameters=`_choice_{:title="one of: `final`, `initial`"}: which parameters to use -- values: one of: `final`, `initial`
 
@@ -8091,11 +8351,12 @@ command.
 
 ### `run-for-each` - Runs a script for several arguments {#fit-cmd-run-for-each}
 
-`run-for-each` _script_{:title="name of a file"} _arguments..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/arg4=`_file_{:title="name of a file"} `/arg5=`_file_{:title="name of a file"} `/arg6=`_file_{:title="name of a file"} `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"} `/range-type=`_choice_{:title="one of: `lin`, `log`"} `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} **(fit command)**
+`run-for-each` _script_{:title="name of a file"} _arguments..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/arg4=`_file_{:title="name of a file"} `/arg5=`_file_{:title="name of a file"} `/arg6=`_file_{:title="name of a file"} `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"} `/range-type=`_choice_{:title="one of: `lin`, `log`"} `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/target=`_integer_{:title="an integer"} **(fit command)**
 
   * _script_{:title="name of a file"}: The script file -- values: name of a file
   * _arguments..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: All the arguments for the script file to loop on -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the commands run are added to the history (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/arg1=`_file_{:title="name of a file"}: First argument to the script -- values: name of a file
   * `/arg2=`_file_{:title="name of a file"}: Second argument to the script -- values: name of a file
   * `/arg3=`_file_{:title="name of a file"}: Third argument to the script -- values: name of a file
   * `/arg4=`_file_{:title="name of a file"}: Fourth argument to the script -- values: name of a file
@@ -8104,11 +8365,12 @@ command.
   * `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"}: Behaviour to adopt on error -- values: one of: `abort`, `delete`, `except`, `ignore`
   * `/range-type=`_choice_{:title="one of: `lin`, `log`"}: If on, transform arguments into ranged numbers -- values: one of: `lin`, `log`
   * `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to switch off display updates during the script (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/target=`_integer_{:title="an integer"}: Argument number being changed -- values: an integer
 
 {::comment} synopsis-end: fit-run-for-each {:/}
 {::comment} description-start: fit-run-for-each {:/}
 Like the other [cmd: run-for-each], runs a script for several values
-of its first parameter.
+of any one of its parameters.
 {::comment} description-end: fit-run-for-each {:/}
 {::comment} synopsis-start: fit-let {:/}
 
@@ -8510,10 +8772,7 @@ by modifying the `$row_names` and `$col_names` variables:
 QSoas> eval /modify-meta=true "$col_names[1]='my_y'"
 ~~~
 
-This sets the name of the first Y column to `my_y`. Watch out, this
-will only work for setting row names if some row names already exist
-in the given datasets.
-
+This sets the name of the first Y column to `my_y`. 
 {::comment} description-end: eval {:/}
 {::comment} synopsis-start: verify {:/}
 
@@ -8894,10 +9153,11 @@ QSoas> @ process.cmd data_file.dat
 ~~~~
 
 If you use `run` regularly, you may be interested in the other
-scripting commands, such as [cmd: run-for-each],
-[cmd: run-for-datasets] and [cmd: startup-files]
+scripting commands, such as [cmd: run-for-each], 
+[cmd: run-for-datasets], [cmd: run-for-values], and possibly 
+[cmd: startup-files]
 
-If the  `/only-if=`*condition* option is specified, the script will only be
+If the `/only-if=`*condition* option is specified, the script will only be
 executed if the condition is true. The condition has the same
 behaviour as that for the [cmd: verify] command.
 
@@ -8996,11 +9256,12 @@ QSoas> startup-files /run=true
 
 ### `run-for-each` - Runs a script for several arguments {#cmd-run-for-each}
 
-`run-for-each` _script_{:title="name of a file"} _arguments..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/arg4=`_file_{:title="name of a file"} `/arg5=`_file_{:title="name of a file"} `/arg6=`_file_{:title="name of a file"} `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"} `/range-type=`_choice_{:title="one of: `lin`, `log`"} `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`run-for-each` _script_{:title="name of a file"} _arguments..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."} `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/arg1=`_file_{:title="name of a file"} `/arg2=`_file_{:title="name of a file"} `/arg3=`_file_{:title="name of a file"} `/arg4=`_file_{:title="name of a file"} `/arg5=`_file_{:title="name of a file"} `/arg6=`_file_{:title="name of a file"} `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"} `/range-type=`_choice_{:title="one of: `lin`, `log`"} `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/target=`_integer_{:title="an integer"}
 
   * _script_{:title="name of a file"}: The script file -- values: name of a file
   * _arguments..._{:title="one or more files. Can include wildcards such as *, `[0-4]`, etc..."}: All the arguments for the script file to loop on -- values: one or more files. Can include wildcards such as *, `[0-4]`, etc...
   * `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the commands run are added to the history (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/arg1=`_file_{:title="name of a file"}: First argument to the script -- values: name of a file
   * `/arg2=`_file_{:title="name of a file"}: Second argument to the script -- values: name of a file
   * `/arg3=`_file_{:title="name of a file"}: Third argument to the script -- values: name of a file
   * `/arg4=`_file_{:title="name of a file"}: Fourth argument to the script -- values: name of a file
@@ -9009,6 +9270,7 @@ QSoas> startup-files /run=true
   * `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"}: Behaviour to adopt on error -- values: one of: `abort`, `delete`, `except`, `ignore`
   * `/range-type=`_choice_{:title="one of: `lin`, `log`"}: If on, transform arguments into ranged numbers -- values: one of: `lin`, `log`
   * `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to switch off display updates during the script (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/target=`_integer_{:title="an integer"}: Argument number being changed -- values: an integer
 
 {::comment} synopsis-end: run-for-each {:/}
 {::comment} description-start: run-for-each {:/}
@@ -9051,6 +9313,12 @@ value of the option.
 
 The `/error=` option controls how the scripts handle errors. See
 [cmd: run] for more information.
+
+
+It is possible to loop over another than the first parameter, for
+instance the second, using `/target=2`. Then, of course, one needs to
+provide a first parameter using the `/arg1` option.
+
 {::comment} description-end: run-for-each {:/}
 {::comment} synopsis-start: run-for-datasets {:/}
 
@@ -9084,12 +9352,14 @@ The `/error=` option controls how the scripts handle errors. See
 
 ### `run-for-values` - Runs a script with each row of a dataset {#cmd-run-for-values}
 
-`run-for-values` _script_{:title="name of a file"} _columns..._{:title="a comma-separated list of [columns names](#column-names)"} `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"} `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+`run-for-values` _script_{:title="name of a file"} (`/columns=`)_columns_{:title="a comma-separated list of [columns names](#column-names), including the index column"} `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"} `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"} `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"} `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
 
   * _script_{:title="name of a file"}: The script file -- values: name of a file
-  * _columns..._{:title="a comma-separated list of [columns names](#column-names)"}: The columns to use as arguments for the script -- values: a comma-separated list of [columns names](#column-names)
+  * (`/columns=`)_columns_{:title="a comma-separated list of [columns names](#column-names), including the index column"} [(default option)](#default-option): The columns to use as arguments for the script -- values: a comma-separated list of [columns names](#column-names), including the index column
   * `/add-to-history=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether the commands run are added to the history (defaults to false) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/buffers=`_datasets_{:title="comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)"}: Datasets to work on -- values: comma-separated lists of datasets in the stack, see [dataset lists](#dataset-lists)
   * `/error=`_choice_{:title="one of: `abort`, `delete`, `except`, `ignore`"}: Behaviour to adopt on error -- values: one of: `abort`, `delete`, `except`, `ignore`
+  * `/for-which=`_code_{:title="a piece of [Ruby code](#ruby)"}: Only act on datasets matching the code (see [there](#for-which)). -- values: a piece of [Ruby code](#ruby)
   * `/silent=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: whether or not to switch off display updates during the script (off by default) -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
 
 {::comment} synopsis-end: run-for-values {:/}
@@ -9118,7 +9388,9 @@ The `/error=`, `/silent=` and `/add-to-history=` options have the
 sames meanings as in the case of the command [cmd: run], see there for
 more information.
 
-
+It is possible to run the command using several datasets using the
+`/buffers` and `/for-which` options (see also
+[dataset lists](#dataset-lists)).
 
 {::comment} description-end: run-for-values {:/}
 
@@ -9174,6 +9446,7 @@ listed here:
  * [`auto-flag`](#cmd-auto-flag)
  * [`auto-reglin`](#cmd-auto-reglin)
  * [`average`](#cmd-average)
+ * [`average-duplicates`](#cmd-average-duplicates)
  * [`bin`](#cmd-bin)
  * [`break`](#cmd-break)
  * [`browse`](#cmd-browse)
@@ -9188,6 +9461,8 @@ listed here:
  * [`comment`](#cmd-comment)
  * [`contour`](#cmd-contour)
  * [`contract`](#cmd-contract)
+ * [`convolve`](#cmd-convolve)
+ * [`correlation-matrix`](#cmd-correlation-matrix)
  * [`credits`](#cmd-credits)
  * [`custom-fit`](#cmd-custom-fit)
  * [`dataset-options`](#cmd-dataset-options)
@@ -9199,6 +9474,8 @@ listed here:
  * [`define-implicit-fit`](#cmd-define-implicit-fit)
  * [`define-indexed-fit`](#cmd-define-indexed-fit)
  * [`define-kinetic-system-fit`](#cmd-define-kinetic-system-fit)
+ * [`define-laplace-fit`](#cmd-define-laplace-fit)
+ * [`define-monotone-fit`](#cmd-define-monotone-fit)
  * [`diff`](#cmd-diff)
  * [`diff2`](#cmd-diff2)
  * [`display-aliases`](#cmd-display-aliases)
@@ -9235,6 +9512,7 @@ listed here:
  * [`load-as-csv`](#cmd-load-as-csv)
  * [`load-as-eclab-ascii`](#cmd-load-as-eclab-ascii)
  * [`load-as-parameters`](#cmd-load-as-parameters)
+ * [`load-as-qsoas`](#cmd-load-as-qsoas)
  * [`load-as-text`](#cmd-load-as-text)
  * [`load-fits`](#cmd-load-fits)
  * [`load-stack`](#cmd-load-stack)
@@ -9250,6 +9528,7 @@ listed here:
  * [`overlay`](#cmd-overlay)
  * [`overlay-buffer`](#cmd-overlay-buffer)
  * [`pause`](#cmd-pause)
+ * [`pick`](#cmd-pick)
  * [`points`](#cmd-points)
  * [`pop`](#cmd-pop)
  * [`print`](#cmd-print)
@@ -9261,6 +9540,7 @@ listed here:
  * [`rename`](#cmd-rename)
  * [`reparametrize-fit`](#cmd-reparametrize-fit)
  * [`reverse`](#cmd-reverse)
+ * [`reverse-laplace`](#cmd-reverse-laplace)
  * [`rotate`](#cmd-rotate)
  * [`ruby-run`](#cmd-ruby-run)
  * [`run`](#cmd-run)
@@ -9294,11 +9574,13 @@ listed here:
  * [`sim-gaussian`](#cmd-sim-gaussian)
  * [`sim-implicit`](#cmd-sim-implicit)
  * [`sim-kinetic-system`](#cmd-sim-kinetic-system)
+ * [`sim-laplace`](#cmd-sim-laplace)
  * [`sim-linear-kinetic-system`](#cmd-sim-linear-kinetic-system)
  * [`sim-lorentzian`](#cmd-sim-lorentzian)
  * [`sim-multiexp-multistep`](#cmd-sim-multiexp-multistep)
  * [`sim-nernst`](#cmd-sim-nernst)
  * [`sim-ode`](#cmd-sim-ode)
+ * [`sim-pH`](#cmd-sim-pH)
  * [`sim-polynomial`](#cmd-sim-polynomial)
  * [`sim-pseudo-voigt`](#cmd-sim-pseudo-voigt)
  * [`sim-slow-scan-hp`](#cmd-sim-slow-scan-hp)
@@ -9314,6 +9596,7 @@ listed here:
  * [`stats`](#cmd-stats)
  * [`strip-if`](#cmd-strip-if)
  * [`subtract`](#cmd-subtract)
+ * [`sv-decomp`](#cmd-sv-decomp)
  * [`system`](#cmd-system)
  * [`temperature`](#cmd-temperature)
  * [`timer`](#cmd-timer)
@@ -9326,7 +9609,7 @@ listed here:
  * [`verify`](#cmd-verify)
  * [`version`](#cmd-version)
  * [`zero`](#cmd-zero)
-{::comment} non-interacive-end {:/}
+{::comment} non-interactive-end {:/}
 
 
 # Mathematical formulas using Ruby {#ruby}
@@ -9366,7 +9649,7 @@ QSoas> eval sin(0.25*PI)
 ~~~
 
 The last examples take advantage of the definition of the constant
-`PI`.
+`PI`. (see [constants](#ruby-constants)).
 
 ## Define global variables {#global-variables}
 
@@ -9411,6 +9694,27 @@ Ruby code, see [below](#ruby-using-commands).
 
 Some commands also produce global variables in Ruby that you can use
 later using [cmd: eval], for instance.
+
+## Use expressions directly in command-lines {#ruby-interpolation}
+
+The global variables defined above can be used directly in every ruby
+expression, like in [cmd: apply-formula], [cmd: eval], 
+[cmd: reverse-laplace], [cmd: strip-if], 
+but also in the [fit: arb], [fit: ode], [fit:
+kinetic-system], [fit: laplace] and [fit: implicit] fits (but,
+honestly, for fits, you'd better use the usual parameters, since
+you'll be able to monitor and change the value from the fit
+interface).
+
+You can also use the `%{`_code_`}` syntax that evaluates _code_ as a
+ruby code, which is substituted into the command-line. For instance,
+you can combine this with the definition of global variables to copy
+the boundaries of a dataset to reproduce with [cmd: generate-dataset]:
+
+~~~
+QSoas> eval $min=$stats.x_min;$max=$stats.x_max
+QSoas> generate-dataset %{$min} %{$max}
+~~~
 
 ## Boolean expressions {#boolean-expression}
 
@@ -9597,7 +9901,7 @@ module (that contains, among others, the error function
 
 {::comment} special-functions-end {:/}
 
-## Physical constants
+## Physical constants {#ruby-constants}
 
 Some physical/mathematical constants are available; their name starts
 with an **uppercase** letter.

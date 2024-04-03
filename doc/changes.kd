@@ -95,7 +95,7 @@ See the full list of changes [below](#v2p0)
 ## Fits
 
  * a [fit: laplace] fit to fit reverse Laplace transforms of a formula
- * a [cmd: define-laplace-fits] command to define reverse
+ * a [cmd: define-laplace-fit] command to define reverse
    Laplace fits;
  * a [fit: pH] fit to fit pH titrations, just like the [fit: nernst]
    fit for redox titrations;

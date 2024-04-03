@@ -934,7 +934,7 @@ rfvArgs(QList<Argument *>()
 static ArgumentList 
 rfvOpts(ArgumentList()
         << runOpts
-        << DataSetList::listOptions("Datasets to work on")
+        << DataSetList::listOptions("Datasets to work on", false)
         << new SeveralColumnsArgument("columns",
                                       "Columns",
                                       "The columns to use as arguments for the script",

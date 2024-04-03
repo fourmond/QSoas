@@ -3,3 +3,6 @@
 
 # Error=ignore to make sure that precisely we don't have issues
 @ for-which.cmds /error=ignore
+
+# Modifying meta
+@ modify-meta.cmds

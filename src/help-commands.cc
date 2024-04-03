@@ -224,7 +224,7 @@ void updateDocumentationFile(const QString &, QString file)
     }
 
     Utils::updateWithin(str, "{::comment} non-interactive-start {:/}",
-                        "{::comment} non-interacive-end {:/}\n",
+                        "{::comment} non-interactive-end {:/}\n",
                         "\n\n" + nonInt.join("\n") + "\n");
 
     // Statistics

@@ -1,0 +1,9 @@
+# Use of modify-meta
+
+generate-dataset 0 10
+eval $meta.thing=20 /modify-meta=true
+assert $meta.thing==20
+
+# Checking it doesn't work by default
+eval $meta.thing=10
+assert $meta.thing==20

@@ -3734,10 +3734,45 @@ The kernel is not automatically normalized.
 {::comment} description-start: correlation-matrix {:/}
 This function computes the correlation matrix of the columns of the
 current dataset, i.e for columns $$x$$ and $$y$$: 
+
 $$v_{x,y} = \frac{<x y> - <x><y>}{\sqrt{(<x^2>-<x>^2)(<y^2>-<y>^2)}}$$
 
 The result has as many rows and columns as the initial dataset has columns.
 {::comment} description-end: correlation-matrix {:/}
+{::comment} synopsis-start: sv-decomp {:/}
+
+### `sv-decomp` - SV decomposition {#cmd-sv-decomp}
+
+`sv-decomp` `/components=`_integer_{:title="an integer"} `/filter=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"} `/residuals=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}
+
+  * `/components=`_integer_{:title="an integer"}: If specified, keeps only that many components -- values: an integer
+  * `/filter=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, does not decompose, only filter -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+  * `/residuals=`_yes-no_{:title="a boolean: `yes`, `on`, `true` or `no`, `off`, `false`"}: If on, creates a dataset with the data not taken by the components -- values: a boolean: `yes`, `on`, `true` or `no`, `off`, `false`
+
+{::comment} synopsis-end: sv-decomp {:/}
+
+{::comment} description-start: sv-decomp {:/}
+Performs a singular value decomposition on the Y columns of the
+dataset (the X column is left untouched).
+
+If `/components` is not specified, the command just writes out the
+amplitudes of the components (as many as there are Y columns).
+
+If a number of components is specified via the `/components` option,
+then the command creates two datasets: a `_components.dat` dataset
+containing the components, with the same X values as the original
+dataset and the number of components of Y columns, and an
+`_amplitudes.dat` dataset containing the amplitudes of the components
+necessary to reproduce the original data: the y values of the _ith_ row
+corresponds to the amplitudes of each component necessary to rebuild
+the original _ith_ `y` column.
+
+Using `/filter=true` reconstructs the original dataset just keeping the
+given number of components, which can be useful for filtering.
+
+Using `/residuals=true` produces a dataset that corresponds to the
+difference between the original dataset and the reconstructed dataset.
+{::comment} description-end: sv-decomp {:/}
 
 
 
@@ -6875,9 +6910,9 @@ potential.
 
 Formula:
 
-$$ i_{forward} = (a + b \times E) \left[\left(\alpha_0 - \alpha_e\right) \times \exp\left\{-(E -E_1)/(\nu \tau)\right\} + \alpha_e\right]  $$
+$$ i_{forward} = (a \times E + b) \left[\left(\alpha_0 - \alpha_e\right) \times \exp\left\{-(E -E_1)/(\nu \tau)\right\} + \alpha_e\right]  $$
 
-$$ i_{backward} = (a + b \times E) \left[\left(\alpha_0 - \alpha_e\right) \times \exp\left\{-(2E_v-E_1-E)/(\nu \tau)\right\} + \alpha_e\right]  $$
+$$ i_{backward} = (a \times E + b) \left[\left(\alpha_0 - \alpha_e\right) \times \exp\left\{-(2E_v-E_1-E)/(\nu \tau)\right\} + \alpha_e\right]  $$
 
 where $$E_v$$ is the vertex potential, $$E_1$$ is the initial potential,
 $$\tau$$ the rate constant of decrease, $$\alpha_0$$ the amount of initially
@@ -9411,6 +9446,7 @@ listed here:
  * [`auto-flag`](#cmd-auto-flag)
  * [`auto-reglin`](#cmd-auto-reglin)
  * [`average`](#cmd-average)
+ * [`average-duplicates`](#cmd-average-duplicates)
  * [`bin`](#cmd-bin)
  * [`break`](#cmd-break)
  * [`browse`](#cmd-browse)
@@ -9425,6 +9461,8 @@ listed here:
  * [`comment`](#cmd-comment)
  * [`contour`](#cmd-contour)
  * [`contract`](#cmd-contract)
+ * [`convolve`](#cmd-convolve)
+ * [`correlation-matrix`](#cmd-correlation-matrix)
  * [`credits`](#cmd-credits)
  * [`custom-fit`](#cmd-custom-fit)
  * [`dataset-options`](#cmd-dataset-options)
@@ -9436,6 +9474,8 @@ listed here:
  * [`define-implicit-fit`](#cmd-define-implicit-fit)
  * [`define-indexed-fit`](#cmd-define-indexed-fit)
  * [`define-kinetic-system-fit`](#cmd-define-kinetic-system-fit)
+ * [`define-laplace-fit`](#cmd-define-laplace-fit)
+ * [`define-monotone-fit`](#cmd-define-monotone-fit)
  * [`diff`](#cmd-diff)
  * [`diff2`](#cmd-diff2)
  * [`display-aliases`](#cmd-display-aliases)
@@ -9472,6 +9512,7 @@ listed here:
  * [`load-as-csv`](#cmd-load-as-csv)
  * [`load-as-eclab-ascii`](#cmd-load-as-eclab-ascii)
  * [`load-as-parameters`](#cmd-load-as-parameters)
+ * [`load-as-qsoas`](#cmd-load-as-qsoas)
  * [`load-as-text`](#cmd-load-as-text)
  * [`load-fits`](#cmd-load-fits)
  * [`load-stack`](#cmd-load-stack)
@@ -9487,6 +9528,7 @@ listed here:
  * [`overlay`](#cmd-overlay)
  * [`overlay-buffer`](#cmd-overlay-buffer)
  * [`pause`](#cmd-pause)
+ * [`pick`](#cmd-pick)
  * [`points`](#cmd-points)
  * [`pop`](#cmd-pop)
  * [`print`](#cmd-print)
@@ -9498,6 +9540,7 @@ listed here:
  * [`rename`](#cmd-rename)
  * [`reparametrize-fit`](#cmd-reparametrize-fit)
  * [`reverse`](#cmd-reverse)
+ * [`reverse-laplace`](#cmd-reverse-laplace)
  * [`rotate`](#cmd-rotate)
  * [`ruby-run`](#cmd-ruby-run)
  * [`run`](#cmd-run)
@@ -9531,11 +9574,13 @@ listed here:
  * [`sim-gaussian`](#cmd-sim-gaussian)
  * [`sim-implicit`](#cmd-sim-implicit)
  * [`sim-kinetic-system`](#cmd-sim-kinetic-system)
+ * [`sim-laplace`](#cmd-sim-laplace)
  * [`sim-linear-kinetic-system`](#cmd-sim-linear-kinetic-system)
  * [`sim-lorentzian`](#cmd-sim-lorentzian)
  * [`sim-multiexp-multistep`](#cmd-sim-multiexp-multistep)
  * [`sim-nernst`](#cmd-sim-nernst)
  * [`sim-ode`](#cmd-sim-ode)
+ * [`sim-pH`](#cmd-sim-pH)
  * [`sim-polynomial`](#cmd-sim-polynomial)
  * [`sim-pseudo-voigt`](#cmd-sim-pseudo-voigt)
  * [`sim-slow-scan-hp`](#cmd-sim-slow-scan-hp)
@@ -9551,6 +9596,7 @@ listed here:
  * [`stats`](#cmd-stats)
  * [`strip-if`](#cmd-strip-if)
  * [`subtract`](#cmd-subtract)
+ * [`sv-decomp`](#cmd-sv-decomp)
  * [`system`](#cmd-system)
  * [`temperature`](#cmd-temperature)
  * [`timer`](#cmd-timer)
@@ -9563,7 +9609,7 @@ listed here:
  * [`verify`](#cmd-verify)
  * [`version`](#cmd-version)
  * [`zero`](#cmd-zero)
-{::comment} non-interacive-end {:/}
+{::comment} non-interactive-end {:/}
 
 
 # Mathematical formulas using Ruby {#ruby}

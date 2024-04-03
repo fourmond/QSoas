@@ -9649,7 +9649,7 @@ QSoas> eval sin(0.25*PI)
 ~~~
 
 The last examples take advantage of the definition of the constant
-`PI`.
+`PI`. (see [constants](#ruby-constants)).
 
 ## Define global variables {#global-variables}
 
@@ -9694,6 +9694,27 @@ Ruby code, see [below](#ruby-using-commands).
 
 Some commands also produce global variables in Ruby that you can use
 later using [cmd: eval], for instance.
+
+## Use expressions directly in command-lines {#ruby-interpolation}
+
+The global variables defined above can be used directly in every ruby
+expression, like in [cmd: apply-formula], [cmd: eval], 
+[cmd: reverse-laplace], [cmd: strip-if], 
+but also in the [fit: arb], [fit: ode], [fit:
+kinetic-system], [fit: laplace] and [fit: implicit] fits (but,
+honestly, for fits, you'd better use the usual parameters, since
+you'll be able to monitor and change the value from the fit
+interface).
+
+You can also use the `%{`_code_`}` syntax that evaluates _code_ as a
+ruby code, which is substituted into the command-line. For instance,
+you can combine this with the definition of global variables to copy
+the boundaries of a dataset to reproduce with [cmd: generate-dataset]:
+
+~~~
+QSoas> eval $min=$stats.x_min;$max=$stats.x_max
+QSoas> generate-dataset %{$min} %{$max}
+~~~
 
 ## Boolean expressions {#boolean-expression}
 
@@ -9880,7 +9901,7 @@ module (that contains, among others, the error function
 
 {::comment} special-functions-end {:/}
 
-## Physical constants
+## Physical constants {#ruby-constants}
 
 Some physical/mathematical constants are available; their name starts
 with an **uppercase** letter.

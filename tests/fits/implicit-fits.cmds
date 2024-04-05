@@ -8,6 +8,17 @@ sim-implicit y**5-a*x;fit=b*y**5 parameters/implicit-1.params 0 /prec-relative=1
 apply-formula y-=6*x
 assert '$stats["y_norm"]' 2e-13
 
+
+# Now testing with the seed
+# Watch out, this doesn't work that well with a 0 seed.
+generate-dataset 1 10 0
+sim-implicit seed=-0.1*a*x;y**4-a*x parameters/implicit-1.params 0 /prec-relative=1e-10
+apply-formula y-=-(0.6*x)**0.25
+assert $stats.y_0dev 5e-16
+
+
+
+
 ########################################
 
 # Something on the line of what we are doing for CODHs, see

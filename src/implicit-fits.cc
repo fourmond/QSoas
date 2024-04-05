@@ -43,7 +43,7 @@
 
 
 
-/// This class 
+/// This class solves the equation
 class ImplicitFitBase {
 public:
 
@@ -53,9 +53,6 @@ public:
 
   /// The formula
   QString formula;
-
-  /// The formula for the seed
-  QString seedFormula;
 
   /// The expression being used 
   Expression * expression;
@@ -105,8 +102,7 @@ public:
     expression(NULL),
     reporterExpression(NULL),
     seedExpression(NULL),
-    solver(o.solver),
-    seedFormula(o.seedFormula)
+    solver(o.solver)
   {
     if(! o.formula.isEmpty())
       parseFormula(o.formula);
@@ -126,7 +122,6 @@ public:
                                       "Make certain parameters depend "
                                       "upon time")
                    );
-    
   };
 
   static QList<Argument*> softOptions() {
@@ -151,7 +146,7 @@ public:
     QStringList naturalParameters;
 
     QRegExp re(";fit=(.*)");
-    QString reporter, equation;
+    QString reporter, equation, seed;
     int idx = re.indexIn(formula);
     if(idx >= 0) {
       equation = formula.left(idx);
@@ -160,12 +155,18 @@ public:
     else
       equation = formula;
 
+    QRegExp reS("^seed=([^;]+);");
+    if(reS.indexIn(equation) == 0) {
+      equation = equation.mid(reS.cap(0).size());
+      seed = reS.cap(1);
+    }
+
 
     // Look for all the parameters in the expression
     /// @todo Make that a function in Expression ?
     QStringList exprs;
     QSet<QString> strs;
-    exprs << equation << reporter << seedFormula;
+    exprs << equation << reporter << seed;
     for(const QString & s : exprs) {
       if(s.isEmpty())
         continue;
@@ -194,8 +195,8 @@ public:
     if(! reporter.isEmpty())
       reporterExpression = new Expression(reporter, params);
 
-    if(! seedFormula.isEmpty())
-      seedExpression = new Expression(seedFormula, params);
+    if(! seed.isEmpty())
+      seedExpression = new Expression(seed, params);
 
     for(int i = 0; i < (hasTemperature ? 5 : 4); i++)
       params.takeFirst();
@@ -389,21 +390,30 @@ public:
       
       timeDependentParameters.computeValues(args[0], args.data()+base,
                                             a + params.size());
-
-      if((found && tryVal(lastFound))
-         || tryVal(yv[j])
-         || tryVal(xv[j])
-         || tryVal(-xv[j])
-         || tryVal(1)
-         ) {
-        gsl_vector_set(target, k++, val);
-        lastFound = sol;
+      if(seedExpression) {
         found = true;
+        double seed = seedExpression->evaluate(args.data());
+        computeSolution(seed);
+        gsl_vector_set(target, k++, val);
       }
       else {
-        notFound.insert(j);
+
+        if((found && tryVal(lastFound))
+           || tryVal(yv[j])
+           || tryVal(xv[j])
+           || tryVal(-xv[j])
+           || tryVal(1)
+           ) {
+          gsl_vector_set(target, k++, val);
+          lastFound = sol;
+          found = true;
+        }
+        else {
+          notFound.insert(j);
+        }
       }
     }
+    
     if(! found)
       throw RuntimeError("Could not find any proper seed for solving");
 
@@ -441,6 +451,17 @@ public:
     }
   };
 
+  /// A textual description of the fit
+  QString descriptionString() const {
+    QString rv = "Equation: " + expression->formula();
+    if(reporterExpression)
+      rv += "\nReporter: " + reporterExpression->formula();
+    if(seedExpression)
+      rv += "\nSeed: " + seedExpression->formula();
+    rv += "\nParameters: " + params.join(", ");
+    return rv;
+  };
+
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -476,7 +497,9 @@ protected:
     QString rv;
     rv = "equation: " + f->expression->formula() + " = 0";
     if(f->reporterExpression)
-      rv += " (reporter: " + f->reporterExpression->formula() + ")";
+      rv += ", reporter: " + f->reporterExpression->formula();
+    if(f->seedExpression)
+      rv += ", seed: " + f->seedExpression->formula();
     return rv;
   };
 
@@ -501,17 +524,7 @@ protected:
                   Terminal::out << "Fitting using formula '" << formula
                                 << "'" << endl;
                   f->parseFormula(formula);
-                  Terminal::out << " -> equation: "
-                                << f->expression->formula()
-                                << " = 0"
-                                << endl;
-                  if(f->reporterExpression)
-                    Terminal::out << " -> reporter: "
-                                  << f->reporterExpression->formula()
-                                  << endl;
-                  Terminal::out << " -> detected parameters:  "
-                                << f->params.join(", ") 
-                                << endl;
+                  Terminal::out << f->descriptionString() << endl;
       }, name, datasets, opts);
   }
   
@@ -525,17 +538,7 @@ protected:
                       Terminal::out << "Computing using formula '"
                                     << formula << "'" << endl;
                       f->parseFormula(formula);
-                      Terminal::out << " -> equation: "
-                                    << f->expression->formula()
-                                    << "  = 0"
-                                    << endl;
-                      if(f->reporterExpression)
-                        Terminal::out << " -> reporter: "
-                                      << f->reporterExpression->formula()
-                                      << endl;
-                      Terminal::out << " -> detected parameters:  "
-                                    << f->params.join(", ") 
-                                    << endl;
+                      Terminal::out << f->descriptionString() << endl;
                     }, name, params, datasets, opts);
   }
 

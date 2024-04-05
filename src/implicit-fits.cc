@@ -1,7 +1,6 @@
 /**
    \file implicit-fits.cc implicit fits
-   Copyright 2011 by Vincent Fourmond
-             2012, 2013,  by CNRS/AMU
+   Copyright 2020, 2024 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -55,12 +54,18 @@ public:
   /// The formula
   QString formula;
 
+  /// The formula for the seed
+  QString seedFormula;
+
   /// The expression being used 
   Expression * expression;
 
   /// Reporter expression, if the fitted variable isn't the one
   /// directly determined by the solver
   Expression * reporterExpression;
+
+  /// Seed expression, or NULL if we don't use any seeds
+  Expression * seedExpression;
 
   /// The parameters (the final ones)
   QStringList params;
@@ -91,6 +96,7 @@ public:
   ImplicitFitBase() :
     expression(NULL),
     reporterExpression(NULL),
+    seedExpression(NULL),
     solver(0)
   {
   };
@@ -98,7 +104,9 @@ public:
   ImplicitFitBase(const ImplicitFitBase & o) :
     expression(NULL),
     reporterExpression(NULL),
-    solver(o.solver)
+    seedExpression(NULL),
+    solver(o.solver),
+    seedFormula(o.seedFormula)
   {
     if(! o.formula.isEmpty())
       parseFormula(o.formula);
@@ -107,6 +115,7 @@ public:
   ~ImplicitFitBase() {
     delete expression;
     delete reporterExpression;
+    delete seedExpression;
   };
 
   static ArgumentList hardOptions() {
@@ -134,8 +143,10 @@ public:
 
     delete expression;
     delete reporterExpression;
+    delete seedExpression;
     expression = NULL;
     reporterExpression = NULL;
+    seedExpression = NULL;
 
     QStringList naturalParameters;
 
@@ -148,18 +159,20 @@ public:
     }
     else
       equation = formula;
-    
-    {
-      Expression s(equation);
-      QSet<QString> strs = s.naturalVariables().toSet();
-      if(! reporter.isEmpty()) {
-        Expression s2(reporter);
-        strs += s2.naturalVariables().toSet();
-      }
-      naturalParameters = strs.toList();
-    }
 
-    
+
+    // Look for all the parameters in the expression
+    /// @todo Make that a function in Expression ?
+    QStringList exprs;
+    QSet<QString> strs;
+    exprs << equation << reporter << seedFormula;
+    for(const QString & s : exprs) {
+      if(s.isEmpty())
+        continue;
+      Expression sexp(s);
+      strs += sexp.naturalVariables().toSet();
+    }
+    naturalParameters = strs.toList();
 
 
     std::sort(naturalParameters.begin(), naturalParameters.end());
@@ -180,6 +193,9 @@ public:
 
     if(! reporter.isEmpty())
       reporterExpression = new Expression(reporter, params);
+
+    if(! seedFormula.isEmpty())
+      seedExpression = new Expression(seedFormula, params);
 
     for(int i = 0; i < (hasTemperature ? 5 : 4); i++)
       params.takeFirst();
@@ -338,6 +354,30 @@ public:
 
     QSet<int> notFound;
 
+    double val = 0, sol = 0;
+
+    auto computeSolution =
+      [this,&val, &sol, &args](double seed) {
+        sol = solver.solve(seed);
+        if(reporterExpression) {
+          args[3] = sol;
+          val = reporterExpression->evaluate(args.data());
+        }
+        else
+          val = sol;
+      };
+    auto tryVal =
+      [this,&computeSolution](double seed) -> bool {
+        try {
+          computeSolution(seed);
+        }
+        catch(const RuntimeError & re) {
+          return false;
+        }
+        return true;
+      };
+      
+
     for(int j = 0; j < xv.size(); j++) {
       while(seg < ds->segments.size() && j >= ds->segments[seg])
         seg++;
@@ -350,21 +390,6 @@ public:
       timeDependentParameters.computeValues(args[0], args.data()+base,
                                             a + params.size());
 
-
-      double val = 0;
-      auto tryVal = [this,&val, &args](double seed) -> bool {
-                      try {
-                        val = solver.solve(seed);
-                        if(reporterExpression) {
-                          args[3] = val;
-                          val = reporterExpression->evaluate(args.data());
-                        }
-                      }
-                      catch(const RuntimeError & re) {
-                        return false;
-                      }
-                      return true;
-                    };
       if((found && tryVal(lastFound))
          || tryVal(yv[j])
          || tryVal(xv[j])
@@ -372,7 +397,7 @@ public:
          || tryVal(1)
          ) {
         gsl_vector_set(target, k++, val);
-        lastFound = val;
+        lastFound = sol;
         found = true;
       }
       else {
@@ -395,6 +420,7 @@ public:
                                             a + params.size());
       double seed = 0;
       if(j > 0)
+        // This isn't going to work...
         seed = gsl_vector_get(target, j-1);
       else {
         for(int s = 1; s < xv.size(); s++) {
@@ -405,12 +431,7 @@ public:
         }
       }
       try {
-        /// @hack Code duplication with above
-        double val = solver.solve(seed);
-        if(reporterExpression) {
-          args[3] = val;
-          val = reporterExpression->evaluate(args.data());
-        }
+        computeSolution(seed);
         gsl_vector_set(target, j, val);
       }
       catch(const RuntimeError & re) {

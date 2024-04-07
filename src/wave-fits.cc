@@ -1561,4 +1561,9 @@ public:
 // Its name doesn't matter.
 EECROFit fit_eecro;
 
+#include <credits.hh>
+static Credits waveShape("Fourmond et al, JACS, 2013",
+                         "catalytic wave shapes of 1 and 2 electron enzymes",
+                         "10.1021/ja311607s");
+
 

@@ -76,8 +76,8 @@ public:
   /// Text of the credits 
   QString text(bool full = false) const;
 
-  /// Display the credits in the terminal
-  static void displayCredits(bool full = false);
+  /// Returns a string corresponding to the credits
+  static QString creditString(bool full = false);
 
   /// Displays the startup message
   static void displayStartupMessage();

@@ -67,8 +67,10 @@ QString Credits::text(bool full) const
     fmt = "%1 -- %5\nAuthors: %2\n%3\nRefs: %4\n";
     break;
   case Paper:
-    // name = 
-    fmt = "%1 -- %5, DOI: %4%2%3"; 
+    if(urls.size() > 0 && urls[0].startsWith("10.10"))
+      fmt = "%1 -- %5, DOI: %4%2%3";
+    else
+      fmt = "%1 -- %5, URL: %4%2%3";
   }
   
   QString nt;
@@ -80,20 +82,20 @@ QString Credits::text(bool full) const
   return fmt.arg(name, authors.join(", "), nt, urls.join(", "), what);
 }
 
-void Credits::displayCredits(bool full)
+QString Credits::creditString(bool full)
 {
+  QString rv;
   if(! currentCredits)
-    return;                     // Nothing to do
+    return rv;                     // Nothing to do
 
+  QTextStream out(&rv);
   for(int i = 0; i < currentCredits->size(); i++) {
     Credits * c = currentCredits->value(i);
     if(i > 0)
-      Terminal::out << "----------------------------------------------------------------------\n";
-    Terminal::out << c->text(full) << endl;
+      out << "----------------------------------------------------------------------\n";
+    out << c->text(full) << endl;
   }
-  if(! full) {
-    Terminal::out << "To obtain the full text of the licenses, use the /full=true option" << endl;
-  }
+  return rv;
 }
 
 
@@ -160,7 +162,8 @@ Credits ruby("mruby",
              Credits::Projects,
              ":/licenses/mruby.txt");
 
-Credits gsl("GSL", 
+Credits gsl("GSL -- including derived implementations of "
+            "Gauss-Kronrod integrators",
             QStringList() << "Brian Gough and others",
             QStringList() << "http://www.gnu.org/software/gsl/",
             "The GNU Scientific Library is free software; "
@@ -206,15 +209,17 @@ static void creditsCommand(const QString &, const CommandOptions &opts)
 {
   bool full = false;
   updateFromOptions(opts, "full", full);
-  Credits::displayCredits(full);
+  Terminal::out << Credits::creditString(full);
+  if(! full) {
+    Terminal::out << "To obtain the full text of the licenses, "
+                  << "use the /full=true option" << endl;
+  }
 }
 
 ArgumentList crOpts(QList<Argument*>() 
                     << new BoolArgument("full", 
                                         "Full text",
                                         "Full text of the licenses"));
-                    
-
 static Command 
 credits("credits", // command name
      effector(creditsCommand), // action
@@ -223,3 +228,13 @@ credits("credits", // command name
      &crOpts, // options
      "Credits",
      "Display credits");
+
+#include <commandlineparser.hh>
+
+static CommandLineOption hlp("--credits", [](const QStringList & args) {
+  {
+    QTextStream o(stdout);
+    o << Credits::creditString(false);
+  }
+  ::exit(0);
+ }, 0, "prints out the credits of QSoas");

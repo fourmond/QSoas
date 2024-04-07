@@ -443,3 +443,8 @@ cntC("contour", // command name
      &cntA, // arguments
      &cntO, // options
      "Contours");
+
+#include <credits.hh>
+static Credits bromwich("Paul Bourke",
+                        "CONREC algorithm (but not the implementation)",
+                        "https://paulbourke.net/papers/conrec/");

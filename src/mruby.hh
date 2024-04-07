@@ -262,6 +262,9 @@ public:
   /// @overload
   QString safeAsprintf(const QString & format, double value);
 
+  /// Ruby sprintf, but just with one argument
+  QString sprintf(const QString & format, mrb_value arg);
+
   /// @}
 
   /// @name Hash functions

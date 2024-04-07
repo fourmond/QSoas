@@ -1279,6 +1279,15 @@ QString MRuby::safeAsprintf(const QString & format, double value)
   return toQString(v);
 }
 
+QString MRuby::sprintf(const QString & format, mrb_value val)
+{
+  mrb_value fmt = fromQString(format);
+  mrb_value v = protect([fmt, val, this]() -> mrb_value {
+                          return ruby_sprintf(mrb, fmt, val);
+                        });
+  return toQString(v);
+}
+
 
 mrb_value MRuby::symbolFromQString(const QString & str)
 {

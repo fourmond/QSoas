@@ -436,14 +436,21 @@ bool CommandWidget::runCommand(const QString & str)
       QString cmd = str;
       try {
         // We look for evaluated code
-        QRegExp substitutionRE("%\\{([^}]+)\\}");
+        // ([0-9.-fegdxXFEGD]+)?
+        QRegExp substitutionRE("%([0-9.-]*[fegdxXFEGD])?\\{([^}]+)\\}");
 
         int idx = 0;
         /// @todo History isn't going to work
         while(substitutionRE.indexIn(cmd, idx) >= 0) {
-          QString code = substitutionRE.cap(1);
+          QString code = substitutionRE.cap(2);
           mrb_value val = mr->eval(code);
-          QString s = mr->toQString(val);
+          QString s;
+          if(substitutionRE.cap(1).isEmpty())
+            s = mr->toQString(val);
+          else {
+            QString fmt = "%" + substitutionRE.cap(1);
+            s = mr->sprintf(fmt, val);
+          }
           
           cmd.replace(substitutionRE.pos(),
                       substitutionRE.matchedLength(), s);

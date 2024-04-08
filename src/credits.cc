@@ -39,9 +39,10 @@ void Credits::registerSelf()
 Credits::Credits(const QString & n, const QStringList & a, 
                  const QStringList & u, const QString & d,
                  const QString & w,
-                 Credits::Kind k, const QString & f) :
+                 Credits::Kind k, const QString & f,
+                 const QString & ex) :
   name(n), authors(a),
-  urls(u), notice(d), what(w), kind(k), fileName(f)
+  urls(u), notice(d), what(w), kind(k), fileName(f), extra(ex)
 {
   registerSelf();
 }
@@ -61,7 +62,7 @@ QString Credits::text(bool full) const
   QString fmt;
   switch(kind) {
   case QSoas:
-    fmt = "%1%5:\nAuthors: %2\n%3\nRefs: %4\n";
+    fmt = "%1%5:\nAuthors: %2\n%3\n%6\nRefs: %4\n";
     break;
   case Projects:
     fmt = "%1 -- %5\nAuthors: %2\n%3\nRefs: %4\n";
@@ -79,8 +80,56 @@ QString Credits::text(bool full) const
   else {
     nt = notice;
   }
-  return fmt.arg(name, authors.join(", "), nt, urls.join(", "), what);
+  return fmt.arg(name, authors.join(", "), nt, urls.join(", "), what, extra);
 }
+
+
+QString Credits::docText() const
+{
+  QStringList linkList;
+  for(const QString & lnk : urls) {
+    if(lnk.startsWith("10.10")) {
+      linkList << QString("[DOI: %1](https://doi.org/%2)").
+        arg(lnk).arg(lnk);
+    }
+    else {
+      linkList << QString("[`%1`](%2)").
+        arg(lnk).arg(lnk);
+    }
+  }
+  switch(kind) {
+  case QSoas:
+  case Projects: 
+    return QString("%1 -- %2: Authors: %3\n%5See also: %4\n").
+      arg(name).arg(what).arg(authors.join(", ")).
+      arg(linkList.join(", "), extra);
+  case Paper:
+    return QString("%1 -- %2: %4\n").
+      arg(name).arg(what).
+      arg(linkList.join(", "));
+  }
+  return "";
+}
+
+QString Credits::docString()
+{
+  if(! currentCredits)
+    return QString();
+  QList<Credits*> lst = (*currentCredits);
+  std::sort(lst.begin(), lst.end(), [](const Credits * a,
+                                       const Credits * b) -> bool {
+    if(a->kind != b->kind)
+      return a->kind < b->kind;
+    return a->name < b->name;
+  });
+
+  QString rv;
+  for(const Credits * c : lst)
+    rv += QString(" * %1\n").arg(c->docText());
+  return rv;
+}
+
+
 
 QString Credits::creditString(bool full)
 {
@@ -122,6 +171,7 @@ void Credits::displayStartupMessage()
                 << endl;
 }
 
+// 
 Credits qsoas("QSoas itself", 
               QStringList() << "Vincent Fourmond" << "Christophe Leger", 
               QStringList() << "http://qsoas.org"
@@ -134,7 +184,10 @@ Credits qsoas("QSoas itself",
               "but WITHOUT ANY WARRANTY; without even the implied warranty of "
               "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
               "GNU General Public License for more details."
-              "\n"
+              ,
+              "", 
+              Credits::QSoas,
+              ":/licenses/GPL-2.txt",
               "QSoas was developed based on the ideas of Christophe Leger in the original QSoas, and using thanks to the bug reports and/or suggestions of many enthusiastic users, including, but not limited to, in random order: "
               "Christina Felbek, "
               "Christophe Léger, "
@@ -148,14 +201,14 @@ Credits qsoas("QSoas itself",
               "Melisa del Barrio, "
               "Carole Baffert, "
               "Pierre Ceccaldi, "
-              "Patrick Bertrand"
-              ,
-              "", 
-              Credits::QSoas,
-              ":/licenses/GPL-2.txt");
+              "Patrick Bertrand, "
+              "Andrea Fasano, "
+              "Anna Aldinio-Colbachini, "
+              "Laura Opdam"
+              "\n");
 
 Credits ruby("mruby", 
-             QStringList() << "mrubyby developers",
+             QStringList() << "mruby developers",
              QStringList() << "http://mruby.org",
              "mruby is copyrighted free software released under the terms of the 'MIT' license",
              "embedded ruby interpreter, for formulas and scripting",

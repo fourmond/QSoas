@@ -49,7 +49,7 @@ int ParametersItemModel::rowCount(const QModelIndex & /*parent*/) const
 
 int ParametersItemModel::columnCount(const QModelIndex & /*parent*/) const
 {
-  return workspace->data()->parameterDefinitions.size() + 3;
+  return workspace->data()->parameterDefinitions.size() + 4;
 }
 
 int ParametersItemModel::parameterIndex(int idx) const
@@ -98,6 +98,20 @@ QVariant ParametersItemModel::data(const QModelIndex & index, int role) const
     case Qt::DisplayRole:
     case Qt::EditRole:
       return workspace->getBufferWeight(row);
+    }
+    return QVariant();
+  }
+  if(idx == -4) {
+    double res = workspace->pointResiduals.value(row, -1);
+    if(res >= 0 || std::isnan(res)) {
+      switch(role) {
+      case Qt::DisplayRole:
+      case Qt::EditRole:
+        return res;
+      case Qt::BackgroundRole:
+        if(std::isnan(res))
+          return QBrush(QColor(255,180,180));
+      }
     }
     return QVariant();
   }
@@ -169,6 +183,8 @@ QVariant ParametersItemModel::headerData(int section,
       return QVariant("Z");
     if(section == -3)
       return QVariant("weight");
+    if(section == -4)
+      return QVariant("residuals");
     const QList<ParameterDefinition> & defs =
       workspace->data()->parameterDefinitions;
     if(section >= defs.size())

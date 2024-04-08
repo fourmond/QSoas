@@ -25,9 +25,7 @@
 class FitWorkspace;
 
 
-/// A table model for displaying
-///
-/// @todo Add Z coordinates, choice of meta...
+/// A table model for displaying the fit parameters, dataset by dataset
 class ParametersItemModel : public QAbstractTableModel {
 
   /// The workspace.
@@ -49,6 +47,8 @@ class ParametersItemModel : public QAbstractTableModel {
   /// a parameter:
   /// -1: buffer name
   /// -2: Z values
+  /// -3: buffer weight
+  /// -4: residuals in the dataset
   int parameterIndex(int idx) const;
 
   int parameterIndex(const QModelIndex & idx) const;

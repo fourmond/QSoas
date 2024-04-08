@@ -30,7 +30,8 @@
 
 //////////////////////////////////////////////////////////////////////
 
-static SettingsValue<QSize> spreadsheetSize("parametersspreadsheet/size", QSize(700,500));
+static SettingsValue<QSize> spreadsheetSize("parametersspreadsheet/size",
+                                            QSize(700,500));
 
 ParametersSpreadsheet::ParametersSpreadsheet(FitWorkspace * params) :
   workspace(params)

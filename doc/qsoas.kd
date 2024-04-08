@@ -379,6 +379,8 @@ version. You'll get the full license text with `/full=true`.
 
 It also lists publications whose findings/equations/algorithms were
 directly used in QSoas.
+
+See also [below](#credits)
 {::comment} description-end: credits {:/}
 
 {::comment} synopsis-start: version {:/}
@@ -9979,16 +9981,16 @@ command-line terminal and run:
 ~~~
 
 
-# Credits
+# Credits {#credits}
 
 QSoas is a large project, relying on external projects and research
 articles. A hopefully exhaustive list is given below; more information
-can be found in using the [cmd credits] command.
+can be found in using the [cmd: credits] command.
 
 {::comment} credits-start {:/}
 
  * QSoas itself -- : Authors: Vincent Fourmond, Christophe Leger
-QSoas was developed based on the ideas of Christophe Leger in the original QSoas, and using thanks to the bug reports and/or suggestions of many enthusiastic users, including, but not limited to, in random order: Christina Felbek, Christophe Léger, Matteo Sensi, Marta Meneghello, Meriem Merrouch, Asmaa Hadj-Ahmed, Ana Rita Oliveira, Nazua Costa, Christophe Orain, Melisa del Barrio, Carole Baffert, Pierre Ceccaldi, Patrick Bertrand, Andrea Fasano, Anna Aldinio-Colbachini, Laura Opdam
+QSoas was developed based on the ideas of Christophe Leger in the original SOAS, and was improved thanks to the bug reports and/or suggestions of many enthusiastic users, including, but not limited to, in random order: Christina Felbek, Christophe Léger, Matteo Sensi, Marta Meneghello, Meriem Merrouch, Asmaa Hadj-Ahmed, Ana Rita Oliveira, Nazua Costa, Christophe Orain, Melisa del Barrio, Carole Baffert, Pierre Ceccaldi, Patrick Bertrand, Andrea Fasano, Anna Aldinio-Colbachini, Annamaria Quaranta, Frauke Baymann, Kilian Zuchan, Laura Opdam
 See also: [`http://qsoas.org`](http://qsoas.org), [`http://www.gnu.org/licenses/gpl.html`](http://www.gnu.org/licenses/gpl.html)
 
  * GSL -- including derived implementations of Gauss-Kronrod integrators -- general-purpose scientific library, used for a large part of the computations: Authors: Brian Gough and others

@@ -188,7 +188,7 @@ Credits qsoas("QSoas itself",
               "", 
               Credits::QSoas,
               ":/licenses/GPL-2.txt",
-              "QSoas was developed based on the ideas of Christophe Leger in the original QSoas, and using thanks to the bug reports and/or suggestions of many enthusiastic users, including, but not limited to, in random order: "
+              "QSoas was developed based on the ideas of Christophe Leger in the original SOAS, and was improved thanks to the bug reports and/or suggestions of many enthusiastic users, including, but not limited to, in random order: "
               "Christina Felbek, "
               "Christophe Léger, "
               "Matteo Sensi, "
@@ -204,6 +204,9 @@ Credits qsoas("QSoas itself",
               "Patrick Bertrand, "
               "Andrea Fasano, "
               "Anna Aldinio-Colbachini, "
+              "Annamaria Quaranta, "
+              "Frauke Baymann, "
+              "Kilian Zuchan, "
               "Laura Opdam"
               "\n");
 

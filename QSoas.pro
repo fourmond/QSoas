@@ -419,7 +419,6 @@ SOURCES += \
         src/argumentsdialog.cc \
         src/filepromptwidget.cc \
         src/datasetlist.cc \
-        src/implicit-fits.cc \
         src/datasetwriter.cc \
         src/externalfunction.cc \
         src/externalfunctionfit.cc \
@@ -607,6 +606,10 @@ SOURCES += src/scrolledwidget.cc
 # These are for QSoas's internal file handling
 HEADERS += src/file.hh src/fileinfo.hh
 SOURCES += src/file.cc src/fileinfo.cc
+
+# Implicit expressions and fits
+HEADERS += src/implicitexpression.hh
+SOURCES += src/implicitexpression.cc src/implicit-fits.cc
 
 
 # These are for all the serialization of column

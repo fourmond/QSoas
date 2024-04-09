@@ -34,9 +34,7 @@
 #include <fitdata.hh>
 #include <timedependentparameters.hh>
 
-
-#include <expression.hh>
-#include <solver.hh>
+#include <implicitexpression.hh>
 
 #include <gsl/gsl_const_mksa.h>
 #include <gsl/gsl_math.h>
@@ -47,22 +45,11 @@
 class ImplicitFitBase {
 public:
 
-  static QStringList splitFormulas(const QString & fms) {
-    return fms.split("|");
-  };
-
   /// The formula
   QString formula;
 
-  /// The expression being used 
-  Expression * expression;
-
-  /// Reporter expression, if the fitted variable isn't the one
-  /// directly determined by the solver
-  Expression * reporterExpression;
-
-  /// Seed expression, or NULL if we don't use any seeds
-  Expression * seedExpression;
+  /// The underlying implicit expression
+  ImplicitExpression * expression;
 
   /// The parameters (the final ones)
   QStringList params;
@@ -87,22 +74,13 @@ public:
   /// parameters.
   QSet<int> skippedIndices;
 
-  /// The solver
-  LambdaSolver solver;
-
   ImplicitFitBase() :
-    expression(NULL),
-    reporterExpression(NULL),
-    seedExpression(NULL),
-    solver(0)
+    expression(NULL)
   {
   };
 
   ImplicitFitBase(const ImplicitFitBase & o) :
-    expression(NULL),
-    reporterExpression(NULL),
-    seedExpression(NULL),
-    solver(o.solver)
+    expression(NULL)
   {
     if(! o.formula.isEmpty())
       parseFormula(o.formula);
@@ -110,14 +88,12 @@ public:
 
   ~ImplicitFitBase() {
     delete expression;
-    delete reporterExpression;
-    delete seedExpression;
   };
 
   static ArgumentList hardOptions() {
     return 
       ArgumentList(QList<Argument *>()
-                   << new TDPArgument("with", 
+                   << new TDPArgument("with",
                                       "Time dependent parameters",
                                       "Make certain parameters depend "
                                       "upon time")
@@ -131,75 +107,36 @@ public:
   void parseFormula(const QString &form)
   {
     formula = form;
+    delete expression;
+    expression = NULL;
+    
     params.clear();
     nbXSteps = 0;
     nbYSteps = 0;
     fixedParameters.clear();
 
-    delete expression;
-    delete reporterExpression;
-    delete seedExpression;
-    expression = NULL;
-    reporterExpression = NULL;
-    seedExpression = NULL;
+    expression = new ImplicitExpression(formula);
+    expression->prepare();
 
-    QStringList naturalParameters;
+    QStringList naturalParameters = expression->variables();
 
-    QRegExp re(";fit=(.*)");
-    QString reporter, equation, seed;
-    int idx = re.indexIn(formula);
-    if(idx >= 0) {
-      equation = formula.left(idx);
-      reporter = re.cap(1);
-    }
-    else
-      equation = formula;
-
-    QRegExp reS("^seed=([^;]+);");
-    if(reS.indexIn(equation) == 0) {
-      equation = equation.mid(reS.cap(0).size());
-      seed = reS.cap(1);
-    }
-
-
-    // Look for all the parameters in the expression
-    /// @todo Make that a function in Expression ?
-    QStringList exprs;
-    QSet<QString> strs;
-    exprs << equation << reporter << seed;
-    for(const QString & s : exprs) {
-      if(s.isEmpty())
-        continue;
-      Expression sexp(s);
-      strs += sexp.naturalVariables().toSet();
-    }
-    naturalParameters = strs.toList();
-
-
-    std::sort(naturalParameters.begin(), naturalParameters.end());
-
-
-    params << "x" << "i" << "seg" << "y";
+    params << "x" << "i" << "seg";
+    int base = 3;
     if(naturalParameters.contains("fara") ||
        naturalParameters.contains("temperature")) {
       hasTemperature = true;
       params << "fara" << "temperature";
+      base += 1;
     }
     else
       hasTemperature = false;
     params += naturalParameters;
 
     Utils::makeUnique(params);
-    expression = new Expression(equation, params);
+    expression->setVariables(params);
 
-    if(! reporter.isEmpty())
-      reporterExpression = new Expression(reporter, params);
-
-    if(! seed.isEmpty())
-      seedExpression = new Expression(seed, params);
-
-    for(int i = 0; i < (hasTemperature ? 5 : 4); i++)
-      params.takeFirst();
+    // Remove the first parameters (all of them but "temperature")
+    params = params.mid(base);
 
     /// @todo Gather the logic for finding pre-determined values for
     /// parameters in a separate class to be used for custom fits and
@@ -253,11 +190,11 @@ public:
 
   /// Processes the soft options -- solver options.
   void processSoftOptions(const CommandOptions & opts) {
-    solver.parseOptions(opts);
+    expression->parseOptions(opts);
   };
 
   CommandOptions currentSoftOptions() const {
-    return solver.currentOptions();
+    return expression->currentOptions();
   };
 
 
@@ -320,17 +257,16 @@ public:
                       const DataSet * ds,
                       FitData *data, 
                       gsl_vector *target) {
-    int k = 0;
     int nbparams = data->parametersPerDataset() +
       skippedIndices.size();
 
     int seg = 0;
     int base = (hasTemperature ? 5 : 4);
     QVarLengthArray<double, 100> args(base + nbparams);
-    args[0] = 0; // x
-    args[1] = 0; // i
-    args[2] = 0; // seg
-    args[3] = 0; // y
+    args[0] = 0; // y, the solver variable
+    args[1] = 0; // x
+    args[2] = 0; // i
+    args[3] = 0; // seg
     if(hasTemperature)
       args[4] = GSL_CONST_MKSA_FARADAY/ 
         (a[0] * GSL_CONST_MKSA_MOLAR_GAS);
@@ -339,12 +275,6 @@ public:
       Utils::skippingCopy(a, args.data()+base, nbparams, skippedIndices);
 
     timeDependentParameters.initialize(a + params.size());
-
-    solver.setFunction([&args,this](double y) -> double {
-                          args[3] = y;
-                          return expression->evaluate(args.data());
-                       }
-      );
 
     const Vector &xv = ds->x();
     const Vector &yv = ds->y();
@@ -357,20 +287,11 @@ public:
 
     double val = 0, sol = 0;
 
-    auto computeSolution =
-      [this,&val, &sol, &args](double seed) {
-        sol = solver.solve(seed);
-        if(reporterExpression) {
-          args[3] = sol;
-          val = reporterExpression->evaluate(args.data());
-        }
-        else
-          val = sol;
-      };
     auto tryVal =
-      [this,&computeSolution](double seed) -> bool {
+      [this,&val, &sol, &args](double seed) -> bool {
         try {
-          computeSolution(seed);
+          val = expression->solve(seed, args.data());
+          sol = args[0];
         }
         catch(const RuntimeError & re) {
           return false;
@@ -383,20 +304,13 @@ public:
       while(seg < ds->segments.size() && j >= ds->segments[seg])
         seg++;
 
-      /// @todo Use DatasetExpression ?
-      args[0] = xv[j]; // x
-      args[1] = j;     // i !
-      args[2] = seg;
+      args[1] = xv[j]; // x
+      args[2] = j;     // i !
+      args[3] = seg;
       
-      timeDependentParameters.computeValues(args[0], args.data()+base,
+      timeDependentParameters.computeValues(args[1], args.data()+base,
                                             a + params.size());
-      if(seedExpression) {
-        found = true;
-        double seed = seedExpression->evaluate(args.data());
-        computeSolution(seed);
-        gsl_vector_set(target, k++, val);
-      }
-      else {
+      if(expression->requiresSeed()) {
 
         if((found && tryVal(lastFound))
            || tryVal(yv[j])
@@ -404,13 +318,17 @@ public:
            || tryVal(-xv[j])
            || tryVal(1)
            ) {
-          gsl_vector_set(target, k++, val);
+          gsl_vector_set(target, j, val);
           lastFound = sol;
           found = true;
         }
         else {
           notFound.insert(j);
         }
+      }
+      else {
+        found = true;
+        gsl_vector_set(target, j, expression->solve(args.data()));
       }
     }
     
@@ -421,12 +339,11 @@ public:
       while(seg < ds->segments.size() && j >= ds->segments[seg])
         seg++;
 
-      /// @todo Use DatasetExpression ?
-      args[0] = xv[j]; // x
-      args[1] = j;     // i !
-      args[2] = seg;
+      args[1] = xv[j]; // x
+      args[2] = j;     // i !
+      args[3] = seg;
       
-      timeDependentParameters.computeValues(args[0], args.data()+base,
+      timeDependentParameters.computeValues(args[1], args.data()+base,
                                             a + params.size());
       double seed = 0;
       if(j > 0)
@@ -441,7 +358,7 @@ public:
         }
       }
       try {
-        computeSolution(seed);
+        expression->solve(seed, args.data());
         gsl_vector_set(target, j, val);
       }
       catch(const RuntimeError & re) {
@@ -453,11 +370,7 @@ public:
 
   /// A textual description of the fit
   QString descriptionString() const {
-    QString rv = "Equation: " + expression->formula();
-    if(reporterExpression)
-      rv += "\nReporter: " + reporterExpression->formula();
-    if(seedExpression)
-      rv += "\nSeed: " + seedExpression->formula();
+    QString rv = expression->textDescription();
     rv += "\nParameters: " + params.join(", ");
     return rv;
   };
@@ -494,13 +407,7 @@ protected:
 
   virtual QString optionsString(FitData * data) const override {
     ImplicitFitBase * f = getFb(data);
-    QString rv;
-    rv = "equation: " + f->expression->formula() + " = 0";
-    if(f->reporterExpression)
-      rv += ", reporter: " + f->reporterExpression->formula();
-    if(f->seedExpression)
-      rv += ", seed: " + f->seedExpression->formula();
-    return rv;
+    return f->expression->textDescription();
   };
 
   /// @hack get rid of the const-cast, this isn't very clean

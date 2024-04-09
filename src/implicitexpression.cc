@@ -90,6 +90,15 @@ void ImplicitExpression::prepare()
   std::sort(naturalVariables.begin(), naturalVariables.end());
   naturalVariables.insert(0, variable);
   Utils::makeUnique(naturalVariables);
+
+  // Make the expressions
+  expression = new Expression(equation, naturalVariables);
+  
+  if(! reporter.isEmpty())
+    reporterExpression = new Expression(reporter, naturalVariables);
+
+  if(! seed.isEmpty())
+    seedExpression = new Expression(seed, naturalVariables);
 }
 
 QStringList ImplicitExpression::variables() const
@@ -160,4 +169,24 @@ double ImplicitExpression::solve(double * parameters)
   if(! seedExpression)
     throw InternalError("This ImplicitExpression has no seed");
   return solve(seedExpression->evaluate(parameters), parameters);
+}
+
+QString ImplicitExpression::textDescription() const
+{
+  QString rv = "Equation: " + expression->formula();
+  if(reporterExpression)
+    rv += "\nReporter: " + reporterExpression->formula();
+  if(seedExpression)
+    rv += "\nSeed: " + seedExpression->formula();
+  return rv;
+}
+
+void ImplicitExpression::parseOptions(const CommandOptions & opts)
+{
+  Solver::parseOptions(opts);
+}
+
+CommandOptions ImplicitExpression::currentOptions() const
+{
+  return Solver::currentOptions();
 }

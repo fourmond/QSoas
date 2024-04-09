@@ -106,6 +106,16 @@ public:
   /// @todo add the dichotomy here too
   double solve(double * parameters);
 
+  /// Returns a textual description of the problem solved
+  QString textDescription() const;
+
+
+  /// Sets the precision and suchlike
+  void parseOptions(const CommandOptions & opts);
+
+  /// Converts the ODEStepperOptions into plain CommandOptions.
+  CommandOptions currentOptions() const;
+
 
 };
 

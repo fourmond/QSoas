@@ -975,23 +975,25 @@ DataSet * DataSet::subset(int beg, int end, bool within) const
   return ds;
 }
 
+/// @todo I seriously think that this kind of data processing should
+/// probably be implemented directly at the command level.
 DataSet * DataSet::removeSpikes(int nbc, double extra) const
 {
-  int nb = 0, nb2;
+  int nb = 0, nb2 = 0;
   QList<Vector> cols;
-  cols += columns[0].removeSpikes(nbc, extra, &nb2);
-  if(nb2) {
-    nb = nb2;
-    Terminal::out << "Found " << nb2 << " spikes on X values" << endl;
-  }
 
-  cols += columns[1].removeSpikes(nbc, extra, &nb2);
-  if(nb2) {
+  int idx = 0;
+  for(const Vector & v : columns) {
+    cols << v.removeSpikes(nbc, extra, &nb2);
     nb += nb2;
-    Terminal::out << "Found " << nb2 << " spikes on Y values" << endl;
+    if(nb2 > 0)
+      Terminal::out << "Found " << nb2 << " spikes on "
+                    << standardNameForColumn(idx) << " column"
+                    << endl;
+    idx++;
   }
 
-  if(! nb2)
+  if(! nb)
     return NULL;
 
   return derivedDataSet(cols, "_spikes.dat");

@@ -972,9 +972,9 @@ public:
 
     base += s->species;
 
-    double xmax = Utils::roundValue(x.max());
+    Vector stps = Fit::proposeSteps(ds, s->steps.size()-1, true);
     for(int i = 0; i < s->steps.size(); i++)
-      base[i] = i * xmax/s->steps.size();
+      base[i] = stps[i];
 
     
     if(s->additionalLoss) {

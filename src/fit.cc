@@ -216,6 +216,24 @@ void Fit::processOptions(const CommandOptions & /*opts*/, FitData * /*data*/) co
   // No specific option to process by default.
 }
 
+
+Vector Fit::proposeSteps(const DataSet * ds, int steps,
+                         bool includeStart)
+{
+  Vector rv;
+  Vector segs = ds->segmentPositions();
+  double xmin = ds->x().min(), xmax = ds->x().max();
+  if(steps == segs.size())
+    rv = segs;
+  else {
+    for(int i = 0; i < steps; i++)
+      rv << (i+1)*(xmax-xmin)/(steps+1) + xmin;
+  }
+  if(includeStart)
+    rv.insert(0, xmin);
+  return rv;
+}
+
 FitInternalStorage * Fit::allocateStorage(FitData * ) const
 {
   return NULL;

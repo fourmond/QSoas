@@ -148,13 +148,14 @@ public:
   /// Sets a reasonable initial guess for these parameters
   void realSetInitialGuess(double * parameters, const DataSet * ds) const override {
     double dx = ds->x().max() - ds->x().min();
+    Vector steps = Fit::proposeSteps(ds, number);
     for(int i = 0; i < number; i++) {
       int base = baseFor(i);
 
       double &t0 = parameters[baseIndex + base + 1];
       double &conc = parameters[baseIndex + base];
       conc = 1;
-      t0 = ds->x().min() + (i+1) * dx/(number+1);
+      t0 = steps[i];
 
       if(mode == Independent ||
          (mode == Linear && (i == 0 || i == number-1))) 
@@ -252,6 +253,8 @@ public:
   /// Sets a reasonable initial guess for these parameters
   void realSetInitialGuess(double * parameters, const DataSet * ds) const override {
     double dx = ds->x().max() - ds->x().min();
+    Vector steps = Fit::proposeSteps(ds, number);
+
     for(int i = 0; i < number; i++) {
       double &conc = parameters[baseIndex + i*5];
       double &t0   = parameters[baseIndex + i*5 + 1];
@@ -260,7 +263,7 @@ public:
       double &tau_f   = parameters[baseIndex + i*5 + 4];
       tau = 20;
       conc = 1;
-      t0 = ds->x().min() + (i+1) * dx/(number+1);
+      t0 = steps[i];
       ov = 2.5;
       tau_f = 0.3;
     }
@@ -338,12 +341,13 @@ public:
   /// Sets a reasonable initial guess for these parameters
   void realSetInitialGuess(double * parameters, const DataSet * ds) const override {
     double dx = ds->x().max() - ds->x().min();
+    Vector steps = Fit::proposeSteps(ds, number-1);
     for(int i = 0; i < number; i++) {
       double & t0   = parameters[baseIndex + 2*i - 1];
       double & conc = parameters[baseIndex + 2*i];
       conc = 1+i;
       if(i > 0)
-        t0 = ds->x().min() + i * dx/(number);
+        t0 = steps[i-1];
     }
   };
 
@@ -565,13 +569,14 @@ public:
   /// Sets a reasonable initial guess for these parameters
   void realSetInitialGuess(double * parameters, const DataSet * ds) const override {
     double dx = ds->x().max() - ds->x().min();
+    Vector steps = Fit::proposeSteps(ds, number);
     for(int i = 0; i < number; i++) {
       double & t0   = parameters[baseIndex + 1 + (independentBits ? i*3 : 2*i+1)];
       double & conc = parameters[baseIndex + 1 + (independentBits ? i*3+1   : 2*i+2)];
       double & tau  = parameters[baseIndex + 1 + (independentBits ? i*3+2 : -1)];
       tau = dx/(3*number);
       conc = i+2;
-      t0 = ds->x().min() + (i+1) * dx/(number+1);
+      t0 = steps[i];
     }
     parameters[baseIndex + (independentBits ? 0 : 1)] = 1;
   };

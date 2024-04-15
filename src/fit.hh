@@ -284,6 +284,14 @@ public:
   /// \see unpackParameters()
   virtual void initialGuess(FitData * data, double * guess) const = 0;
 
+  /// Proposes positions of n steps for the given dataset, possibly
+  /// starting at the first point. The number of returned values is
+  /// the number of steps, or one more if @a includeStart is true
+  /// 
+  /// It will use the segments when the number of segments isn't too
+  /// different from the required number of steps
+  static Vector proposeSteps(const DataSet * ds, int steps,
+                             bool includeStart = false);
 
   /// Allocate an internal storage for the fit.
   /// Can be NULL if the fit doesn't need any storage.

@@ -1623,7 +1623,7 @@ Vector DataSet::segmentPositions() const
   for(int i = 0; i < segments.size(); i++) {
     int idx = segments[i];
     if(idx >= x().size())
-      continue;                 // Avoid hard crashes here...
+      break;                 // Avoid hard crashes here...
     double xv = x()[idx];
     if(idx > 0) {
       xv *= 0.5;

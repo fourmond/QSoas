@@ -208,6 +208,7 @@ private:
   friend class MonotoneFit;
   friend class IndexedFit;
   friend class DistribFit;
+  friend class ConvolutionFit;
 
   /// @name Thread-related things
   ///

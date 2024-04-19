@@ -429,7 +429,9 @@ SOURCES += \
         src/linearfunctions.cc \
         src/indexedfit.cc \
         src/svd-command.cc \
-        src/monotonefit.cc
+        src/monotonefit.cc \
+        src/convolutionfit.cc
+        
 
 
 # Fit engines, grouped in an easy way to disable them:

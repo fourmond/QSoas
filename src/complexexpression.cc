@@ -295,3 +295,9 @@ void ComplexExpression::reverseLaplace(const double * parameters,
   }
 
 }
+
+#include <credits.hh>
+static Credits bromwich("Weideman and Trefethen, Math. Comput. 2007",
+                        "computation of reverse Laplace transforms",
+                        "10.1090/S0025-5718-07-01945-X");
+

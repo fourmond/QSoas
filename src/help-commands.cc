@@ -37,6 +37,8 @@
 #include <commandlineparser.hh>
 #include <helpbrowser.hh>
 
+#include <credits.hh>
+
 static Group help("help", 1000,
                   "Help",
                   "Help");
@@ -231,6 +233,12 @@ void updateDocumentationFile(const QString &, QString file)
     Utils::updateWithin(str, "{::comment} statistics-start {:/}",
                         "{::comment} statistics-end {:/}\n",
                         "\n\n" + StatisticsValue::docString() + "\n");
+
+
+    // The credits
+    Utils::updateWithin(str, "{::comment} credits-start {:/}",
+                        "{::comment} credits-end {:/}\n",
+                        "\n\n" + Credits::docString() + "\n");
 
     // // Now dealing with non-interactive fit commands ?
     // QStringList nonInt = CommandContext::globalContext()->

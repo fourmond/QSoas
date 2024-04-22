@@ -39,9 +39,10 @@ void Credits::registerSelf()
 Credits::Credits(const QString & n, const QStringList & a, 
                  const QStringList & u, const QString & d,
                  const QString & w,
-                 Credits::Kind k, const QString & f) :
+                 Credits::Kind k, const QString & f,
+                 const QString & ex) :
   name(n), authors(a),
-  urls(u), notice(d), what(w), kind(k), fileName(f)
+  urls(u), notice(d), what(w), kind(k), fileName(f), extra(ex)
 {
   registerSelf();
 }
@@ -61,14 +62,16 @@ QString Credits::text(bool full) const
   QString fmt;
   switch(kind) {
   case QSoas:
-    fmt = "%1%5:\nAuthors: %2\n%3\nRefs: %4\n";
+    fmt = "%1%5:\nAuthors: %2\n%3\n%6\nRefs: %4\n";
     break;
   case Projects:
     fmt = "%1 -- %5\nAuthors: %2\n%3\nRefs: %4\n";
     break;
   case Paper:
-    // name = 
-    fmt = "%1 -- %5, DOI: %4%2%3"; 
+    if(urls.size() > 0 && urls[0].startsWith("10.10"))
+      fmt = "%1 -- %5, DOI: %4%2%3";
+    else
+      fmt = "%1 -- %5, URL: %4%2%3";
   }
   
   QString nt;
@@ -77,23 +80,71 @@ QString Credits::text(bool full) const
   else {
     nt = notice;
   }
-  return fmt.arg(name, authors.join(", "), nt, urls.join(", "), what);
+  return fmt.arg(name, authors.join(", "), nt, urls.join(", "), what, extra);
 }
 
-void Credits::displayCredits(bool full)
+
+QString Credits::docText() const
+{
+  QStringList linkList;
+  for(const QString & lnk : urls) {
+    if(lnk.startsWith("10.10")) {
+      linkList << QString("[DOI: %1](https://doi.org/%2)").
+        arg(lnk).arg(lnk);
+    }
+    else {
+      linkList << QString("[`%1`](%2)").
+        arg(lnk).arg(lnk);
+    }
+  }
+  switch(kind) {
+  case QSoas:
+  case Projects: 
+    return QString("%1 -- %2: Authors: %3\n%5See also: %4\n").
+      arg(name).arg(what).arg(authors.join(", ")).
+      arg(linkList.join(", "), extra);
+  case Paper:
+    return QString("%1 -- %2: %4\n").
+      arg(name).arg(what).
+      arg(linkList.join(", "));
+  }
+  return "";
+}
+
+QString Credits::docString()
 {
   if(! currentCredits)
-    return;                     // Nothing to do
+    return QString();
+  QList<Credits*> lst = (*currentCredits);
+  std::sort(lst.begin(), lst.end(), [](const Credits * a,
+                                       const Credits * b) -> bool {
+    if(a->kind != b->kind)
+      return a->kind < b->kind;
+    return a->name < b->name;
+  });
 
+  QString rv;
+  for(const Credits * c : lst)
+    rv += QString(" * %1\n").arg(c->docText());
+  return rv;
+}
+
+
+
+QString Credits::creditString(bool full)
+{
+  QString rv;
+  if(! currentCredits)
+    return rv;                     // Nothing to do
+
+  QTextStream out(&rv);
   for(int i = 0; i < currentCredits->size(); i++) {
     Credits * c = currentCredits->value(i);
     if(i > 0)
-      Terminal::out << "----------------------------------------------------------------------\n";
-    Terminal::out << c->text(full) << endl;
+      out << "----------------------------------------------------------------------\n";
+    out << c->text(full) << endl;
   }
-  if(! full) {
-    Terminal::out << "To obtain the full text of the licenses, use the /full=true option" << endl;
-  }
+  return rv;
 }
 
 
@@ -120,6 +171,7 @@ void Credits::displayStartupMessage()
                 << endl;
 }
 
+// 
 Credits qsoas("QSoas itself", 
               QStringList() << "Vincent Fourmond" << "Christophe Leger", 
               QStringList() << "http://qsoas.org"
@@ -132,8 +184,11 @@ Credits qsoas("QSoas itself",
               "but WITHOUT ANY WARRANTY; without even the implied warranty of "
               "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
               "GNU General Public License for more details."
-              "\n"
-              "QSoas was developed based on the ideas of Christophe Leger in the original QSoas, and using thanks to the bug reports and/or suggestions of many enthusiastic users, including, but not limited to, in random order: "
+              ,
+              "", 
+              Credits::QSoas,
+              ":/licenses/GPL-2.txt",
+              "QSoas was developed based on the ideas of Christophe Leger in the original SOAS, and was improved thanks to the bug reports and/or suggestions of many enthusiastic users, including, but not limited to, in random order: "
               "Christina Felbek, "
               "Christophe Léger, "
               "Matteo Sensi, "
@@ -146,21 +201,25 @@ Credits qsoas("QSoas itself",
               "Melisa del Barrio, "
               "Carole Baffert, "
               "Pierre Ceccaldi, "
-              "Patrick Bertrand"
-              ,
-              "", 
-              Credits::QSoas,
-              ":/licenses/GPL-2.txt");
+              "Patrick Bertrand, "
+              "Andrea Fasano, "
+              "Anna Aldinio-Colbachini, "
+              "Annamaria Quaranta, "
+              "Frauke Baymann, "
+              "Kilian Zuchan, "
+              "Laura Opdam"
+              "\n");
 
 Credits ruby("mruby", 
-             QStringList() << "mrubyby developers",
+             QStringList() << "mruby developers",
              QStringList() << "http://mruby.org",
              "mruby is copyrighted free software released under the terms of the 'MIT' license",
              "embedded ruby interpreter, for formulas and scripting",
              Credits::Projects,
              ":/licenses/mruby.txt");
 
-Credits gsl("GSL", 
+Credits gsl("GSL -- including derived implementations of "
+            "Gauss-Kronrod integrators",
             QStringList() << "Brian Gough and others",
             QStringList() << "http://www.gnu.org/software/gsl/",
             "The GNU Scientific Library is free software; "
@@ -206,15 +265,17 @@ static void creditsCommand(const QString &, const CommandOptions &opts)
 {
   bool full = false;
   updateFromOptions(opts, "full", full);
-  Credits::displayCredits(full);
+  Terminal::out << Credits::creditString(full);
+  if(! full) {
+    Terminal::out << "To obtain the full text of the licenses, "
+                  << "use the /full=true option" << endl;
+  }
 }
 
 ArgumentList crOpts(QList<Argument*>() 
                     << new BoolArgument("full", 
                                         "Full text",
                                         "Full text of the licenses"));
-                    
-
 static Command 
 credits("credits", // command name
      effector(creditsCommand), // action
@@ -223,3 +284,13 @@ credits("credits", // command name
      &crOpts, // options
      "Credits",
      "Display credits");
+
+#include <commandlineparser.hh>
+
+static CommandLineOption hlp("--credits", [](const QStringList & args) {
+  {
+    QTextStream o(stdout);
+    o << Credits::creditString(false);
+  }
+  ::exit(0);
+ }, 0, "prints out the credits of QSoas");

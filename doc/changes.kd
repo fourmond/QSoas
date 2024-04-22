@@ -1,3 +1,19 @@
+# What's new in version 3.3 ?
+
+Version 3.3 brings in new features, including reverse Laplace
+transforms and fits, pH fits, commands for picking points from a
+dataset, averaging points with the same X value, or perform singular
+value decomposition. 
+
+In addition to these new features, many previous commands were
+improved, like the addition of a bandcut filter in FFT filtering,
+better handling of the loading of files produced by QSoas itself, and
+a button to interrupt the processing of scripts.
+
+
+See the full list of changes [below](#v3p3)
+
+
 # What's new in version 3.2 ?
 
 Version 3.2 is mostly a bug-fix release, fixing a mistake in the EEC
@@ -90,7 +106,7 @@ functions.
 
 See the full list of changes [below](#v2p0)
 
-# Changes in version 3.3 (22.03.2024) {#v3p3}
+# Changes in version 3.3 (22.04.2024) {#v3p3}
 
 ## Fits
 
@@ -152,7 +168,7 @@ See the full list of changes [below](#v2p0)
 
  * interruption of scripts via the the button at the right of the
    prompt;
- * automatically switching to drawing oints in more situations,
+ * automatically switching to drawing points in more situations,
    improving the drawing speed;
  * better loading of fit parameter files as datasets;
  * several bug fixes/small improvements.

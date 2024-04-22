@@ -29,6 +29,7 @@
 
 #include <possessive-containers.hh>
 
+
 /// Gauss Kronrod integrators. This code is greatly inspired from the
 /// GSL code. It is much simplified, though.
 class GaussKronrodMultiIntegrator : public MultiIntegrator {

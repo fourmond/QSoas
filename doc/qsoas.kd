@@ -379,6 +379,8 @@ version. You'll get the full license text with `/full=true`.
 
 It also lists publications whose findings/equations/algorithms were
 directly used in QSoas.
+
+See also [below](#credits)
 {::comment} description-end: credits {:/}
 
 {::comment} synopsis-start: version {:/}
@@ -9700,8 +9702,8 @@ later using [cmd: eval], for instance.
 The global variables defined above can be used directly in every ruby
 expression, like in [cmd: apply-formula], [cmd: eval], 
 [cmd: reverse-laplace], [cmd: strip-if], 
-but also in the [fit: arb], [fit: ode], [fit:
-kinetic-system], [fit: laplace] and [fit: implicit] fits (but,
+but also in the [fit: arb], [fit: ode], [fit: kinetic-system], 
+[fit: laplace] and [fit: implicit] fits (but,
 honestly, for fits, you'd better use the usual parameters, since
 you'll be able to monitor and change the value from the fit
 interface).
@@ -9749,11 +9751,12 @@ QSoas> eval ($x>5)&&($x<3)
 Ruby code can be used in several contexts:
 
  * in [cmd: eval], one can make "general computations", which can
-   refer to "global properties" of the current dataset, like its
+   refer to properties of the current dataset, like its
    [meta data](#meta-data) or [statistics](#cmd-stats) (or of other
    datasets too);
  * in the `/for-which` options that take a boolean expression to
-   select datasets from a list, using their "global properties";
+   select datasets from a list, using their properties (see
+   [there](#for-which) for more information);
  * in [cmd: apply-formula], the formula is applied to each row of a
    dataset, possibly modifying the values;
  * in [cmd: strip-if] the formula is also applied to each row of a
@@ -9761,6 +9764,8 @@ Ruby code can be used in several contexts:
    removed (`true`);
  * in the [fit: arb] fits to specify the function (of the variable `x`)
    to fit;
+ * directly in command-lines using the `%{`_code_`}` 
+   construction [defined above](#ruby-interpolation);
  * in many other places too.
 
 
@@ -9975,8 +9980,48 @@ command-line terminal and run:
 # ./qs-run my-command-script.txt
 ~~~
 
+
+# Credits {#credits}
+
+QSoas is a large project, relying on external projects and research
+articles. A hopefully exhaustive list is given below; more information
+can be found in using the [cmd: credits] command.
+
+{::comment} credits-start {:/}
+
+ * QSoas itself -- : Authors: Vincent Fourmond, Christophe Leger
+QSoas was developed based on the ideas of Christophe Leger in the original SOAS, and was improved thanks to the bug reports and/or suggestions of many enthusiastic users, including, but not limited to, in random order: Christina Felbek, Christophe Léger, Matteo Sensi, Marta Meneghello, Meriem Merrouch, Asmaa Hadj-Ahmed, Ana Rita Oliveira, Nazua Costa, Christophe Orain, Melisa del Barrio, Carole Baffert, Pierre Ceccaldi, Patrick Bertrand, Andrea Fasano, Anna Aldinio-Colbachini, Annamaria Quaranta, Frauke Baymann, Kilian Zuchan, Laura Opdam
+See also: [`http://qsoas.org`](http://qsoas.org), [`http://www.gnu.org/licenses/gpl.html`](http://www.gnu.org/licenses/gpl.html)
+
+ * GSL -- including derived implementations of Gauss-Kronrod integrators -- general-purpose scientific library, used for a large part of the computations: Authors: Brian Gough and others
+See also: [`http://www.gnu.org/software/gsl/`](http://www.gnu.org/software/gsl/)
+
+ * Qt5 -- cross-platform graphical user interface: Authors: The Qt company
+See also: [`https://www.qt.io/`](https://www.qt.io/)
+
+ * mruby -- embedded ruby interpreter, for formulas and scripting: Authors: mruby developers
+See also: [`http://mruby.org`](http://mruby.org)
+
+ * Bieniasz, JEAC, 2012 -- the k_mhc_double function: [DOI: 10.1016/j.jelechem.2012.08.015](https://doi.org/10.1016/j.jelechem.2012.08.015)
+
+ * Fourmond and Leger, JEAC, 2020 -- the k_mhc function: [DOI: 10.1016/j.jelechem.2020.114762](https://doi.org/10.1016/j.jelechem.2020.114762)
+
+ * Fourmond et al, JACS, 2013 -- catalytic wave shapes of 1 and 2 electron enzymes: [DOI: 10.1021/ja311607s](https://doi.org/10.1021/ja311607s)
+
+ * Nahir, JEAC, 2002 -- the k_mhc_n function: [DOI: 10.1016/j.jelechem.2014.09.038](https://doi.org/10.1016/j.jelechem.2014.09.038)
+
+ * Paul Bourke -- CONREC algorithm (but not the implementation): [`https://paulbourke.net/papers/conrec/`](https://paulbourke.net/papers/conrec/)
+
+ * Weideman and Trefethen, Math. Comput. 2007 -- computation of reverse Laplace transforms: [DOI: 10.1090/S0025-5718-07-01945-X](https://doi.org/10.1090/S0025-5718-07-01945-X)
+
+ * Zeng et al, JEAC, 2014 -- the k_mhc_z function: [DOI: 10.1016/j.jelechem.2014.09.038](https://doi.org/10.1016/j.jelechem.2014.09.038)
+
+
+{::comment} credits-end {:/}
+
+
 This file was written by Vincent Fourmond, and is copyright (c)
-2012-2020 by CNRS/AMU.
+2012-2024 by CNRS/AMU.
 
 [ruby]:http://www.ruby-lang.org/ "Ruby, the programming language"
 [mruby]:https://mruby.org/ "MRuby, the embedded version of Ruby"

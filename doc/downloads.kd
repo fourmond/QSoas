@@ -15,12 +15,14 @@ installing, just extract the archive, and double click on the relevant
 package. As of now, the binaries are not signed, which means you have
 to authorize _unsafe installations_ to get QSoas to install properly.
 
+- Version 3.3 [`QSoas-3.3.zip`](https://bip.cnrs.fr/wp-content/uploads/qsoas/QSoas-3.3.zip) (2024.04.22)
 - Version 3.2 [`QSoas-3.2.zip`](https://bip.cnrs.fr/wp-content/uploads/qsoas/QSoas-3.2.zip) (2023.03.27)
 - Version 3.1 [`QSoas-3.1.zip`](https://bip.cnrs.fr/wp-content/uploads/qsoas/QSoas-3.1.zip) (2022.09.28)
 
 
 ## Source code {#source-code}
 
+- Version 3.3 [`qsoas-3.3.tar.gz`](https://bip.cnrs.fr/wp-content/uploads/qsoas/qsoas-3.3.tar.gz) (2024.04.22)
 - Version 3.2 [`qsoas-3.2.tar.gz`](https://bip.cnrs.fr/wp-content/uploads/qsoas/qsoas-3.2.tar.gz) (2023.03.27)
 - Version 3.1 [`qsoas-3.1.tar.gz`](https://bip.cnrs.fr/wp-content/uploads/qsoas/qsoas-3.1.tar.gz) (2022.09.28)
 - Version 3.0 [`qsoas-3.0.tar.gz`](https://bip.cnrs.fr/wp-content/uploads/qsoas/qsoas-3.0.tar.gz) (2020.12.03)

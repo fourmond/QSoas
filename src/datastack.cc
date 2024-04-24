@@ -448,6 +448,18 @@ void DataStack::insertStack(const DataStack & s)
   emit(currentDataSetChanged());
 }
 
+QStringList DataStack::metaInStack() const
+{
+  QSet<QString> meta;
+  for(const DataSet * ds : dataSets + redoStack) {
+    for(const QString & s: ds->getMetaData().keys())
+      meta.insert(s);
+  }
+  QStringList lst = meta.toList();
+  std::sort(lst.begin(), lst.end());
+  return lst;
+}
+
 
 void DataStack::reorderDatasets(const QList<const DataSet *> newOrder)
 {
@@ -469,12 +481,13 @@ void DataStack::reorderDatasets(const QList<const DataSet *> newOrder)
 }
 
 
-qint32 DataStack::serializationVersion = 0;
 
 //////////////////////////////////////////////////////////////////////
 
 
 /// @todo write out the accumulator ?
+
+qint32 DataStack::serializationVersion = 0;
 
 
 

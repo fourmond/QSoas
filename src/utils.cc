@@ -25,6 +25,8 @@
 #include <vector.hh>
 #include <linereader.hh>
 
+#include <dataset.hh>
+
 #include <soas.hh>
 
 /// Helper function for globs
@@ -278,6 +280,7 @@ bool Utils::askConfirmation(const QString & what,
   confirmation.move(QCursor::pos() + QPoint(-10,-10));
   return confirmation.exec() == QMessageBox::Yes;
 }
+
 
 QRectF Utils::scaledAround(const QRectF & rect, const QPointF & point,
                            double xscale, double yscale)
@@ -1126,4 +1129,22 @@ void Utils::splitCSVLine(const QString &s,
   // QTextStream o(stdout);
   // o << "'" << fields.join("', '") << "'" << endl;
   // return fields;
+}
+
+
+#include <datastack.hh>
+#include <mainwin.hh>
+
+
+bool Utils::promptAddMeta(DataSet * dataset, double value)
+{
+  QString meta =
+    QInputDialog::getItem(&soas().mainWin(),
+                          "Set meta",
+                          QString("Set to value: %1").arg(value),
+                          soas().stack().metaInStack(), 0, true);
+  if(meta.isEmpty())
+    return false;
+  dataset->setMetaData(meta, value);
+  return true;
 }

@@ -204,6 +204,11 @@ double CurveDataSet::distanceTo(const QPointF & point,
   return pair.first;
 }
 
+int CurveDataSet::cachedClosestPoint() const
+{
+  return lastPointIdx;
+}
+
 QString CurveDataSet::toolTipText(const QPointF & pt)
 {
   if(! dataSet)

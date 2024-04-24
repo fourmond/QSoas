@@ -27,6 +27,8 @@
 /// Comes in useful for call to member functions
 #define CALL_MEMBER_FN(object,ptrToMember) ((object).*(ptrToMember))
 
+class DataSet;
+
 /// Various generally useful functions.
 namespace Utils {
 
@@ -255,11 +257,23 @@ namespace Utils {
 
   /// @}
 
+  /// @name Promtping facilities
+  ///
+  /// A series of small functions to ask the user something
+  ///
+  /// @{
+
   /// Prompts the user for confirmation for something. For now,
   /// through the use of a dialog box, but that may change some time
   /// later.
   bool askConfirmation(const QString & what, 
                        const QString & title = QString());
+
+
+  /// Prompts the user to enter a meta name for a value to be added to
+  /// the given dataset (in place)
+  bool promptAddMeta(DataSet * dataset, double value);
+  /// @}
 
 
 

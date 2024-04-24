@@ -254,8 +254,12 @@ public:
   /// Returns the current state of the accumulator.
   const DataSet * peekAccumulator();
 
-  // /// Returns the current accumulator without releasing ownership
-  // DataSet * getAccumulator();
+
+  /// Returns a list of all the meta-data in the stack.
+  ///
+  /// @todo Maybe this is too slow ? I shouldn't think so.
+  QStringList metaInStack() const;
+  
 
   /// Inserts the given stack into the current one.
   void insertStack(const DataStack & s);

@@ -65,6 +65,10 @@ public:
   
   virtual QString toolTipText(const QPointF & p) override;
 
+  /// This function returns the index of the last "closest point"
+  /// cached by distanceTo.
+  int cachedClosestPoint() const;
+
   /// The dataset this item displays
   const DataSet * displayedDataSet() const;
 

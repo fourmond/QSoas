@@ -452,7 +452,6 @@ void CurveView::showContextMenu(const QPoint & pos)
     CurveDataSet * dsi = dynamic_cast<CurveDataSet*>(it);
     if(dsi && dst < 30 && dsi->displayedDataSet()) {
       const DataSet * ds = dsi->displayedDataSet();
-      menu.addSeparator();
       menu.addSection(Utils::shortenString(ds->name, 30, 10));
       addCMAction(&menu, "Zoom to",
                   [panel,this, ds] {
@@ -469,6 +468,39 @@ void CurveView::showContextMenu(const QPoint & pos)
                         setText(QString("%1").
                                 arg(idx));
                     });
+      int ptIdx = dsi->cachedClosestPoint();
+      if(ptIdx >= 0 && ptIdx < ds->nbRows()) {
+        QPointF ptDs = ds->pointAt(ptIdx);
+        menu.addSection(QString("%3@#%4: %1, %2").
+                        arg(ptDs.x(), 0, 'g', 4).
+                        arg(ptDs.y(), 0, 'g', 4).
+                        arg(ptIdx).arg(idx));
+        
+        addCMAction(&menu, "Copy X",
+                    [ptDs] {
+                      QGuiApplication::clipboard()->setText(QString::number(ptDs.x(), 'g', 4));
+                    });
+        addCMAction(&menu, "Copy Y",
+                    [ptDs] {
+                      QGuiApplication::clipboard()->setText(QString::number(ptDs.y(), 'g', 4));
+                    });
+        addCMAction(&menu, "Copy X,Y",
+                    [ptDs] {
+                      QGuiApplication::clipboard()->
+                        setText(QString("%1,%2").
+                                arg(ptDs.x(), 0, 'g', 4).
+                                arg(ptDs.y(),  0, 'g', 4));
+                    });
+        DataSet * mds = const_cast<DataSet*>(ds);
+        addCMAction(&menu, "Set X as meta",
+                    [ptDs, mds] {
+                      Utils::promptAddMeta(mds, ptDs.x());
+                    });
+        addCMAction(&menu, "Set Y as meta",
+                    [ptDs, mds] {
+                      Utils::promptAddMeta(mds, ptDs.y());
+                    });
+      }
     }
   }
 

@@ -78,9 +78,6 @@ public:
 
   /// Returns a tooltip text to be shown at the given point. Functions
   /// may rely on data cached during the last call to distanceTo();
-  ///
-  /// @todo This isn't so great for now, it may have to be eventually
-  /// enhanced with a
   virtual QString toolTipText(const QPointF & point);
 
   /// Destroy the object in \p milliseconds

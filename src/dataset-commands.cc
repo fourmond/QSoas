@@ -1953,6 +1953,8 @@ static void shiftxCommand(const QString &)
 {
   const DataSet * ds = soas().currentDataSet();
   Vector nx = ds->x();
+  if(nx.size() == 0)
+    throw RuntimeError("Attempting to shift an empty dataset");
   double x = nx[0];
   Terminal::out << QObject::tr("Shifting X axis by %1").
     arg(x) << endl;

@@ -32,14 +32,16 @@ MetaDataProvider::MetaDataProvider(const QString & n) :
   NamedInstance<MetaDataProvider>::registerInstance(this);
 }
 
-ValueHash MetaDataProvider::allMetaDataForFile(const QString & fileName)
+ValueHash MetaDataProvider::allMetaDataForFile(const QString & fileName,
+                                               bool editable)
 {
   ValueHash ret;
   InstanceHash::iterator it;
   for(it = NamedInstance<MetaDataProvider>::begin(); 
       it != NamedInstance<MetaDataProvider>::end(); ++it) {
     MetaDataProvider * prov = it.value();
-    if(prov->enabled && prov->handlesFile(fileName)) {
+    if(prov->enabled && prov->handlesFile(fileName) &&
+       (prov->isEditable() == editable)) {
       try {
         ret.merge(prov->metaDataForFile(fileName));
       }
@@ -57,3 +59,7 @@ ValueHash MetaDataProvider::allMetaDataForFile(const QString & fileName)
 }
 
 
+bool MetaDataProvider::isEditable() const
+{
+  return false;
+}

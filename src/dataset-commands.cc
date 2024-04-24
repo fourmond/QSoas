@@ -2293,15 +2293,23 @@ static void saveMetaCommand(const QString &,
 {
   const DataSet * ds = soas().currentDataSet();
 
-  QString fileName;
+  QString originalFile;
   if(ds->hasMetaData("original_file"))
-    fileName = ds->getMetaData("original_file").toString();
+    originalFile = ds->getMetaData("original_file").toString();
+  bool saveAll = false;
+  
+  QString fileName = originalFile;
   updateFromOptions(opts, "file", fileName);
+  if(originalFile != fileName)
+    saveAll = true;
+
+  updateFromOptions(opts, "save-all", saveAll);
+  
   if(fileName.isEmpty())
     throw RuntimeError("Could not find the original file, and no file name specified");
 
   DataSetWriter writer;
-  writer.writeDataSetMeta(fileName, ds);
+  writer.writeDataSetMeta(fileName, ds, saveAll);
 }
 
 
@@ -2310,8 +2318,12 @@ saMO(QList<Argument *>()
      << new FileArgument("file", 
                          "File",
                          "save for this file", false, true)
-            
-     );
+     << new BoolArgument("save-all",
+                         "Save all meta",
+                         "Saves all the meta-data, including the ones "
+                         "provided by the backends (defaults to false, "
+                         "unless one is saving to another name)")
+     ); 
 
 
 

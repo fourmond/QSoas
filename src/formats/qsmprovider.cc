@@ -30,12 +30,12 @@ protected:
 public:
 
   /// Whether or not the provider has meta-data for the give file.
-  virtual bool handlesFile(const QString & fileName) const {
+  virtual bool handlesFile(const QString & fileName) const override {
     return true;
   };
 
   /// Returns the meta-data for the given file
-  virtual ValueHash metaDataForFile(const QString & fileName) const {
+  virtual ValueHash metaDataForFile(const QString & fileName) const override {
     MetaDataFile f(fileName);
     f.read();
     return f.metaData;
@@ -43,6 +43,11 @@ public:
   
   QSMProvider() : MetaDataProvider("QSM")
   {
+  };
+
+  /// That is likely the only editable provider.
+  virtual bool isEditable() const override {
+    return true;
   };
 
   

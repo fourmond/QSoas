@@ -58,8 +58,16 @@ public:
   virtual ValueHash metaDataForFile(const QString & fileName) const = 0;
 
 
-  /// Loops over all enabled providers and returns all the meta-data.
-  static ValueHash allMetaDataForFile(const QString & fileName);
+  /// Loops over all enabled providers for which isEditable returns
+  /// the same value as the @a editable argument and returns all the
+  /// meta-data.
+  /// 
+  static ValueHash allMetaDataForFile(const QString & fileName,
+                                      bool editable);
+
+  /// Returns true if the meta-data returned can easily be edited
+  /// (which is only the case for the meta-data files)
+  virtual bool isEditable() const;
   
 
 };

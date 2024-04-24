@@ -235,11 +235,8 @@ QList<DataSet *> DataBackend::loadFile(const QString & fileName,
     if(! b)
       throw RuntimeError(QObject::tr("No backend found to load '%1'").
                          arg(fileName));
-    datasets = b->readFromStream(file, fileName, opts);
 
-    for(DataSet * d : datasets)
-      d->setMetaData("backend", b->name);
-
+    datasets = b->internalRead(file, fileName, opts);
 
     if(verbose)
       Terminal::out << "using backend " << b->name << endl;
@@ -262,14 +259,23 @@ ArgumentList DataBackend::loadOptions() const
   return ArgumentList();
 }
 
+QList<DataSet *> DataBackend::internalRead(QIODevice * dev,
+                                           const QString & fileName,
+                                           const CommandOptions & opts) const
+{
+  QList<DataSet *> datasets = readFromStream(dev, fileName, opts);
+  for(DataSet * d : datasets) {
+    d->setMetaData("backend", name);
+    setMetaDataForFile(d, fileName);
+  }
+  return datasets;
+}
+
 QList<DataSet *> DataBackend::readFile(const QString & fileName, 
                                        const CommandOptions & opts) const
 {
   File file(fileName, File::BinaryRead);
-  QList<DataSet *> datasets = readFromStream(file, fileName, opts);
-  for(DataSet * d : datasets)
-    d->setMetaData("backend", name);
-  return datasets;
+  return internalRead(file, fileName, opts);
 }
 
 
@@ -304,7 +310,7 @@ void DataBackend::loadFilesAndDisplay(bool update, QStringList files,
         Terminal::out << " -> OK" << endl;
       FileInfo info(files[i]);
       for(DataSet * s : dss) {
-        s->setMetaData("original_file", info.canonicalFilePath());
+        // s->setMetaData("original_file", info.canonicalFilePath());
         
         if(ignoreEmpty && (s->nbRows() == 0 || s->nbColumns() == 0)) {
           Terminal::out << " -> ignoring empty dataset '"
@@ -366,10 +372,6 @@ void DataBackend::loadDatasetCommand(const QString & /*cmdname*/,
 void DataBackend::setMetaDataForFile(DataSet * dataset, 
                                      const QString& filename)
 {
-  /// @todo Should the new meta-data stuff go here or somewhere else ?
-  /// Here is fine.
-  /// @todo This feels like it should be handled differently...
-  /// This should be done using a FileInfo static function.
   QString fp =  Utils::expandTilde(filename);
   QDir dir = QDir::current();
   fp = QDir::cleanPath(dir.absoluteFilePath(fp));
@@ -380,9 +382,18 @@ void DataBackend::setMetaDataForFile(DataSet * dataset,
   dataset->setMetaData("age", info.lastModified().
                        msecsTo(soas().startupTime()) * 1e-3);
 
-  
-  ValueHash md = MetaDataProvider::allMetaDataForFile(fp);
+
+  // First with the "non-editable" dataset
+  ValueHash md = MetaDataProvider::allMetaDataForFile(fp, false);
   dataset->addMetaData(md);
+
+  dataset->saveOriginalMetaData();
+
+  // Then with the editable ones
+  md = MetaDataProvider::allMetaDataForFile(fp, true);
+  dataset->addMetaData(md);
+
+  
 }
 
 static void loadCommand(const QString &, QStringList files, 

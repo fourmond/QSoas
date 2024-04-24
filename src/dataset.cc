@@ -119,22 +119,33 @@ QString DataSet::stringDescription(bool longDesc) const
     QString index;
     if(soas().stack().indexOf(this, &idx))
       index = QString(", #%1").arg(idx);
-    
+
     QString val = QString("%1: %2 cols, %3 rows, %4 segments%5\n").
       arg(name).arg(nbColumns()).arg(nbRows()).
       arg(segments.size() + 1).arg(index);
     QStringList flgs = QStringList::fromSet(flags);
     std::sort(flgs.begin(), flgs.end());
     val += QString("Flags: %1\n").arg(flgs.join(", "));
+    ValueHash orig = metaData;
+    ValueHash mod = getModifiedMetaData();
+    for(const QString & k : mod.keys())
+      orig.remove(k);
+    if(orig.size() > 0) {
+      val += "Original meta-data:\n";
+      val += orig.prettyPrint(3, "\t", ",", true);
+      val += "\n";
+    }
     val += "Meta-data:";
-    val += metaData.prettyPrint(3, "\t", ",", true);
+    val += mod.prettyPrint(3, "\t", ",", true);
+
     if(perpCoords.size() > 0) {
-      val += "\nPerpendicular coordinates: " + perpCoords.asText().join(", ") + "\n";
+      val += "\nPerpendicular coordinates: " +
+        perpCoords.asText().join(", ") + "\n";
     }
     bool mup = false;
     QStringList coln = mainColumnNames(&mup);
-    val += "\nColumn names" + (mup ? QString(" (default)") : QString()) + ": " +
-      coln.join(", ");
+    val += "\nColumn names" +
+      (mup ? QString(" (default)") : QString()) + ": " + coln.join(", ");
     return val;
   }
   else
@@ -1701,6 +1712,30 @@ QVariant DataSet::getMetaData(const QString & val) const
   return metaData[val];
 }
 
+void DataSet::saveOriginalMetaData()
+{
+  originalMetaData = metaData;
+}
+
+bool DataSet::metaIsModified(const QString & meta) const
+{
+  if(metaData.contains(meta) && (! originalMetaData.contains(meta)))
+    return true;
+  if((!metaData.contains(meta)) && originalMetaData.contains(meta))
+    return true;
+  return !(metaData[meta] == originalMetaData[meta]);
+}
+
+ValueHash DataSet::getModifiedMetaData() const
+{
+  ValueHash rv;
+  for(const QString & k : metaData.keys()) {
+    if(metaIsModified(k))
+      rv[k] = metaData[k];
+  }
+  return rv;
+}
+
 
 void DataSet::addMetaData(const ValueHash & val, bool override)
 {
@@ -1713,6 +1748,7 @@ void DataSet::addMetaData(const ValueHash & val, bool override)
   }
   metaData.merge(tmp, override);
 }
+
 
 const Vector & DataSet::perpendicularCoordinates() const
 {

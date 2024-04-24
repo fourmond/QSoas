@@ -85,23 +85,28 @@ void DataSetWriter::writeDataSet(File * file,
 
 
 void DataSetWriter::writeDataSetMeta(const QString & file,
-                                     const DataSet * dataset) const
+                                     const DataSet * dataset,
+                                     bool saveAll) const
 {
   MetaDataFile mf(file);
-  mf.metaData = dataset->metaData;
+  mf.metaData = (saveAll ? dataset->getMetaData() :
+                 dataset->getModifiedMetaData());
   if(dataset->segments.size() > 0) {
     QList<QVariant> segs;
     for(int i : dataset->segments)
       segs << i;
     mf.metaData["__segments__"] = segs;
   }
+  
   // We remove the meta-data that was automatically added and that
   // does not make much sense to save...
+  // Although these should really get saved in a different way
   mf.metaData.remove("age");
   mf.metaData.remove("name");
   mf.metaData.remove("backend");
   mf.metaData.remove("file_date");
-  
+  mf.metaData.remove("original_file");
+
   if(mf.metaData.size() > 0)
     mf.write();
 }

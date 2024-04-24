@@ -77,6 +77,11 @@ class DataSet : public Guardable {
   /// A set of meta-data. Basically anything !
   ValueHash metaData;
 
+  /// The "original" meta-data, i.e. the basic set of meta-data that
+  /// were provided constitutively upon loading the "non-editable"
+  /// meta-data
+  ValueHash originalMetaData;
+
   
   /// The set of flags attached to this dataset
   QSet<QString> flags;
@@ -739,6 +744,7 @@ public:
   /// Sets the given meta-data
   void setMetaData(const QString & name, const QVariant & value);
 
+
   /// Returns all the meta-data.
   ///
   /// This also includes meta-data automatically generated on the spot:
@@ -757,6 +763,19 @@ public:
 
   /// Add a whole new set of meta-data
   void addMetaData(const ValueHash & val, bool override = true);
+
+  /// Records the current state of the meta-data to be the "original"
+  /// meta-data, i.e. all the meta-data that were provided before
+  /// loading any of the "editable" meta-data
+  void saveOriginalMetaData();
+
+  /// Returns the meta-data for which the value has changed since the
+  /// loading
+  ValueHash getModifiedMetaData() const;
+
+  /// Returns true if the given meta-data has been modified from the
+  /// "original" ones (see saveOriginalMetaData
+  bool metaIsModified(const QString & meta) const;
 
 
   /// Evaluates the given expression, setting the $stats and $meta

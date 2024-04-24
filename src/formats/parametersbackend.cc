@@ -93,10 +93,8 @@ protected:
         break;
       }
     }
-    
-    setMetaDataForFile(nds, fileName);
+
     rv << nds;
-    
     return rv;
   };
 

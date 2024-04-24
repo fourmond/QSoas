@@ -61,7 +61,11 @@ public:
 
   /// Writes the metadata of the given dataset to the given file
   /// (adding the appropriate .qsm extension)
-  void writeDataSetMeta(const QString & file, const DataSet * dataset) const;
+  ///
+  /// This function writes only the "modified" meta unless saveAll is
+  /// true.
+  void writeDataSetMeta(const QString & file, const DataSet * dataset,
+                        bool saveAll = true) const;
 
   
 

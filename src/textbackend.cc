@@ -321,7 +321,8 @@ QList<DataSet *> TextBackend::readFromStream(QIODevice * stream,
       ds->name += QString("#%1").arg(j);
     }
     ds->addMetaData(hd.meta);
-    setMetaDataForFile(ds, fileName);
+    // This is handlded by readFile
+    // setMetaDataForFile(ds, fileName);
     ds->columnNames.clear();
     ds->columnNames << cn;
     if(savedTexts.size() > j)

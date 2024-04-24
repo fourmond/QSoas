@@ -118,6 +118,20 @@ protected:
                           const QString & fileName) const = 0;
 
 
+  /// Reads a DataSet from the given stream. The \p fileName parameter
+  /// does not necessarily point to a real file.
+  ///
+  /// \b Note The backend is responsible for setting as much meta-data
+  /// as reasonably possible based on the given file, but also
+  /// potentially on connected files.
+  ///
+  /// <b>In particular</b> all backends should set a meta-data telling
+  /// which backend read the dataset !
+  virtual QList<DataSet *> readFromStream(QIODevice * stream,
+                                          const QString & fileName,
+                                          const CommandOptions & opts) const = 0;
+
+private:
   /// Returns the list of options the backend can take when called
   /// directly.
   virtual ArgumentList loadOptions() const;
@@ -131,30 +145,24 @@ protected:
                           QStringList files,
                           const CommandOptions & opts);
 
+ 
   /// Decorates a \a dataset's metadata with file information about
   /// the file name.
   static void setMetaDataForFile(DataSet * dataset, 
                                  const QString& fileName);
 
-  /// Reads a DataSet from the given stream. The \p fileName parameter
-  /// does not necessarily point to a real file.
-  ///
-  /// \b Note The backend is responsible for setting as much meta-data
-  /// as reasonably possible based on the given file, but also
-  /// potentially on connected files.
-  ///
-  /// <b>In particular</b> all backends should set a meta-data telling
-  /// which backend read the dataset !
-  ///
-  /// @todo I should find a way to also gather information from the
-  /// so-called conditions.dat files I used so often now. I'll have to
-  /// decide how the interface will go.
-  virtual QList<DataSet *> readFromStream(QIODevice * stream,
-                                          const QString & fileName,
-                                          const CommandOptions & opts) const = 0;
+
+  /// This redirects to readFromStream, which should not be called
+  /// directly, and adds all the meta-data decorations
+  QList<DataSet *> internalRead(QIODevice * stream,
+                                const QString & fileName,
+                                const CommandOptions & opts) const;
 
 public:
 
+  /// Reads a file and returns the datasets.  This function is also
+  /// responsible for loading all the "external" meta-data from the
+  /// MetaDataProvider objects.
   QList<DataSet *> readFile(const QString & fileName, 
                             const CommandOptions & opts) const;
 

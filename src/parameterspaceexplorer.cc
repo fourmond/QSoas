@@ -242,29 +242,49 @@ static void iterateExplorerCommand(const QString & /*name*/,
   while(true) {
     QString lr = "(none yet)";
     double res = -1;
+    QString summary;
     if(ws->trajectories.size() > 0) {
       lr = QString("%1 (%2)").
         arg(ws->trajectories.best().residuals).
         arg(ws->trajectories.best().endTime.toString());
       res = ws->trajectories.best().residuals;
 
-      // Adding some stats
-      int nb10 = 0, nb40 = 0;
+      static const double thresholds[] =
+        {
+         1.15, 1.5, 3.0, 30
+        };
+      static const int number = sizeof(thresholds)/sizeof(thresholds[0]);
+      int nb[number + 1];
+      for(int i = 0; i < number + 1; i++)
+        nb[i] = 0;
       for(const FitTrajectory & t : ws->trajectories) {
-        if(t.residuals <= 1.1 * res)
-          ++nb10;
-        if(t.residuals <= 1.4 * res)
-          ++nb40;
+        bool found = false;
+        for(int i = 0; i < number; i++) {
+          if(t.residuals < thresholds[i] * res) {
+            nb[i] += 1;
+            found = true;
+            break;
+          }
+        }
+        if(! found)
+          nb[number] += 1;
+        summary =  QString("\n -> residuals: %1").arg(nb[0]);
+        for(int i = 0; i < number; i++)
+          summary += QString(" < %1|\t %2").arg(thresholds[i], 0, 'f', 2).
+            arg(nb[i+1]);
+        // below 1.5 ?
+        summary += QString(" over (%1% efficiency)").
+          arg(100.0*(nb[0] + nb[1])/ws->trajectories.size(), 0, 'g', 3);
       }
-      lr += QString(", %1 at less than 10%, %2 less than 40%").
-        arg(nb10).arg(nb40);
+      
+    
     }
     
     Terminal::out << "Explorer '" << explorer->createdFrom->name
                   << "' iteration: " << explorer->progressText()
                   << " starting " << QDateTime::currentDateTime().toString()
                   << ", current best residuals: "
-                  << lr
+                  << lr << summary
                   << endl;
     bool cont = explorer->iterate(justPick);
     if(justPick) {

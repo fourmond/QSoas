@@ -122,6 +122,9 @@ public:
   };
 };
 
+//////////////////////////////////////////////////////////////////////
+
+
 /// A Monte-Carlo parameter space explorer, i.e. an explorer in which
 /// one randomly chooses the initial parameters within a given range.
 class MonteCarloExplorer : public ParameterSpaceExplorer {
@@ -1096,6 +1099,11 @@ linear("linear", "Linear ramp",
          return new LinearExplorer(ws);
        });
 
+
+
+
+
+
 //////////////////////////////////////////////////////////////////////
 
 
@@ -1107,7 +1115,7 @@ class ParameterVariations {
   public:
     typedef enum {
       Absolute,                 // Absolute variation
-      Relative,                
+      Relative,
       Sigmas
     } Kind;
 
@@ -1377,10 +1385,250 @@ public:
   
 };
 
+//////////////////////////////////////////////////////////////////////
+
+
+/// This explorer is somewhat similar to a simulated annealing,
+/// "warming up" around the initial parameters, changing center
+/// (initial parameters) when a better outcome is found and optionally
+/// "cooling down" afterwards
+/// 
+/// It requires one (or more) trajectories to work on, and parameters
+/// specifications like the monte-carlo explorer
+class SimulatedAnnealingExplorer : public ParameterSpaceExplorer {
+
+  /// The number of different "temperatures"
+  int temperatureIterations = 20;
+
+  /// Iterations per temperature
+  int iterations = 20;
+
+  /// Number of fit iterations
+  int fitIterations = 30;
+
+  /// Whether or not we are doing a bidirectionnal exploration
+  bool bidirectionnal = true;
+
+  /// The parameter specs
+  QList<ParameterSpec> parameterSpecs;
+
+  /// The maximum "temperature", in fraction of the 
+  double maxTemperature = 0.3;
+
+  ////////////////////////
+  /// Current state
+
+  /// The current temp
+  int currentTemperature = 0;
+
+  /// The current iteration (for the given temperature)
+  int currentIteration = 0;
+
+  /// The trajectories we're working on
+  QList<FitTrajectory> trajectories;
+
+  /// The current trajectory we're working on
+  int currentTrajectory = 0;
+
+  /// The current initial parameters
+  Vector currentInitialParameters;
+
+  /// The best residuals so far
+  double bestResiduals = -1;
+
+
+public:
+
+  static ArgumentList args;
+  
+  static ArgumentList opts;
+
+  SimulatedAnnealingExplorer(FitWorkspace * ws) :
+    ParameterSpaceExplorer(ws) {
+  };
+
+  virtual void setup(const CommandArguments & args,
+                     const CommandOptions & opts) override {
+
+    QStringList specs = args[0]->value<QStringList>();
+
+    QStringList unknowns;
+
+
+    parameterSpecs = ParameterSpec::parseSpecs(specs, workSpace, &unknowns);
+
+    if(unknowns.size() > 0)
+      Terminal::out << "WARNING: could not understand the following parameters: "
+                    << unknowns.join(", ")
+                    << endl;
+    if(parameterSpecs.size() == 0)
+      throw RuntimeError("Could understand no parameters at all");
+
+
+    updateFromOptions(opts, "iterations", iterations);
+    updateFromOptions(opts, "temperatures", temperatureIterations);
+    updateFromOptions(opts, "fit-iterations", fitIterations);
+    updateFromOptions(opts, "max-temperature", maxTemperature);
+
+    Terminal::out << "Setting up monte-carlo explorator with: "
+                  << temperatureIterations << " temperatures ("
+                  << maxTemperature << " max), "
+                  << iterations << " iterations per temperature and "
+                  << fitIterations << " fit iterations" << endl;
+
+    Terminal::out << "Parameter ranges: " << endl;
+    QStringList names = workSpace->parameterNames();
+    for(const ParameterSpec & s : parameterSpecs)
+      Terminal::out << " * " << names[s.parameter.first]
+                    << "[#" << s.parameter.second << "]: "
+                    << s.low << " to " << s.high
+                    << (s.log ? " log" : " lin")
+                    << (s.uniform ? " -- uniform" : "")
+                    << endl;
+  };
+
+  virtual bool iterate(bool justPick) override {
+    /*  QStringList names = workSpace->parameterNames();
+    Terminal::out << "Setting initial parameters: " << endl;
+    if(resetFrequency > 0
+       && (((currentIteration + 1) % resetFrequency) == 0)) {
+      if(workSpace->trajectories.size() < 1)
+        Terminal::out << "Cannot reset parameters: no trajectories available so far" << endl;
+      else {
+        const FitTrajectory & best = workSpace->trajectories.best();
+        workSpace->restoreParameterValues(best.finalParameters);
+        Terminal::out << "Restoring parameters to the best parameters so far: "
+                      << best.residuals << endl;
+      }
+    }
+    
+    QHash<int, double> uniformSetValues;
+    for(const ParameterSpec & s : parameterSpecs) {
+      double v;
+      if(s.uniform && uniformSetValues.contains(s.parameter.first))
+        v = uniformSetValues[s.parameter.first];
+      else
+        v = Utils::random(s.low, s.high, s.log);
+      if(s.uniform)
+        uniformSetValues[s.parameter.first] = v;
+      workSpace->setValue(s.parameter.first, s.parameter.second, v);
+      Terminal::out << " -> " << names[s.parameter.first]
+                    << "[#" << s.parameter.second << "] =  " << v << endl;
+    }
+    if(! runHooks())
+      return false;
+    if(! justPick) {
+      selectBuffers(initialBuffers);
+      workSpace->runFit(fitIterations);
+      if(initialBuffers.size() > 0) {
+        int nbds = workSpace->datasetNumber();
+        int level = 0;
+        QList<int> buffers = initialBuffers;
+        while(buffers.size() < nbds) {
+          const FitTrajectory & latest = workSpace->lastTrajectory();
+          if(trajectoriesPerLevel.size() <= level)
+            trajectoriesPerLevel << FitTrajectories(workSpace);
+          if(trajectoriesPerLevel[level].size() == 0 ||
+             latest.residuals <= gradualThreshold * trajectoriesPerLevel[level].best().residuals) {
+            trajectoriesPerLevel[level] << latest;
+            level++;
+            Terminal::out << "Gradual exploration: iteration "
+                          << currentIteration + 1
+                          << " level " << level << endl;
+            // now we insert the previously disabled buffers, and use
+            // interpolation to set their starting local free
+            // parameters (the fixed parameters are not touched)
+            QList<int> nbf;
+            for(int i = 1; i < buffers.size(); i++) {
+              int ds = buffers[i];
+              int prev = buffers[i-1];
+              if(ds == prev+1)
+                continue;       // nothing to do
+              int nds = (ds+prev)/2;
+              enableBuffer(nds);
+              Terminal::out << "Enabling buffer #" << nds << endl;
+              nbf << nds;
+
+              int nbp = workSpace->parametersPerDataset();
+              for(int j = 0; j < nbp; j++) {
+                if(workSpace->isGlobal(j))
+                  continue;
+                if(! workSpace->isFixed(j, nds)) {
+                  double v = 0.5 * (workSpace->getValue(j, prev) +
+                                    workSpace->getValue(j, ds));
+                  workSpace->setValue(j, nds, v);
+                }
+              }
+            }
+            if(nbf.size() == 0)
+              throw InternalError("Could not add anything ?");
+            buffers << nbf;
+            std::sort(buffers.begin(), buffers.end());
+            QString fn = QString("mcg-level-%1").arg(level);
+            workSpace->currentFlags.insert(fn);
+            workSpace->runFit(fitIterations);
+            workSpace->currentFlags.remove(fn);
+          }
+          else                  // Not improving significantly, do not
+                                // deepen
+            break;
+        }
+      }
+
+      currentIteration++;
+      selectBuffers();
+    }
+    return currentIteration < iterations;
+    */
+    return false;
+  };
+
+  virtual QString progressText() const override {
+    return QString("%1/%2 in %3/%4").
+      arg(currentIteration+1).arg(iterations).
+      arg(currentTemperature).arg(temperatureIterations);
+  };
+
+
+};
+
+ArgumentList
+SimulatedAnnealingExplorer::args(QList<Argument*>() 
+                                 << new SeveralStringsArgument("parameters",
+                                                               "Parameters",
+                                                               "Parameter specification"));
+
+ArgumentList
+SimulatedAnnealingExplorer::opts(QList<Argument*>() 
+                                 << new IntegerArgument("iterations",
+                                                        "Iterations",
+                                                        "Number of iterations per "
+                                                        "\"temperature\"")
+                                 << new IntegerArgument("fit-iterations",
+                                                        "Fit iterations",
+                                                        "Maximum number of fit iterations")
+                                 << new IntegerArgument("temperatures",
+                                                        "Temperatures",
+                                                        "Number of temperatures")
+                                 << new NumberArgument("max-temperature",
+                                                       "Max \"temperature\"",
+                                                       "Maximum temperature")
+                                 );
+
+ParameterSpaceExplorerFactoryItem 
+siman("simulated-annealing", "Simulated annealing",
+      SimulatedAnnealingExplorer::args,
+      SimulatedAnnealingExplorer::opts,
+      [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
+        return new SimulatedAnnealingExplorer(ws);
+      });
+
+//////////////////////////////////////////////////////////////////////
+
 /// This explorer starts from the current parameters, and "warms them
 /// up" smoothly, that is draws parameters with increasing errors on
 /// the values (scaled according to the covariance matrix)
-class SimulatedAnnealingExplorer : public ParameterSpaceExplorer {
+class OldSimulatedAnnealingExplorer : public ParameterSpaceExplorer {
 
   int iterations;
 
@@ -1410,7 +1658,7 @@ public:
   static ArgumentList args;
   static ArgumentList opts;
 
-  SimulatedAnnealingExplorer(FitWorkspace * ws) :
+  OldSimulatedAnnealingExplorer(FitWorkspace * ws) :
     ParameterSpaceExplorer(ws), iterations(50),
     currentIteration(0), minTemperature(0.1),
     maxTemperature(4), fitIterations(50), variations(ws),
@@ -1552,37 +1800,37 @@ public:
 };
 
 ArgumentList
-SimulatedAnnealingExplorer::args(QList<Argument*>() 
-                                 << new SeveralStringsArgument("parameters",
-                                                               "Parameters",
-                                                               "Parameter specification", true)
-                                 );
+OldSimulatedAnnealingExplorer::args(QList<Argument*>()
+                                    << new SeveralStringsArgument("parameters",
+                                                                  "Parameters",
+                                                                  "Parameter specification", true)
+                                    );
  
 ArgumentList
-SimulatedAnnealingExplorer::opts(QList<Argument*>() 
-                                 << new IntegerArgument("clusters",
-                                                        "Clusters",
-                                                        "Number of parameter clusters to anneal, -1 for all clusters, 0 to use current parameters")
-                                 << new IntegerArgument("iterations",
-                                                        "Iterations",
-                                                        "Number of monte-carlo iterations")
-                                 << new IntegerArgument("fit-iterations",
-                                                        "Fit iterations",
-                                                        "Maximum number of fit iterations")
-                                 << new NumberArgument("start-temperature",
-                                                       "Starting temperature",
-                                                       "The starting 'temperature' for the random choices")
-                                 << new NumberArgument("end-temperature",
-                                                       "Ending temperature",
-                                                       "The ending 'temperature' for the random choices")
-                                 );
+OldSimulatedAnnealingExplorer::opts(QList<Argument*>()
+                                    << new IntegerArgument("clusters",
+                                                           "Clusters",
+                                                           "Number of parameter clusters to anneal, -1 for all clusters, 0 to use current parameters")
+                                    << new IntegerArgument("iterations",
+                                                           "Iterations",
+                                                           "Number of monte-carlo iterations")
+                                    << new IntegerArgument("fit-iterations",
+                                                           "Fit iterations",
+                                                           "Maximum number of fit iterations")
+                                    << new NumberArgument("start-temperature",
+                                                          "Starting temperature",
+                                                          "The starting 'temperature' for the random choices")
+                                    << new NumberArgument("end-temperature",
+                                                          "Ending temperature",
+                                                          "The ending 'temperature' for the random choices")
+                                    );
 
 ParameterSpaceExplorerFactoryItem 
-sa("simulated-annealing", "Simulated annealing",
-   SimulatedAnnealingExplorer::args,
-   SimulatedAnnealingExplorer::opts,
+sa("old-simulated-annealing", "Simulated annealing",
+   OldSimulatedAnnealingExplorer::args,
+   OldSimulatedAnnealingExplorer::opts,
    [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
-     return new SimulatedAnnealingExplorer(ws);
+     return new OldSimulatedAnnealingExplorer(ws);
    });
 
 //////////////////////////////////////////////////////////////////////
@@ -1947,7 +2195,8 @@ perm("permutation", "Permutation",
 #include <file-arguments.hh>
 
 
-/// @todo This command has nothing to do here.
+/// @todo This command has nothing to do here. Excepted for the use
+/// of ParametersVariation
 
 static void clusterTrajectoriesCommand(const QString & /*name*/,
                                        QStringList specs,

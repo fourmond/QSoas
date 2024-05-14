@@ -35,6 +35,8 @@
 #include <fitdata.hh>
 #include <fittrajectory.hh>
 
+#include <fit-arguments.hh>
+
 #include <file.hh>
 
 // random generators
@@ -88,6 +90,7 @@ public:
       return center();          // Safety catch
     return std::max(std::min(val, high), low);
   };
+
 
   /// Parses the parameter list
   static QList<ParameterSpec> parseSpecs(const QStringList & specs,
@@ -1398,7 +1401,7 @@ public:
 class SimulatedAnnealingExplorer : public ParameterSpaceExplorer {
 
   /// The number of different "temperatures"
-  int temperatureIterations = 20;
+  int temperatureIterations = 12;
 
   /// Iterations per temperature
   int iterations = 20;
@@ -1407,13 +1410,17 @@ class SimulatedAnnealingExplorer : public ParameterSpaceExplorer {
   int fitIterations = 30;
 
   /// Whether or not we are doing a bidirectionnal exploration
-  bool bidirectionnal = true;
+  /// @todo Not implemented for now
+  bool bidirectionnal = false;
 
   /// The parameter specs
   QList<ParameterSpec> parameterSpecs;
 
-  /// The maximum "temperature", in fraction of the 
-  double maxTemperature = 0.3;
+  /// The maximum "temperature", in fraction of the max ranges
+  double maxTemperature = 1;
+
+  /// The temperature steps, i.e by how much one scales
+  double temperatureSteps = 1.7;
 
   ////////////////////////
   /// Current state
@@ -1428,14 +1435,13 @@ class SimulatedAnnealingExplorer : public ParameterSpaceExplorer {
   QList<FitTrajectory> trajectories;
 
   /// The current trajectory we're working on
-  int currentTrajectory = 0;
+  int currentTrajectory = -1;
 
   /// The current initial parameters
   Vector currentInitialParameters;
 
-  /// The best residuals so far
+  /// The best residuals so far for the current trajectory
   double bestResiduals = -1;
-
 
 public:
 
@@ -1451,7 +1457,6 @@ public:
                      const CommandOptions & opts) override {
 
     QStringList specs = args[0]->value<QStringList>();
-
     QStringList unknowns;
 
 
@@ -1470,9 +1475,18 @@ public:
     updateFromOptions(opts, "fit-iterations", fitIterations);
     updateFromOptions(opts, "max-temperature", maxTemperature);
 
-    Terminal::out << "Setting up monte-carlo explorator with: "
+    if(opts.contains("trajectories"))
+      updateFromOptions(opts, "trajectories", trajectories);
+    else
+      trajectories << workSpace->lastTrajectory();
+
+    if(trajectories.size() == 0)
+      throw RuntimeError("No trajectory to refit");
+
+    Terminal::out << "Setting up simulated annealing explorator with: "
                   << temperatureIterations << " temperatures ("
-                  << maxTemperature << " max), "
+                  << maxTemperature << " max, steps of "
+                  << temperatureSteps << "), "
                   << iterations << " iterations per temperature and "
                   << fitIterations << " fit iterations" << endl;
 
@@ -1488,99 +1502,76 @@ public:
   };
 
   virtual bool iterate(bool justPick) override {
-    /*  QStringList names = workSpace->parameterNames();
-    Terminal::out << "Setting initial parameters: " << endl;
-    if(resetFrequency > 0
-       && (((currentIteration + 1) % resetFrequency) == 0)) {
-      if(workSpace->trajectories.size() < 1)
-        Terminal::out << "Cannot reset parameters: no trajectories available so far" << endl;
-      else {
-        const FitTrajectory & best = workSpace->trajectories.best();
-        workSpace->restoreParameterValues(best.finalParameters);
-        Terminal::out << "Restoring parameters to the best parameters so far: "
-                      << best.residuals << endl;
-      }
+    
+    if(currentTrajectory == -1 || currentTemperature == temperatureIterations) {
+      /// @todo watch out for reversible scanning
+      // Starting a new trajectory
+      currentTrajectory += 1;
+      currentTemperature = 0;
+      if(currentTrajectory >= trajectories.size())
+        throw InternalError("Should not arrive here on empty trajectories...");
+      currentInitialParameters =
+        trajectories[currentTrajectory].initialParameters;
+      bestResiduals = trajectories[currentTrajectory].residuals;
     }
     
-    QHash<int, double> uniformSetValues;
+
+    // OK ? L
+    double temp = maxTemperature *
+      pow(temperatureSteps, currentTemperature + 1.0 - temperatureIterations);
+
+    
+    QStringList names = workSpace->parameterNames();
+    Terminal::out << "Current scaling factor: " << temp
+                  << "\nSetting initial parameters: " << endl;
+    Vector parameters = currentInitialParameters;
+
     for(const ParameterSpec & s : parameterSpecs) {
       double v;
-      if(s.uniform && uniformSetValues.contains(s.parameter.first))
-        v = uniformSetValues[s.parameter.first];
+      int index = workSpace->parametersPerDataset() *
+        (s.parameter.second >= 0 ? s.parameter.second : 0) + s.parameter.first;
+
+      double init = currentInitialParameters[index];
+
+      double range = s.log ? log10(s.high/s.low) : s.high - s.low;
+      range *= temp;
+
+      v = Utils::random(-range*0.5, range*0.5);
+      if(s.log)
+        init *= pow(10.0, v);
       else
-        v = Utils::random(s.low, s.high, s.log);
-      if(s.uniform)
-        uniformSetValues[s.parameter.first] = v;
-      workSpace->setValue(s.parameter.first, s.parameter.second, v);
+        init += v;
+      parameters[index] = init;
       Terminal::out << " -> " << names[s.parameter.first]
-                    << "[#" << s.parameter.second << "] =  " << v << endl;
+                    << "[#" << s.parameter.second << "] =  " << init << endl;
     }
+    workSpace->restoreParameterValues(parameters);
+
     if(! runHooks())
       return false;
     if(! justPick) {
-      selectBuffers(initialBuffers);
       workSpace->runFit(fitIterations);
-      if(initialBuffers.size() > 0) {
-        int nbds = workSpace->datasetNumber();
-        int level = 0;
-        QList<int> buffers = initialBuffers;
-        while(buffers.size() < nbds) {
-          const FitTrajectory & latest = workSpace->lastTrajectory();
-          if(trajectoriesPerLevel.size() <= level)
-            trajectoriesPerLevel << FitTrajectories(workSpace);
-          if(trajectoriesPerLevel[level].size() == 0 ||
-             latest.residuals <= gradualThreshold * trajectoriesPerLevel[level].best().residuals) {
-            trajectoriesPerLevel[level] << latest;
-            level++;
-            Terminal::out << "Gradual exploration: iteration "
-                          << currentIteration + 1
-                          << " level " << level << endl;
-            // now we insert the previously disabled buffers, and use
-            // interpolation to set their starting local free
-            // parameters (the fixed parameters are not touched)
-            QList<int> nbf;
-            for(int i = 1; i < buffers.size(); i++) {
-              int ds = buffers[i];
-              int prev = buffers[i-1];
-              if(ds == prev+1)
-                continue;       // nothing to do
-              int nds = (ds+prev)/2;
-              enableBuffer(nds);
-              Terminal::out << "Enabling buffer #" << nds << endl;
-              nbf << nds;
-
-              int nbp = workSpace->parametersPerDataset();
-              for(int j = 0; j < nbp; j++) {
-                if(workSpace->isGlobal(j))
-                  continue;
-                if(! workSpace->isFixed(j, nds)) {
-                  double v = 0.5 * (workSpace->getValue(j, prev) +
-                                    workSpace->getValue(j, ds));
-                  workSpace->setValue(j, nds, v);
-                }
-              }
-            }
-            if(nbf.size() == 0)
-              throw InternalError("Could not add anything ?");
-            buffers << nbf;
-            std::sort(buffers.begin(), buffers.end());
-            QString fn = QString("mcg-level-%1").arg(level);
-            workSpace->currentFlags.insert(fn);
-            workSpace->runFit(fitIterations);
-            workSpace->currentFlags.remove(fn);
-          }
-          else                  // Not improving significantly, do not
-                                // deepen
-            break;
-        }
+      const FitTrajectory & trj = workSpace->lastTrajectory();
+      if(trj.residuals < bestResiduals || bestResiduals < 0) {
+        // The latter shouldn't happen I think
+        /// @todo Make that probabilistic ?
+        Terminal::out << " -> improved residuals from "
+                      << bestResiduals << " to " << trj.residuals
+                      << ", now setting as center" << endl;
+        bestResiduals = trj.residuals;
+        currentInitialParameters = trj.initialParameters;
       }
-
-      currentIteration++;
-      selectBuffers();
     }
-    return currentIteration < iterations;
-    */
-    return false;
+
+    currentIteration += 1;
+    if(currentIteration >= iterations) {
+      currentIteration = 0;
+      currentTemperature += 1;
+      if(currentTemperature >= temperatureIterations &&
+         (currentTrajectory + 1 >= trajectories.size()))
+        return false;
+    }
+    return true;
   };
 
   virtual QString progressText() const override {
@@ -1613,6 +1604,9 @@ SimulatedAnnealingExplorer::opts(QList<Argument*>()
                                  << new NumberArgument("max-temperature",
                                                        "Max \"temperature\"",
                                                        "Maximum temperature")
+                                 << new TrajectoriesArgument("trajectories",
+                                                             "Trajectories",
+                                                             "trajectories to anneal")
                                  );
 
 ParameterSpaceExplorerFactoryItem 

@@ -44,6 +44,7 @@
 #include <filelock.hh>
 
 #include <argument-templates.hh>
+#include <fit-arguments.hh>
 
 // static Group fit("fit", 0,
 //                  "Fit",
@@ -1415,89 +1416,6 @@ spsh("parameters-spreadsheet", // command name
 //////////////////////////////////////////////////////////////////////
 
 
-/// An argument that represents a list of trajectories
-class TrajectoriesArgument : public Argument {
-public:
-
-  TrajectoriesArgument(const char * cn, const char * pn,
-                       const char * d = "", bool def = false) : 
-    Argument(cn, pn, d, false, def) {
-  }; 
-  
-  /// Returns a wrapped FitTrajectories
-  virtual ArgumentMarshaller * fromString(const QString & str) const override {
-    QStringList spl = str.split(":");
-    if(spl.size() == 0)
-      throw RuntimeError("Invalid trajectories specification: '%1'").
-        arg(str);
-    QString what = spl.takeFirst();
-    QString rest = spl.join(":");
-    FitWorkspace * ws = FitWorkspace::currentWorkspace();
-
-    if(what == "flagged") {
-      return new ArgumentMarshallerChild<FitTrajectories>
-        (ws->trajectories.flaggedTrajectories(rest));
-    }
-    if(what == "flagged-") {
-      return new ArgumentMarshallerChild<FitTrajectories>
-        (ws->trajectories.flaggedTrajectories(rest, false));
-    }
-    if(what == "all")
-      return new ArgumentMarshallerChild<FitTrajectories>
-        (ws->trajectories);
-      
-    throw RuntimeError("Invalid trajectories specification: '%1'").
-      arg(str);
-    return NULL;
-  }
-
-  virtual void concatenateArguments(ArgumentMarshaller * a, 
-                                    const ArgumentMarshaller * b) const override {
-    for(const FitTrajectory & t : b->value<FitTrajectories>())
-      a->value<FitTrajectories>() << t;
-  }
-    
-  virtual QStringList proposeCompletion(const QString & starter) const override {
-    FitWorkspace * ws = FitWorkspace::currentWorkspace();
-    QStringList names;
-    for(const QString & s : ws->trajectories.allFlags())
-      names << "flagged:" + s << "flagged-:" + s;
-    names << "all" << "flagged" << "flagged-";
-    return Utils::stringsStartingWith(names, starter);
-  }
-
-
-  virtual QString typeName() const override {
-    return "trajectories";
-  };
-
-  virtual QString typeDescription() const override {
-    return "Fit Trajectories";
-  };
-
-  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override {
-    return Argument::convertRubyString(value);
-  };
-
-  virtual QStringList toString(const ArgumentMarshaller * arg) const override {
-    QStringList lst;
-    NOT_IMPLEMENTED;
-    return lst;
-  };
-
-  virtual QWidget * createEditor(QWidget * parent = NULL) const override {
-    return Argument::createTextEditor(parent);
-  }
-
-  virtual void setEditorValue(QWidget * editor, 
-                              const ArgumentMarshaller * value) const override {
-    Argument::setTextEditorValue(editor, value);
-  };
-
-
-};
-
-//////////////////////////////////////////////////////////////////////
 
 static void dropTrajectoriesCommand(const QString & /*name*/,
                                     FitTrajectories trajs)

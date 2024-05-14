@@ -1,0 +1,6 @@
+# Starting from a wrong fit
+set x_2 8.2 /fix=true
+fit
+unfix x_2
+simulated-annealing-explorer /iterations=10 /temperatures=10 x_1,x_2:0..10
+iterate-explorer

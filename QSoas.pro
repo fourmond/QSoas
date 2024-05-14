@@ -609,6 +609,11 @@ SOURCES += src/scrolledwidget.cc
 HEADERS += src/file.hh src/fileinfo.hh
 SOURCES += src/file.cc src/fileinfo.cc
 
+# Fit-specific arguments
+HEADERS += src/fit-arguments.hh
+SOURCES += src/fit-arguments.cc
+
+
 # Implicit expressions and fits
 HEADERS += src/implicitexpression.hh
 SOURCES += src/implicitexpression.cc src/implicit-fits.cc

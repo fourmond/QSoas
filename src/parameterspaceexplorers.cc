@@ -1432,7 +1432,7 @@ class SimulatedAnnealingExplorer : public ParameterSpaceExplorer {
   int currentIteration = 0;
 
   /// The trajectories we're working on
-  QList<FitTrajectory> trajectories;
+  FitTrajectories trajectories;
 
   /// The current trajectory we're working on
   int currentTrajectory = -1;
@@ -1450,7 +1450,12 @@ public:
   static ArgumentList opts;
 
   SimulatedAnnealingExplorer(FitWorkspace * ws) :
-    ParameterSpaceExplorer(ws) {
+    ParameterSpaceExplorer(ws), trajectories(ws) {
+  };
+
+  QString trajectoryString(const FitTrajectory & trj) {
+    return QString("residuals: %1\tdate: %2").
+      arg(trj.residuals).arg(trj.startTime.toString());
   };
 
   virtual void setup(const CommandArguments & args,
@@ -1483,12 +1488,19 @@ public:
     if(trajectories.size() == 0)
       throw RuntimeError("No trajectory to refit");
 
-    Terminal::out << "Setting up simulated annealing explorator with: "
+    Terminal::out << "Setting up simulated annealing explorator on "
+                  << trajectories.size() << " trajectories, with: "
                   << temperatureIterations << " temperatures ("
                   << maxTemperature << " max, steps of "
                   << temperatureSteps << "), "
                   << iterations << " iterations per temperature and "
                   << fitIterations << " fit iterations" << endl;
+    
+    Terminal::out << "Trajectories to anneal:\n";
+    
+    for(int i = 0; i < trajectories.size(); i++)
+      Terminal::out << " * #" << i << "\t"
+                    << trajectoryString(trajectories[i]) << endl;
 
     Terminal::out << "Parameter ranges: " << endl;
     QStringList names = workSpace->parameterNames();
@@ -1503,16 +1515,21 @@ public:
 
   virtual bool iterate(bool justPick) override {
     
-    if(currentTrajectory == -1 || currentTemperature == temperatureIterations) {
+    if(currentTrajectory == -1 ||
+       (currentTemperature == 0 && currentIteration == 0)) {
       /// @todo watch out for reversible scanning
       // Starting a new trajectory
       currentTrajectory += 1;
       currentTemperature = 0;
       if(currentTrajectory >= trajectories.size())
         throw InternalError("Should not arrive here on empty trajectories...");
-      currentInitialParameters =
-        trajectories[currentTrajectory].initialParameters;
-      bestResiduals = trajectories[currentTrajectory].residuals;
+      const FitTrajectory & trj = trajectories[currentTrajectory];
+      currentInitialParameters = trj.initialParameters;
+      bestResiduals = trj.residuals;
+      Terminal::out << "Simulated annealing explorer now working on trajectory #"
+                    << currentTrajectory
+                    << "\tresiduals: " << trj.residuals
+                    << "\tdate: " << trj.startTime.toString() << endl;
     }
     
 
@@ -1557,7 +1574,9 @@ public:
         /// @todo Make that probabilistic ?
         Terminal::out << " -> improved residuals from "
                       << bestResiduals << " to " << trj.residuals
-                      << ", now setting as center" << endl;
+                      << ", now setting as center (scaling: "
+                      << temp << ", trajectory #" << currentTrajectory
+                      << ")" << endl;
         bestResiduals = trj.residuals;
         currentInitialParameters = trj.initialParameters;
       }
@@ -1567,9 +1586,11 @@ public:
     if(currentIteration >= iterations) {
       currentIteration = 0;
       currentTemperature += 1;
-      if(currentTemperature >= temperatureIterations &&
-         (currentTrajectory + 1 >= trajectories.size()))
-        return false;
+      if(currentTemperature >= temperatureIterations) {
+        currentTemperature = 0;
+        if(currentTrajectory + 1 >= trajectories.size())
+          return false;
+      }
     }
     return true;
   };
@@ -1577,7 +1598,7 @@ public:
   virtual QString progressText() const override {
     return QString("%1/%2 in %3/%4").
       arg(currentIteration+1).arg(iterations).
-      arg(currentTemperature).arg(temperatureIterations);
+      arg(currentTemperature+1).arg(temperatureIterations);
   };
 
 

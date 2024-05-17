@@ -613,6 +613,8 @@ SOURCES += src/file.cc src/fileinfo.cc
 HEADERS += src/fit-arguments.hh
 SOURCES += src/fit-arguments.cc
 
+# 
+
 
 # Implicit expressions and fits
 HEADERS += src/implicitexpression.hh
@@ -637,6 +639,8 @@ SOURCES += src/laplace-fits.cc
 ######################################################################
 # Sources for the parameter space explorers
 SOURCES += src/parameterspaceexplorers.cc
+SOURCES += src/parametervariations.cc
+
                 
 
 ######################################################################

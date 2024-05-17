@@ -43,86 +43,59 @@
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
 
-/// The parameter specification
-class ParameterSpec {
-public:
-  /// The target, like what is returned by
-  /// FitWorkspace::parseParameterList()
-  QPair<int, int> parameter;
+double ParameterRangeSpec::center() const {
+  if(log) {
+    return sqrt(low * high);
+  }
+  else
+    return 0.5*(low + high);
+}
 
-  /// The lower end of the range
-  double low;
+/// Returns 1/2 of the witdth of the interval (log10 or lin).
+double ParameterRangeSpec::sigma() const {
+  if(log)
+    return 0.5 * (log10(high) - log10(low));
+  else
+    return 0.5 * (high - low);
+}
 
-  /// The higher end of the range
-  double high;
-
-  /// Whether the range is logarithmic or not
-  bool log;
-
-  /// Whether or not the selection is global (i.e. all local
-  /// parameters are set to the same starting value)
-  bool uniform;
-
-
-  /// Can be used by the explorers to store whatever.
-  double storage;
+double ParameterRangeSpec::trim(double val) const {
+  if(std::isnan(val))
+    return center();          // Safety catch
+  return std::max(std::min(val, high), low);
+}
 
 
-  /// The center
-  double center() const {
-    if(log) {
-      return sqrt(low * high);
-    }
-    else
-      return 0.5*(low + high);
-  };
+/// Parses the parameter list
+QList<ParameterRangeSpec> ParameterRangeSpec::parseSpecs(const QStringList & specs,
+                                               FitWorkspace * workSpace,
+                                               QStringList * unknowns) {
+  QList<ParameterRangeSpec> parameterSpecs;
+  QRegExp re("^\\s*(.*):(u,)?([^:]+)\\.\\.([^:,]+)(,log)?\\s*$");
 
-  /// Returns 1/2 of the witdth of the interval (log10 or lin).
-  double sigma() const {
-    if(log)
-      return 0.5 * (log10(high) - log10(low));
-    else
-      return 0.5 * (high - low);
-  };
-
-  double trim(double val) const {
-    if(std::isnan(val))
-      return center();          // Safety catch
-    return std::max(std::min(val, high), low);
-  };
+  for(const QString & s : specs) {
+    if(re.indexIn(s) != 0)
+      throw RuntimeError("Invalid parameter specification: '%1'").
+        arg(s);
 
 
-  /// Parses the parameter list
-  static QList<ParameterSpec> parseSpecs(const QStringList & specs,
-                                         FitWorkspace * workSpace,
-                                         QStringList * unknowns) {
-    QList<ParameterSpec> parameterSpecs;
-    QRegExp re("^\\s*(.*):(u,)?([^:]+)\\.\\.([^:,]+)(,log)?\\s*$");
-
-    for(const QString & s : specs) {
-      if(re.indexIn(s) != 0)
-        throw RuntimeError("Invalid parameter specification: '%1'").
-          arg(s);
-
-
-      // Now handling: 
-      // monte-carlo-explorer tau_1[#0,#1],tau_2[#1]:1e-2..1e2,log
+    // Now handling:
+    // monte-carlo-explorer tau_1[#0,#1],tau_2[#1]:1e-2..1e2,log
       
-      QStringList pars = Utils::nestedSplit(re.cap(1), ',', "[", "]");
-      bool uniform = ! re.cap(2).isEmpty();
-      double l = re.cap(3).toDouble();
-      double h = re.cap(4).toDouble();
-      bool log = ! re.cap(5).isEmpty();
-      QList<QPair<int, int> > params;
-      for(const QString & pa : pars)
-        params << workSpace->parseParameterList(pa, unknowns);
-      for(const QPair<int, int> & p : params) {
-        ParameterSpec sp = {p, l, h, log, uniform, 0};
-        parameterSpecs << sp;
-      }
+    QStringList pars = Utils::nestedSplit(re.cap(1), ',', "[", "]");
+    bool uniform = ! re.cap(2).isEmpty();
+    double l = re.cap(3).toDouble();
+    double h = re.cap(4).toDouble();
+    bool log = ! re.cap(5).isEmpty();
+    QList<QPair<int, int> > params;
+    for(const QString & pa : pars)
+      params << workSpace->parseParameterList(pa, unknowns);
+    for(const QPair<int, int> & p : params) {
+      ParameterRangeSpec sp = {p, l, h, log, uniform, 0};
+      parameterSpecs << sp;
     }
-    return parameterSpecs;
-  };
+  }
+  return parameterSpecs;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -140,7 +113,7 @@ class MonteCarloExplorer : public ParameterSpaceExplorer {
 
   int resetFrequency;
 
-  QList<ParameterSpec> parameterSpecs;
+  QList<ParameterRangeSpec> parameterSpecs;
 
   /// @name Gradual exploration
   ///
@@ -207,7 +180,7 @@ public:
     QStringList unknowns;
 
 
-    parameterSpecs = ParameterSpec::parseSpecs(specs, workSpace, &unknowns);
+    parameterSpecs = ParameterRangeSpec::parseSpecs(specs, workSpace, &unknowns);
 
     if(unknowns.size() > 0)
       Terminal::out << "WARNING: could not understand the following parameters: "
@@ -231,7 +204,7 @@ public:
 
 
     QStringList names = workSpace->parameterNames();
-    for(const ParameterSpec & s : parameterSpecs)
+    for(const ParameterRangeSpec & s : parameterSpecs)
       Terminal::out << " * " << names[s.parameter.first]
                     << "[#" << s.parameter.second << "]: "
                     << s.low << " to " << s.high
@@ -270,7 +243,7 @@ public:
     }
     
     QHash<int, double> uniformSetValues;
-    for(const ParameterSpec & s : parameterSpecs) {
+    for(const ParameterRangeSpec & s : parameterSpecs) {
       double v;
       if(s.uniform && uniformSetValues.contains(s.parameter.first))
         v = uniformSetValues[s.parameter.first];
@@ -443,7 +416,7 @@ class AdaptiveMonteCarloExplorer : public ParameterSpaceExplorer {
   FitTrajectory currentCenter;
 
   /// The current specs.
-  QList<ParameterSpec> parameterSpecs;
+  QList<ParameterRangeSpec> parameterSpecs;
 
   gsl_rng * rnd;
 
@@ -483,7 +456,7 @@ public:
 
 
 
-    parameterSpecs = ParameterSpec::parseSpecs(specs, workSpace, &unknowns);
+    parameterSpecs = ParameterRangeSpec::parseSpecs(specs, workSpace, &unknowns);
 
     if(unknowns.size() > 0)
       Terminal::out << "WARNING: could not understand the following parameters: "
@@ -514,7 +487,7 @@ public:
     Terminal::out << "Setting up the adaptive explorer with the following parameters: " << endl;
     
                                                                                     QStringList names = workSpace->parameterNames();
-    for(const ParameterSpec & s : parameterSpecs)
+    for(const ParameterRangeSpec & s : parameterSpecs)
       Terminal::out << " * " << names[s.parameter.first]
                     << "[#" << s.parameter.second << "] : "
                     << s.center() << " +- " << s.sigma()
@@ -533,7 +506,7 @@ public:
 
     Terminal::out << "Preparing sigmas for level " << currentLevel
                   << ":" << endl;
-    for(ParameterSpec & s : parameterSpecs) {
+    for(ParameterRangeSpec & s : parameterSpecs) {
       if(s.log) {
           // The idea is to go from 0.01 at the deepest level to full
           // sigma at 0.
@@ -558,7 +531,7 @@ public:
     Vector dp = src;
     QHash<int, double> uniformSetValues;
     int nbPDs = workSpace->parametersPerDataset();
-    for(const ParameterSpec & s : parameterSpecs) {
+    for(const ParameterRangeSpec & s : parameterSpecs) {
       double v;
       if(s.uniform && uniformSetValues.contains(s.parameter.first))
         v = uniformSetValues[s.parameter.first];
@@ -608,7 +581,7 @@ public:
       params = workSpace->saveParameterValues();
       base = params;
       
-      for(const ParameterSpec & s : parameterSpecs) {
+      for(const ParameterRangeSpec & s : parameterSpecs) {
         params[s.parameter.first +
                nbPDs*std::max(s.parameter.second,0)] =
           s.center();
@@ -635,7 +608,7 @@ public:
     Terminal::out << "Parameters:" << endl;
     QStringList names = workSpace->parameterNames();
     int nbPDs = workSpace->parametersPerDataset();
-    for(const ParameterSpec & s : parameterSpecs) {
+    for(const ParameterRangeSpec & s : parameterSpecs) {
       int idx = s.parameter.first + nbPDs*std::max(s.parameter.second, 0);
       Terminal::out << " * " << names[s.parameter.first]
                     << "[#" << s.parameter.second << "] = "
@@ -944,7 +917,7 @@ class LinearExplorer : public ParameterSpaceExplorer {
   int fitIterations;
 
   /// The parameter specification
-  class ParameterSpec {
+  class ParameterRangeSpec {
   public:
     /// The target, like what is returned by
     /// FitWorkspace::parseParameterList()
@@ -960,7 +933,7 @@ class LinearExplorer : public ParameterSpaceExplorer {
     bool log;
   };
 
-  QList<ParameterSpec> parameterSpecs;
+  QList<ParameterRangeSpec> parameterSpecs;
 
 public:
   static ArgumentList args;
@@ -1026,7 +999,7 @@ public:
           e = ::log(e);
         }
           
-        ParameterSpec sp = {p, b, e, log};
+        ParameterRangeSpec sp = {p, b, e, log};
         parameterSpecs << sp;
       }
     }
@@ -1039,7 +1012,7 @@ public:
                   << fitIterations << " fit iterations" << endl;
 
     QStringList names = workSpace->parameterNames();
-    for(const ParameterSpec & s : parameterSpecs)
+    for(const ParameterRangeSpec & s : parameterSpecs)
       Terminal::out << " * " << names[s.parameter.first]
                     << "[#" << s.parameter.second << "]: from "
                     << s.begin << " to " << s.end
@@ -1050,7 +1023,7 @@ public:
     QStringList names = workSpace->parameterNames();
     Terminal::out << "Setting initial parameters: " << endl;
     
-    for(const ParameterSpec & s : parameterSpecs) {
+    for(const ParameterRangeSpec & s : parameterSpecs) {
       double fact = currentIteration/(iterations - 1.0);
       double v = s.begin + (s.end - s.begin) * fact;
       if(s.log)
@@ -1414,7 +1387,7 @@ class SimulatedAnnealingExplorer : public ParameterSpaceExplorer {
   bool bidirectionnal = false;
 
   /// The parameter specs
-  QList<ParameterSpec> parameterSpecs;
+  QList<ParameterRangeSpec> parameterSpecs;
 
   /// The maximum "temperature", in fraction of the max ranges
   double maxTemperature = 1;
@@ -1465,7 +1438,7 @@ public:
     QStringList unknowns;
 
 
-    parameterSpecs = ParameterSpec::parseSpecs(specs, workSpace, &unknowns);
+    parameterSpecs = ParameterRangeSpec::parseSpecs(specs, workSpace, &unknowns);
 
     if(unknowns.size() > 0)
       Terminal::out << "WARNING: could not understand the following parameters: "
@@ -1504,7 +1477,7 @@ public:
 
     Terminal::out << "Parameter ranges: " << endl;
     QStringList names = workSpace->parameterNames();
-    for(const ParameterSpec & s : parameterSpecs)
+    for(const ParameterRangeSpec & s : parameterSpecs)
       Terminal::out << " * " << names[s.parameter.first]
                     << "[#" << s.parameter.second << "]: "
                     << s.low << " to " << s.high
@@ -1543,7 +1516,7 @@ public:
                   << "\nSetting initial parameters: " << endl;
     Vector parameters = currentInitialParameters;
 
-    for(const ParameterSpec & s : parameterSpecs) {
+    for(const ParameterRangeSpec & s : parameterSpecs) {
       double v;
       int index = workSpace->parametersPerDataset() *
         (s.parameter.second >= 0 ? s.parameter.second : 0) + s.parameter.first;
@@ -1638,215 +1611,6 @@ siman("simulated-annealing", "Simulated annealing",
         return new SimulatedAnnealingExplorer(ws);
       });
 
-//////////////////////////////////////////////////////////////////////
-
-/// This explorer starts from the current parameters, and "warms them
-/// up" smoothly, that is draws parameters with increasing errors on
-/// the values (scaled according to the covariance matrix)
-class OldSimulatedAnnealingExplorer : public ParameterSpaceExplorer {
-
-  int iterations;
-
-  int currentIteration;
-
-  double minTemperature;
-  
-  double maxTemperature;
-
-  int fitIterations;
-
-  /// The base parameters
-  Vector baseParameters;
-
-  /// The sigmas -- the base unit for variation
-  Vector sigmas;
-
-
-  ParameterVariations variations;
-
-  QList<FitTrajectory> clusters;
-
-  int currentCluster;
-
-public:
-
-  static ArgumentList args;
-  static ArgumentList opts;
-
-  OldSimulatedAnnealingExplorer(FitWorkspace * ws) :
-    ParameterSpaceExplorer(ws), iterations(50),
-    currentIteration(0), minTemperature(0.1),
-    maxTemperature(4), fitIterations(50), variations(ws),
-    currentCluster(-1) {
-  };
-
-  // virtual ArgumentList * explorerArguments() const override {
-  //   return &args;
-  // };
-
-  // virtual ArgumentList * explorerOptions() const override {
-  //   return &opts;
-  // };
-
-  virtual void setup(const CommandArguments & args,
-                     const CommandOptions & opts) override {
-
-    QStringList specs = args[0]->value<QStringList>();
-    QStringList wrongParams;
-    variations.parseSpecs(specs, &wrongParams);
-    if(wrongParams.size() > 0)
-      Terminal::out << "WARNING: could not understand the following parameters: "
-                    << wrongParams.join(", ")
-                    << endl;
-
-    updateFromOptions(opts, "iterations", iterations);
-    updateFromOptions(opts, "fit-iterations", fitIterations);
-
-    updateFromOptions(opts, "start-temperature", minTemperature);
-    updateFromOptions(opts, "end-temperature", maxTemperature);
-
-    Terminal::out << "Simulated annealing -- warming the parameters from "
-                  << minTemperature << " to "
-                  << maxTemperature << " in "
-                  << iterations << " steps:" << endl;
-    Terminal::out << variations.textRepresentation() << endl;
-
-    int clusters = -1;
-    updateFromOptions(opts, "clusters", clusters);
-    if(clusters == 0) {
-      baseParameters = workSpace->saveParameterValues();
-      GSLMatrix cov(baseParameters.size(), baseParameters.size());
-      workSpace->data()->computeCovarianceMatrix(cov, baseParameters.data());
-      sigmas = baseParameters;
-      for(int i = 0; i < baseParameters.size(); i++)
-        sigmas[i] = sqrt(cov.value(i,i));
-      Terminal::out << "Using current parameters" << endl;
-    }
-    else {
-      QList<FitTrajectories> cls = variations.
-        clusterTrajectories(workSpace->trajectories);
-      for(int i = 0; i < cls.size(); i++) {
-        if(clusters > 0 && i >= clusters)
-          break;
-        // Stupid name :-(...
-        this->clusters << cls[i].best();
-      }
-      QStringList cl;
-      for(const FitTrajectory & t : this->clusters)
-        cl << QString::number(t.residuals);
-      Terminal::out << "Using " << cl.size()
-                    << " clusters with best residuals " << cl.join(", ")
-                    << endl;
-    }
-  };
-
-  virtual bool iterate(bool justPick) override {
-    double curTemperature = minTemperature + (maxTemperature - minTemperature)/(iterations - 1) * currentIteration;
-
-    Terminal::out << "Choosing at temperature: "
-                  << curTemperature << endl;
-
-    Vector choice;
-      
-    if(clusters.size() > 0 && (currentCluster < 0 || currentIteration >= iterations)) {
-      ++currentCluster;
-      if(clusters.size() <= currentCluster)
-        return false;
-      Terminal::out << "Starting to work on cluster "
-                    << currentCluster << endl;
-      currentIteration = 0;
-    }
-
-    if(clusters.size() == 0)
-      choice = variations.randomParameters(baseParameters, sigmas,
-                                           curTemperature);
-    else
-      choice = variations.randomParameters(clusters[currentCluster],
-                                           curTemperature);
-
-    Vector base = clusters.size() == 0 ? baseParameters :
-      clusters[currentCluster].finalParameters;
-    
-
-    
-    // Write out the parameters:
-    Terminal::out << "Picking out the following parameters:" << endl;
-    int nb_per_ds = workSpace->data()->parametersPerDataset();
-    for(int i = 0; i < nb_per_ds; i++) {
-      if(workSpace->isGlobal(i))
-        Terminal::out << " * " << workSpace->fullParameterName(i)
-                      << ":\t" << base[i] << "\t-> "
-                      << choice[i] << endl;
-    }
-
-    for(int i = 0; i < choice.size(); i++) {
-      int idx = i % nb_per_ds;
-      if(! workSpace->isGlobal(idx))
-        Terminal::out << " * " << workSpace->fullParameterName(i)
-                      << ":\t" << base[i] << "\t-> "
-                      << choice[i] << endl;
-    }
-
-
-    workSpace->restoreParameterValues(choice);
-
-    if(! runHooks())
-      return false;
-
-    if(! justPick) {
-      workSpace->runFit(fitIterations);
-      currentIteration++;
-    }
-    return (clusters.size() > 0 && currentCluster+1 < clusters.size()) ||
-      currentIteration < iterations;
-  };
-
-  virtual QString progressText() const override {
-    if(clusters.size() > 0)
-      return QString("%1/%2, cluster %3/%4").
-        arg(currentIteration+1).arg(iterations).
-        arg(currentCluster+1).arg(clusters.size());
-    else
-      return QString("%1/%2").
-        arg(currentIteration+1).arg(iterations);
-  };
-
-
-};
-
-ArgumentList
-OldSimulatedAnnealingExplorer::args(QList<Argument*>()
-                                    << new SeveralStringsArgument("parameters",
-                                                                  "Parameters",
-                                                                  "Parameter specification", true)
-                                    );
- 
-ArgumentList
-OldSimulatedAnnealingExplorer::opts(QList<Argument*>()
-                                    << new IntegerArgument("clusters",
-                                                           "Clusters",
-                                                           "Number of parameter clusters to anneal, -1 for all clusters, 0 to use current parameters")
-                                    << new IntegerArgument("iterations",
-                                                           "Iterations",
-                                                           "Number of monte-carlo iterations")
-                                    << new IntegerArgument("fit-iterations",
-                                                           "Fit iterations",
-                                                           "Maximum number of fit iterations")
-                                    << new NumberArgument("start-temperature",
-                                                          "Starting temperature",
-                                                          "The starting 'temperature' for the random choices")
-                                    << new NumberArgument("end-temperature",
-                                                          "Ending temperature",
-                                                          "The ending 'temperature' for the random choices")
-                                    );
-
-ParameterSpaceExplorerFactoryItem 
-sa("old-simulated-annealing", "Simulated annealing",
-   OldSimulatedAnnealingExplorer::args,
-   OldSimulatedAnnealingExplorer::opts,
-   [](FitWorkspace *ws) -> ParameterSpaceExplorer * {
-     return new OldSimulatedAnnealingExplorer(ws);
-   });
 
 //////////////////////////////////////////////////////////////////////
 
@@ -2201,93 +1965,3 @@ perm("permutation", "Permutation",
 
 
 
-//////////////////////////////////////////////////////////////////////
-
-
-#include <command.hh>
-#include <commandcontext.hh>
-#include <commandeffector-templates.hh>
-#include <file-arguments.hh>
-
-
-/// @todo This command has nothing to do here. Excepted for the use
-/// of ParametersVariation
-
-static void clusterTrajectoriesCommand(const QString & /*name*/,
-                                       QStringList specs,
-                                       const CommandOptions & opts)
-{
-  FitWorkspace * ws = FitWorkspace::currentWorkspace();
-
-  ParameterVariations vars(ws);
-  QStringList missing;
-  vars.parseSpecs(specs, &missing);
-  if(missing.size() > 0)
-    Terminal::out << "WARNING: could not understand the following parameters: "
-                  << missing.join(", ")
-                  << endl;
-
-
-  
-  double factor = 1;
-  updateFromOptions(opts, "factor", factor);
-
-  Terminal::out << "Clustering trajectories with the following parameters:\n"
-                << vars.textRepresentation() << endl;
-
-  QList<FitTrajectories> clusters = vars.clusterTrajectories(ws->trajectories);
-  Terminal::out << " -> found " << clusters.size() << " clusters" << endl;
-  QString expt;
-  updateFromOptions(opts, "export", expt);
-  int exportOnly = -1;
-  updateFromOptions(opts, "export-only", exportOnly);
-  int idx = 0;
-  for(FitTrajectories & c : clusters) {
-    Terminal:: out << "Cluster with " << c.size() << " elements, best: "
-                   << c.best().residuals << endl;
-    
-    if(! expt.isEmpty()) {
-      if(exportOnly < 0 || idx < exportOnly) {
-        QString suff = QString::asprintf("-%03d.dat", idx);
-        QString fn = expt + suff;
-        Terminal::out << "-> writing cluster to " << fn << endl;
-
-        File f(fn, File::TextWrite, opts);
-        QTextStream o(f);
-        c.exportToFile(o);
-      }
-    }
-    ++idx;
-  }
-}
-
-ArgumentList ctArgs(QList<Argument*>()
-                   << new SeveralStringsArgument("parameters",
-                                                 "Parameters",
-                                                 "Parameter specification", true, true)
-                   );
-
-ArgumentList ctOpts(QList<Argument*>()
-                    << new NumberArgument("factor",
-                                          "Scaling factor",
-                                          "Scaling factor for the clustering")
-                    << new FileArgument("export",
-                                        "Export clusters",
-                                        "prefix to export the clusters as trajectory files")
-                    << new IntegerArgument("export-only",
-                                           "Number of trajectories",
-                                           "only export that many of the best trajectories")
-                    << File::fileOptions(File::OverwriteOption)
-                    );
-
-static Command 
-ct("cluster-trajectories", // command name
-    effector(clusterTrajectoriesCommand), // action
-    "fits",  // group name
-    &ctArgs, // arguments
-    &ctOpts, // options
-    "Cluster trajectories",
-    "Cluster the trajectories according to the specifications",
-    "", CommandContext::fitContext());
-
- 

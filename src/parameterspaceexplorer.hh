@@ -32,6 +32,50 @@ class FitWorkspace;
 class Command;
 class CommandEffector;
 
+/// The parameter specification. It is in fact a parameter range
+/// specification: the parameter comes with a range and a lin/log
+/// qualification
+class ParameterRangeSpec {
+public:
+  /// The target, like what is returned by
+  /// FitWorkspace::parseParameterList()
+  QPair<int, int> parameter;
+
+  /// The lower end of the range
+  double low;
+
+  /// The higher end of the range
+  double high;
+
+  /// Whether the range is logarithmic or not
+  bool log;
+
+  /// Whether or not the selection is global (i.e. all local
+  /// parameters are set to the same starting value)
+  bool uniform;
+
+
+  /// Can be used by the explorers to store whatever.
+  double storage;
+
+
+  /// The center
+  double center() const;
+  
+  /// Returns 1/2 of the witdth of the interval (log10 or lin).
+  double sigma() const;
+  
+  double trim(double val) const;
+
+  /// Parses the parameter list
+  static QList<ParameterRangeSpec> parseSpecs(const QStringList & specs,
+                                         FitWorkspace * workSpace,
+                                         QStringList * unknowns);
+};
+
+
+//////////////////////////////////////////////////////////////////////
+
 class ParameterSpaceExplorerFactoryItem :
   public Factory<ParameterSpaceExplorer, FitWorkspace *> {
   Command * cmd;
@@ -48,6 +92,9 @@ public:
                                     const ArgumentList &opts,
                                     Creator c);
 };
+
+
+//////////////////////////////////////////////////////////////////////
 
 /// Generates a style for the next curve.
 class ParameterSpaceExplorer {

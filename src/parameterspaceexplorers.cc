@@ -43,63 +43,6 @@
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
 
-double ParameterRangeSpec::center() const {
-  if(log) {
-    return sqrt(low * high);
-  }
-  else
-    return 0.5*(low + high);
-}
-
-/// Returns 1/2 of the witdth of the interval (log10 or lin).
-double ParameterRangeSpec::sigma() const {
-  if(log)
-    return 0.5 * (log10(high) - log10(low));
-  else
-    return 0.5 * (high - low);
-}
-
-double ParameterRangeSpec::trim(double val) const {
-  if(std::isnan(val))
-    return center();          // Safety catch
-  return std::max(std::min(val, high), low);
-}
-
-
-/// Parses the parameter list
-QList<ParameterRangeSpec> ParameterRangeSpec::parseSpecs(const QStringList & specs,
-                                               FitWorkspace * workSpace,
-                                               QStringList * unknowns) {
-  QList<ParameterRangeSpec> parameterSpecs;
-  QRegExp re("^\\s*(.*):(u,)?([^:]+)\\.\\.([^:,]+)(,log)?\\s*$");
-
-  for(const QString & s : specs) {
-    if(re.indexIn(s) != 0)
-      throw RuntimeError("Invalid parameter specification: '%1'").
-        arg(s);
-
-
-    // Now handling:
-    // monte-carlo-explorer tau_1[#0,#1],tau_2[#1]:1e-2..1e2,log
-      
-    QStringList pars = Utils::nestedSplit(re.cap(1), ',', "[", "]");
-    bool uniform = ! re.cap(2).isEmpty();
-    double l = re.cap(3).toDouble();
-    double h = re.cap(4).toDouble();
-    bool log = ! re.cap(5).isEmpty();
-    QList<QPair<int, int> > params;
-    for(const QString & pa : pars)
-      params << workSpace->parseParameterList(pa, unknowns);
-    for(const QPair<int, int> & p : params) {
-      ParameterRangeSpec sp = {p, l, h, log, uniform, 0};
-      parameterSpecs << sp;
-    }
-  }
-  return parameterSpecs;
-};
-
-//////////////////////////////////////////////////////////////////////
-
 
 /// A Monte-Carlo parameter space explorer, i.e. an explorer in which
 /// one randomly chooses the initial parameters within a given range.

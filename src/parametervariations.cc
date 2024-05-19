@@ -541,10 +541,7 @@ sa("old-simulated-annealing", "Simulated annealing",
 #include <file-arguments.hh>
 
 
-/// @todo This command has nothing to do here. Excepted for the use
-/// of ParametersVariation
-
-static void clusterTrajectoriesCommand(const QString & /*name*/,
+static void varClusterTrajectoriesCommand(const QString & /*name*/,
                                        QStringList specs,
                                        const CommandOptions & opts)
 {
@@ -612,13 +609,171 @@ ArgumentList ctOpts(QList<Argument*>()
                     );
 
 static Command 
-ct("cluster-trajectories", // command name
-    effector(clusterTrajectoriesCommand), // action
+ct("var-cluster-trajectories", // command name
+    effector(varClusterTrajectoriesCommand), // action
     "fits",  // group name
     &ctArgs, // arguments
     &ctOpts, // options
-    "Cluster trajectories",
+    "Cluster trajectories (old)",
     "Cluster the trajectories according to the specifications",
     "", CommandContext::fitContext());
 
- 
+
+//////////////////////////////////////////////////////////////////////
+
+// This command attemps to do K-means clustering.
+// Just saves the results as tags
+
+
+static void clusterTrajectoriesCommand(const QString & /*name*/,
+                                       int clusters,
+                                       QStringList specs,
+                                       const CommandOptions & opts)
+{
+  FitWorkspace * ws = FitWorkspace::currentWorkspace();
+  QStringList unknowns;
+  QList<ParameterRangeSpec> parameterSpecs =
+    ParameterRangeSpec::parseSpecs(specs, ws, &unknowns);
+
+  // max number of iterations
+  int iterations = 10;
+
+  QString flag = "k-means";
+  updateFromOptions(opts, "flag", flag);
+
+  if(unknowns.size() > 0)
+    Terminal::out << "Did not find the following parameters: "
+                  << unknowns.join(", ") << ", ignored them" << endl;
+
+  if(clusters <= 2)
+    throw RuntimeError("Needs at least two clusters (not %1)").
+      arg(clusters);
+
+  if(ws->trajectories.size() <= clusters)
+    throw RuntimeError("Needs more trajectories than clusters !");
+
+  class Cluster {
+  public:
+    Vector centroid;
+
+    Vector oldCentroid;
+
+    /// The index of the trajectories in the workspace
+    QSet<int> currentTrajectories;
+
+    /// The trajectories of the previous iteration
+    QSet<int> previousTrajectories;
+
+    /// Distance of the given trajectory to the previous centroid
+    QHash<int, double> distances;
+  };
+
+  // First, bootstrap:
+  QSet<int> starting;
+  while(starting.size() < clusters)
+    starting.insert(rand() % ws->trajectories.size());
+
+  QList<Cluster> clusterList;
+  for(int idx : starting) {
+    Cluster c;
+    c.centroid = ws->trajectories[idx].finalParameters;
+    c.currentTrajectories.insert(idx);
+    clusterList << c;
+  }
+
+  int it = 0;
+  bool over = false;
+
+  while(it < iterations && (! over)) {
+    // First, dumping the states
+    Terminal::out << "Clustering iteration " << it << endl;
+    for(int i = 0; i < clusters; i++) {
+      Terminal::out << "Cluster #" << i << " -> "
+                    << clusterList[i].currentTrajectories.size() << endl;
+      clusterList[i].previousTrajectories = clusterList[i].currentTrajectories;
+      clusterList[i].currentTrajectories.clear();
+    }
+
+    // Now we measure the distance for each trajectory, find the best cluster
+    for(int idx = 0; idx < ws->trajectories.size(); idx++) {
+      double mnd = -1;
+      int cm = -1;
+      const Vector & params = ws->trajectories[idx].finalParameters;
+      for(int c = 0; c < clusterList.size(); c++) {
+        double dst =
+          ParameterRangeSpec::trajectoryDistance(parameterSpecs,
+                                                 clusterList[c].centroid,
+                                                 params, ws);
+        if(cm < 0 || dst < mnd) {
+          mnd = dst;
+          cm = c;
+        }
+      }
+      clusterList[cm].currentTrajectories.insert(idx);
+      clusterList[cm].distances[idx] = mnd;
+    }
+
+    // recenter the clusters
+    int nb = 0;
+    int unmoved = 0;
+    for(Cluster & cl : clusterList) {
+      QList<Vector> vects;
+      for(int trj : cl.currentTrajectories)
+        vects << ws->trajectories[trj].finalParameters;
+      cl.oldCentroid = cl.centroid;
+      cl.centroid = ParameterRangeSpec::averageParameters(parameterSpecs,
+                                                          vects, ws);
+      double dst = ParameterRangeSpec::trajectoryDistance(parameterSpecs,
+                                                          cl.oldCentroid,
+                                                          cl.centroid,
+                                                          ws);
+      Terminal::out << "Cluster #" << nb++ <<  " now has " << vects.size()
+                    << " trajectories, center has moved by "
+                    << dst
+                    << endl;
+      if(dst == 0)
+        unmoved++;
+    }
+    if(unmoved == clusterList.size())
+      over = true;
+  }
+
+  // OK, so now tagging the trajectories
+  int clust = 0;
+  for(Cluster & cl : clusterList) {
+    QString flg = flag + "-%2-%1";
+    flg = flg.arg(clust).arg(clusters);
+    for(int idx: cl.currentTrajectories)
+      ws->trajectories[idx].flags.insert(flg);
+
+    clust++;
+  }
+
+}
+
+
+
+ArgumentList kctArgs(QList<Argument*>()
+                     << new IntegerArgument("clusters",
+                                            "Clusters",
+                                            "The number of clusters")
+                     << new SeveralStringsArgument("parameters",
+                                                   "Parameters",
+                                                   "Parameter specification")
+                   );
+
+ArgumentList kctOpts(QList<Argument*>()
+                    << new StringArgument("flag",
+                                          "Flag",
+                                          "Flag for the clusters")
+                    );
+
+static Command 
+kct("cluster-trajectories", // command name
+    effector(clusterTrajectoriesCommand), // action
+    "fits",  // group name
+    &kctArgs, // arguments
+    &kctOpts, // options
+    "Cluster trajectories",
+    "Cluster the trajectories using K-means clustering",
+    "", CommandContext::fitContext());

@@ -29,6 +29,7 @@
 
 class ParameterSpaceExplorer;
 class FitWorkspace;
+class FitTrajectory;
 class Command;
 class CommandEffector;
 
@@ -59,18 +60,47 @@ public:
   double storage;
 
 
-  /// The center
+  /// The center of the range
   double center() const;
   
   /// Returns 1/2 of the witdth of the interval (log10 or lin).
   double sigma() const;
-  
+
+  /// Returns the given value, trimmed to be within the range.
   double trim(double val) const;
+
+  /// Returns the distance between the two values, normalized by the range
+  /// (and taking into account the log vs lin).
+  /// That value is always positive
+  double distance(double x1, double x2) const;
 
   /// Parses the parameter list
   static QList<ParameterRangeSpec> parseSpecs(const QStringList & specs,
-                                         FitWorkspace * workSpace,
-                                         QStringList * unknowns);
+                                              FitWorkspace * workSpace,
+                                              QStringList * unknowns);
+
+  /// Computes the distance between the two trajectories, using the
+  /// list of parameters as measure of distance.
+  /// Any global parameter is taken to mean all the parameters.
+  /// Any parameter not listed in the range specs is ignored
+  static double trajectoryDistance(const QList<ParameterRangeSpec> & specs,
+                                   const FitTrajectory & a,
+                                   const FitTrajectory & b,
+                                   const FitWorkspace * workspace,
+                                   bool useFinal = true);
+
+  /// Distance of parameter vectors
+  static double trajectoryDistance(const QList<ParameterRangeSpec> & specs,
+                                   const Vector & a,
+                                   const Vector & b,
+                                   const FitWorkspace * workspace);
+
+  /// Averages the given trajectories according to the specifications
+  /// (only the lin vs log is taken into consideration).
+  /// All other parameters are silently ignored
+  static Vector averageParameters(const QList<ParameterRangeSpec> & specs,
+                                  const QList<Vector> & parameters,
+                                  const FitWorkspace * workspace);
 };
 
 

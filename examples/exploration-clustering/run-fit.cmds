@@ -1,0 +1,8 @@
+generate-dataset -10 10 -0.3
+apply-formula 'y+=3*exp(-(x-2)**2/1.2)'
+apply-formula 'y+=-2*exp(-(x+5)**2/0.3)'
+apply-formula 'y+=2*exp(-(x-7)**2/1)'
+apply-formula 'y+=2*exp(-(x+0.02)**2/1.3)'
+apply-formula 'y+=0.1*sin((i+100)**2)'
+a 4-gaussians.dat
+fit-gaussian /number=4

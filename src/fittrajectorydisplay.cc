@@ -782,6 +782,7 @@ public:
           arg(i);
 
         int col = i*n+j;
+        /// @todo Should I setup a cache here ?
         columns << Item(na,
                         [this,j,i,n,col](const QList<const FitTrajectory*> & trjs,
                                          const QString & /*name*/,
@@ -796,11 +797,18 @@ public:
                               sx += x;
                               sxx += x*x;
                             }
-                            sx /= nb;
-                            sxx /= nb;
+                            double fct = 1.0/nb;
+                            sx *= fct;
+                            sxx *= fct;
                             return QString("%1 +- %2").
-                              arg(sx/nb).
-                              arg(sqrt(sxx - sx*sx));
+                              arg(sx).
+                              arg(sqrt(std::max(sxx - sx*sx, 0.0)));
+                          }
+                          if(role == Qt::ToolTipRole) {
+                            QStringList vals;
+                            for(const FitTrajectory * trj : trjs)
+                              vals << QString::number(trj->finalParameters[col]);
+                            return vals.join(", ");
                           }
                           return QVariant();
                         }, i, col, j);
@@ -1275,6 +1283,20 @@ void FitTrajectoryDisplay::flagsViewContextMenu(const QPoint & pos)
                        reuseFlaggedParameters(flg, false);
                    });
   menu.addAction(ac);
+  menu.addSeparator();
+  ac = new QAction("Delete flag", this);
+  QObject::connect(ac, &QAction::triggered,
+                   this,
+                   [this] {
+                     QString flg = flagsModel->flag(flagsView->currentIndex());
+                     if(! flg.isEmpty()) {
+                       for(FitTrajectory & trj : workspace->trajectories)
+                         trj.removeFlag(flg);
+                       updateModels();
+                     }
+                   });
+  menu.addAction(ac);
+
   menu.exec(view->viewport()->mapToGlobal(pos));
 }
 

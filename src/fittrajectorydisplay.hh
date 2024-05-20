@@ -145,8 +145,7 @@ class FitTrajectoryDisplay : public QDialog {
   bool doneOne;
 
   /// A hash of
-  QHash<int, QList<QAction *>> contextActions;
-  // QList<QAction *> contextActions;
+  QHash<int, QList<QAction *> > contextActions;
 
   void addCMAction(const QString & name, QObject * receiver, 
                    const char * slot, 

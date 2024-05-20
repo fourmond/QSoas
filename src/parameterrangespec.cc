@@ -27,8 +27,6 @@
 
 #include <utils.hh>
 
-#include <terminal.hh>
-
 
 
 double ParameterRangeSpec::center() const
@@ -207,12 +205,65 @@ double ParameterRangeSpecs::trajectoryDistance(const Vector & a,
 }
 
 
+ParameterRangeSpecs::DispersionStats ParameterRangeSpecs::parametersDispersion(const QList<Vector> & parameters) const
+{
+  DispersionStats rv;
+  rv.center = averageParameters(parameters);
+
+  for(const Vector & v: parameters) {
+    double dst = trajectoryDistance(v, rv.center);
+    rv.moment2 += pow(dst, 2);
+    rv.moment4 += pow(dst, 4);
+  }
+  rv.moment2 /= parameters.size();
+  rv.moment4 /= parameters.size();
+
+  return rv;
+}
+
+
+QString ParameterRangeSpecs::parametersString(const Vector & params) const
+{
+  QHash<int, QList<QString> > values;
+  int nbParams = workspace->parametersPerDataset();
+  int nbDatasets = workspace->datasetNumber();
+  
+  for(const ParameterRangeSpec & spc: *this) {
+    if(! values.contains(spc.parameter.first)) {
+      QList<QString> lst;
+      for(int i = 0; i < nbDatasets; i++)
+        lst << "(N/A)";
+      values[spc.parameter.first] = lst;
+    }
+    QList<QString> & cur = values[spc.parameter.first];
+    if(spc.parameter.second == -1) {
+      for(int i = 0; i < nbDatasets; i++)
+        cur[i] = QString::number(params[i*nbParams + spc.parameter.first]);
+    }
+    else
+      cur[spc.parameter.second] =
+        QString::number(params[spc.parameter.second*nbParams +
+                               spc.parameter.first]);
+  }
+  QList<int> vls = values.keys();
+  std::sort(vls.begin(), vls.end());
+  QString rv;
+  for(int param: vls) {
+    rv += QString(" * %1: %2\n").
+      arg(workspace->parameterNames()[param]).arg(values[param].join("\t"));
+  }
+  return rv;
+}
+
 //////////////////////////////////////////////////////////////////////
 
 #include <command.hh>
 #include <commandcontext.hh>
 #include <commandeffector-templates.hh>
 #include <general-arguments.hh>
+#include <terminal.hh>
+#include <debug.hh>
+
 
 
 // This command attemps to do K-means clustering.
@@ -226,11 +277,14 @@ static void clusterTrajectoriesCommand(const QString & /*name*/,
 {
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
   QStringList unknowns;
-  QList<ParameterRangeSpec> parameterSpecs =
-    ParameterRangeSpec::parseSpecs(specs, ws, &unknowns);
+  ParameterRangeSpecs parameterSpecs =
+    ParameterRangeSpecs::parseSpecs(specs, ws, &unknowns);
 
   // max number of iterations
   int iterations = 10;
+
+  int adaptive = 15;
+  updateFromOptions(opts, "adaptive", adaptive);
 
   QString flag = "k-means";
   updateFromOptions(opts, "flag", flag);
@@ -239,7 +293,7 @@ static void clusterTrajectoriesCommand(const QString & /*name*/,
     Terminal::out << "Did not find the following parameters: "
                   << unknowns.join(", ") << ", ignored them" << endl;
 
-  if(clusters <= 2)
+  if(clusters < 2)
     throw RuntimeError("Needs at least two clusters (not %1)").
       arg(clusters);
 
@@ -258,85 +312,226 @@ static void clusterTrajectoriesCommand(const QString & /*name*/,
     /// The trajectories of the previous iteration
     QSet<int> previousTrajectories;
 
-    /// Distance of the given trajectory to the previous centroid
-    QHash<int, double> distances;
+    /// Dispersion stats
+    ParameterRangeSpecs::DispersionStats stats;
+
+    /// Distance to the other clusters
+    QList<double> distances;
+
   };
 
-  // First, bootstrap:
-  QSet<int> starting;
-  while(starting.size() < clusters)
-    starting.insert(rand() % ws->trajectories.size());
+  // To start the clusters, we recursively pick the trajectory the
+  // furthest from all the clusters defined so far
 
   QList<Cluster> clusterList;
-  for(int idx : starting) {
-    Cluster c;
-    c.centroid = ws->trajectories[idx].finalParameters;
-    c.currentTrajectories.insert(idx);
-    clusterList << c;
-  }
-
-  int it = 0;
-  bool over = false;
-
-  while(it < iterations && (! over)) {
-    // First, dumping the states
-    Terminal::out << "Clustering iteration " << it << endl;
-    for(int i = 0; i < clusters; i++) {
-      Terminal::out << "Cluster #" << i << " -> "
-                    << clusterList[i].currentTrajectories.size() << endl;
-      clusterList[i].previousTrajectories = clusterList[i].currentTrajectories;
-      clusterList[i].currentTrajectories.clear();
+  QSet<int> chosen;
+  while(clusterList.size() < clusters) {
+    if(clusterList.size() == 0) {
+      Cluster c;
+      c.centroid = ws->trajectories[0].finalParameters;
+      c.currentTrajectories.insert(0);
+      clusterList << c;
+      chosen.insert(0);
     }
-
-    // Now we measure the distance for each trajectory, find the best cluster
-    for(int idx = 0; idx < ws->trajectories.size(); idx++) {
-      double mnd = -1;
-      int cm = -1;
-      const Vector & params = ws->trajectories[idx].finalParameters;
-      for(int c = 0; c < clusterList.size(); c++) {
-        double dst =
-          ParameterRangeSpec::trajectoryDistance(parameterSpecs,
-                                                 clusterList[c].centroid,
-                                                 params, ws);
-        if(cm < 0 || dst < mnd) {
-          mnd = dst;
-          cm = c;
+    else {
+      double mdst = -1;
+      int midx = -1;
+      for(int idx = 0; idx < ws->trajectories.size(); idx++) {
+        if(chosen.contains(idx))
+          continue;
+        double dst = 0;
+        for(const Cluster & cls: clusterList) {
+          double d =
+            parameterSpecs.trajectoryDistance(ws->trajectories[idx].
+                                              finalParameters,
+                                              cls.centroid);
+          dst += d*d;
+        }
+        dst = pow(dst, 0.5);
+        if(dst > mdst) {
+          midx = idx;
+          mdst = dst;
         }
       }
-      clusterList[cm].currentTrajectories.insert(idx);
-      clusterList[cm].distances[idx] = mnd;
+      if(mdst == 0) {
+        Terminal::out << "Too many clusters" << endl;
+        break;
+      }
+      else {
+        Cluster c;
+        c.centroid = ws->trajectories[midx].finalParameters;
+        c.currentTrajectories.insert(midx);
+        clusterList << c;
+        chosen.insert(midx);
+      }
     }
-
-    // recenter the clusters
-    int nb = 0;
-    int unmoved = 0;
-    for(Cluster & cl : clusterList) {
-      QList<Vector> vects;
-      for(int trj : cl.currentTrajectories)
-        vects << ws->trajectories[trj].finalParameters;
-      cl.oldCentroid = cl.centroid;
-      cl.centroid = ParameterRangeSpec::averageParameters(parameterSpecs,
-                                                          vects, ws);
-      double dst = ParameterRangeSpec::trajectoryDistance(parameterSpecs,
-                                                          cl.oldCentroid,
-                                                          cl.centroid,
-                                                          ws);
-      Terminal::out << "Cluster #" << nb++ <<  " now has " << vects.size()
-                    << " trajectories, center has moved by "
-                    << dst
-                    << endl;
-      if(dst == 0)
-        unmoved++;
-    }
-    if(unmoved == clusterList.size())
-      over = true;
   }
+
+
+
+  /// Runs the iterations. Modifies the clusters in place
+  auto run_iterations = [ws,
+                         &parameterSpecs](int iterations,
+                                          QList<Cluster> & clusterList) -> int {
+    int it = 0;
+    bool over = false;
+
+    while(it < iterations && (! over)) {
+      // First, dumping the states
+      // Terminal::out << "Clustering iteration " << it << endl;
+      if(Debug::debugLevel() > 0)
+        Debug::debug() << "Clustering iteration: " << it << endl;
+        
+      for(int i = 0; i < clusterList.size(); i++) {
+        // Terminal::out << "Cluster #" << i << " -> "
+        //               << clusterList[i].currentTrajectories.size() << endl;
+        if(Debug::debugLevel() > 0) {
+          Debug::debug() << "Cluster #" << i << " -> center:\n"
+                         << parameterSpecs.parametersString(clusterList[i].centroid)
+                         << endl;
+        }
+        clusterList[i].previousTrajectories = clusterList[i].currentTrajectories;
+        clusterList[i].currentTrajectories.clear();
+      }
+
+      // Now we measure the distance for each trajectory, find the best cluster
+      for(int idx = 0; idx < ws->trajectories.size(); idx++) {
+        double mnd = -1;
+        int cm = -1;
+        const Vector & params = ws->trajectories[idx].finalParameters;
+        if(Debug::debugLevel() > 0) {
+          Debug::debug() << "Trajectory #" << idx << " -> parameters:\n"
+                         << parameterSpecs.parametersString(params)
+                         << endl;
+        }
+        for(int c = 0; c < clusterList.size(); c++) {
+          double dst =
+            ParameterRangeSpec::trajectoryDistance(parameterSpecs,
+                                                   clusterList[c].centroid,
+                                                   params, ws);
+          if(Debug::debugLevel() > 0) {
+            Debug::debug() << " -> distance to cluster #" << c
+                           << " is " << dst << endl;
+          }
+          if(cm < 0 || dst < mnd) {
+            mnd = dst;
+            cm = c;
+          }
+        }
+        clusterList[cm].currentTrajectories.insert(idx);
+      }
+
+      // recenter the clusters
+      int nb = 0;
+      int unmoved = 0;
+      for(Cluster & cl : clusterList) {
+        QList<Vector> vects;
+        for(int trj : cl.currentTrajectories)
+          vects << ws->trajectories[trj].finalParameters;
+        cl.oldCentroid = cl.centroid;
+        cl.centroid = ParameterRangeSpec::averageParameters(parameterSpecs,
+                                                            vects, ws);
+        double dst = ParameterRangeSpec::trajectoryDistance(parameterSpecs,
+                                                            cl.oldCentroid,
+                                                            cl.centroid,
+                                                            ws);
+        // Terminal::out << "Cluster #" << nb++ <<  " now has " << vects.size()
+        //               << " trajectories, center has moved by "
+        //               << dst
+        //               << endl;
+        if(dst == 0)
+          unmoved++;
+      }
+      if(unmoved == clusterList.size())
+        over = true;
+      it++;
+    }
+    return it;
+  };
+
+  bool keepGoing = true;
+  int total = 0;
+  while(true) {
+    run_iterations(iterations, clusterList);
+
+    int idx = 0;
+
+    int toSplit = -1;
+    int nb = -1;
+    for(Cluster & cls: clusterList) {
+      Terminal::out << "Cluster #" << idx << ", "
+                    << cls.currentTrajectories.size() << " trajectories\n";
+      QList<Vector> vects;
+      for(int trj : cls.currentTrajectories)
+        vects << ws->trajectories[trj].finalParameters;
+      cls.stats = parameterSpecs.parametersDispersion(vects);
+      double nrml = cls.stats.moment4/pow(cls.stats.moment2, 2);
+      Terminal::out << " -> moment 2:\t" << cls.stats.moment2
+                    << "\tnormalized m4:\t"
+                    << nrml << endl;
+      cls.distances.clear();
+      double min = -1;
+      for(int v = 0; v < clusterList.size(); v++) {
+        cls.distances << parameterSpecs.trajectoryDistance(cls.centroid,
+                                                           clusterList[v].centroid);
+        if(v != idx) {
+          if(min < 0 || cls.distances.last() < min)
+            min = cls.distances.last();
+        }
+      }
+      double disp = pow(cls.stats.moment2, 0.5);
+      Terminal::out << " -> dispersion:\t" << disp
+                    << "\tmin distance:\t" << min << endl;
+      if(cls.currentTrajectories.size() > 2 && nrml < 2 &&
+         disp > min * 1e-2) {
+        // Trying to split that cluster
+        Terminal::out << " -> probably composite" << endl;
+        if(nb < cls.currentTrajectories.size()) {
+          nb = cls.currentTrajectories.size();
+          toSplit = idx;
+        }
+      }
+      idx++;
+    }
+    if(toSplit >= 0 && total < adaptive) {
+      Terminal::out << "Trying to split cluster #" << toSplit << endl;
+      Cluster & cls = clusterList[toSplit];
+      QList<Vector> vects;
+      for(int trj : cls.currentTrajectories)
+        vects << ws->trajectories[trj].finalParameters;
+      cls.currentTrajectories.clear();
+      double md = -1;
+      Vector nc;
+      for(const Vector & v : vects) {
+        double dst = parameterSpecs.trajectoryDistance(cls.stats.center, v);
+        if(dst > md) {
+          md = dst;
+          nc = v;
+        }
+      }
+      cls.centroid = nc;
+      Cluster newC;
+      md = -1;
+      for(const Vector & v : vects) {
+        double dst = parameterSpecs.trajectoryDistance(cls.centroid, v);
+        if(dst > md) {
+          md = dst;
+          newC.centroid = v;
+        }
+      }
+      clusterList << newC;
+    }
+    else
+      break;
+    total += 1;
+  }
+
 
   // OK, so now tagging the trajectories
   int clust = 0;
   for(Cluster & cl : clusterList) {
     QString flg = flag + "-%2-%1";
-    flg = flg.arg(clust).arg(clusters);
+    flg = flg.arg(clust).arg(clusterList.size());
     for(int idx: cl.currentTrajectories)
       ws->trajectories[idx].flags.insert(flg);
 
@@ -357,10 +552,13 @@ ArgumentList kctArgs(QList<Argument*>()
                    );
 
 ArgumentList kctOpts(QList<Argument*>()
-                    << new StringArgument("flag",
-                                          "Flag",
-                                          "Flag for the clusters")
-                    );
+                     << new StringArgument("flag",
+                                           "Flag",
+                                           "Flag for the clusters")
+                     << new IntegerArgument("adaptive",
+                                            "Adaptive",
+                                            "Adaptively refine the number of clusters (that many refinements)")
+                     );
 
 static Command 
 kct("cluster-trajectories", // command name

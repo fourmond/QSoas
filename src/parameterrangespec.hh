@@ -22,6 +22,8 @@
 #ifndef __PARAMETERRANGESPEC_HH
 #define __PARAMETERRANGESPEC_HH
 
+#include <vector.hh>
+
 class FitWorkspace;
 class FitTrajectory;
 class Vector;
@@ -127,12 +129,33 @@ public:
   /// @todo Optionally change this ?
   Vector averageParameters(const QList<Vector> & parameters) const;
 
+  /// A class for the results of parametersDispersion
+  class DispersionStats {
+  public:
+
+    /// The center of the parameters
+    Vector center;
+
+
+    /// Average of the squares of the distances to the center
+    double moment2 = 0;
+
+    /// Average of the power 4 of the distances to the center
+    double moment4 = 0;
+  };
+
+  /// Returns some stastistics on the dispersion
+  DispersionStats parametersDispersion(const QList<Vector> & parameters) const;
+
 
   /// Returns the distance from the two parameter vectors
   double trajectoryDistance(const Vector & a, const Vector & b) const;
 
 
-  
+  /// Returns a string representing the parameters, one parameter definition
+  /// per line, a TAB-separated list per buffer
+  QString parametersString(const Vector & params) const;
+
 
 };
 

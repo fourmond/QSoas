@@ -89,10 +89,14 @@ protected:
     return 1 + (sizeof...(Args)+1) * idx;
   }
 
-  /// Runs the function using the given position, the given params and
-  /// the given index. The position is RELATIVE TO THE PEAK CENTER
+  /// Runs the function using the given position, the given params
+  /// (fit params) and the given index. The position is RELATIVE TO
+  /// THE PEAK CENTER. The function SHOULD NOT touch the amplitude
+  /// parameter.
   double fn(double x, const double * a, int idx) const;
-  double fn(double x, const double * a) const;
+
+  // /// @todo I don't think this function is useful anyhow
+  // double fn(double x, const double * a) const;
 
 
   
@@ -149,7 +153,7 @@ public:
   };
 
   virtual bool displaySubFunctions(FitData * ) const override {
-    return true;               
+    return true;
   };
 
   virtual void computeSubFunctions(const double * parameters,
@@ -194,17 +198,17 @@ public:
     const double ymin = ds->y().min();
     const double ymax = ds->y().max();
 
-    double *t = a;
-    *t = ymin;
+    *a = ymin;
     double params[sizeof...(Args) - 1];
     params[0] = (xmax - xmin)/(s->number * 4);
     for(int k = 1; k < sizeof...(Args) - 1; k++)
       params[k] = 0.5;
     for(int i = 0; i < s->number; i++) {
-      *(++t) = xmin + (i+0.5) * (xmax - xmin)/s->number; // position
-      *(++t) = (ymax - ymin) / (s->useSurface ? fn(0,params) : 1); // amplitude
+      double * base = a + paramBase(i);
+      base[0] = xmin + (i+0.5) * (xmax - xmin)/s->number; // position
       for(int k = 0; k < sizeof...(Args) - 1; k++)
-        *(++t) = params[k];
+        base[2+k] = params[k];
+      base[1] = (ymax - ymin) / (s->useSurface ? fn(0,a, i) : 1); // amplitude
     }
   };
 
@@ -257,12 +261,14 @@ public:
 
 template<> double DistributionFit<double, double>::fn(double x, const double * a, int idx) const {
   const double & param = a[paramBase(idx) + 2];
+  if(param < 0)
+    throw RangeError("Negative peak width parameter: %1").arg(param);
   return func(x, param);
 }
 
-template<> double DistributionFit<double, double>::fn(double x, const double * a) const {
-  return func(x, a[0]);
-}
+// template<> double DistributionFit<double, double>::fn(double x, const double * a) const {
+//   return func(x, a[0]);
+// }
 
 template<> double DistributionFit<double, double, double>::fn(double x, const double * a, int idx) const {
   const double & p1 = a[paramBase(idx) + 2];
@@ -270,9 +276,9 @@ template<> double DistributionFit<double, double, double>::fn(double x, const do
   return func(x, p1, p2);
 }
 
-template<> double DistributionFit<double, double, double>::fn(double x, const double * a) const {
-  return func(x, a[0], a[1]);
-}
+// template<> double DistributionFit<double, double, double>::fn(double x, const double * a) const {
+//   return func(x, a[0], a[1]);
+// }
 
 
 

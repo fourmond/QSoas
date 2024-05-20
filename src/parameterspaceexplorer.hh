@@ -29,82 +29,9 @@
 
 class ParameterSpaceExplorer;
 class FitWorkspace;
-class FitTrajectory;
 class Command;
 class CommandEffector;
 
-/// The parameter specification. It is in fact a parameter range
-/// specification: the parameter comes with a range and a lin/log
-/// qualification
-class ParameterRangeSpec {
-public:
-  /// The target, like what is returned by
-  /// FitWorkspace::parseParameterList()
-  QPair<int, int> parameter;
-
-  /// The lower end of the range
-  double low;
-
-  /// The higher end of the range
-  double high;
-
-  /// Whether the range is logarithmic or not
-  bool log;
-
-  /// Whether or not the selection is global (i.e. all local
-  /// parameters are set to the same starting value)
-  bool uniform;
-
-
-  /// Can be used by the explorers to store whatever.
-  double storage;
-
-
-  /// The center of the range
-  double center() const;
-  
-  /// Returns 1/2 of the witdth of the interval (log10 or lin).
-  double sigma() const;
-
-  /// Returns the given value, trimmed to be within the range.
-  double trim(double val) const;
-
-  /// Returns the distance between the two values, normalized by the range
-  /// (and taking into account the log vs lin).
-  /// That value is always positive
-  double distance(double x1, double x2) const;
-
-  /// Parses the parameter list
-  static QList<ParameterRangeSpec> parseSpecs(const QStringList & specs,
-                                              FitWorkspace * workSpace,
-                                              QStringList * unknowns);
-
-  /// Computes the distance between the two trajectories, using the
-  /// list of parameters as measure of distance.
-  /// Any global parameter is taken to mean all the parameters.
-  /// Any parameter not listed in the range specs is ignored
-  static double trajectoryDistance(const QList<ParameterRangeSpec> & specs,
-                                   const FitTrajectory & a,
-                                   const FitTrajectory & b,
-                                   const FitWorkspace * workspace,
-                                   bool useFinal = true);
-
-  /// Distance of parameter vectors
-  static double trajectoryDistance(const QList<ParameterRangeSpec> & specs,
-                                   const Vector & a,
-                                   const Vector & b,
-                                   const FitWorkspace * workspace);
-
-  /// Averages the given trajectories according to the specifications
-  /// (only the lin vs log is taken into consideration).
-  /// All other parameters are silently ignored
-  static Vector averageParameters(const QList<ParameterRangeSpec> & specs,
-                                  const QList<Vector> & parameters,
-                                  const FitWorkspace * workspace);
-};
-
-
-//////////////////////////////////////////////////////////////////////
 
 class ParameterSpaceExplorerFactoryItem :
   public Factory<ParameterSpaceExplorer, FitWorkspace *> {

@@ -641,6 +641,9 @@ SOURCES += src/laplace-fits.cc
 SOURCES += src/parameterspaceexplorers.cc
 SOURCES += src/parametervariations.cc
 
+HEADERS += src/parameterrangespec.hh
+SOURCES += src/parameterrangespec.cc
+
                 
 
 ######################################################################

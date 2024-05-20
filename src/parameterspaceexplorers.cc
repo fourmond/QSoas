@@ -20,6 +20,8 @@
 #include <parameterspaceexplorer.hh>
 #include <exceptions.hh>
 
+#include <parameterrangespec.hh>
+
 #include <dataset.hh>
 
 #include <fitworkspace.hh>

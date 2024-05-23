@@ -75,14 +75,18 @@ protected:
   gsl_permutation * perm;
 
   /// Various n vectors.
-  gsl_vector * vectors[6];
+  gsl_vector * vectors[7];
 
   /// The current parameters
   gsl_vector *& parameters;
 
-  /// The computed gradient
+  /// The computed gradient (with a negative sign)
   gsl_vector *& gradient;
 
+  /// The previous gradient
+  gsl_vector *& prevGradient;
+
+  
   /// The test variation in parameters
   gsl_vector *& deltap;
 
@@ -100,11 +104,14 @@ protected:
   ///
   /// @{
   
-  /// The lambda parameter
+  /// The current size of the trust region
   double lambda;
 
   /// The scaling factor (called nu in the original paper)
   double scale;
+
+  /// a power scaling factor for the factor tau
+  double tauScale;
 
   /// The threshold difference between two steps that trigger a stop
   double endThreshold;
@@ -145,6 +152,7 @@ public:
     testf2(fv[2]),
     parameters(vectors[0]),
     gradient(vectors[1]),
+    prevGradient(vectors[6]),
     deltap(vectors[2]),
     testp(vectors[3]),
     testp2(vectors[4]),
@@ -287,11 +295,13 @@ public:
     // Here we should update the S matrix if this is not the first
     // iteration
     if(iterations > 0) {
+      // Saving the gradient
+      gsl_vector_memcpy(prevGradient, gradient);
+      // Saving the jacobian
+      std::swap(jacobian, previousJacobian);
     }
     
-    iterations++;
-    // Here is where the fun comes in !
-  
+ 
     // First, we compute the function and the jacobian
     fitData->fdf(parameters, function, jacobian);
 
@@ -308,6 +318,66 @@ public:
 
     jacobian->computeGradient(gradient, function, -1);
     jacobian->computejTj(jTj);
+
+    // Second step of updating of the matrix
+    if(iterations) {
+      // With that, prevGradient becomes Delta g_k = v
+      gsl_vector_sub(prevGradient, gradient);
+
+
+      // THis comes from Theorem 3.1 in Dennis 81
+      // This bit relies on deltap being correct
+
+      // testp = S_k Delta x_k
+      sK->apply(deltap, testp);
+
+      previousJacobian->computeGradient(testp2, function, -1);
+
+      // testp2 is y_k
+      gsl_vector_sub(testp2, gradient);
+
+      //Computing the scaling factor
+      double v = 0;
+      gsl_blas_ddot(deltap, testp2, &v);
+      double v2 = 0;
+      gsl_blas_ddot(deltap, testp, &v2);
+
+      //First, should scale the matrix,
+      double tau = fabs(v/v2);
+      if(fitData->debug > 0)
+        Debug::debug() << "Scaling factor for sK is: " << tau << endl;
+      if(tau > 1)
+        tau = 1;
+      sK->scale(tau);
+
+
+      // and now testp2 is y-k - S_k Delta x_k
+      gsl_vector_sub(testp2, testp);
+
+      // scl is the factor of the first term
+      double scl = 0;
+      gsl_blas_ddot(deltap, prevGradient, &scl);
+
+      // Hmmm.  For some reason, using 0.5 here increases the numnber
+      // of times the hessian is used on the 3 gaussian problem,
+      // unsure how useful that is.
+      scl = 1/scl;
+      sK->addProduct(prevGradient, testp2, scl);
+      sK->addProduct(testp2, prevGradient, scl);
+
+      // scl2 is the factor of the second term
+      double scl2 = 0;
+      gsl_blas_ddot(deltap, testp2, &scl2);
+      scl2 *= (scl * scl);
+
+      sK->addProduct(prevGradient, prevGradient, -scl2);
+
+      // Hmmm, unsure if I have a factor-of-two here or not.
+      // I guess not.
+    }
+
+    iterations++;
+
 
     // OK, so now we go through various tries.
     int nbtries = 0;
@@ -352,23 +422,28 @@ public:
       }
       successfulIterations += 1;
       if(fitData->debug > 0) {
-        Debug::debug() << "Sucessful step:\n" 
+        Debug::debug() << "Sucessful step (confidence region: "
+                       << lambda << "):\n"
                        << " * regular: " << cur_squares-ns << " -- "
-                       << expd << " expected\n"
+                       << -expd << " expected\n"
                        << " * hessian: " << cur_squares-nsk << " -- "
-                       << expdk << " expected" << endl;
+                       << -expdk << " expected" << endl;
       }
 
       // The "S" step was better than the classical LM step
       if(nsk < ns) {
+        if(fitData->debug > 0)
+          Debug::debug() << " -> choosing hessian" << endl;
         gsl_vector_memcpy(testp, testp2);
         ns = nsk;
         successfulSSteps += 1;
       }
+      else {
+        if(fitData->debug > 0)
+          Debug::debug() << " -> choosing standard" << endl;
+      }
       // We increase the trust region
       lambda /= scale;
-
-      std::swap(jacobian, previousJacobian);
 
       // Now, we have the new parameters in testp
       gsl_vector_memcpy(deltap, testp);
@@ -455,6 +530,7 @@ public:
   virtual void resetEngineParameters() override {
     lambda = 1e-4;
     scale = 2;
+    tauScale = 0.8;
     endThreshold = 1e-5;
     relativeMin = 1e-3;
     residualsThreshold = 1e-5;

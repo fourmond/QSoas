@@ -84,10 +84,10 @@ public:
   /// same structure
   void add(const ABDMatrix & src);
 
-  /// Adds the u^T v * alpha to the matrix, silently ignoring the
+  /// Adds the u v^T * alpha to the matrix, silently ignoring the
   /// elements giving a value where the matrix is 0 by construction.
-  void addProduct(double alpha, const gsl_vector * u,
-                  const gsl_vector * v);
+  void addProduct(const gsl_vector * u,
+                  const gsl_vector * v, double alpha);
 
   /// Scales the whole matrix by the given value
   void scale(double value);

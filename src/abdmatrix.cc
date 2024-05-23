@@ -387,6 +387,17 @@ void ABDMatrix::clear()
   }
 }
 
+void ABDMatrix::scale(double scale)
+{
+  for(int i = 0; i < sizes.size(); i++) {
+    gsl_matrix_scale(diag[i], scale);
+    if(i > 0) {
+      gsl_matrix_scale(left[i-1], scale);
+      gsl_matrix_scale(top[i-1], scale);
+    }
+  }
+}
+
 void ABDMatrix::apply(const gsl_vector * source,
                       gsl_vector * target) const
 {
@@ -411,6 +422,47 @@ void ABDMatrix::apply(const gsl_vector * source,
       gsl_blas_dgemv(CblasNoTrans, 1, top[i-1], &sv.vector,
                      1, &tf.vector);
     }
+    curBase += sizes[i];
+  }
+}
+
+
+// Adds u v^T * alpha to the matrix
+// So we pick rows from u, and columns from v
+void ABDMatrix::addProduct(const gsl_vector * u,
+                           const gsl_vector * v,
+                           double alpha)
+{
+  int curBase = 0;
+  for(int i = 0; i < sizes.size(); i++) {
+
+    // update the diagonal
+    for(int j = 0; j < sizes[i]; j++) {
+      for(int k = 0; k < sizes[i]; k++) {
+        double val = gsl_matrix_get(diag[i], j, k);
+        val += alpha * gsl_vector_get(u, curBase + j) *
+          gsl_vector_get(v, curBase + k);
+        gsl_matrix_set(diag[i], j, k, val);
+      }
+    }
+
+    // update the sides
+    if(i > 0) {
+      for(int j = 0; j < sizes[i]; j++) {
+        for(int k = 0; k < sizes[0]; k++) {
+          double val = gsl_matrix_get(left[i-1], j, k);
+          val += alpha * gsl_vector_get(u, curBase + j) *
+            gsl_vector_get(v, k);
+          gsl_matrix_set(left[i-1], j, k, val);
+
+          val = gsl_matrix_get(top[i-1], k, j);
+          val += alpha * gsl_vector_get(v, curBase + j) *
+            gsl_vector_get(u, k);
+          gsl_matrix_set(top[i-1], k, j, val);
+        }
+      }
+    }
+    
     curBase += sizes[i];
   }
 }
@@ -522,6 +574,64 @@ static void test3()
   str = Utils::vectorString(v3);
 
   fprintf(stderr, "Delta:\n%s\n", str.toLocal8Bit().data());
+
+
+  str = Utils::matrixString(t1);
+  fprintf(stderr, "\nTest add product\nInitial matrix:\n%s\n", str.toLocal8Bit().data());
+
+
+  // Now testing the addProduct feature. It's not that easy to check I
+  // guess ?
+
+  for(int i = 0; i < h; i++)
+    gsl_vector_set(v2, i, Utils::random());
+
+  mt.addProduct(v1, v2, 1);
+  // mt.addProduct(v2, v1, 1);
+
+  gsl_matrix * t2 = gsl_matrix_alloc(h, h);
+  gsl_matrix * t3 = gsl_matrix_alloc(h, h);
+
+  gsl_matrix * tc1 = gsl_matrix_alloc(h, 1);
+  gsl_matrix * tc2 = gsl_matrix_alloc(h, 1);
+
+  {
+    gsl_vector_view v = gsl_matrix_column(tc1, 0);
+    gsl_vector_memcpy(&v.vector, v1);
+
+    v = gsl_matrix_column(tc2, 0);
+    gsl_vector_memcpy(&v.vector, v2);
+  }
+  
+  gsl_blas_dgemm(CblasNoTrans, CblasTrans,
+                 1, tc1, tc2, 1, t1);
+  // gsl_blas_dgemm(CblasNoTrans, CblasTrans,
+  //                1, tc2, tc1, 1, t1);
+
+  str = Utils::matrixString(t1);
+  fprintf(stderr, "Product1:\n%s\n", str.toLocal8Bit().data());
+
+  mt.expandToFullMatrix(t3);
+  
+  str = Utils::matrixString(t3);
+  fprintf(stderr, "Product ABD:\n%s\n", str.toLocal8Bit().data());
+
+  gsl_matrix_sub(t3, t1);
+
+  str = Utils::matrixString(t3);
+  fprintf(stderr, "Delta:\n%s\n", str.toLocal8Bit().data());
+
+
+  mt.addProduct(v2, v1, 0.5);
+  gsl_blas_dgemm(CblasNoTrans, CblasTrans,
+                 0.5, tc2, tc1, 1, t1);
+
+  mt.expandToFullMatrix(t3);
+  gsl_matrix_sub(t3, t1);
+
+  str = Utils::matrixString(t3);
+  fprintf(stderr, "Delta, bis:\n%s\n", str.toLocal8Bit().data());
+
 
   ::exit(0);
 }

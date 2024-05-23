@@ -125,13 +125,6 @@ void ABDMatrix::almostInvert(ABDMatrix * target) const
 }
 
 
-void ABDMatrix::addToDiagonal(double value)
-{
-  for(int i = 0; i < sizes.size(); i++) {
-    gsl_vector_view v = gsl_matrix_diagonal(diag[i]);
-    gsl_vector_add_constant(&v.vector, value);
-  }
-}
 
 void ABDMatrix::setFromProduct(const gsl_matrix * src)
 {
@@ -361,6 +354,28 @@ void ABDMatrix::copyFrom(const ABDMatrix & src)
   }
 }
 
+void ABDMatrix::addToDiagonal(double value)
+{
+  for(int i = 0; i < sizes.size(); i++) {
+    gsl_vector_view v = gsl_matrix_diagonal(diag[i]);
+    gsl_vector_add_constant(&v.vector, value);
+  }
+}
+
+void ABDMatrix::add(const ABDMatrix & other)
+{
+  if(sizes != other.sizes)
+    throw InternalError("Adding ABDMatrix of wrong sizes");
+
+  for(int i = 0; i < sizes.size(); i++) {
+    gsl_matrix_add(diag[i], other.diag[i]);
+    if(i > 0) {
+      gsl_matrix_add(left[i-1], other.left[i-1]);
+      gsl_matrix_add(top[i-1], other.top[i-1]);
+    }
+  }
+}
+
 void ABDMatrix::clear()
 {
   for(int i = 0; i < sizes.size(); i++) {
@@ -369,6 +384,34 @@ void ABDMatrix::clear()
       gsl_matrix_set_zero(left[i-1]);
       gsl_matrix_set_zero(top[i-1]);
     }
+  }
+}
+
+void ABDMatrix::apply(const gsl_vector * source,
+                      gsl_vector * target) const
+{
+  int curBase = 0;
+  gsl_vector_const_view sf =
+    gsl_vector_const_subvector(source, 0, sizes[0]);
+  gsl_vector_view tf =
+    gsl_vector_subvector(target, 0, sizes[0]);
+  for(int i = 0; i < sizes.size(); i++) {
+    /// @todo handle the case of null size
+    gsl_vector_const_view sv =
+      gsl_vector_const_subvector(source, curBase, sizes[i]);
+    gsl_vector_view tv = gsl_vector_subvector(target, curBase, sizes[i]);
+
+    // apply the diagonal matrix first
+    gsl_blas_dgemv(CblasNoTrans, 1, diag[i], &sv.vector,
+                   0, &tv.vector);
+
+    if(i > 0) {
+      gsl_blas_dgemv(CblasNoTrans, 1, left[i-1], &sf.vector,
+                     1, &tv.vector);
+      gsl_blas_dgemv(CblasNoTrans, 1, top[i-1], &sv.vector,
+                     1, &tf.vector);
+    }
+    curBase += sizes[i];
   }
 }
 
@@ -412,3 +455,78 @@ void ABDMatrix::set(int i, int j, double v)
   }
   throw InternalError("Trying to set the %1,%2 element of an ABDMatrix, but this is a 0-only element").arg(i).arg(j);
 }
+
+
+
+//////////////////////////////////////////////////////////////////////
+// Internal tests
+
+#include <commandlineparser.hh>
+
+static void test3()
+{
+  QList<int> sizes;
+  sizes << 3 << 2 << 4;
+  QList<int> ps;
+  ps << 50 << 100 << 50;
+
+  int h = 0, w = 0;
+  for(int i = 0; i < sizes.size(); i++) {
+    h += sizes[i];
+    w += ps[i];
+  }
+
+  gsl_matrix * m = gsl_matrix_alloc(w, h);
+
+  gsl_vector * v1 = gsl_vector_alloc(h);
+  gsl_vector * v2 = gsl_vector_alloc(h);
+  gsl_vector * v3 = gsl_vector_alloc(h);
+
+  // Now, initialize the matrix:
+  gsl_matrix_set_zero(m);
+  int curr = 0, curc = 0;
+  for(int i = 0; i < sizes.size(); i++) {
+    int max = (i == 0 ? w : curr + ps[i]);
+    for(int j = 0; j < sizes[i]; j++) {
+      for(int k = curr; k < max; k++)
+        gsl_matrix_set(m, k, curc + j, Utils::random());
+    }
+    curc += sizes[i];
+    curr += ps[i];
+  }
+
+  gsl_matrix * t1 = gsl_matrix_alloc(h, h);
+  gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1,
+                 m, m, 0, t1);
+
+  ABDMatrix mt(sizes);
+  mt.setFromProduct(m);
+
+  // Initialize a test vector
+  for(int i = 0; i < h; i++)
+    gsl_vector_set(v1, i, Utils::random());
+
+  // product test
+  gsl_blas_dgemv(CblasNoTrans, 1, t1, v1, 0, v2);
+  
+  mt.apply(v1, v3);
+
+  QString str = Utils::vectorString(v1);
+  fprintf(stderr, "Orig:\n%s\n", str.toLocal8Bit().data());
+  str = Utils::vectorString(v2);
+  fprintf(stderr, "Std:\n%s\n", str.toLocal8Bit().data());
+  str = Utils::vectorString(v3);
+  fprintf(stderr, "ABD:\n%s\n", str.toLocal8Bit().data());
+
+  gsl_vector_sub(v3, v2);
+  str = Utils::vectorString(v3);
+
+  fprintf(stderr, "Delta:\n%s\n", str.toLocal8Bit().data());
+
+  ::exit(0);
+}
+
+
+static CommandLineOption t1("--abd-test3", [](const QStringList & /*args*/) {
+    test3();
+  }, 0, "abdmatrix test 3");

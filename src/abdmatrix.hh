@@ -80,6 +80,22 @@ public:
   /// Adds the given number to the diagonal
   void addToDiagonal(double value);
 
+  /// Adds the given matrix to the current matrix. They must have the
+  /// same structure
+  void add(const ABDMatrix & src);
+
+  /// Adds the u^T v * alpha to the matrix, silently ignoring the
+  /// elements giving a value where the matrix is 0 by construction.
+  void addProduct(double alpha, const gsl_vector * u,
+                  const gsl_vector * v);
+
+  /// Scales the whole matrix by the given value
+  void scale(double value);
+
+
+  /// Applies the matrix to the given vector.
+  void apply(const gsl_vector * src, gsl_vector * dest) const;
+
   /// Permutes the given variables (i.e. as in Gauss Pivot).
   ///
   /// Will raise an exception if the permutation leads to changing the

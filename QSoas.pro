@@ -613,7 +613,8 @@ SOURCES += src/file.cc src/fileinfo.cc
 HEADERS += src/fit-arguments.hh
 SOURCES += src/fit-arguments.cc
 
-# 
+# An implementation of NL2SOL
+SOURCES += src/nl2solfitengine.cc
 
 
 # Implicit expressions and fits

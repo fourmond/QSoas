@@ -84,10 +84,10 @@ protected:
   /// The m x n jacobian
   SparseJacobian * jacobian;
 
-  /// Various temporary n x n matrices
-  ///
-  /// @todo use std::array ?
-  gsl_matrix * matrices[3];
+  // /// Various temporary n x n matrices
+  // ///
+  // /// @todo use std::array ?
+  // gsl_matrix * matrices[3];
 
   /// A permutation for the LU decomposition
   gsl_permutation * perm;
@@ -206,8 +206,8 @@ MultiFitEngine::MultiFitEngine(FitData * data) :
   for(size_t i = 0; i < sizeof(vectors)/sizeof(gsl_vector *); i++)
     vectors[i] = gsl_vector_alloc(n);
 
-  for(size_t i = 0; i < sizeof(matrices)/sizeof(gsl_matrix *); i++)
-    matrices[i] = gsl_matrix_alloc(n,n);
+  // for(size_t i = 0; i < sizeof(matrices)/sizeof(gsl_matrix *); i++)
+  //   matrices[i] = gsl_matrix_alloc(n,n);
 
   /// The scaling factors
   scalingFactors = gsl_vector_alloc(n);
@@ -236,8 +236,8 @@ MultiFitEngine::~MultiFitEngine()
   for(size_t i = 0; i < sizeof(fv)/sizeof(gsl_vector *); i++)
     gsl_vector_free(fv[i]);
 
-  for(size_t i = 0; i < sizeof(matrices)/sizeof(gsl_matrix *); i++)
-    gsl_matrix_free(matrices[i]);
+  // for(size_t i = 0; i < sizeof(matrices)/sizeof(gsl_matrix *); i++)
+  //   gsl_matrix_free(matrices[i]);
 
   gsl_vector_free(scalingFactors);
   

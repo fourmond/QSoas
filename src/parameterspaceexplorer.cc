@@ -213,6 +213,9 @@ static void iterateExplorerCommand(const QString & /*name*/,
   if(disableAutoSave)
     autoSave = "";
 
+  int iterations = 0;
+  int lastSave = 0;
+
   QStringList lst;
   for(int i = 1; i <= 2; i++) {
     QString n = QString("arg%1").arg(i);
@@ -318,18 +321,24 @@ static void iterateExplorerCommand(const QString & /*name*/,
       }
       
     }
+    iterations += 1;
     if(! autoSave.isEmpty()) {
-      try {
-        Terminal::out << "Saving trajectories to '"
-                      << autoSave << "'";
-        File f(autoSave, File::TextOverwrite);
-        QTextStream o(f);
-        o << "# Fit command-line: " << soas().currentCommandLine() << endl;
-        ws->trajectories.exportToFile(o);
-        Terminal::out << " -> OK" << endl;
-      }
-      catch(const RuntimeError & e) {
-        Terminal::out << " -> failed: " << e.message() << endl;
+      if((lastSave * 1.1 < iterations)
+         || (!cont)) {
+        try {
+          Terminal::out << "Saving trajectories to '"
+                        << autoSave << "' (" << iterations - lastSave
+                        << " iteration since last save)";
+          File f(autoSave, File::TextOverwrite);
+          QTextStream o(f);
+          o << "# Fit command-line: " << soas().currentCommandLine() << endl;
+          ws->trajectories.exportToFile(o);
+          Terminal::out << " -> OK" << endl;
+          lastSave = iterations;
+        }
+        catch(const RuntimeError & e) {
+          Terminal::out << " -> failed: " << e.message() << endl;
+        }
       }
     }
     

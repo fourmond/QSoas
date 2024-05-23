@@ -1,0 +1,9 @@
+# This script generates the data for the given script
+# Assumptions:
+# * ${fit} is the name of the fit
+# * ${1} is the base name of a fit parameters file
+# * ${xmin}, ${xmax} the range
+# * ${noise} the amplitude of the noise
+generate-dataset ${xmin} ${xmax}
+sim-${fit} ${1}.params 0
+apply-formula 'y+=${noise}*sin((i+100)**2)'

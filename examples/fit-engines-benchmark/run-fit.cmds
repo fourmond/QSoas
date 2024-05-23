@@ -1,0 +1,10 @@
+# This script assumes that:
+# * ${1} is the base of:
+#   - a ${1}.cmds that sets up the ${fit}, ${options}, ${xmin} and ${xmax}
+#   - a ${1}.params that are the best parameters
+#   - a ${1}.fcmds file for the exploration
+
+output ${1}.dat /overwrite=true
+run-for-each do-one-engine.cmds /arg2=${1} odrpack qsoas multi nl2sol simplex pso lmder lmniel
+
+

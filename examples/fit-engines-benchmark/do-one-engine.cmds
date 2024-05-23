@@ -1,0 +1,56 @@
+# This script assumes that:
+# * ${1} is the engine
+# * ${2} is the base of:
+#   - a ${2}.cmds that sets up the ${fit}, ${options}, ${xmin} and ${xmax}
+#   - a ${2}.params that are the best parameters
+#   - a ${2}.fcmds file for the exploration
+
+## INLINE: run-exp
+@ ${1}.fcmds
+iterate-explorer
+save-trajectories ${1}-${2}.raw.trj.dat /mode=overwrite
+
+odrpack-engine
+fit
+trim-trajectories 1.15
+save-trajectories ${1}-${2}.trj.dat /mode=overwrite
+
+trim-trajectories 0
+@ ${1}.fcmds
+iterate-explorer /linear-prefit=true
+save-trajectories ${1}-${2}.lin.raw.trj.dat /mode=overwrite
+
+load ${1}.params
+odrpack-engine
+fit
+trim-trajectories 1.15
+save-trajectories ${1}-${2}.lin.trj.dat /mode=overwrite
+
+quit
+## INLINE END
+
+@ ${2}.cmds
+@ make-data.cmds ${2}
+fit-${fit} /engine=${1} /script=inline:run-exp /arg1=${2} /arg2=${1}
+
+## INLINE: post-process
+# ${1}: base of the trajectories
+# ${2}: engine name
+load ${1}.raw.trj.dat
+eval $nb=$stats.rows$stats.rows
+eval $time=1e-3*($nstats.end_time_max-$nstats.start_time_min)/$nb
+eval $funcs=$nstats.evals_average
+
+load ${1}.trj.dat
+set-meta engine ${2}
+eval time:$time evals:$funcs success:1e2*($stats.rows-1)/$nb tries:$nb effective_time:$time*$nb/($stats.rows-1) /output=true /meta=engine
+## INLINE END
+
+# Now post-process
+
+clear-stack
+@ inline:post-process ${2}-${1} ${1}
+
+clear-stack
+@ inline:post-process ${2}-${1}.lin ${1}-lin
+

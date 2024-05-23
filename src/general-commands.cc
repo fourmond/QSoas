@@ -1695,6 +1695,8 @@ void letCommand(const QString &,
                 QString value,
                 const CommandOptions & opts)
 {
+  /// @todo There is a big issue here: we're only updating the topmost
+  /// prompt
   soas().prompt().setParameter(paramName, value);
 }
 

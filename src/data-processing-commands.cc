@@ -3180,6 +3180,9 @@ static void convolveCommand(const QString &,
   bool symmetric = true;
   updateFromOptions(opts, "symmetric", symmetric);
 
+  bool extend = false;
+  updateFromOptions(opts, "extend", extend);
+
   Vector buffer(nb*4, 0);
 
   std::function<double (double)> fnl = [&expression](double x) -> double {
@@ -3192,7 +3195,8 @@ static void convolveCommand(const QString &,
                    ds->x().last(),
                    fnl,
                    symmetric,
-                   buffer.data()
+                   buffer.data(),
+                   extend
                    );
   DataSet * nds = ds->derivedDataSet(ny, "_conv.dat");
   soas().pushDataSet(nds);
@@ -3209,6 +3213,8 @@ convOpts(QList<Argument *>()
          << new BoolArgument("symmetric", "symmetric",
                              "whether convolution formula is symmetric "
                              "(-inf < x < inf) or not (0 <= x < inf)")
+         << new BoolArgument("extend", "extend",
+                             "whether the border values are extended beyond the boundaries or not")
          );
 
 

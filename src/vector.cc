@@ -1218,7 +1218,7 @@ void Vector::convolve(const double * vector,
                       double xmax,
                       std::function<double (double)> function,
                       bool symmetric,
-                      double * buffer)
+                      double * buffer, bool extend)
 {
   double dx = (xmax - xmin)/(nb-1);
   int elements = (symmetric ? 2*nb : nb);
@@ -1424,14 +1424,28 @@ void Vector::convolve(const double * vector,
   const double * yv = vector;
   for(int i = 0; i < nb; i++) {
     double sum = 0;
-    int minj = std::max(0, center + i - righti);
-    int maxj = std::min(nb-1, center + i - lefti + 1);
+    int minj = center + i - righti;
+    int maxj = center + i - lefti + 1;
+    if(! extend) {
+      minj = std::max(0, minj);
+      maxj = std::min(nb-1, maxj);
+    }
     for(int j = minj; j < maxj; j++) {
       int k = i - j + center;
-      /// @todo this can be included in the loop
-      // if(k >= lefti && k <= righti)
-      // if(k >= 0)
-      sum += (av[k] - bv[k]) * yv[j] + bv[k] * yv[j+1];
+      double yvl, yvr;
+      if(j < 0) {
+        yvl = yv[0];
+        yvr = yv[0];
+      }
+      else if(j >= nb-1) {
+        yvr = yv[nb-1];
+        yvl = yv[nb-1];
+      }
+      else {
+        yvl = yv[j];
+        yvr = yv[j+1];
+      }
+      sum += (av[k] - bv[k]) * yvl + bv[k] * yvr;
     }
     target[i] = sum;
   }

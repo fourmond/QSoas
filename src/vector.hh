@@ -246,6 +246,9 @@ public:
   ///
   /// The @a buffer is a buffer for storing values it must be large
   /// enough to contain 4*nb values.
+  ///
+  /// If @a extend is true, then the values left and right are taken
+  /// to extend be infinitely before/after the vector.
   static void convolve(const double * vector,
                        int nb,
                        double * target,
@@ -253,7 +256,8 @@ public:
                        double xmax,
                        std::function<double (double)> function,
                        bool symmetric,
-                       double * buffer);
+                       double * buffer,
+                       bool extend = false);
 
 
   /// @}

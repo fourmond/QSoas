@@ -69,7 +69,7 @@ protected:
     /// The convolution parameters
     QStringList convolutionParameters;
 
-    Vector buffer, buffer2;
+    Vector buffer, buffer2, buffer3;
 
     void clearExpression() {
       delete convolutionExpression;
@@ -94,7 +94,8 @@ protected:
       convolutionExpression(NULL),
       originalParameters(o.originalParameters),
       buffer(o.buffer),
-      buffer2(o.buffer2)
+      buffer2(o.buffer2),
+      buffer3(o.buffer3)
     {
     };
   };
@@ -146,6 +147,7 @@ protected:
         s->buffer = ds->x();
     }
     s->buffer2 = Vector(s->buffer.size() * 4, 0);
+    s->buffer3 = s->buffer;
       
   };
 
@@ -250,9 +252,6 @@ public:
     if(! s->convolutionExpression)
       prepareConvolutionExpression(data);
 
-    if(target->stride != 1)
-      throw InternalError("ConvolutionFit doesn't support vectors with stride != 1");
-    
     {
       TemporaryThreadLocalChange<FitInternalStorage*> d(data->fitStorage,
                                                         s->underlyingStorage);
@@ -264,7 +263,6 @@ public:
     double cv_vars[conv_params + 1];
     for(int i = 0; i < conv_params; i++)
       cv_vars[i+1] = parameters[s->originalParameters.size() + i];
-    
 
     std::function<double (double v)> fn =
       [this, s, &cv_vars](double x) -> double {
@@ -273,14 +271,19 @@ public:
       };
 
     int nb = ds->nbRows();
+    // OK, we extend by default, it is going to be the best strategy
     Vector::convolve(s->buffer.data(),
-                     nb, target->data,
-                     ds->x().first(), 
+                     nb, s->buffer3.data(),
+                     ds->x().first(),
                      ds->x().last(),
                      fn,
                      isSymmetric,
-                     s->buffer2.data()
+                     s->buffer2.data(),
+                     true
                      );
+    // Now copy back from buffer into the target
+    for(int i = 0; i < ds->nbRows(); i++)
+      gsl_vector_set(target, i, s->buffer3[i]);
   };
 
 

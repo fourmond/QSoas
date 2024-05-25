@@ -42,10 +42,11 @@ load ${1}.raw.trj.dat
 eval $nb=$stats.rows$stats.rows
 eval $time=1e-3*($nstats.end_time_max-$nstats.start_time_min)/$nb
 eval $funcs=$nstats.evals_average
+eval $best=$nstats.residuals_min
 
 load ${1}.trj.dat
 set-meta engine ${2}
-eval tries:$nb hits:$stats.rows-1 success:1e2*($stats.rows-1)/$nb effective_time:$time*$nb/($stats.rows-1) time:$time evals:$funcs /output=true /meta=engine
+eval tries:$nb hits:$stats.rows-1 success:1e2*($stats.rows-1)/$nb effective_time:$time*$nb/($stats.rows-1) time:$time evals:$funcs best_excess:$best/$nstats.residuals_min-1 /output=true /meta=engine
 ## INLINE END
 
 # Now post-process

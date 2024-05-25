@@ -200,6 +200,16 @@ static void iterateExplorerCommand(const QString & /*name*/,
   QString impScript;
   updateFromOptions(opts, "improved-script", impScript);
 
+  int seed = -1;
+  updateFromOptions(opts, "seed", seed);
+  if(seed >= -1) {
+    if(seed == -1) {
+      qint64 val = QDateTime::currentDateTime().toMSecsSinceEpoch();
+      seed = (val & 0xFFFFFFFF) ^ (val >> 32);
+    }
+    ::srand(seed);
+  }
+
   explorer->linearPreFit = false;
   updateFromOptions(opts, "linear-prefit", explorer->linearPreFit);
 
@@ -373,7 +383,10 @@ ArgumentList ieOpts(QList<Argument*>()
                     << new FileArgument("arg2", 
                                         "Second argument",
                                         "Second argument to the scripts")
-                      );
+                    << new IntegerArgument("seed",
+                                           "Random seed",
+                                           "Use a specific seed to initialize the random numbers, defaults to -1 (based on date), -2 not to seed")
+                    );
 
 
 static Command 

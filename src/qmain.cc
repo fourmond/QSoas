@@ -101,6 +101,9 @@ int main(int argc, char ** argv)
   DataBackend::registerBackendCommands();
   CommandContext::crosslinkAllCommands();
 
+  // QTextStream o(stdout);
+  // o << "Rand: " << RAND_MAX << " -- " << sizeof(unsigned int) << endl;
+
   // OK, this is ugly, we need to make sure the directory containing
   // the bundle on mac is loaded as priority, but unfortunately, we can't use
   // QCoreApplication::applicationDirPath() because that only works

@@ -1,1 +1,1 @@
-monte-carlo-explorer sigma_1,sigma_2,sigma_3,sigma_4,sigma_5:0.2..4 x_1,x_2,x_3,x_4,x_5:-10..10 /iterations=5000
+monte-carlo-explorer sigma_1,sigma_2,sigma_3,sigma_4,sigma_5:0.2..4 x_1,x_2,x_3,x_4,x_5:-10..10 Y0,A_1,A_2,A_3,A_4,A_5:-20..20 /iterations=5000

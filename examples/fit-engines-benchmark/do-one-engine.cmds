@@ -10,6 +10,7 @@
 iterate-explorer
 save-trajectories ${1}-${2}.raw.trj.dat /mode=overwrite
 
+load ${1}.params
 odrpack-engine
 fit
 trim-trajectories 1.15
@@ -17,6 +18,7 @@ save-trajectories ${1}-${2}.trj.dat /mode=overwrite
 
 trim-trajectories 0
 @ ${1}.fcmds
+${2}-engine
 iterate-explorer /linear-prefit=true
 save-trajectories ${1}-${2}.lin.raw.trj.dat /mode=overwrite
 
@@ -43,7 +45,7 @@ eval $funcs=$nstats.evals_average
 
 load ${1}.trj.dat
 set-meta engine ${2}
-eval time:$time evals:$funcs success:1e2*($stats.rows-1)/$nb tries:$nb effective_time:$time*$nb/($stats.rows-1) /output=true /meta=engine
+eval tries:$nb hits:$stats.rows-1 success:1e2*($stats.rows-1)/$nb effective_time:$time*$nb/($stats.rows-1) time:$time evals:$funcs /output=true /meta=engine
 ## INLINE END
 
 # Now post-process
@@ -53,4 +55,3 @@ clear-stack
 
 clear-stack
 @ inline:post-process ${2}-${1}.lin ${1}-lin
-

@@ -1,0 +1,4 @@
+let fit 'gaussian /number=6'
+let xmin -10
+let xmax 10
+let noise 0.1

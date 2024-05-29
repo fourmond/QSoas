@@ -373,45 +373,50 @@ public:
     QTextStream s(stream);
     s.setCodec(cd);
 
-    LineReader rd(&s);
+    if(! opts.contains("text-columns")) {
+      LineReader rd(&s);
 
-    QList<int> txtCols;
+      QList<int> txtCols;
 
-    QRegExp cmtRE("^\\s*((#(# *)?).*)?$");
-    // QTextStream o(stdout);
-    while(! rd.atEnd()) {
-      QString ln = rd.readLine();
-      if(cmtRE.indexIn(ln, 0) == 0) {
-        // o << "L: " << ln << endl;
-        if(cmtRE.cap(2).size() >= 2) {
-          // the ## line
-          QStringList names = cmtRE.cap(1).mid(cmtRE.cap(2).size())
-            .split("\t");
-          // o << " -> " << names.join(", ") << endl;
-          // Try to find text columns
-          for(int i = 0; i < names.size(); i++) {
-            if(names[i] == "buffer" ||
-               names[i] == "Buffer" ||
-               names[i] == "row-names" ||
-               names[i] == "row-name" ||
-               names[i] == "names" ||
-               names[i] == "name"
-               )
-              txtCols << i+1;
+      QRegExp cmtRE("^\\s*((#(# *)?).*)?$");
+      // QTextStream o(stdout);
+      while(! rd.atEnd()) {
+        QString ln = rd.readLine();
+        if(cmtRE.indexIn(ln, 0) == 0) {
+          // o << "L: " << ln << endl;
+          if(cmtRE.cap(2).size() >= 2) {
+            // the ## line
+            QStringList names = cmtRE.cap(1).mid(cmtRE.cap(2).size())
+              .split("\t");
+            // o << " -> " << names.join(", ") << endl;
+            // Try to find text columns
+            for(int i = 0; i < names.size(); i++) {
+              if(names[i] == "buffer" ||
+                 names[i] == "Buffer" ||
+                 names[i] == "row-names" ||
+                 names[i] == "row-name" ||
+                 names[i] == "names" ||
+                 names[i] == "name"
+                 )
+                txtCols << i+1;
+            }
+            break;
           }
-          break;
         }
+        else
+          break;
       }
-      else
-        break;
-    }
-    stream->seek(0);
+      stream->seek(0);
 
-    CommandOptions op = opts;
-    std::unique_ptr<ArgumentMarshaller> lst(new ArgumentMarshallerChild<QList<int> >(txtCols));
-    // We don't use updateOptions, since it leads to double free
-    op["text-columns"] = lst.get();
-    return TextBackend::readFromStream(stream, fileName, op);
+      CommandOptions op = opts;
+      std::unique_ptr<ArgumentMarshaller> lst(new ArgumentMarshallerChild<QList<int> >(txtCols));
+      // We don't use updateOptions, since it leads to double free
+      op["text-columns"] = lst.get();
+      return TextBackend::readFromStream(stream, fileName, op);
+    }
+    else
+      return TextBackend::readFromStream(stream, fileName, opts);
+
   };
 
 };

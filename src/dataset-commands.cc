@@ -1794,7 +1794,8 @@ contractc("contract", // command name
 static void avgCommand(const QString &, QList<const DataSet *> all,
                        const CommandOptions & opts)
 {
-  bool naive = testOption<QString>(opts, "mode", "indices");
+  DataSet::BinaryOperationMode mode = DataSet::ClosestX;
+  updateFromOptions(opts, "mode", mode);
   bool useSteps = false;
   updateFromOptions(opts, "use-segments", useSteps);
   bool autosplit = (all.size() == 1);
@@ -1803,12 +1804,6 @@ static void avgCommand(const QString &, QList<const DataSet *> all,
   updateFromOptions(opts, "count", count);
 
   handleMissingDS(&all);
-
-  if(naive && autosplit)
-    Terminal::out << "Using mode indices and split at the same "
-      "time probably isn't a very good idea. "
-      "Proceeding nonetheless" << endl;
-
 
   // The idea behind the average is add a column with the number 1
   QList<DataSet * > data;
@@ -1839,7 +1834,7 @@ static void avgCommand(const QString &, QList<const DataSet *> all,
   // Now, perform all the additions
   DataSet * ret = data.takeFirst();
   for(int i = 0; i < data.size(); i++) {
-    DataSet * nr = ret->add(data[i]);
+    DataSet * nr = ret->add(data[i], mode, useSteps);
     delete ret;                 // What a memory waste !
     delete data[i];             // Same here
     ret = nr;

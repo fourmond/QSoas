@@ -49,4 +49,38 @@ public:
                               const ArgumentMarshaller * value) const override;
 };
 
+//////////////////////////////////////////////////////////////////////
+
+/// An argument that represents a list of parameters.
+/// It is converted into a QList<QPair<int, int> > like the return value of
+/// FitWorkspace::parseParameterList()
+class FitParametersArgument : public Argument {
+public:
+
+  FitParametersArgument(const char * cn, const char * pn,
+                        const char * d = "", bool g = true, bool def = false); 
+  
+  /// Returns a wrapped QList<QPair<int, int> >
+  virtual ArgumentMarshaller * fromString(const QString & str) const override;
+  virtual QStringList proposeCompletion(const QString & starter) const override;
+  virtual void concatenateArguments(ArgumentMarshaller * a, 
+                                    const ArgumentMarshaller * b) const override;
+
+  virtual QString typeName() const override;
+
+  virtual QString typeDescription() const override;
+
+  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override;
+
+  virtual QStringList toString(const ArgumentMarshaller * arg) const override;
+
+  virtual QWidget * createEditor(QWidget * parent = NULL) const override;
+
+  virtual void setEditorValue(QWidget * editor, 
+                              const ArgumentMarshaller * value) const override;
+
+
+};
+
+
 #endif

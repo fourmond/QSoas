@@ -359,9 +359,6 @@ static void linearPrefitCommand(const QString & /*name*/, const CommandOptions &
                       << endl;
       }
     }
-    for(const QPair<int, int> & p : params) {
-    }
-    
   }
   else {
     for(const QPair<int, int> & p : params) {
@@ -395,56 +392,6 @@ lpfit("linear-prefit", // command name
 //////////////////////////////////////////////////////////////////////
 
 
-
-/// An argument that represents a list of parameter "names"
-class FitParameterArgument : public Argument {
-public:
-
-  FitParameterArgument(const char * cn, const char * pn,
-                       const char * d = "", bool def = false) : 
-    Argument(cn, pn, d, false, def) {
-  }; 
-  
-  /// Returns a wrapped QList<QPair<int, int> >
-  virtual ArgumentMarshaller * fromString(const QString & str) const override {
-    QList<QPair<int, int> > rv = FitWorkspace::currentWorkspace()->parseParameterList(str);
-    return new ArgumentMarshallerChild< QList<QPair<int, int> > >(rv);
-  }
-
-  virtual QStringList proposeCompletion(const QString & starter) const override {
-    return Utils::stringsStartingWith(FitWorkspace::currentWorkspace()->parameterNames(), starter);
-  }
-
-
-  virtual QString typeName() const override {
-    return "parameter-name";
-  };
-
-  virtual QString typeDescription() const override {
-    return "...";
-  };
-
-  virtual ArgumentMarshaller * fromRuby(mrb_value value) const override {
-    return Argument::convertRubyString(value);
-  };
-
-  virtual QStringList toString(const ArgumentMarshaller * arg) const override {
-    QStringList lst;
-    NOT_IMPLEMENTED;
-    return lst;
-  };
-
-  virtual QWidget * createEditor(QWidget * parent = NULL) const override {
-    return Argument::createTextEditor(parent);
-  }
-
-  virtual void setEditorValue(QWidget * editor, 
-                              const ArgumentMarshaller * value) const override {
-    Argument::setTextEditorValue(editor, value);
-  };
-
-
-};
 
 //////////////////////////////////////////////////////////////////////
 
@@ -496,9 +443,9 @@ static void setCommand(const QString & /*name*/, QList<QPair<int, int> > params,
 }
 
 ArgumentList sArgs(QList<Argument*>() 
-                   << new FitParameterArgument("parameter", 
-                                               "Parameter",
-                                               "the parameters of the fit")
+                   << new FitParametersArgument("parameter", 
+                                                "Parameter",
+                                                "the parameters to change")
                    << new StringArgument("value", 
                                          "Value",
                                          "the value")
@@ -604,9 +551,9 @@ static void fixUnfix(const QString & name, QList<QPair<int, int> > params,
 }
 
 ArgumentList fuArgs(QList<Argument*>() 
-                    << new FitParameterArgument("parameter", 
-                                                "Parameter",
-                                                "the parameters to fix/unfix")
+                    << new FitParametersArgument("parameters", 
+                                                 "Parameters",
+                                                 "the parameters to fix/unfix")
                    );
 
 
@@ -622,8 +569,8 @@ fix("fix", // command name
     "fits",  // group name
     &fuArgs, // arguments
     &fuOpts, // options
-    "Fix parameter",
-    "Fixs the parameter",
+    "Fix parameters",
+    "Fixes the parameters",
     "", CommandContext::fitContext());
 
 static Command 
@@ -632,8 +579,8 @@ ufix("unfix", // command name
      "fits",  // group name
      &fuArgs, // arguments
      &fuOpts, // options
-     "Unfix parameter",
-     "Lets the parameter be free again",
+     "Unfix parameters",
+     "Lets the parameters be free again",
      "", CommandContext::fitContext());
 
 //////////////////////////////////////////////////////////////////////
@@ -653,9 +600,9 @@ static void globalLocal(const QString & name, QList<QPair<int, int> > params)
 }
 
 ArgumentList glArgs(QList<Argument*>() 
-                    << new FitParameterArgument("parameter", 
-                                                "Parameter",
-                                                "the parameters whose global/local status to change")
+                    << new FitParametersArgument("parameters", 
+                                                "Parameters",
+                                                 "the parameters whose global/local status to change")
                    );
 
 static Command 
@@ -878,11 +825,21 @@ static void resetCommand(const QString & /*name*/,
   FitWorkspace * ws = FitWorkspace::currentWorkspace();
   QString source = "initial";
   updateFromOptions(opts, "source", source);
+
+  QList<QPair<int, int> > params;
+  updateFromOptions(opts, "parameters", params);
+
   if(source == "initial") {
-    ws->resetAllToInitialGuess();
+    if(opts.contains("parameters"))
+      ws->resetToInitialGuess(params);
+    else
+      ws->resetAllToInitialGuess();
   }
   else {
-    ws->resetToBackup();
+    if(opts.contains("parameters"))
+      ws->resetToBackup(params);
+    else
+      ws->resetToBackup();
   }
 }
 
@@ -891,6 +848,10 @@ ArgumentList resetOpts(QList<Argument*>()
                                              << "initial" << "backup",
                                              "source", "Source"
                                              "source of the parameters")
+                       << new FitParametersArgument("parameters", 
+                                                    "Parameter",
+                                                    "the parameters to reset",
+                                                    true, true)
                        );
 
 static Command 
@@ -1777,7 +1738,7 @@ static void regularizeParametersCommand(const QString & /*name*/,
 }
 
 ArgumentList rpArgs(QList<Argument*>() 
-                   << new FitParameterArgument("parameters", 
+                   << new FitParametersArgument("parameters", 
                                                "Parameters",
                                                "the parameters of the fit")
                    );

@@ -111,3 +111,69 @@ void TrajectoriesArgument::setEditorValue(QWidget * editor,
 {
   Argument::setTextEditorValue(editor, value);
 }
+
+
+
+//////////////////////////////////////////////////////////////////////
+
+FitParametersArgument::FitParametersArgument(const char * cn, const char * pn,
+                                            const char * d, bool g,
+                                            bool def) : 
+  Argument(cn, pn, d, g, def) {
+}
+  
+ArgumentMarshaller * FitParametersArgument::fromString(const QString & str) const
+{
+  QList<QPair<int, int> > rv = FitWorkspace::currentWorkspace()->parseParameterList(str);
+  return new ArgumentMarshallerChild< QList<QPair<int, int> > >(rv);
+}
+
+QStringList FitParametersArgument::proposeCompletion(const QString & starter) const
+{
+  return Utils::stringsStartingWith(FitWorkspace::currentWorkspace()->parameterNames(), starter);
+}
+
+void FitParametersArgument::concatenateArguments(ArgumentMarshaller * a, 
+                                                 const ArgumentMarshaller * b) const
+{
+  a->value<QList<QPair<int, int> > >() += 
+    b->value<QList<QPair<int, int> > >();
+}
+
+
+QString FitParametersArgument::typeName() const
+{
+  return "parameter-name";
+}
+
+QString FitParametersArgument::typeDescription() const
+{
+  if(greedy)
+    return "one or more fit parameters, separated by spaces";
+  else
+    return "one fit parameter";
+}
+
+ArgumentMarshaller * FitParametersArgument::fromRuby(mrb_value value) const
+{
+  return Argument::convertRubyString(value);
+}
+
+QStringList FitParametersArgument::toString(const ArgumentMarshaller * arg) const
+{
+  QStringList lst;
+  /// @todo THis seriously should be
+  NOT_IMPLEMENTED;
+  return lst;
+}
+
+QWidget * FitParametersArgument::createEditor(QWidget * parent) const
+{
+  return Argument::createTextEditor(parent);
+}
+
+void FitParametersArgument::setEditorValue(QWidget * editor, 
+                                           const ArgumentMarshaller * value) const
+{
+  Argument::setTextEditorValue(editor, value);
+}

@@ -1378,9 +1378,18 @@ void FitWorkspace::restoreParameterValues(const Vector & vect, int ds)
 void FitWorkspace::restoreParameterValues(const Vector & vect, const QList<QPair<int, int> > & resetOnly)
 {
   for(QPair<int, int> p : resetOnly) {
-    values[p.first + p.second * nbParameters] =
-      vect[p.first + p.second * nbParameters];
-    emit(parameterChanged(p.first, p.second));
+    if(p.second >= 0) {
+      int idx = p.first + p.second * nbParameters;
+      values[idx] = vect[idx];
+      emit(parameterChanged(p.first, p.second));
+    }
+    else {
+      for(int ds = 0; ds < datasets; ds++) {
+        int idx = p.first + ds * nbParameters;
+        values[idx] = vect[idx];
+        emit(parameterChanged(p.first, ds));
+      }
+    }
   }
   updateParameterValues();
 }

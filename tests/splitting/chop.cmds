@@ -30,7 +30,7 @@ generate-dataset 0 10 /samples=1001
 chop 2 3 5 /mode=xvalues /set-segments=true
 assert $stats.x_min 0
 assert $stats.x_max-10 0
-assert $stats.segments==3
+assert $stats.segments-4 0
 
 # Now expand and do the same
 segments-chop
@@ -53,7 +53,7 @@ segments-chop /flags=test
 i flagged:test
 assert $stats.x_min 0
 assert $stats.x_max-10 0
-assert $stats.segments-3 0
+assert $stats.segments-4 0
 
 
 # From meta-data
@@ -72,11 +72,10 @@ assert $stats.x_max-10 0
 
 # Now check expansion
 generate-dataset 0 10 /samples=1001
-set-meta /type=number-list pos 2,3,5
 chop 2 3 5 /mode=xvalues /set-segments=true
 assert $stats.x_min 0
 assert $stats.x_max-10 0
-assert $stats.segments==3
+assert $stats.segments==4
 
 set-meta /type=number-list meta 3,4,1,0
 

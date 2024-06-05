@@ -227,7 +227,7 @@ static MultiLambdaStat gen(QStringList()
                              rv << ds->name
                                 << ds->nbRows()
                                 << ds->nbColumns()
-                                << ds->segments.size();
+                                << ds->segments.size() + 1;
                              return rv;
                            },
                            "the buffer name, and the row, column and segment counts.");

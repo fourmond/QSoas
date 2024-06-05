@@ -13,7 +13,7 @@ unwrap /scan-rate=0.02
 
 assert $stats.x_min 0
 assert $stats.x_max-400 1e-10
-assert $stats.segments-7 0
+assert $stats.segments-8 0
 
 unwrap /reverse=true
 

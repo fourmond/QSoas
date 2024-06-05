@@ -1,2 +1,2 @@
-generate-dataset 0 1 /samples=300000
+generate-dataset 0 1 /samples=30000
 strip-if i%7==3

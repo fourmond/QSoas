@@ -1616,8 +1616,22 @@ DataSet * DataSet::concatenateDataSets(QList<const DataSet *> datasets,
 
 void DataSet::removeRow(int index)
 {
+  int sz = nbRows();
   for(int i = 0; i < columns.size(); i++)
     columns[i].remove(index);
+   // Trim all the segments that fall outside
+   // Note that when removing a large chunk in one go, the result is going to
+   // depend on the order in which you remove them...
+   // Better use removeRows() in this case
+  if(index == 0) {
+    while(segments.size() > 0 && segments.first() == 0)
+      segments.takeFirst();
+  }
+  if(index == sz - 1) {
+    while(segments.size() > 0 && segments.last() >= index)
+      segments.takeLast();
+  }
+
   segments.shiftAbove(index);
 
   for(QStringList & lst : rowNames) {
@@ -1627,6 +1641,96 @@ void DataSet::removeRow(int index)
   
   invalidateCache();            // important.
 }
+
+void DataSet::removeRows(const QList<int> & remove)
+{
+  int curSz = nbRows();
+  // First run over the list and determines the left/right limits
+  int leftLim = -1;             // The last element we remove on the left
+  int rightLim = 0;             // The first element we remove on the right
+  // QTextStream o(stdout);
+  int prev = -1;
+  // o << "Remove: " << remove.size() << endl;
+  for(int idx : remove) {
+    if(prev > idx)
+      throw InternalError("Trying to remove an unsorted list");
+    // o << "Test: " << idx << endl;
+    if(idx == leftLim + 1)
+      leftLim += 1;
+    if(idx != prev + 1)
+      rightLim = idx;
+    prev = idx;
+  }
+  // o << "Left:\t" << leftLim << "\tright:\t" << rightLim << endl;
+  if(prev != curSz - 1)
+    rightLim = curSz;
+  // o << " -> left:\t" << leftLim << "\tright:\t" << rightLim << endl;
+
+  int tgtI = 0;
+  QList<int> rnTgt;
+  for(const QStringList & lst: rowNames)
+    rnTgt << 0;
+  for(int i = 0; i < curSz; i++) {
+    if(! remove.contains(i)) {
+      // Shift copy
+      if(i != tgtI) {
+        for(Vector & c: columns)
+          c[tgtI] = c[i];
+        int j = 0;
+        for(QStringList & lst : rowNames) {
+          if(lst.size() > i) {
+            lst[tgtI] = lst[i];
+            rnTgt[j] = tgtI + 1;
+          }
+          j += 1;
+        }
+      }
+      tgtI += 1;
+    }
+  }
+
+  // Now resize
+  for(int i = 0; i < rnTgt.size(); i++)
+    rowNames[i] = rowNames[i].mid(0, rnTgt[i]);
+
+  for(Vector & col : columns)
+    col.resize(tgtI);
+
+  // o << "Currently: " << segments.size() << " segment breaks" << endl;
+  // Now deal with the segments
+  while(segments.size() > 0 && segments.first() <= leftLim)
+    segments.takeFirst();
+
+  while(segments.size() > 0 && segments.last() >= rightLim)
+    segments.takeLast();
+
+  int removed = 0;
+  int curSeg = 0;
+
+  // o << "Remaining for now: " << segments.size() << " segment breaks" << endl;
+  // o << "Removed: " << remove.size() << " point" << endl;
+  for(int idx : remove) {
+    // o << "Remove: " << idx << " -- " << curSeg << endl;
+    // if(curSeg < segments.size())
+    //   o << " - cs: " << segments[curSeg] << endl;
+    while(curSeg < segments.size() && segments[curSeg] <= idx) {
+      segments[curSeg] -= removed;
+      curSeg += 1;
+    }
+    if(curSeg >= segments.size())
+      break;
+    removed += 1;
+  }
+  
+  while(curSeg < segments.size()) {
+    segments[curSeg] -= removed;
+    curSeg += 1;
+  }  
+  
+}
+
+
+
 
 Vector DataSet::segmentPositions() const
 {

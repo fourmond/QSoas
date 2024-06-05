@@ -24,6 +24,7 @@ assert $stats[0].y_average-1 0
 assert $stats[1].y_stddev 0
 assert $stats[1].y_average-2 0
 
+
 drop
 
 strip-if (x-1).abs<0.5
@@ -36,6 +37,7 @@ assert $stats[1].y_average-2 0
 drop
 
 strip-if /use-stats=true x==$stats[0].x_max
+
 
 assert $stats[0].y_stddev 0
 assert $stats[0].y_average-1 0
@@ -74,7 +76,7 @@ assert $stats[1].y_average-2 0
 strip-if (x-2).abs>0.4
 eval $saved=$stats
 
-# This should have only *two*segments
+# This should have only *two* segments
 assert $stats.segments==2
 
 assert $stats[0].y_stddev 0
@@ -82,7 +84,6 @@ assert $stats[0].y_average-2 0
 assert $stats[1].y_stddev 0
 assert $stats[1].y_average-3 0
 
-# this should work
 segments-chop /flags=chopped
 i flagged:chopped
 

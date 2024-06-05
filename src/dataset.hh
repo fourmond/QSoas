@@ -395,6 +395,14 @@ public:
   /// Removes the point at the given index.
   void removeRow(int i);
 
+  /// Removes all the given rows
+  ///
+  /// This is much faster than running repeatedly removeRow(), and it
+  /// also handles properly the case of segments being dropped.
+  ///
+  /// The list MUST be sorted
+  void removeRows(const QList<int> & list);
+
 
 
   Vector & x() {

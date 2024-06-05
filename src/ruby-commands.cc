@@ -387,8 +387,7 @@ static void stripIfCommand(const QString &, QString formula,
     }
 
     DataSet * nds = ds->derivedDataSet("_trimmed.dat");
-    for(int j = remove.size()-1; j >= 0; j--)
-      nds->removeRow(remove[j]);
+    nds->removeRows(remove);
 
     Terminal::out << "Removed " << remove.size() << " points" << endl;
     if(nds->nbRows() < threshold) {

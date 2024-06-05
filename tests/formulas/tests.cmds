@@ -4,7 +4,11 @@
 @ formulas.cmds
 @ inline-ruby.cmds
 @ exceptions.cmds
+
 @ strip-if.cmds
+@ strip-if-segments.cmds
+
+
 @ solve.cmds
 @ specials.cmds
 

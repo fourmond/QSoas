@@ -1,0 +1,24 @@
+# Testing the 
+clear-stack
+
+generate-dataset 0 0.9 1
+generate-dataset 1 1.9 2
+generate-dataset 2 2.9 3
+generate-dataset 3 3.9 4
+generate-dataset 4 4.9 5
+
+i 4 3 2 1 0
+a five-segs
+assert $stats.segments==5
+
+eval $saved=$stats
+
+
+segments-chop /flags=chopped
+i flagged:chopped
+
+## INLINE: test-equality
+assert $saved.${1}==$stats.${1}
+## INLINE END
+
+run-for-each inline:test-equality rows segments x_min x_max

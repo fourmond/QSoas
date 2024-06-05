@@ -71,8 +71,6 @@ assert $stats.x_max-10 0
 
 
 # Now check expansion
-
-
 generate-dataset 0 10 /samples=1001
 set-meta /type=number-list pos 2,3,5
 chop 2 3 5 /mode=xvalues /set-segments=true

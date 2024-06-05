@@ -6,12 +6,14 @@ assert "$stats['rows']==901"
 assert "$stats['x_max']==9"
 
 generate-buffer 0 10 /samples=3000
+apply-formula y=i%3
 strip-if "i % 3 == 0"
-assert "$stats['rows']==2000"
+assert $stats.rows==2000
+assert $stats.y_average-1.5 0
 
 generate-buffer 0 10 /samples=3000
-strip-if "i % 30 != 0" 
-assert "$stats['rows']<1000"
+strip-if i%30!=0 
+assert $stats.rows<1000
 
 generate-buffer 0 10 /samples=3000
 strip-if "i % 30 != 0" /threshold=1000

@@ -1,0 +1,90 @@
+# These tests verify that the position of the segments stays the same
+# with strip-if
+
+clear-stack
+
+generate-dataset 0 0.9 1
+generate-dataset 1 1.9 2
+
+i 1 0
+a two-segs
+assert $stats.segments==2
+
+
+
+assert $stats[0].y_stddev 0
+assert $stats[0].y_average-1 0
+assert $stats[1].y_stddev 0
+assert $stats[1].y_average-2 0
+
+strip-if i%2==0
+
+assert $stats[0].y_stddev 0
+assert $stats[0].y_average-1 0
+assert $stats[1].y_stddev 0
+assert $stats[1].y_average-2 0
+
+drop
+
+strip-if (x-1).abs<0.5
+
+assert $stats[0].y_stddev 0
+assert $stats[0].y_average-1 0
+assert $stats[1].y_stddev 0
+assert $stats[1].y_average-2 0
+
+drop
+
+strip-if /use-stats=true x==$stats[0].x_max
+
+assert $stats[0].y_stddev 0
+assert $stats[0].y_average-1 0
+assert $stats[1].y_stddev 0
+assert $stats[1].y_average-2 0
+
+drop
+
+strip-if /use-stats=true x==$stats[1].x_min
+assert $stats[0].y_stddev 0
+assert $stats[0].y_average-1 0
+assert $stats[1].y_stddev 0
+assert $stats[1].y_average-2 0
+
+
+# Now the thing that doesn't work yet
+
+clear-stack
+
+generate-dataset 0 0.9 1
+generate-dataset 1 1.9 2
+generate-dataset 2 2.9 3
+generate-dataset 3 3.9 4
+generate-dataset 4 4.9 5
+
+i 4 3 2 1 0
+a five-segs
+assert $stats.segments==5
+
+assert $stats[0].y_stddev 0
+assert $stats[0].y_average-1 0
+assert $stats[1].y_stddev 0
+assert $stats[1].y_average-2 0
+
+# Now the thing that doesn't work quite well
+strip-if (x-2).abs>0.4
+eval $saved=$stats
+
+# This should have only *two*segments
+assert $stats.segments==2
+
+assert $stats[0].y_stddev 0
+assert $stats[0].y_average-2 0
+assert $stats[1].y_stddev 0
+assert $stats[1].y_average-3 0
+
+# this should work
+segments-chop /flags=chopped
+i flagged:chopped
+
+assert $stats.segments==$saved.segments
+assert $stats.rows-$saved.rows 0

@@ -1652,8 +1652,8 @@ void DataSet::removeRows(const QList<int> & remove)
   int prev = -1;
   // o << "Remove: " << remove.size() << endl;
   for(int idx : remove) {
-    if(prev > idx)
-      throw InternalError("Trying to remove an unsorted list");
+    if(prev >= idx)
+      throw InternalError("Trying to remove an unsorted list, or with duplicates");
     // o << "Test: " << idx << endl;
     if(idx == leftLim + 1)
       leftLim += 1;
@@ -1670,8 +1670,13 @@ void DataSet::removeRows(const QList<int> & remove)
   QList<int> rnTgt;
   for(const QStringList & lst: rowNames)
     rnTgt << 0;
+  int curRemove = 0;
+  int nbRemove = remove.size();
   for(int i = 0; i < curSz; i++) {
-    if(! remove.contains(i)) {
+    if(curRemove < nbRemove && remove[curRemove] == i) {
+      curRemove += 1;
+    }
+    else {
       // Shift copy
       if(i != tgtI) {
         for(Vector & c: columns)

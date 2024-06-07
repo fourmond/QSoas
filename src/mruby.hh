@@ -43,6 +43,14 @@ class MRuby {
 
   mrb_value soasInstance;
 
+  /// The context displayed for exceptions.
+  /// Generally empty.
+  /// Use MRubyExceptionContext to change
+  QString exceptionContext;
+
+  friend class MRubyExceptionContext;
+  
+
 public:
   /// The "Cplx" class
   struct RClass * cCplx;
@@ -331,6 +339,24 @@ public:
   ~MRubyArenaContext() {
     mrb_gc_arena_restore(mr->mrb, idx);
   }
+};
+
+
+/// A small class to set the Ruby exception context
+class MRubyExceptionContext {
+  MRuby * mruby;
+
+  QString old;
+public:
+  MRubyExceptionContext(MRuby * mr, const QString & context) :
+    mruby(mr),
+    old(mr->exceptionContext) {
+    mruby->exceptionContext = context;
+  };
+
+  ~MRubyExceptionContext() {
+    mruby->exceptionContext = old;
+  };
 };
 
 

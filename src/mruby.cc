@@ -188,7 +188,8 @@ mrb_value MRuby::protect(const std::function<mrb_value ()> &function)
   if(mrb->exc) {
     mrb_value exc = mrb_obj_value(mrb->exc);
     mrb->exc = NULL;
-    throw RuntimeError("A ruby exception occurred: %1").arg(inspect(exc));
+    throw RuntimeError("A ruby exception occurred%2: %1").
+      arg(inspect(exc)).arg(exceptionContext);
   }
 
   return helper;
@@ -197,7 +198,8 @@ mrb_value MRuby::protect(const std::function<mrb_value ()> &function)
 void MRuby::throwIfException(mrb_value obj)
 {
   if(mrb_obj_is_kind_of(mrb, obj, mrb_class_real(cException))) {
-    throw RuntimeError("A ruby exception occurred: %1").arg(inspect(obj));
+    throw RuntimeError("A ruby exception occurred%2: %1").
+      arg(inspect(obj)).arg(exceptionContext);
   }
 }
 

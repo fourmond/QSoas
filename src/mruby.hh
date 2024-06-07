@@ -154,6 +154,9 @@ public:
   /// Returns a new int with the given value
   mrb_value newInt(int value);
 
+  /// Evaluate the value as integer
+  int intValue(mrb_value iv);
+
   /// @}
 
   /// Defines a toplevel module

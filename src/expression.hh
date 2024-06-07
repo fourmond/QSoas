@@ -219,6 +219,10 @@ public:
   /// Evaluates the given expression as double
   static double evaluateAsDouble(const QString & expression);
 
+
+  /// Evaluates the given expression as an integer
+  static int evaluateAsInteger(const QString & expression);
+
   
 };
 

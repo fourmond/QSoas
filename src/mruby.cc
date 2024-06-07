@@ -1160,6 +1160,18 @@ mrb_value MRuby::newInt(int value)
   return mrb_fixnum_value(value);
 }
 
+
+int MRuby::intValue(mrb_value iv)
+{
+  NOT_IMPLEMENTED;
+  // if(mrb_fixnum_p(index))
+  //   return mrb_fixnum(iv);
+  // else
+  //   throw RuntimeError("Object '%1' is not an integer").
+  //     arg(inspect(iv));
+  return -1;
+}
+
 mrb_value MRuby::makeBlock(const QString & code, const QStringList & vars)
 {
   if(vars.size() > 16) {

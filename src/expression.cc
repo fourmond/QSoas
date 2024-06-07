@@ -372,3 +372,12 @@ double Expression::evaluateAsDouble(const QString & formula)
   mrb_value val = mr->eval(formula);
   return mr->floatValue(val);
 }
+
+int Expression::evaluateAsInteger(const QString & formula)
+{
+  MRuby * mr = MRuby::ruby();
+  MRubyExceptionContext ctx(mr, QString(" evaluating formula '%1'").
+                            arg(formula));
+  mrb_value val = mr->eval(formula);
+  return mrb_fixnum(val);
+}

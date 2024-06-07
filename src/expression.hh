@@ -215,6 +215,10 @@ public:
   static QString rubyIzeExpression(const QString &expr, 
                                    QStringList & variables);
 
+
+  /// Evaluates the given expression as double
+  static double evaluateAsDouble(const QString & expression);
+
   
 };
 

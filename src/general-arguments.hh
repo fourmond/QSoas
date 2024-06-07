@@ -392,13 +392,19 @@ public:
 
 /// A number
 class NumberArgument : public Argument {
+
+  /// A special case for limits
   bool special;
+
+  /// Whether or not we disable the parsing of ruby code there
+  bool disableRuby;
 public:
 
   NumberArgument(const char * cn, const char * pn,
                  const char * d = "", bool def = false,
-                 bool spec = false) : 
-    Argument(cn, pn, d, false, def), special(spec) {
+                 bool spec = false, bool disable = false) : 
+    Argument(cn, pn, d, false, def), special(spec),
+    disableRuby(disable) {
   }; 
   
   /// Returns a wrapped double

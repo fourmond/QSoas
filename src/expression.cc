@@ -363,3 +363,10 @@ QString Expression::rubyIzeExpression(const QString & expr,
   }
   return ret;
 }
+
+double Expression::evaluateAsDouble(const QString & formula)
+{
+  MRuby * mr = MRuby::ruby();
+  mrb_value val = mr->eval(formula);
+  return mr->floatValue(val);
+}

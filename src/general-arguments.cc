@@ -702,15 +702,27 @@ QString SeveralDataSetArgument::typeDescription() const {
 
 ////////////////////////////////////////////////////////////
 
+#include <expression.hh>
+
 ArgumentMarshaller * NumberArgument::fromString(const QString & str) const
 {
+  // QTextStream o(stdout);
+  // o << "Parsing: " << str << endl;
   double v;
   if(special && str == "*")
     v = NAN;
   else if(special && str == "=")
     v = INFINITY;
-  else
-    v = Utils::stringToDouble(str);
+  else {
+    bool ok = false;
+    v = str.toDouble(&ok);
+    if(! ok) {
+      if(disableRuby)
+        throw RuntimeError("Invalid number: '%1'").
+          arg(str);
+      v = Expression::evaluateAsDouble(str);
+    }
+  }
   return new ArgumentMarshallerChild<double>(v);
 }
 

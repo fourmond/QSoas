@@ -1,7 +1,7 @@
 /**
    \file valuehash.hh
    A string->value hash
-   Copyright 2013, 2014, 2019 by CNRS/AMU
+   Copyright 2013, 2014, 2019, 2024 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -50,6 +50,10 @@ protected:
 
   /// Used for the << "key" << value scheme
   QString lastKey;
+
+  /// Returns all the keys, with the ones in keyOrder first in the
+  /// right order and the rest in a random order
+  QStringList allKeys() const;
 public:
 
   /// Extract values that can be converted to double.
@@ -202,6 +206,12 @@ public:
   
   /// Builds a new ValueHash from a Ruby hsh
   static ValueHash fromRuby(mrb_value hsh);
+
+  /// Evaluate the given expression using all the keys of the hash as
+  /// "local variables"
+  ///
+  /// This is better used with a specially prepared hash.
+  mrb_value evaluateWith(const QString & formula) const;
 
   /// Returns a copy of the hash selecting keys/values  from the spec:
   /// @li '*' means "set all"

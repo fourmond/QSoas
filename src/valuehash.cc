@@ -475,6 +475,34 @@ ValueHash ValueHash::fromRuby(mrb_value hsh)
   return h;
 }
 
+QStringList ValueHash::allKeys() const
+{
+  QStringList rv = keyOrder;
+  QSet<QString> lst = rv.toSet();
+  for(const QString & k : keys()) {
+    if(! lst.contains(k))
+      rv << k;
+  }
+  return rv;
+}
+
+
+mrb_value ValueHash::evaluateWith(const QString & formula) const
+{
+  MRuby * mr = MRuby::ruby();
+  QStringList keys = allKeys();
+  mrb_value code = mr->makeBlock(formula.toLocal8Bit(), keys);
+
+  mrb_value args[keys.size()];
+  for(int i = 0; i < keys.size(); i++)
+    args[i] = variantToRuby((*this)[keys[i]]);
+
+  mrb_value rv = mr->funcall(code, mr->intern("call"),
+                             keys.size(), args);
+  return rv;
+}
+
+
 
 double ValueHash::doubleValue(const QString & key) const
 {

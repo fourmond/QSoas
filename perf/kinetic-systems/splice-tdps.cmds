@@ -1,0 +1,11 @@
+# This test is about slicing TDPs, which seems to be seriously slow
+## INLINE: ks1
+A ->[a+b+c] B
+B ->[k2] C
+C ->[d+e] A
+## INLINE END
+define-kinetic-system-fit inline:ks1 ks1 /redefine=true
+generate-dataset 0 10 /samples=40000
+generate-dataset 0 10 /samples=40000
+generate-dataset 0 10 /samples=40000
+sim-ks1 /dev/null 0,1,2 /with=a,b,c:3,steps /with=d,e:3,exp

@@ -46,9 +46,10 @@ protected:
 
   /// Returns the parameters that are shared with the base. The list
   /// MUST be sorted.
-  ///
-  /// @todo Maybe this should be cached in the initialize function ?
   virtual QList<int> sharedParameters() const;
+
+  /// This value is initialized in the first call to initialize()
+  QList<int> sharedParametersCache;
 
   /// @name
   ///

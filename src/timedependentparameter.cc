@@ -643,6 +643,7 @@ void TimeDependentParameter::initialize(const double * parameters)
 {
   if(baseTDP) {
     double v[realParameterNumber()];
+    sharedParametersCache = sharedParameters();
     spliceParameters(parameters, v);
     realInitialize(v-baseIndex);
   }
@@ -719,7 +720,7 @@ void TimeDependentParameter::spliceParameters(const double * parameters,
   int nb = realParameterNumber();
   int base = 0;
   int cur = 0;
-  QList<int> lst = sharedParameters();
+  const QList<int> & lst = sharedParametersCache;
   for(int i = 0; i < nb; i++) {
     if(lst.value(base, -1) == i) {
       target[i] = parameters[baseTDP->baseIndex + i];

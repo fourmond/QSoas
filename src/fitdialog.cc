@@ -779,8 +779,10 @@ void FitDialog::compute()
 {
   try {
     message("Computing...");
+    QDateTime time = QDateTime::currentDateTime();
     internalCompute();
-    appendToMessage(" done");
+    qint64 delta = time.msecsTo(QDateTime::currentDateTime());
+    appendToMessage(QString(" done (in %1 ms)").arg(delta));
   }
   catch (const Exception & re) {
     QString s = QString("An error occurred while computing: ") +

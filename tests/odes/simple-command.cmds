@@ -1,0 +1,15 @@
+# In this file, we're testing directly the ode command
+
+generate-dataset 0 10
+ode simple.ode w=2
+apply-formula y-=sin(2*x)
+assert $stats.y_norm 1e-9
+
+## INLINE: stuff
+w = 3.0/4
+## INLINE END
+
+generate-dataset 0 10
+ode simple.ode @include(inline:stuff)
+apply-formula y-=sin(0.75*x)
+assert $stats.y_norm 1e-9

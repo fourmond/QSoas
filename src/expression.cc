@@ -166,10 +166,10 @@ void Expression::setParametersFromExpression(const QStringList & params,
   for(int i = 0; i < pm.size(); i++)
     beg << QString("%1 = %2").arg(pm[i]).
       arg(forceDefault ? def : target[i], 0, 'g', 20);
-  QString final = QString("%1\n%2\n[%3]").
+  QString fnl = QString("%1\n%2\n[%3]").
     arg(beg.join("\n")).arg(expr).arg(pm.join(", "));
 
-  Expression ex(final);
+  Expression ex(fnl);
   if(ex.minimalVariables.size() > 0)
     throw RuntimeError("Undefined parameters: '%1'").
       arg(ex.minimalVariables.join("', '"));

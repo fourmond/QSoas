@@ -70,9 +70,9 @@ static void odeComputationCommand(const QString &, QString file,
   op.parseOptions(opts);
   solver.setStepperOptions(op);
 
-  QString extra;
+  QStringList extra;
   updateFromOptions(opts, "parameters", extra);
-  solver.setParameterValues(extra);
+  solver.setParameterValues(ParametersArgument::makeExpression(extra));
 
   bool annotate = false;
   updateFromOptions(opts, "annotate", annotate);
@@ -109,8 +109,7 @@ static void odeComputationCommand(const QString &, QString file,
 
   cols << solver.steps(xs, annotate);
   
-  DataSet * nds = new DataSet(cols);
-  nds->name = "ode.dat";
+  DataSet * nds = ds->derivedDataSet(cols, "_ode.dat");
   nds->addMetaData(meta);
   Terminal::out << "Total number of function evaluations: " 
                 << solver.evaluations << endl;
@@ -126,10 +125,10 @@ odeArgs(QList<Argument *>()
 
 static ArgumentList 
 odeOpts(QList<Argument *>() 
-        << new StringArgument("parameters", 
-                              "Parameter values",
-                              "Values of the parameters",
-                              true)
+        << new ParametersArgument("parameters", 
+                                  "Parameter values",
+                                  "Values of the parameters",
+                                  true, true)
         << new BoolArgument("annotate", 
                             "Annotate",
                             "If on, a last column will contain the number of function evaluation for each step")

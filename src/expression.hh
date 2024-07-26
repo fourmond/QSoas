@@ -165,7 +165,7 @@ public:
   /// @li a list of named parameters
   /// @li a Ruby expression given values to them
   /// @li a target array of doubles meant to get the values of the
-  ///    parameters in the same order as the first argument
+  /// parameters in the same order as the first argument
   ///
   /// Uses evaluateIntoArray internally.
   ///

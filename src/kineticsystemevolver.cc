@@ -190,9 +190,6 @@ ksArgs (QList<Argument *>()
         << new FileArgument("reaction-file", 
                             "Reaction file",
                             "File describing the kinetic system")
-        << new StringArgument("parameters",
-                              "Parameters",
-                              "Parameters of the model")
         );
 
 static ArgumentList 
@@ -204,16 +201,21 @@ ksOpts (QList<Argument *>()
         << new BoolArgument("annotate", 
                             "Annotate",
                             "If on, a last column will contain the number of function evaluation for each step (default false)")
+        << new ParametersArgument("parameters",
+                                  "Parameters",
+                                  "Parameters of the model", true, true)
         );
 
 static void kineticSystemCommand(const QString &, QString file,
-                                 QString parameters,
                                  const CommandOptions & opts)
 {
   const DataSet * ds = soas().currentDataSet();
 
   bool dump = false;
   updateFromOptions(opts, "dump", dump);
+
+  QStringList parameters;
+  updateFromOptions(opts, "parameters", parameters);
   
   KineticSystem sys; 
   sys.parseFile(file);
@@ -227,7 +229,7 @@ static void kineticSystemCommand(const QString &, QString file,
   }
   
   KineticSystemEvolver evolver(&sys);
-  evolver.setParameters(parameters);
+  evolver.setParameters(ParametersArgument::makeExpression(parameters));
 
   ODEStepperOptions op = evolver.getStepperOptions();
   op.parseOptions(opts);
@@ -259,6 +261,10 @@ static void kineticSystemCommand(const QString &, QString file,
   concentrations.insert(0, ds->x());
   DataSet * nds = new DataSet(concentrations);
   nds->name = QString("ks-%1.dat").arg(FileInfo(file).fileName());
+
+  // Setting the meta-data
+  for(int i = 0; i < p.size(); i++)
+    nds->setMetaData(p[i], params[p[i]]);
 
   Terminal::out << "Total number of function evaluations: " 
                 << evolver.evaluations << endl;

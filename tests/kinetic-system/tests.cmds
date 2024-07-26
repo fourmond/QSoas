@@ -12,3 +12,6 @@
 @ invariance.cmds
 
 @ cache.cmds
+
+# Checking the kinetic-system command
+@ simple-command.cmds

@@ -1480,3 +1480,52 @@ QStringList SeveralCodesArgument::proposeCompletion(const QString & starter) con
 {
   return CodeArgument::completeCode(starter);
 }
+
+
+//////////////////////////////////////////////////////////////////////
+
+QString ParametersArgument::typeDescription() const
+{
+  QString s = "Several assigments in the form a=b separated by ';'. Arbitrary [Ruby code](#ruby) can be included.";
+  if(expandFiles)
+    s += " External files can be included using @include(file)";
+  return s;
+}
+
+static QStringList completeExpansion(const QString & starter)
+{
+  // Nothing for now
+  return QStringList();
+
+}
+
+QStringList ParametersArgument::proposeCompletion(const QString & starter) const
+{
+  return ::completeExpansion(starter);
+}
+
+#include <file.hh>
+
+QString ParametersArgument::makeExpression(const QStringList & codes,
+                                           bool expandFiles)
+{
+  QStringList nc = codes;
+  QRegExp reinc("@include\\(([^)]+)\\)");
+  if(expandFiles) {
+    for(QString & c : nc) {
+      int idx = 0;
+      while(true) {
+        idx = reinc.indexIn(c, idx);
+        if(idx >= 0) {
+          QString fn = reinc.cap(1);
+          QString contents = File::readFile(fn);
+          c = c.left(idx) + "\n" + contents
+            + "\n" + c.mid(idx + reinc.cap(0).size());
+        }
+        else
+          break;
+      }
+    }
+  }
+  return nc.join("\n");
+}

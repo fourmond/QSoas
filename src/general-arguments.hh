@@ -827,4 +827,40 @@ public:
 
 };
 
+
+
+/// A series of a=b;, possibly including arbitrary code, intended to
+/// be given to first makeExpression and then to
+/// setParametersFromExpression()
+class ParametersArgument : public SeveralStringsArgument {
+public:
+
+  /// If true, the default, then it is possible to include files
+  /// (only relevant for completion)
+  bool expandFiles;
+
+  ParametersArgument(const char * cn, const char * pn,
+                     const char * d = "", bool g = true, 
+                     bool def = false) :
+    SeveralStringsArgument(cn, pn, d, g, def) {
+  }; 
+  
+  virtual QString typeName() const override {
+    return "parameters";
+  };
+
+  virtual QString typeDescription() const override;
+
+  virtual QStringList proposeCompletion(const QString & starter) const override;
+
+  /// Gathers all the codes into a single expression, expanding the
+  /// included files if applicable.
+  ///
+  /// Inclusion works with @include(file) but DOES NOT PERMIT inclusion of a
+  /// file containing a ')'
+  static QString makeExpression(const QStringList & codes,
+                                bool expandFiles = true);
+
+};
+
 #endif

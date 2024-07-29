@@ -1,0 +1,3 @@
+generate-dataset 0 10 /samples=30001 /columns=12
+set-column-names x t1 t2 w w2 n1 n2 n3 n4 n5 n6 n7
+apply-formula y=$c.t1**2-$c.t2+$c.w-$c.w2

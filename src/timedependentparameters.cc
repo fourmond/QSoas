@@ -99,10 +99,9 @@ void TimeDependentParameters::initialize(const double * params)
   initialized = true;
 }
 
-TimeDependentParameters::TimeDependentParameters(const TimeDependentParameters & o)
+TimeDependentParameters::TimeDependentParameters(const TimeDependentParameters & o) : QHash<int, TimeDependentParameter*>()
 {
   // Reparse from string
-  clear();
   parseFromStrings(o.underlyingSpecs, [&o](const QString & s) -> int {
                                         return o.underlyingIndices.value(s, -1);
                                       });

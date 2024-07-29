@@ -842,7 +842,8 @@ public:
   ParametersArgument(const char * cn, const char * pn,
                      const char * d = "", bool g = true, 
                      bool def = false) :
-    SeveralStringsArgument(cn, pn, d, g, def) {
+    SeveralStringsArgument(cn, pn, d, g, def),
+    expandFiles(true) {
   }; 
   
   virtual QString typeName() const override {

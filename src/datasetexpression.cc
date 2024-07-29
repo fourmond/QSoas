@@ -80,7 +80,7 @@ void DataSetExpression::prepareVariables()
     setGlobal("$row_names", mrn);
     setGlobal("$col_names", mcn); 
     setGlobal("$row_name", mrb_nil_value()); 
-    setGlobal("$c", mrb_nil_value()); 
+    setGlobal("$c", mr->newFancyHash()); 
   }
 }
 
@@ -98,7 +98,7 @@ void DataSetExpression::prepareExpression(const QString & formula,
   if(expr)
     throw InternalError("prepareExpression() on an already prepared object");
 
-  MRuby * mr = MRuby::ruby();
+  // MRuby * mr = MRuby::ruby();
   prepareVariables();
 
   QStringList vars = dataSetParameters(extraCols);
@@ -229,11 +229,12 @@ bool DataSetExpression::nextValues(double * args, int * idx, int * colIdx)
     }
     if(useNames && dataset->columnNames.size() > 0 && dataset->checkColNames()) {
       MRuby * mr = MRuby::ruby();
-      ValueHash c;
-      for(int i = 0; i < dataset->columnNames[0].size(); i++) {
-        c[dataset->columnNames[0][i]] = dataset->column(i)[index];
-      }
-      mr->setGlobal("$c", c.toRuby());
+      mrb_value g = mr->getGlobal("$c");
+      mrb_value names = mr->getGlobal("$col_names");
+      int nb = mr->arrayLength(names);
+      for(int i = 0; i < nb; i++)
+        mr->fancyHashSet(g, mr->arrayRef(names, i),
+                         mr->newFloat(dataset->column(i)[index]));
     }
   }
   return true;

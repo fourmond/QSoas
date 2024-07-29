@@ -93,28 +93,25 @@ mrb_value DataSetExpression::evaluate(const QString & str)
 
 void DataSetExpression::prepareExpression(const QString & formula,
                                           int extraCols,
-                                          QStringList * extraParams)
+                                          QStringList * detectParams,
+                                          const QStringList & addParams)
 {
   if(expr)
     throw InternalError("prepareExpression() on an already prepared object");
 
-  // MRuby * mr = MRuby::ruby();
   prepareVariables();
 
   QStringList vars = dataSetParameters(extraCols);
-  // vars += extraParameters;
-  // QTextStream o(stdout);
-  // o << "Preparing DS expression (nb:" << vars.size() << "): " << vars.join(", ") << endl;
-
+  vars += addParams;
   // Setting the global vars ahead may help...
 
   
 
-  if(extraParams) {
+  if(detectParams) {
     expr = new Expression(formula);
     QStringList prs = vars + expr->naturalVariables();
     Utils::makeUnique(prs);
-    *extraParams = prs.mid(vars.size());
+    *detectParams = prs.mid(vars.size());
     expr->setVariables(prs);
   }
   else {

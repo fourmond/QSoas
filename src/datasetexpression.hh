@@ -90,11 +90,15 @@ public:
   explicit DataSetExpression(const DataSet * ds, bool useStats = false,
                              bool useMeta = false, bool useNames = false);
 
-  /// Prepares the expression for use with the given dataset, possibly
-  /// adding the additional parameters.
+  /// Prepares the expression for use with the given dataset.
+  /// @li if @a detectParams isn't NULL then extra parameters are detected
+  /// and stored there (for linear least squares for instance)
+  /// @li if @a addParams isn't empty, then these parameters are added after
+  /// all the dataset parameters but before any unspecified one.
   void prepareExpression(const QString & formula,
                          int extraCols = 0,
-                         QStringList * extraParams = NULL);
+                         QStringList * detectParams = NULL,
+                         const QStringList & addParams = QStringList());
 
   /// Returns the expression
   Expression & expression();

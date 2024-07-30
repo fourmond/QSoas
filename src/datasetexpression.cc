@@ -182,6 +182,8 @@ bool DataSetExpression::nextValues(double * args, int * idx, int * colIdx)
       index = 0;
     if(dataset->nbColumns() < 2)
       throw RuntimeError("Not enough columns");
+    if(dataset->nbRows() <= 0)
+      throw RuntimeError("Need at least one row");
     if(colIndex + 2 >= dataset->nbColumns()) {
       index++;
       if(index >= dataset->nbRows())

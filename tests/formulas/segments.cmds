@@ -1,0 +1,27 @@
+# This file contains various tests about the various additional variables
+# like i, i_0, i_n and so on
+
+generate-dataset 0 1 0 /number=5 /samples=100
+cat latest
+apply-formula x=i
+assert $stats.x_first 0
+assert $stats.x_last-499 0
+
+apply-formula if(i==i_0);y=1;end
+apply-formula if(i==i_n);y=-1;end
+
+assert $stats.y_average 0
+
+## INLINE: tst-seg
+assert $stats.y_first-1 0
+assert $stats.y_last+1 0
+
+apply-formula x-=x_0
+assert $stats.x_first 0
+drop
+
+apply-formula x-=x_n
+assert $stats.x_last 0
+## INLINE END
+segments-chop
+run-for-datasets inline:tst-seg latest

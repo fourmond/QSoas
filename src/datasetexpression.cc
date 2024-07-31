@@ -145,7 +145,7 @@ QStringList DataSetExpression::dataSetParameters(const DataSet * ds,
                                                  bool useRealNames, bool xyz)
 {
   QStringList vars;
-  vars << "i" << "seg" << "x_0" << "i_0";
+  vars << "i" << "seg" << "x_0" << "i_0" << "x_n" << "i_n";
   if(xyz) {
     vars << "j" << "x" << "z";
   }
@@ -212,14 +212,21 @@ bool DataSetExpression::nextValues(double * args, int * idx, int * colIdx)
   int ib = dataset->segments.value(seg-1, 0);
   args[2] = dataset->x().value(ib);
   args[3] = ib;
+
+  int in = dataset->segments.value(seg, dataset->nbRows()) - 1;
+  args[4] = dataset->x().value(in);
+  args[5] = in;
+
+  args += 6;
+  
   if(xyzMap) {
-    args[4] = colIndex;
-    args[5] = dataset->x()[index];
-    args[6] = dataset->perpendicularCoordinates().value(colIndex, colIndex);
+    args[0] = colIndex;
+    args[1] = dataset->x()[index];
+    args[2] = dataset->perpendicularCoordinates().value(colIndex, colIndex);
   }
   else {
     for(int j = 0; j < dataset->nbColumns(); j++)
-      args[j+4] = dataset->column(j)[index];
+      args[j] = dataset->column(j)[index];
     
     if(useNames && dataset->rowNames.size() > 0) {
       MRuby * mr = MRuby::ruby();

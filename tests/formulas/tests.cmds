@@ -27,3 +27,6 @@ run-for-each /range-type=lin large-buffer-formulas.cmds 1..40:40
 # And the new modes in apply-formula
 @ mode.cmds
 @ break.cmds
+
+# Some fun test with the new x_0/x_n/i_0/i_n capacities
+@ segments.cmds

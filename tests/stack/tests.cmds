@@ -2,8 +2,12 @@
 @ sort.cmds
 @ single-buffer-tests.cmds
 @ missing-buffers.cmds /error=ignore
+
 # Run sort twice, just in case
 @ sort.cmds
 @ order-flags.cmds
 @ drop.cmds
 @ buffer-list.cmds
+
+# Checking the new indexed flags
+@ flag-subsets.cmds

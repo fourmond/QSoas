@@ -30,8 +30,14 @@ DataStackHelper::DataStackHelper(const CommandOptions & opts,
                                  bool upt, bool def, HelperFeatures features) :
   deferred(def), update(upt), reversed(false), valid(true)
 {
-  if(features & Flags)
+  if(features & Flags) {
     updateFromOptions(opts, "flags", flags);
+    for(const QString & f : flags) {
+      if(f.contains("["))
+        throw RuntimeError("Flag names cannot contain '[': '%1'").
+          arg(f);
+    }
+  }
   if(features & Style)
     updateFromOptions(opts, "style", style);
   if(features & SetMeta)

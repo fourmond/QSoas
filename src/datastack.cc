@@ -65,7 +65,7 @@ QList<const DataSet *> DataStack::datasetsFromSpec(const QString & str) const
   QRegExp multi("^\\s*(-?[0-9]+)\\s*\\.\\.\\s*(-?[0-9]+|end)\\s*(?::(\\d+)\\s*)?\\s*$");
   QRegExp single("^\\s*-?[0-9]+\\s*$");
 
-  QRegExp flgs("^\\s*(un)?flagged(-)?(:(.*))?\\s*$");
+  QRegExp flgs("^\\s*(un)?flagged(-)?(:([^[]*))?(\\[([\\d,]+)\\])?\\s*$");
   flgs.setMinimal(true);        // to catch the last - if applicable
 
   if(multi.indexIn(str) == 0 || str == "all") {
@@ -99,16 +99,30 @@ QList<const DataSet *> DataStack::datasetsFromSpec(const QString & str) const
     bool dec = (flgs.cap(2).size() > 0); // the - sign at the end
       
     QString flagName = flgs.cap(4);
+    QString numberSpec = flgs.cap(6);
     QList<const DataSet *> mkd;
     if(flagName.isEmpty())
       mkd = flaggedDataSets(flg);
     else
       mkd = flaggedDataSets(flg, flagName);
+    // QTextStream o(stdout);
+    // o << "Spec: " << flagName << " -- " << numberSpec << endl;
+      
 
     if(dec)
       Utils::reverseList(mkd);
 
-    dsets += mkd;
+    // Select
+    if(! numberSpec.isEmpty()) {
+      QStringList numbers = numberSpec.split(",");
+      for(const QString & s : numbers) {
+        int nb = s.toInt();
+        if(nb >= 0 && nb < mkd.size())
+          dsets += mkd[nb];
+      }
+    }
+    else
+      dsets += mkd;
   }
       
   else if(str == "displayed")  {

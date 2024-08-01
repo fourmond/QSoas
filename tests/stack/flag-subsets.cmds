@@ -1,0 +1,19 @@
+# This script checks the possibility to select a subset of flags
+
+## INLINE: gen-1
+generate-dataset 0 ${1}
+flag /flags=orig
+apply-formula x*=2
+flag /flags=double
+## INLINE END
+
+## INLINE: check-1
+eval /buffers=flagged:orig[${1}] $v=$stats.x_max
+assert $v-${2} 0
+## INLINE END
+
+run-for-each inline:gen-1 3 10 2
+
+@ inline:check-1 0 2
+@ inline:check-1 1 10
+@ inline:check-1 2 3

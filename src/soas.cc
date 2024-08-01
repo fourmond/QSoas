@@ -80,6 +80,14 @@ Soas::~Soas()
   delete gs;
 }
 
+void Soas::setParameter(const QString & name,
+                        const QString & value,
+                        bool redefine)
+{
+  if(redefine || (! parameters.contains(name)))
+    parameters[name] = value;
+}
+
 void Soas::enterPrompt(CommandWidget * prompt)
 {
   prompts.insert(0, prompt);

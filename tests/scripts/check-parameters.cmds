@@ -11,4 +11,13 @@ assert 1${2:+3}-1 0
 
 # ternary
 assert ${bb?1:2}-1 0
-assert ${2?1:2}-2 0 
+assert ${2?1:2}-2 0
+
+
+# Check redefinition
+
+let bb 22
+assert ${bb}-22 0
+
+let bb 24 /redefine=false
+assert ${bb}-22 0

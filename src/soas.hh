@@ -53,7 +53,19 @@ class Soas {
   /// interactive commands, prompting, and just waiting is disabled.
   bool headless;
 
+
 public:
+
+  /// Defined parameters. ONLY AVAILABLE IN THE SCRIPTS for now
+  QHash<QString, QString> parameters;
+
+  /// Sets the given parameter. If @a redefine is false, then the
+  /// value is not updated if it's already present
+  void setParameter(const QString & name,
+                    const QString & value,
+                    bool redefine = true);
+
+
   /// @a Storage space for the number of exceptions raised
   /// @{ 
 

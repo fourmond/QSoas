@@ -149,10 +149,6 @@ protected:
   /// The command context for the prompt
   CommandContext * commandContext;
 
-
-  /// Defined parameters. ONLY AVAILABLE IN THE SCRIPTS for now
-  QHash<QString, QString> parameters;
-
 public:
 
   explicit CommandWidget(CommandContext * context = NULL);
@@ -234,10 +230,6 @@ public:
 
   /// Returns the full command line being run
   QStringList currentCommandLine() const;
-
-  /// Sets the given named parameter
-  void setParameter(const QString & name, const QString & value);
-
 
   /// Runs all the startup files
   static void runStartupFiles();

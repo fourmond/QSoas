@@ -732,9 +732,9 @@ CommandWidget::runCommandFile(QIODevice * source,
         bool subsPresent = true;
         if(argn < 0) {
           paramName = substitutionRE.cap(1);
-          subsPresent = parameters.contains(paramName);
+          subsPresent = soas().parameters.contains(paramName);
           if(subsPresent)
-            paramValue = parameters[paramName];
+            paramValue = soas().parameters[paramName];
         }
         else {
           paramName = QString::number(argn + 1);
@@ -860,12 +860,6 @@ CommandWidget::runCommandFile(QIODevice * source,
   }
   soas().stack().popSpy(level);
   return Success;
-}
-
-void CommandWidget::setParameter(const QString & name,
-                                 const QString & value)
-{
-  parameters[name] = value;
 }
 
 CommandWidget::ScriptStatus

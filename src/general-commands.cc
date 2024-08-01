@@ -1695,9 +1695,9 @@ void letCommand(const QString &,
                 QString value,
                 const CommandOptions & opts)
 {
-  /// @todo There is a big issue here: we're only updating the topmost
-  /// prompt
-  soas().prompt().setParameter(paramName, value);
+  bool redefine = true;
+  updateFromOptions(opts, "redefine", redefine);
+  soas().setParameter(paramName, value, redefine);
 }
 
 static ArgumentList 
@@ -1710,12 +1710,20 @@ letA(QList<Argument *>()
                            "the value of the parameter")
      );
 
+static ArgumentList 
+letO(QList<Argument *>() 
+     << new BoolArgument("redefine", 
+                         "Redefine",
+                         "if false, an existing parameter is not replaced "
+                         "(default: true)")
+     );
+
 static Command 
 let("let", // command name
     effector(letCommand), // action
     "file",  // group name
     &letA, // arguments
-    NULL,
+    &letO,
     "Define a named parameter");
 
 static Command 
@@ -1723,7 +1731,7 @@ let2("let", // command name
      effector(letCommand), // action
      "file",  // group name
      &letA, // arguments
-     NULL,
+     &letO,
      "Define a named parameter", "",
      "", CommandContext::fitContext());
 

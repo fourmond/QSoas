@@ -653,7 +653,8 @@ SOURCES += src/formats/gpesprovider.cc \
         src/formats/chi.cc \
         src/formats/eclab.cc \
         src/formats/parametersbackend.cc \
-        src/formats/ignorebackend.cc
+        src/formats/ignorebackend.cc \
+        src/formats/imagebackend.cc
 
 # Using signals on platforms that support them
 unix|macx {

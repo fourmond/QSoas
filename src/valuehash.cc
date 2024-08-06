@@ -629,11 +629,17 @@ void ValueHash::handleOutput(const DataSet * ds, const CommandOptions & opts,
   QStringList accumulate;
   updateFromOptions(opts, "accumulate", accumulate);
 
+  // OK, the main issue we have here is that this code only puts out
+  // the keys in the key order, so we're not writing out everything
+
 
   ValueHash meta;
+  // QTextStream o(stdout);
   if(metaNames.size() > 0) {
     const ValueHash & origMeta = ds->getMetaData();
+    // o << "Meta: " << origMeta.keys().join(", ") << endl;
     for(const QString & n : metaNames) {
+      // o << " -> " << n << endl;
       if(n == "*")
         meta.merge(origMeta);
       else {
@@ -645,10 +651,17 @@ void ValueHash::handleOutput(const DataSet * ds, const CommandOptions & opts,
                         << ds->name << "'" << endl;
       }
     }
+    // explicit key order:
+    meta.keyOrder = meta.allKeys();
+    // o << "F1: " << meta.keys().join(", ") << endl;
+    // o << "M1: " << meta.keyOrder.join(", ") << endl;
   }
   
   ValueHash ov = *this;
+  ov.keyOrder = ov.allKeys();
   ov.merge(meta);
+  // o << "Final: " << ov.keys().join(", ") << endl;
+  // o << "Final: " << ov.keys().join(", ") << endl;
   if(output) {
     Terminal::out << "Writing to output file" << endl;
     OutFile::out.writeValueHash(ov, ds);
@@ -683,6 +696,7 @@ void ValueHash::handleOutput(const DataSet * ds, const CommandOptions & opts,
   if(accumulate.size() > 0) {
     QStringList missing;
     ValueHash cnv = ov.copyFromSpec(accumulate, &missing);
+    
     cnv.merge(meta, true);
 
     if(missing.size() > 0)

@@ -749,3 +749,11 @@ void Command::requestStop()
 {
   shouldStop = true;
 }
+
+bool Command::shouldBeStopping(bool clear) {
+  if(! shouldStop)
+    return false;
+  if(clear)
+    shouldStop = false;
+  return true;
+}

@@ -347,6 +347,10 @@ public:
   /// main QSoas loop.
   static void requestStop();
 
+  /// Returns true if the shouldStop flag is on -- and clears it,
+  /// unless the @a clear parameter is set to false
+  static bool shouldBeStopping(bool clear = true);
+
   /// @}
 
 };

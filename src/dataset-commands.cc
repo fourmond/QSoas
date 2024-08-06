@@ -2524,10 +2524,6 @@ static void tweakColumnsCommand(const QString &,
 {
   const DataSet * ds = soas().currentDataSet();
 
-  QList<int> cols;
-  for(int i = 0; i < ds->nbColumns(); i++)
-    cols << i;
-
   /// @todo Swap columns
 
   bool flip = false;
@@ -2539,27 +2535,39 @@ static void tweakColumnsCommand(const QString &,
   updateFromOptions(opts, "flip-all", flipAll);
   updateFromOptions(opts, "remove", toRemove);
   updateFromOptions(opts, "select", toSelect);
-  if(toSelect.columns.size() > 0) {
-    cols = toSelect.getValues(ds);
-  }
-  else if(toRemove.columns.size() > 0) {
-    QList<int> tr = toRemove.getValues(ds);
-    std::sort(tr.begin(), tr.end());
-    for(int i = tr.size() - 1; i >= 0; i--)
-      cols.removeAt(tr[i]);
-  }
-  else if(flipAll) {
-    Utils::reverseList(cols);
-  }
-  else if(flip) {
-    cols.takeFirst();
-    Utils::reverseList(cols);
-    cols.insert(0, 0);
-  }
 
-  DataSet * nds = ds->derivedDataSet("_tweaked.dat");
-  nds->selectColumns(cols);
-  soas().pushDataSet(nds);
+  
+  DataSetList buffers(opts);
+  DataStackHelper pusher(opts);
+
+  for(const DataSet * ds : buffers) {
+
+    QList<int> cols;
+    for(int i = 0; i < ds->nbColumns(); i++)
+      cols << i;
+
+    if(toSelect.columns.size() > 0) {
+      cols = toSelect.getValues(ds);
+    }
+    else if(toRemove.columns.size() > 0) {
+      QList<int> tr = toRemove.getValues(ds);
+      std::sort(tr.begin(), tr.end());
+      for(int i = tr.size() - 1; i >= 0; i--)
+        cols.removeAt(tr[i]);
+    }
+    else if(flipAll) {
+      Utils::reverseList(cols);
+    }
+    else if(flip) {
+      cols.takeFirst();
+      Utils::reverseList(cols);
+      cols.insert(0, 0);
+    }
+
+    DataSet * nds = ds->derivedDataSet("_tweaked.dat");
+    nds->selectColumns(cols);
+    pusher << nds;
+  }
 }
 
 static ArgumentList 
@@ -2567,6 +2575,8 @@ tcA;
 
 static ArgumentList 
 tcO(QList<Argument *>() 
+    << DataStackHelper::helperOptions()
+    << DataSetList::listOptions("Datasets to tweak")
     << new SeveralColumnsArgument("remove", 
                                   "Columns to remove",
                                   "the columns to remove ", true)

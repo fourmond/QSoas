@@ -1,0 +1,9 @@
+# Here, we test the outputs
+clear-stack
+
+# Here, checking that /meta=* works
+generate-dataset 0 1
+set-meta t1 30
+eval a:$stats.x_min b:$stats.x_average /meta=* /accumulate=*
+pop
+assert $nstats.t1_first-30 0

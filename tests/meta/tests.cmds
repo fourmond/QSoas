@@ -6,3 +6,6 @@
 
 # Modifying meta
 @ modify-meta.cmds
+
+# using the output facilities
+@ output.cmds

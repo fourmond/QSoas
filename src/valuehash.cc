@@ -335,11 +335,11 @@ ValueHash & ValueHash::operator<<(const QVariant & v)
   return *this;
 }
 
-void ValueHash::merge(const ValueHash & other, bool override,
+void ValueHash::merge(const ValueHash & other, bool overrideValues,
                       bool allowMultiple)
 {
   for(const_iterator it = other.begin(); it != other.end(); ++it) {
-    if(override || (! contains(it.key())))
+    if(overrideValues || (! contains(it.key())))
       (*this)[it.key()] = it.value();
   }
   keyOrder += other.keyOrder;
@@ -347,6 +347,17 @@ void ValueHash::merge(const ValueHash & other, bool override,
   if(! allowMultiple)
     keyOrder.removeDuplicates();
 }
+
+
+void ValueHash::sortUnordered()
+{
+  QStringList all = allKeys();
+  QStringList::iterator beg = all.begin();
+  std::advance(beg, keyOrder.size());
+  std::sort(beg, all.end());
+  keyOrder = all;
+}
+
 
 void ValueHash::appendToList(const QString & key, const QString & val)
 {
@@ -636,7 +647,10 @@ void ValueHash::handleOutput(const DataSet * ds, const CommandOptions & opts,
   ValueHash meta;
   // QTextStream o(stdout);
   if(metaNames.size() > 0) {
-    const ValueHash & origMeta = ds->getMetaData();
+    ValueHash origMeta = ds->getMetaData();
+    // This way, we don't keep using orders we don't know where they
+    // come from
+    origMeta.keyOrder.clear();
     // o << "Meta: " << origMeta.keys().join(", ") << endl;
     for(const QString & n : metaNames) {
       // o << " -> " << n << endl;
@@ -652,7 +666,7 @@ void ValueHash::handleOutput(const DataSet * ds, const CommandOptions & opts,
       }
     }
     // explicit key order:
-    meta.keyOrder = meta.allKeys();
+    meta.sortUnordered();
     // o << "F1: " << meta.keys().join(", ") << endl;
     // o << "M1: " << meta.keyOrder.join(", ") << endl;
   }

@@ -7,3 +7,22 @@ set-meta t1 30
 eval a:$stats.x_min b:$stats.x_average /meta=* /accumulate=*
 pop
 assert $nstats.t1_first-30 0
+
+# Now, checking the order
+generate-dataset 0 1
+set-meta t1 30
+set-meta c1 10
+set-meta d4 6
+set-meta a 1
+eval x:$stats.x_min y:$stats.x_average /meta=* /accumulate=*
+pop
+assert $nstats.a_first-1 0
+assert $stats.y2_first-1 0
+
+fetch 1
+eval x:$stats.x_min y:$stats.x_average /meta=d4,* /accumulate=*
+pop
+assert $nstats.a_first-1 0
+assert $nstats.d4_first-6 0
+assert $stats.y2_first-6 0
+assert $stats.y3_first-1 0

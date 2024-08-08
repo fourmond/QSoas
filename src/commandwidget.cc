@@ -681,9 +681,22 @@ CommandWidget::runCommandFile(QIODevice * source,
   int level = soas().stack().pushSpy();
   try {
     while(true) {
+      /// @todo Why am I not using LineReader ??
       QString line = in.readLine();
       if(line.isNull())
         break;
+      while(line.size() >= 2
+            && line[line.size() -1] == '\\'
+            && line[line.size() - 2] != '\\') {
+        // escaping newline, removing entirely
+        // Watch out for spaces
+        line.resize(line.size() - 1);
+        QString l = in.readLine();
+        if(l.isNull())
+          break;
+        line += l;
+      }
+
       if(! inlineName.isEmpty()) {
         // Accumulating
         if(inlineEndRE.indexIn(line) == 0) {

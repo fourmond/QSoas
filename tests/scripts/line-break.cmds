@@ -1,0 +1,20 @@
+clear-stack
+generate-dataset 0 1
+eval a:1 b:2 \
+  c:5 /accumulate=*
+
+pop
+assert $stats.rows-1 0
+assert $stats.columns-3 0
+assert $stats.y2_first-5 0
+
+eval a:4 \
+  b:1 \
+  c:7 \
+  /accumulate=*
+
+pop
+assert $stats.rows-1 0
+assert $stats.columns-3 0
+assert $stats.y2_first-7 0
+assert $stats.x_first-4 0

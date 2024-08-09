@@ -31,16 +31,11 @@
 #include <dataset.hh>
 #include <soas.hh>
 #include <curveview.hh>
-#include <curveeventloop.hh>
-#include <curvemarker.hh>
-#include <curvedataset.hh>
 #include <curveitems.hh>
-#include <curvepanel.hh>
 #include <math.h>
 #include <datastack.hh>
 
 #include <utils.hh>
-#include <outfile.hh>
 
 #include <eventhandler.hh>
 
@@ -52,6 +47,7 @@
 
 #include <file.hh>
 
+#include <datasetlist.hh>
 
 
 //////////////////////////////////////////////////////////////////////
@@ -140,32 +136,33 @@ static void findPeaksCommand(const QString &name, const CommandOptions & opts)
   else
     trim = false;
 
+  DataSetList buffers(opts);
+  for(const DataSet * ds : buffers) {
+    Peaks pk(ds, window);
 
-  const DataSet * ds = soas().currentDataSet();
-  Peaks pk(ds, window);
+    QList<PeakInfo> peaks = pk.findPeaks(includeBorders, threshold);
+    if(trim)
+      PeakInfo::removeMinMax(peaks, !max);
+    if(nb >= 0)
+      PeakInfo::sortByMagnitude(peaks);
+    displayPeaks(peaks, ds, opts, nb, write);
 
-  QList<PeakInfo> peaks = pk.findPeaks(includeBorders, threshold);
-  if(trim)
-    PeakInfo::removeMinMax(peaks, !max);
-  if(nb >= 0)
-    PeakInfo::sortByMagnitude(peaks);
-  displayPeaks(peaks, ds, opts, nb, write);
-
-  QString file;
-  updateFromOptions(opts, "save-parameters", file);
-  if(! file.isEmpty()) {
-    File f(file, File::TextOverwrite);
-    QTextStream o(f);
-    for(int idx = 0; idx < peaks.size();) {
-      const PeakInfo & pk = peaks[idx];
-      ++idx;
-      o << "x_" << idx << "\t"
-        << pk.x << "\t!\t1\n"
-        << "A_" << idx << "\t"
-        << pk.y << "\t!\t1\n";
-      if(std::isfinite(pk.width())) {
-        o << "sigma_" << idx << "\t"
-          << 0.5*pk.width() << "\t!\t1\n";
+    QString file;
+    updateFromOptions(opts, "save-parameters", file);
+    if(! file.isEmpty()) {
+      File f(file, File::TextOverwrite);
+      QTextStream o(f);
+      for(int idx = 0; idx < peaks.size();) {
+        const PeakInfo & pk = peaks[idx];
+        ++idx;
+        o << "x_" << idx << "\t"
+          << pk.x << "\t!\t1\n"
+          << "A_" << idx << "\t"
+          << pk.y << "\t!\t1\n";
+        if(std::isfinite(pk.width())) {
+          o << "sigma_" << idx << "\t"
+            << 0.5*pk.width() << "\t!\t1\n";
+        }
       }
     }
   }
@@ -174,7 +171,8 @@ static void findPeaksCommand(const QString &name, const CommandOptions & opts)
 
 static ArgumentList 
 fpBaseOps(QList<Argument *>() 
-          << new IntegerArgument("window", 
+          << DataSetList::listOptions("Datasets to tweak")
+          << new IntegerArgument("window",
                                  "Peak window",
                                  "width of the window")
           << new NumberArgument("threshold", 

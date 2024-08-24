@@ -59,15 +59,21 @@ public:
   /// Returns the data as monochrome
   DataSet * readMonochrome() const {
     QList<Vector> rv;
-    for(int i = 0; i < image->height(); i++)
+    Vector perp;
+    for(int i = 0; i < image->height(); i++) {
       rv += readMonochromeScanLine(i);
+      perp << i;
+    }
     if(rv.size() == 0)
       throw RuntimeError("Couldn't read any scan lines");
     Vector idx = rv.first();
     for(int i = 0; i < idx.size(); i++)
       idx[i] = i;
     rv.insert(0, idx);
-    return new DataSet(rv);
+    DataSet * ds = new DataSet(rv);
+    ds->setPerpendicularCoordinates(perp);
+
+    return ds;
   };
 };
 
@@ -143,6 +149,15 @@ ImageReadingJob * ImageReadingJob::readerForImage(const QImage * image)
 /// Or should it ?
 #include <QImageReader>
 
+static ArgumentList 
+imageLoadOptions(QList<Argument *>() 
+                 << new IntegerArgument("frame",
+                                        "frame",
+                                        "reads the given frame (-1 for all)")
+                );
+
+
+
 /// A class that reads image files
 class ImageBackend : public DataBackend {
 protected:
@@ -159,24 +174,54 @@ protected:
                                           const QString & fileName,
                                           const CommandOptions & opts) const override {
     QImageReader r(stream);
-    QImage img = r.read();
-    if(img.isNull())
-      throw RuntimeError("Failed to load '%1' as an image: %2").
-        arg(fileName).arg(r.errorString());
 
-    std::unique_ptr<ImageReadingJob> job(ImageReadingJob::readerForImage(&img));
-    if(! job)
-      throw RuntimeError("Could not find a reader to decode image '%1' with format %2").
-        arg(fileName).arg(img.format());
-
-    
     QList<DataSet *> rv;
 
-    DataSet * ds = job->readMonochrome();
-    ds->name = QDir::cleanPath(fileName);
-    rv << ds;
+    int count = r.imageCount();
+    int frame = 0;
+    updateFromOptions(opts, "frame", frame);
+
+    auto readFrame = [&rv, this, &r, &fileName, &frame, &count]() -> void {
+      QImage img = r.read();
+      if(img.isNull())
+        throw RuntimeError("Failed to load '%1' as an image: %2").
+          arg(fileName).arg(r.errorString());
+
+      std::unique_ptr<ImageReadingJob> job(ImageReadingJob::readerForImage(&img));
+      if(! job)
+        throw RuntimeError("Could not find a reader to decode image "
+                           "'%1' with format %2").
+          arg(fileName).arg(img.format());
+
+      DataSet * ds = job->readMonochrome();
+      ds->name = QDir::cleanPath(fileName);
+      if(frame >= 0 && count > 0) {
+        ds->setMetaData("frame", frame);
+        ds->name += QString("@%1").arg(frame);
+      }
+      rv << ds;
+    };
+
+    if(frame < 0) {
+      for(int i = 0; i < count; i++) {
+        r.jumpToImage(i);
+        frame = i;
+        readFrame();
+      }
+    }
+    else {
+      if(frame > 0)
+        r.jumpToImage(frame);
+      readFrame();
+    }
     return rv;
   };
+
+  virtual ArgumentList loadOptions() const override {
+    return ::imageLoadOptions;
+    
+  };
+
 
 public:
   ImageBackend() : DataBackend("image", "Image files",

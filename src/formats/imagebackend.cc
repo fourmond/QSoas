@@ -30,17 +30,17 @@
 
 #include <fileinfo.hh>
 
-/// A private hierarchy for reading image
+/// A private hierarchy for reading the different image formats
 class ImageReadingJob {
 protected:
-  QImage * image;
+  const QImage * image;
 public:
-  ~ImageReadingJob() {
-  };
 
-  virtual void initialize(QImage * img) {
-    image = img;
-    // Children should perform appropriate initialization
+  ImageReadingJob(const QImage * img) :
+    image(img) {
+  };
+  
+  ~ImageReadingJob() {
   };
 
   /// Returns true if it can only return monochrome data
@@ -53,20 +53,95 @@ public:
   virtual QList<Vector> readColorScanLine(int i) const {
     throw RuntimeError("Cannot read color images");
   };
+
+  static ImageReadingJob * readerForImage(const QImage * image);
+
+  /// Returns the data as monochrome
+  DataSet * readMonochrome() const {
+    QList<Vector> rv;
+    for(int i = 0; i < image->height(); i++)
+      rv += readMonochromeScanLine(i);
+    if(rv.size() == 0)
+      throw RuntimeError("Couldn't read any scan lines");
+    Vector idx = rv.first();
+    for(int i = 0; i < idx.size(); i++)
+      idx[i] = i;
+    rv.insert(0, idx);
+    return new DataSet(rv);
+  };
 };
 
+//////////////////////////////
+
 class Grayscale8RJ : public ImageReadingJob {
+public:
+
+  Grayscale8RJ(const QImage * image) : ImageReadingJob(image) {
+  };
 
   virtual bool monochrome() const override {
     return true;
   };
 
   virtual Vector readMonochromeScanLine(int i) const {
-    return Vector();
+    int sz = image->width();
+    Vector rv(image->width(), 0);
+    const uchar * sl = image->constScanLine(i);
+    for(int i = 0; i < sz; i++)
+      rv[i] = sl[i];
+    return rv;
   };
 
 };
 
+//////////////////////////////
+
+class Grayscale16RJ : public ImageReadingJob {
+public:
+
+  Grayscale16RJ(const QImage * image) : ImageReadingJob(image) {
+  };
+
+  virtual bool monochrome() const override {
+    return true;
+  };
+
+  virtual Vector readMonochromeScanLine(int i) const {
+    int sz = image->width();
+    Vector rv(image->width(), 0);
+    // This is unclear in the documentation, but it looks like the
+    // endianess is that of the host, so this cast works.
+    const quint16 * sl = reinterpret_cast<const quint16*>(image->constScanLine(i));
+    
+    for(int i = 0; i < sz; i++)
+      rv[i] = sl[i];
+    return rv;
+  };
+
+};
+
+
+//////////////////////////////
+
+ImageReadingJob * ImageReadingJob::readerForImage(const QImage * image)
+{
+  switch(image->format()) {
+  case QImage::Format_Alpha8:
+  case QImage::Format_Grayscale8:
+    return new Grayscale8RJ(image);
+  case QImage::Format_Grayscale16:
+    return new Grayscale16RJ(image);
+  default:
+    return NULL;
+  };
+  return NULL;
+}
+
+//////////////////////////////////////////////////////////////////////
+
+/// @todo This should join headers.hh
+/// Or should it ?
+#include <QImageReader>
 
 /// A class that reads image files
 class ImageBackend : public DataBackend {
@@ -74,14 +149,32 @@ protected:
   
   virtual int couldBeMine(const QByteArray & peek, 
                           const QString & fileName) const override {
-    // We always decline loading automatically a file
+    // We always decline loading automatically a file, since the
+    // penalty can be huge for stray image files that are likely to be
+    // irrelevant.
     return 0;
   };
 
   virtual QList<DataSet *> readFromStream(QIODevice * stream,
                                           const QString & fileName,
                                           const CommandOptions & opts) const override {
+    QImageReader r(stream);
+    QImage img = r.read();
+    if(img.isNull())
+      throw RuntimeError("Failed to load '%1' as an image: %2").
+        arg(fileName).arg(r.errorString());
+
+    std::unique_ptr<ImageReadingJob> job(ImageReadingJob::readerForImage(&img));
+    if(! job)
+      throw RuntimeError("Could not find a reader to decode image '%1' with format %2").
+        arg(fileName).arg(img.format());
+
+    
     QList<DataSet *> rv;
+
+    DataSet * ds = job->readMonochrome();
+    ds->name = QDir::cleanPath(fileName);
+    rv << ds;
     return rv;
   };
 

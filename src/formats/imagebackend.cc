@@ -36,11 +36,12 @@ protected:
   const QImage * image;
 public:
 
+  /// Creates an ImageReadingJob. Doesn't take ownership of the image.
   ImageReadingJob(const QImage * img) :
     image(img) {
   };
   
-  ~ImageReadingJob() {
+  virtual ~ImageReadingJob() {
   };
 
   /// Returns true if it can only return monochrome data
@@ -135,8 +136,11 @@ ImageReadingJob * ImageReadingJob::readerForImage(const QImage * image)
   case QImage::Format_Alpha8:
   case QImage::Format_Grayscale8:
     return new Grayscale8RJ(image);
+#if QT_VERSION >= QT_VERSION_CHECK(5,13,0)
+    //Only in recent versions of Qt
   case QImage::Format_Grayscale16:
     return new Grayscale16RJ(image);
+#endif
   default:
     return NULL;
   };

@@ -118,7 +118,7 @@ public:
 
 
 
-  /// Returns a wrapped QStringList
+  /// Returns a wrapped QHash<QString, QVariant>
   virtual ArgumentMarshaller * fromString(const QString & str) const override;
 
   virtual void concatenateArguments(ArgumentMarshaller * a, 

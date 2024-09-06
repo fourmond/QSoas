@@ -1096,6 +1096,9 @@ public:
   /// The text of the exception, if there was one
   QString exceptionMessage;
 
+  /// The actua assertion
+  QString assertion;
+
   /// The context of the command
   ScriptContext commandContext;
 
@@ -1104,6 +1107,9 @@ public:
 
   /// The current fine context
   QString fineContext;
+
+  /// Additional information
+  QHash<QString, QVariant> info;
 
   SingleAssertion(bool tol, bool os = false) :
     useTolerance(tol),
@@ -1114,8 +1120,7 @@ public:
   {
   };
 
-  /// Returns a YAML-like representation of the assertion. (but it's
-  /// not true YAML)
+  /// Returns a YAML representation of the assertion.
   QString toString() const {
     QString rv;
     QTextStream o(&rv);
@@ -1133,18 +1138,21 @@ public:
     default:
       res = "failed";
     };
-    o << commandContext.scriptFile << ":" << commandContext.lineNumber
-      << ": " << res << "\n";
-    o << "\tcontext: " << context;
+    o << "- file: " << commandContext.scriptFile
+      << "\n  line: " << commandContext.lineNumber
+      << "\n  result: " << res
+      << "\n  assertion: " << assertion
+      << "\n  context: " << context << "\n";
     if(! fineContext.isEmpty())
-      o << "/" << fineContext;
-    o << "\n";
+      o << "  fine: " << fineContext << "\n";
     if(result == Exception)
-      o << "\t" << "message: " << exceptionMessage << "\n";
+      o << "  message: " << exceptionMessage << "\n";
     else {
       if(useTolerance)
-        o << "\tvalue:" << value << "\n\ttarget:" << tolerance << "\n";
+        o << "  value: " << value << "\n  target: " << tolerance << "\n";
     }
+    for(const QString & n : info.keys())
+      o << "  " << n << ": " << info[n].toString() << "\n";
     return rv;
   };
 };
@@ -1262,6 +1270,8 @@ static void doAssert(QString code,
   if(! assertFineContext.isEmpty())
     context = QString(" (%1)").arg(assertFineContext);
   SingleAssertion as(useTol, pf);
+  as.assertion = code;
+  updateFromOptions(opts, "info", as.info);
   try {
     value = eval();
 
@@ -1364,22 +1374,30 @@ aO(QList<Argument *>()
                          << "fine",
                          "set-context", 
                          "Set assertion context",
-                         "If either global or fine, instead of running an assertion, sets the assertion global or fine context")
+                         "If either global or fine, instead of running an "
+                         "assertion, sets the assertion global or fine context")
    << new ChoiceArgument(QStringList() << "no"
                          << "summary"
                          << "details",
                          "dump", 
                          "Print results",
-                         "If summary, prints the summary on the terminal. If details, write details to a file")
+                         "If summary, prints the summary on the terminal. "
+                         "If details, write details to a file")
    << new NumberArgument("tolerance", 
                          "Tolerance",
-                         "If given, does not check that the value is true or false, just that its magnitude is smaller than the tolerance", true)
+                         "If given, does not check that the value is true "
+                         "or false, just that its magnitude is smaller "
+                         "than the tolerance", true)
    << new BoolArgument("platform-precision", 
                        "Use 'platform precision'",
                        "Use a platform-specific scaling factor for the tolerance")
    << new IntegerArgument("platform-precision-power", 
                           "Use 'platform precision' to a given power",
-                          "Use a platform-specific scaling factor for the tolerance, scaled to the given power")
+                          "Use a platform-specific scaling factor for "
+                          "the tolerance, scaled to the given power")
+   << new MetaHashArgument("info",
+                           "Additional info",
+                           "Additional information for the assertion")
 );
 
 

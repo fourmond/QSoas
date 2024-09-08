@@ -1,0 +1,124 @@
+#! /usr/bin/ruby
+
+# extract-test-results: this program pre-processes a LaTeX document to inject
+# the results of the test suite
+# Copyright 2024 by CNRS/AMU
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301
+# USA
+
+
+# The script takes (optionally) one data file, which doesn't have to
+# exist, and reads the latex file to preprocess from standard input.
+#
+# * the selection works on the keys of the results, in a
+#   key=value;key2=value manner
+# * the command  \testvalue{selection}{key} just gives the value
+#   corresponding to the key
+# * the command \testrows{selection}{key1,key2,...} makes columns with
+#   the values
+
+require 'yaml'
+
+$dataset = []
+if ARGV.size > 0
+  begin
+    file = open(ARGV[0], 'r')
+    $dataset = YAML.load(file)
+  rescue
+    $stderr.puts "Couldn't load #{ARGV[0]}"
+  end
+end
+
+def find_items(selection)
+  ls = selection.split(/\s*;\s*/)
+  keys = {}
+  rv = []
+  for l in ls
+    ll = l.split(/\s*=\s*/)
+    if ll.size != 2
+      $stderr.puts "Invalid selection rule: #{ll}"
+    end
+    keys[ll[0]] = ll[1]
+  end
+  # p keys
+  for d in $dataset
+    # p d
+    # p keys
+    found = true
+    for k in keys.keys
+      if ! d.key? k
+        found = false
+        break
+      end
+      val = d[k].to_s
+      # puts "Key; '#{k}' -> '#{val}'"
+      if val != keys[k]
+        found = false
+        break
+      end
+    end
+    if found
+      rv << d
+    end
+  end
+  return rv
+end
+
+def decorate_key(el, spec)
+  cmd = nil
+  if spec =~ /(.*)@(.*)/
+    k = $1
+    cmd = $2
+  else
+    k = spec
+  end
+  if el.key? k
+    if cmd
+      return "\\#{cmd}{#{el[k]}}"
+    else
+      return el[k]
+    end
+  else
+    return "missing"
+  end
+end
+
+def make_subs(what, sel, keys)
+  items = find_items(sel)
+  if items.size == 0
+    return "missing selection \\texttt{#{sel}}"
+  end
+  if what == "value"
+    els = items.map {|x| decorate_key(x, keys) }
+    return els.join(", ")
+  elsif what == "rows"
+    specs = keys.split(/\s*,\s*/)
+    rows = []
+    for el in items
+      ln = specs.map {|s| decorate_key(el, s) }
+      rows << ln.join(" & ")
+    end
+    return rows.join(" \\\\\n")
+  end
+  return "(NONE)"
+end
+
+for l in STDIN
+  l.gsub!(/\\test(value|rows)\{([^}]+)\}\{([^}]+)\}/) do |x|
+    make_subs($1, $2, $3)
+  end
+  puts l
+end

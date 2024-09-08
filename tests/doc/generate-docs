@@ -1,0 +1,11 @@
+#! /bin/sh
+
+# Generates all the support files while incorporating the test results
+
+for f in computations; do
+    if [ -r $f.tex ]; then
+        ../../scripts/extract-test-results ../tests.yaml  < $f.tex > $f-ann.tex;
+        pdflatex -interaction nonstopmode $f-ann.tex
+        pdflatex -interaction nonstopmode $f-ann.tex
+    fi
+done

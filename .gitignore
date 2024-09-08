@@ -29,15 +29,22 @@ qrc_*.cpp
 *.ppd.kd
 *.log
 
+
 *.dat
 *.dvi
 *.qch
 *.qhc
+*.tdo
 *tmp
 tmp*
 
+# test-related files
+*-ann.tex
+*.yaml
+
 # soas logs:
 soas.log*
+*.log*
 out.dat
 
 # Other temporary files

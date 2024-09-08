@@ -60,6 +60,11 @@ margin=1.8cm]{geometry}
 \newcommand{\QSoas}{\texttt{QSoas}}
 
 
+\newcommand\testrows[2]{\textcolor{red}{Compile with
+    \texttt{generate-docs} to have the results of the tests}}
+\newcommand\testvalues[2]{\textcolor{red}{Compile with
+    \texttt{generate-docs} to have the results of the tests}}
+
 \begin{document}
 
 \begin{abstract}
@@ -188,5 +193,27 @@ Thus:
   \tilde{C}_2 &= \frac{k_{0}\,k_1}{\pa{k_0 + s}\pa{k_1 + s}\pa{k_2 + s}}
 \end{align}
 
+\section{Performances}
+
+This section gathers the numerical performances of \texttt{QSoas} on
+the tests mentioned previously.
+
+\subsection{Laplace transforms}
+
+The file \texttt{operations/laplace.cmds} contains a series of test of
+reverse laplace transforms. This table lists the difference
+(\texttt{0dev}) between the numerical reverse and the analytical
+reverse in the tests in the range 0 to 10.
+
+\begin{center}
+  \begin{tabular}{llc}
+    \toprule
+    Transform & Reverse & Precision \\
+    \midrule
+    \testrows{file=inline:test-laplace;test=reverse-laplace}{function@texttt,reverse@texttt,value@num}
+    \\
+    \bottomrule
+  \end{tabular}
+\end{center}
 
 \end{document}

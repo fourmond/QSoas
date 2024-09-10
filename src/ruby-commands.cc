@@ -1151,7 +1151,9 @@ public:
       if(useTolerance)
         o << "  value: " << value << "\n  target: " << tolerance << "\n";
     }
-    for(const QString & n : info.keys())
+    QStringList infos = info.keys();
+    std::sort(infos.begin(), infos.end());
+    for(const QString & n : infos)
       o << "  " << n << ": " << info[n].toString() << "\n";
     return rv;
   };

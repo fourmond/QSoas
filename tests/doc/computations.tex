@@ -25,7 +25,12 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 
+
 \usepackage{amsmath}
+
+\usepackage{float}
+\usepackage{newfloat}
+\usepackage{caption}
 
 \usepackage[svgnames]{xcolor}
 \usepackage[colorlinks, urlcolor=blue, citecolor=DarkGreen,
@@ -48,7 +53,12 @@ margin=1.8cm]{geometry}
 \usepackage{cite}
 \usepackage{pifont}
 
+\usepackage{todonotes}
 
+
+%% Results
+\DeclareFloatingEnvironment[fileext=rst,placement={H},name={Test results}]{testresult}
+\captionsetup[testresult]{labelfont=bf}
 
 %% A series of useful macros.
 %%
@@ -73,6 +83,11 @@ margin=1.8cm]{geometry}
   rationale behind the tests and as a means to compute the results and
   verify them.
 \end{abstract}
+
+\listoftodos
+
+\todo[inline]{I think this document should also register the quality
+  that \QSoas{} is currently attaining too.}
 
 \section{Convolutions}
 
@@ -128,8 +143,6 @@ Then,
 \section{Laplace transforms}
 
 Let's consider the Laplace transform, defined by:
-To solve these directly, it is useful to remember that the Laplace
-transform of a derivative is simply given by:
 %
 \begin{equation}
   \tilde{f}(s) = \int_{t = 0}^{\infty} f(t) \exp \pa{-st} \dd t
@@ -146,17 +159,20 @@ reverse laplace transforms. This table lists the difference
 reverse in the tests in the range 0 to 10. The results are shown
 below:
 
-\begin{center}
-  \begin{tabular}{llc}
-    \toprule
-    Transform & Reverse & Precision \\
-    \midrule
-    \testrows{test=reverse-laplace}{function@texttt,reverse@texttt,value@num}
-    \\
-    \bottomrule
-  \end{tabular}
-\end{center}
-
+\begin{testresult}
+  \begin{center}
+    \begin{tabular}{llc}
+      \toprule
+      Transform & Reverse & Precision \\
+      \midrule
+      \testrows{test=reverse-laplace}{function@texttt,reverse@texttt,value@num}
+      \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  \caption{Results of the \texttt{operations/laplace.cmds} test,
+    showing the accuracy of the reverse Laplace transforms}
+\end{testresult}
 
 
 The Laplace transforms has many properties.  The Laplace transform of
@@ -216,16 +232,24 @@ These relationships are the base for the tests in
 \texttt{operations/irreversible-steps.cmds}, which results are shown
 below:
 
-\begin{center}
-  \begin{tabular}{lc}
-    \toprule
-    Step & Deviation \\
-    \midrule
-    \testrows{test=laplace-steps}{step,value@num}
-    \\
-    \bottomrule
-  \end{tabular}
-\end{center}
+\begin{testresult}
+  \begin{center}
+    \begin{tabular}{lc}
+      \toprule
+      Step & Deviation \\
+      \midrule
+      \testrows{test=laplace-steps}{step,value@num}
+      \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  \caption{Results of the \texttt{operations/irreversible-steps.cmds},
+    showing the accuracy of computing the reverse Laplace transform to
+    obtain the time evolution of a series of irreversible steps}
+\end{testresult}
+
+
+\listoftestresults
 
 
 \end{document}

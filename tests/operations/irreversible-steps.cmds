@@ -1,19 +1,16 @@
+## INLINE: test-steps
 generate-dataset 0 20
-eval $k0=1;$k1=2;$k2=3
+eval $k0=1;$k1=2;$k2=3;$k3=4
 
-sim-kinetic-system irreversible-steps.qsys irreversible-steps.params 0
-reverse-laplace 1/(s+$k0)
+sim-kinetic-system irreversible-steps.qsys irreversible-steps.params 0 /override=y_C${1}=1
+reverse-laplace ${2}
 S 1 0
-assert $stats.y_norm 1.5e-11
+assert $stats.y_0dev ${3} /info=test=laplace-steps /info=step=${1}
+## INLINE END
 
-sim-kinetic-system irreversible-steps.qsys irreversible-steps.params 0 /override=y_C0=0;y_C1=1
-reverse-laplace $k0/((s+$k0)*(s+$k1))
-S 1 0
-assert $stats.y_norm 3e-10
-
-sim-kinetic-system irreversible-steps.qsys irreversible-steps.params 0 /override=y_C0=0;y_C2=1
-reverse-laplace $k0*$k1/((s+$k0)*(s+$k1)*(s+$k2))
-S 1 0
-assert $stats.y_norm 2e-9
+@ inline:test-steps 0 1/(s+$k0) 5e-13
+@ inline:test-steps 1 $k0/((s+$k0)*(s+$k1)) 1e-11
+@ inline:test-steps 2 $k0*$k1/((s+$k0)*(s+$k1)*(s+$k2)) 5e-11
+@ inline:test-steps 3 $k0*$k1*$k2/((s+$k0)*(s+$k1)*(s+$k2)*(s+$k3)) 1e-10
 
 

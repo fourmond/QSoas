@@ -140,8 +140,27 @@ What is implemented in \QSoas{} is the reverse Laplace transform,
 i.e. taking a function in the Laplace domain and turning back into the
 time domain.
 
-The Laplace transforms has many properties.
-The Laplace transform of a derivative is given by:
+The file \texttt{operations/laplace.cmds} contains a series of test of
+reverse laplace transforms. This table lists the difference
+(\texttt{0dev}) between the numerical reverse and the analytical
+reverse in the tests in the range 0 to 10. The results are shown
+below:
+
+\begin{center}
+  \begin{tabular}{llc}
+    \toprule
+    Transform & Reverse & Precision \\
+    \midrule
+    \testrows{test=reverse-laplace}{function@texttt,reverse@texttt,value@num}
+    \\
+    \bottomrule
+  \end{tabular}
+\end{center}
+
+
+
+The Laplace transforms has many properties.  The Laplace transform of
+a derivative is given by:
 %
 \begin{equation}
   \int_{t = 0}^{\infty} \ddt{f}(t) \exp \pa{-st} \dd t
@@ -193,27 +212,20 @@ Thus:
   \tilde{C}_2 &= \frac{k_{0}\,k_1}{\pa{k_0 + s}\pa{k_1 + s}\pa{k_2 + s}}
 \end{align}
 
-\section{Performances}
-
-This section gathers the numerical performances of \texttt{QSoas} on
-the tests mentioned previously.
-
-\subsection{Laplace transforms}
-
-The file \texttt{operations/laplace.cmds} contains a series of test of
-reverse laplace transforms. This table lists the difference
-(\texttt{0dev}) between the numerical reverse and the analytical
-reverse in the tests in the range 0 to 10.
+These relationships are the base for the tests in
+\texttt{operations/irreversible-steps.cmds}, which results are shown
+below:
 
 \begin{center}
-  \begin{tabular}{llc}
+  \begin{tabular}{lc}
     \toprule
-    Transform & Reverse & Precision \\
+    Step & Deviation \\
     \midrule
-    \testrows{file=inline:test-laplace;test=reverse-laplace}{function@texttt,reverse@texttt,value@num}
+    \testrows{test=laplace-steps}{step,value@num}
     \\
     \bottomrule
   \end{tabular}
 \end{center}
+
 
 \end{document}

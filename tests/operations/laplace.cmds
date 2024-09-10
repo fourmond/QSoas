@@ -16,8 +16,8 @@ assert $stats.y_0dev ${3} /info=function=${1} /info=reverse=${2} /info=test=reve
 ## INLINE END
 
 @ inline:test-laplace 1/(1+s) exp(-x) 1e-11
+@ inline:test-laplace 3/s 3 1e-11
 @ inline:test-laplace 1/(1+s**2) sin(x) 1e-8
 @ inline:test-laplace 1/s**2 x 1e-11
 @ inline:test-laplace 1/s**0.5 1/sqrt(PI*x) 1e-11
-
-
+@ inline:test-laplace s/(s**2+4*s+5) exp(-2*x)*cos(x)-2*exp(-2*x)*sin(x) 1e-11

@@ -108,13 +108,10 @@ the results for the xxx, with equations that have known solutions:
     \texttt{formulas/solve.cmds}}
 \end{testresult}
 
-
 \section{Convolutions}
 
-See tests in \texttt{.../...}.
-
-The convolution product of two functions $f$ and $g$ is defined by the followingq
-integral:
+The convolution product of two functions $f$ and $g$ is defined by the
+followingq integral:
 %
 \begin{equation}
   (f\mathop{*}g)(t) = \int_{t' = -\infty}^{\infty} f(t') g(t-t') \dd t'
@@ -123,6 +120,39 @@ integral:
 %
 This definition is of course subject to the definition domain of the
 functions.
+
+\paragraph{Conservation} The integral of a convolution product is the
+product of the integrals:
+
+\begin{equation}
+  \int_{t = -\infty}^{\infty}(f\mathop{*}g)(t)\dd t
+  = \int_{t = -\infty}^{\infty}\int_{t' = -\infty}^{\infty} f(t')
+  g(t-t') \dd t'\dd t
+\end{equation}
+%
+Swapping the order of integration and substituting $u = t-t'$ gives:
+\begin{equation}
+  \int_{t = -\infty}^{\infty}(f\mathop{*}g)(t)\dd t
+  = \int_{t' = -\infty}^{\infty} f(t') \dd t'
+   \times \int_{u = -\infty}^{\infty}
+   g(u) \dd u
+\end{equation}
+%
+Hence, convolving by a function of integral 1 should preserve the
+integral. This is the basis for a test in
+\texttt{operations/convolve.cmds}, in which a very jaggy function is
+convolved by an increasingly stiff exponential. The results are shown
+below:
+
+\begin{testresult}
+  \begin{center}
+    \testtabular{test=convolve-conservation}{Samples|Stiffness|Residual}{samples,time@num|value@num}
+  \end{center}
+  \caption{Results of the tests of conserving the integral while
+    convolving a jaggy function with a stiff exponential in
+    \texttt{operations/convolve.cmds}}
+\end{testresult}
+
 
 \subsection{Convolution of gaussians}
 
@@ -158,6 +188,17 @@ Then,
   &= \sqrt{\frac{\pi}{a+b}} \times 
   \exp \pa{-\frac{a\,b\,t^2}{a+b}}
 \end{align}
+
+These formula are the basis of a part of the tests in
+\texttt{operations/convolve.cmds}. The results are shown below:
+
+\begin{testresult}
+  \begin{center}
+    \testtabular{test=convolve-two-gaussians}{Samples|Gaussian 1|Gaussian 2|Residual}{samples,g1@num,g2@num|value@num}
+  \end{center}
+  \caption{Results of the tests of convolving two gaussians in
+    \texttt{operations/convolve.cmds}}
+\end{testresult}
 
 
 \section{Laplace transforms}

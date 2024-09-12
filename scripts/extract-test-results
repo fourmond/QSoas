@@ -42,7 +42,9 @@ if ARGV.size > 0
   end
 end
 
-def find_items(selection)
+
+
+def find_items(selection, dataset)
   ls = selection.split(/\s*;\s*/)
   keys = {}
   rv = []
@@ -54,7 +56,7 @@ def find_items(selection)
     keys[ll[0]] = ll[1]
   end
   # p keys
-  for d in $dataset
+  for d in dataset
     # p d
     # p keys
     found = true
@@ -97,7 +99,7 @@ def decorate_key(el, spec)
 end
 
 def make_subs(what, sel, keys)
-  items = find_items(sel)
+  items = find_items(sel, $dataset)
   if items.size == 0
     return "missing selection \\texttt{#{sel}}"
   end
@@ -116,9 +118,133 @@ def make_subs(what, sel, keys)
   return "(NONE)"
 end
 
+# Makes a full tabular
+# The specifications are:
+# * a selection; several selections can be separated by
+#   a ||
+# * a series of column names separated by |, and also possibly by || (see below)
+# * a series of key specs, separated by ',' or '|' or '||'
+#   -> what's left of | (only one) designates the "common" part
+#   -> the || introduces a new set of the "variable" part for the next
+#      selection
+#
+# Only this
+def make_tabular(sel, cols, values)
+
+  # First the selections
+  sels = sel.split(/\s*\|\|\s*/)
+
+  v_specs = values.split(/\s*\|\|\s*/)
+  if v_specs.size != sels.size
+    return "Mismatch in selection vs columns spec sizes"
+  end
+
+  f_s = v_specs[0].split(/\s*\|\s*/)
+  if f_s.size > 2
+    return "Too many specification of common parameters"
+  end
+  common_specs = f_s[0].split(/\s*,\s*/)
+
+  v_specs[0] = if f_s.size > 1
+                 f_s[1]
+               else
+                 ""
+               end
+  local_specs = v_specs.map do |x|
+    x.split(/\s*,\s*/)
+  end
+
+  # p common_specs
+  # p local_specs
+
+  # OK, so common_specs are the ones that should be shared and will be
+  # matched, local_specs the ones that are just displayed but not matched
+
+  # Then the column names, first splitting 
+  c_nms = cols.split(/\s*\|\|\s*/)
+  if c_nms.size != sels.size
+    return "Mismatch in selection vs column names sizes"
+  end
+
+  c_nms2 = c_nms.map do |x|
+    x.split(/\s*\|\s*/)
+  end
+  # Now take out the common part
+  common_names = c_nms2[0][0..common_specs.size-1]
+  if local_specs[0].size > 0
+    local_names = [c_nms2[0][common_specs.size..]]
+  else
+    local_names = []
+  end
+  if c_nms2.size > 1
+    local_names += c_nms2[1..]
+  end
+
+  # p common_names
+  # p local_names
+
+  # Computing the total number of columns
+  overall_columns = common_specs.size
+  local_begs = []
+  local_specs.each { |a|
+    local_begs << overall_columns
+    overall_columns += a.size
+  }
+  col_string = "c" * overall_columns
+  col_string[0] = "l"
+
+  # Let's gather the data
+  items = sels.map do |x|
+    find_items(x, $dataset)
+  end
+
+  rows = []
+  sels.size.times do |idx|
+    for el in items[idx]
+      commons = common_specs.map {|s| decorate_key(el, s) }
+      loc = local_specs[idx].map {|s| decorate_key(el, s) }
+      fnd = nil
+      for r in rows
+        if r[0..commons.size-1] == commons
+          # Then we have found one
+          fnd = r
+        end
+      end
+      if not fnd
+        fnd = [""] * overall_columns
+        fnd[0..commons.size-1] = commons
+        rows << fnd
+      end
+      if loc.size > 0
+        fnd[local_begs[idx]..local_begs[idx]+loc.size-1] = loc
+      end
+    end
+  end
+ 
+  # OK, so now let's just write the tabular
+  # p common_names
+  # p common_specs
+  
+  rv = "\\begin{tabular}{#{col_string}}\n\\toprule\n"
+  rv << common_names.join(" & ")
+  for s in local_names
+    rv << " & #{s.join(" & ")}"
+  end
+  rv << "\\\\\n\\midrule\n"
+  for r in rows
+    rv << r.join(" & ") << "\\\\\n"
+  end
+  rv << "\\bottomrule\n\\end{tabular}"
+
+  return rv
+end
+
 for l in STDIN
   l.gsub!(/\\test(value|rows)\{([^}]+)\}\{([^}]+)\}/) do |x|
     make_subs($1, $2, $3)
+  end
+  l.gsub!(/\\testtabular\{([^}]+)\}\{([^}]+)\}\{([^}]+)\}/) do |x|
+    make_tabular($1, $2, $3)
   end
   puts l
 end

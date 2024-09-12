@@ -4,8 +4,9 @@
 
 for f in computations; do
     if [ -r $f.tex ]; then
-        ../../scripts/extract-test-results ../tests.yaml  < $f.tex > $f-ann.tex;
-        pdflatex -interaction nonstopmode $f-ann.tex
-        pdflatex -interaction nonstopmode $f-ann.tex
+        if ../../scripts/extract-test-results ../tests.yaml  < $f.tex > $f-ann.tex;then
+           pdflatex -interaction nonstopmode $f-ann.tex
+           pdflatex -interaction nonstopmode $f-ann.tex
+        fi
     fi
 done

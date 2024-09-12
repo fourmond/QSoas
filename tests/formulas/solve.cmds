@@ -1,30 +1,35 @@
 # A few tests to make sure the solver works OK
 
-generate-buffer 0 1
-solve y**2-x
-apply-formula y=y**2-x
+## INLINE: solve-formula
+# Takes:
+# * ${1} equation
+# * ${2} result
+# * ${3} left boundary
+# * ${4} right boundary
+# * ${5} initialization (x is OK most of the times)
+# * ${6} expected residual precision
+# * ${7} expected difference with the solution
 
-# Not very good, but...
-assert "$stats['y_norm']" 1e-5
+generate-dataset ${3} ${4} ${5}
+solve ${1}
+apply-formula y2=${1} /extra-columns=1
+assert $stats.y2_0dev ${6} \
+  /info=eq=${1} /info=sol=${2} /info=left=${3} \
+  /info=right=${4} /info=init=${5} /info=test=solve-res
+
+apply-formula y=${2}
+S 1 0
+assert $stats.y_0dev ${7} \
+  /info=eq=${1} /info=sol=${2} /info=left=${3} \
+  /info=right=${4} /info=init=${5} /info=test=solve-diff
+## INLINE END
+
+@ inline:solve-formula y**2-x   sqrt(x)  0     1    x  1e-6 1e-6
+@ inline:solve-formula sin(y)-x asin(x)  -0.99 0.99 x  1e-6 1e-6
+@ inline:solve-formula y**2-x   -sqrt(x) 0     1    -x 1e-6 1e-6
 
 
-generate-buffer -0.99 0.99
-solve sin(y)-x
-apply-formula y-=asin(x)
+# OK, this is obviously wrong ;-)
+# @ inline:solve-formula sin(y)-x sin(x)  -0.99 0.99 x 1e-6 1e-6
 
-# Not very good, but...
-assert "$stats['y_norm']" 5e-6
-
-
-generate-buffer 1 2
-solve y**2-5*x /min=0 /max=3*x
-apply-formula y=y**2-5*x
-
-# Not very good, but...
-assert "$stats['y_norm']" 3e-5
-
-solve y**2-5*x /min=0 /max=3*x /prec-relative=0 /prec-absolute=1e-8 /iterations=100
-apply-formula y=y**2-5*x
-
-assert "$stats['y_norm']" 1e-13
 

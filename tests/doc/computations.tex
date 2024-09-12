@@ -89,6 +89,23 @@ margin=1.8cm]{geometry}
 \todo[inline]{I think this document should also register the quality
   that \QSoas{} is currently attaining too.}
 
+\section{Simple mathematical operations}
+
+\subsection{One variable root finding}
+
+QSoas has facilities for root finding which are either using xxx or
+bisection. They are tested in \texttt{formulas/solve.cmds}. Below are
+the results for the xxx, with equations that have known solutions:
+
+\begin{testresult}
+  \begin{center}
+    \testtabular{test=solve-res||test=solve-diff}{Equation|Solution|Left|Right|Residual||Difference}{eq@texttt,sol@texttt,left@num,right@num|value@num||value@num}
+  \end{center}
+  \caption{Results of the tests for \texttt{solve} in
+    \texttt{formulas/solve.cmds}}
+\end{testresult}
+
+
 \section{Convolutions}
 
 See tests in \texttt{.../...}.
@@ -161,14 +178,7 @@ below:
 
 \begin{testresult}
   \begin{center}
-    \begin{tabular}{llc}
-      \toprule
-      Transform & Reverse & Precision \\
-      \midrule
-      \testrows{test=reverse-laplace}{function@texttt,reverse@texttt,value@num}
-      \\
-      \bottomrule
-    \end{tabular}
+    \testtabular{test=reverse-laplace}{Transform|Reverse|Precision}{function@texttt,reverse@texttt,value@num}
   \end{center}
   \caption{Results of the \texttt{operations/laplace.cmds} test,
     showing the accuracy of the reverse Laplace transforms}
@@ -234,19 +244,13 @@ below:
 
 \begin{testresult}
   \begin{center}
-    \begin{tabular}{lc}
-      \toprule
-      Step & Deviation \\
-      \midrule
-      \testrows{test=laplace-steps}{step,value@num}
-      \\
-      \bottomrule
-    \end{tabular}
+    \testtabular{test=laplace-steps}{Step|Deviation}{step,value@num}
   \end{center}
   \caption{Results of the \texttt{operations/irreversible-steps.cmds},
     showing the accuracy of computing the reverse Laplace transform to
     obtain the time evolution of a series of irreversible steps}
 \end{testresult}
+
 
 
 \listoftestresults

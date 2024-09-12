@@ -38,8 +38,7 @@ linkcolor=blue]{hyperref}
 
 \usepackage{graphicx}
 
-\usepackage[a4paper,landscape=false,showframe=false,
-margin=1.8cm]{geometry}
+\usepackage[a4paper,margin=1.8cm]{geometry}
 
 \usepackage[version=3]{mhchem}
 
@@ -57,8 +56,12 @@ margin=1.8cm]{geometry}
 
 
 %% Results
-\DeclareFloatingEnvironment[fileext=rst,placement={H},name={Test results}]{testresult}
+\DeclareFloatingEnvironment[fileext=rst,placement={H},
+  name={Test results}, listname={test results}]{testresult}
 \captionsetup[testresult]{labelfont=bf}
+
+\let\oldtestresult=\testresult
+\def\testresult{\oldtestresult\small}
 
 %% A series of useful macros.
 %%
@@ -178,7 +181,7 @@ below:
 
 \begin{testresult}
   \begin{center}
-    \testtabular{test=reverse-laplace}{Transform|Reverse|Precision}{function@texttt,reverse@texttt,value@num}
+    \testtabular{test=reverse-laplace}{Transform|Reverse|Precision}{function@texttt,reverse@texttt|value@num}
   \end{center}
   \caption{Results of the \texttt{operations/laplace.cmds} test,
     showing the accuracy of the reverse Laplace transforms}
@@ -244,7 +247,7 @@ below:
 
 \begin{testresult}
   \begin{center}
-    \testtabular{test=laplace-steps}{Step|Deviation}{step,value@num}
+    \testtabular{test=laplace-steps}{Step|Deviation}{step|value@num}
   \end{center}
   \caption{Results of the \texttt{operations/irreversible-steps.cmds},
     showing the accuracy of computing the reverse Laplace transform to

@@ -31,17 +31,56 @@
 #   the values
 
 require 'yaml'
+require 'optparse'
 
-$dataset = []
-if ARGV.size > 0
-  begin
-    file = open(ARGV[0], 'r')
-    $dataset = YAML.load(file)
-  rescue
-    $stderr.puts "Couldn't load #{ARGV[0]}"
+$res = nil
+
+opts = OptionParser.new do |opts|
+  opts.on("-r", "--results-only XXX",
+          "saves results only to the file"
+         ) do |x|
+    $res = open(x, 'w')
   end
 end
 
+opts.parse!(ARGV)
+
+$datasets = []
+$dataset_names = []
+$named = false
+for f in ARGV
+  name = ""
+  if f =~ /([^:]+):(.+)/
+    f = $2
+    name = $1
+    $named = true
+  end
+  begin
+    file = open(f, 'r')
+    $datasets << YAML.load(file)
+    $dataset_names << name
+  rescue
+    $stderr.puts "Couldn't load #{f}"
+  end
+end
+
+if $datasets.size == 0
+  $main_dataset = []
+else
+  $main_dataset = $datasets.first
+end
+
+def find_all_items(selection)
+  rv = []
+  $datasets.size.times do |i|
+    its = find_items(selection, $datasets[i])
+    for it in its
+      it["dataset-idx"] = i
+    end
+    rv += its
+  end
+  return rv
+end
 
 
 def find_items(selection, dataset)
@@ -96,26 +135,6 @@ def decorate_key(el, spec)
   else
     return "missing"
   end
-end
-
-def make_subs(what, sel, keys)
-  items = find_items(sel, $dataset)
-  if items.size == 0
-    return "missing selection \\texttt{#{sel}}"
-  end
-  if what == "value"
-    els = items.map {|x| decorate_key(x, keys) }
-    return els.join(", ")
-  elsif what == "rows"
-    specs = keys.split(/\s*,\s*/)
-    rows = []
-    for el in items
-      ln = specs.map {|s| decorate_key(el, s) }
-      rows << ln.join(" & ")
-    end
-    return rows.join(" \\\\\n")
-  end
-  return "(NONE)"
 end
 
 # Makes a full tabular
@@ -186,16 +205,25 @@ def make_tabular(sel, cols, values)
   # Computing the total number of columns
   overall_columns = common_specs.size
   local_begs = []
-  local_specs.each { |a|
-    local_begs << overall_columns
-    overall_columns += a.size
-  }
+  bottom_names = [''] * common_specs.size
+
+  all_col_names = common_names.dup
+  $datasets.size.times do |idx|
+    local_begs << []
+    local_specs.each { |a|
+      local_begs[idx] << overall_columns
+      overall_columns += a.size
+      nm = "\\texttt{#{$dataset_names[idx]}}"
+      bottom_names += [nm] * a.size
+    }
+    all_col_names += local_names
+  end
   col_string = "c" * overall_columns
   col_string[0] = "l"
 
   # Let's gather the data
   items = sels.map do |x|
-    find_items(x, $dataset)
+    find_all_items(x)
   end
 
   rows = []
@@ -216,7 +244,7 @@ def make_tabular(sel, cols, values)
         rows << fnd
       end
       if loc.size > 0
-        fnd[local_begs[idx]..local_begs[idx]+loc.size-1] = loc
+        fnd[local_begs[el["dataset-idx"]][idx]..local_begs[el["dataset-idx"]][idx]+loc.size-1] = loc
       end
     end
   end
@@ -226,22 +254,37 @@ def make_tabular(sel, cols, values)
   # p common_specs
   
   rv = "\\begin{tabular}{#{col_string}}\n\\toprule\n"
-  rv << common_names.join(" & ")
-  for s in local_names
-    rv << " & #{s.join(" & ")}"
-  end
+  rv << all_col_names.join(" & ")
   rv << "\\\\\n\\midrule\n"
   for r in rows
     rv << r.join(" & ") << "\\\\\n"
+  end
+  if $named
+    rv << "\\midrule\n#{bottom_names.join(" & ")}\\\\\n"
   end
   rv << "\\bottomrule\n\\end{tabular}"
 
   return rv
 end
 
+preamble = true
+in_test = false
+
 for l in STDIN
-  l.gsub!(/\\test(value|rows)\{([^}]+)\}\{([^}]+)\}/) do |x|
-    make_subs($1, $2, $3)
+  write = false
+  if l =~ /\\begin\{document\}/
+    preamble = false
+    write = true
+  elsif l =~ /\\end\{document\}/
+    write = true
+  elsif l =~ /\\begin\{testresult\}/
+    in_test = true
+  elsif l =~ /\\end\{testresult\}/
+    in_test = false
+    write = true
+  end
+  if $res && (preamble || in_test || write)
+    $res.puts l.gsub('a4paper', 'a3paper,landscape=false')
   end
   l.gsub!(/\\testtabular\{([^}]+)\}\{([^}]+)\}\{([^}]+)\}/) do |x|
     make_tabular($1, $2, $3)

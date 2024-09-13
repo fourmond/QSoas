@@ -127,6 +127,10 @@ def decorate_key(el, spec)
     k = spec
   end
   if el.key? k
+    val = el[k]
+    if val.respond_to?(:gsub)
+      val.gsub!(/_/,'\_')
+    end
     if cmd
       return "\\#{cmd}{#{el[k]}}"
     else

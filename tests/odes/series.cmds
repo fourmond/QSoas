@@ -1,0 +1,72 @@
+# A series of differential equations with classical solutions
+
+## INLINE: test-ode
+generate-dataset 0 10
+ode inline:${1} ${2}
+a ode-${1}
+apply-formula ${2};y=${3}
+a sol-${1}
+S 1 0
+assert $stats.y_0dev ${4} /info=test=ode-series \
+  /info=equations=${1} /info=params=${2} /info=solution=${3}
+div 0 2
+strip-if y.nan?
+assert $stats.y_0dev ${5} /info=test=ode-series-rel \
+  /info=equations=${1} /info=params=${2} /info=solution=${3}
+## INLINE END
+
+
+####################
+## INLINE: eq-exp
+ex = 1
+
+d_ex = k*ex
+## INLINE END
+
+@ inline:test-ode eq-exp k=3  exp(k*x)   1e3  1e-9
+@ inline:test-ode eq-exp k=-3 exp(k*x)  1e-8 1e-9
+
+
+####################
+## INLINE: eq-texp
+ex = 1
+
+d_ex = -a*k*t**(a-1)*ex
+## INLINE END
+
+@ inline:test-ode eq-texp k=3;a=1.2     exp(-k*x**a) 1e3  1e-9
+@ inline:test-ode eq-texp k=0.1;a=1.9   exp(-k*x**a) 1e3  1e-9
+@ inline:test-ode eq-texp k=1e-3;a=2.6  exp(-k*x**a) 1e3  1e-9
+
+
+####################
+## INLINE: eq-lambert
+lw = 0
+
+d_lw = 1/(t+exp(lw))
+## INLINE END
+
+@ inline:test-ode eq-lambert 1 lambert_W(x) 1e-6 1e-10
+
+
+####################
+## INLINE: eq-erf
+erf = 0
+
+d_erf = exp(-t**2)*2*PI**-0.5
+## INLINE END
+
+@ inline:test-ode eq-erf 1 erf(x) 1e-6 1e-10
+
+
+####################
+## INLINE: eq-bessel
+j0 = 1
+dj0 = 0
+
+d_j0 = dj0
+d_dj0 = 
+## INLINE END
+
+@ inline:test-ode eq-erf 1 erf(x) 1e-6 1e-10
+

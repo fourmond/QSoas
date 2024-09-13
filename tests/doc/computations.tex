@@ -2,7 +2,7 @@
 \documentclass{article}
 
 %% This helper document is part of the test suite of QSoas
-%% 
+%%
 %% Copyright 2024 by CNRS/AMU
 
 %% This program is free software; you can redistribute it and/or
@@ -107,6 +107,20 @@ the results for the xxx, with equations that have known solutions:
   \caption{Results of the tests for \texttt{solve} in
     \texttt{formulas/solve.cmds}}
 \end{testresult}
+
+\subsection{Ordinary differential equations}
+
+These are based on the GSL integration facility. The tests below show
+some examples
+
+\begin{testresult}
+  \begin{center}
+    \testtabular{test=ode-series||test=ode-series-rel}{File|Solution|Parameters|Absolute||Relative}{equations@texttt,solution@texttt,params@texttt|value@num||value@num}
+  \end{center}
+  \caption{Results of the tests for the command \texttt{ode} in
+    \texttt{odes/series.cmds}}
+\end{testresult}
+
 
 \section{Convolutions}
 

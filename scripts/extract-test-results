@@ -132,6 +132,14 @@ def decorate_key(el, spec)
       val.gsub!(/_/,'\_')
     end
     if cmd
+      if cmd == "num"
+        begin
+          val = Float(el[k].to_f)
+          val = "%2.4g" % val
+          return "\\#{cmd}{#{val}}"
+        rescue
+        end
+      end
       return "\\#{cmd}{#{el[k]}}"
     else
       return el[k]
@@ -288,7 +296,7 @@ for l in STDIN
     write = true
   end
   if $res && (preamble || in_test || write)
-    $res.puts l.gsub('a4paper', 'a3paper,landscape=false')
+    $res.puts l.gsub('a4paper', 'a3paper,landscape=true')
   end
   l.gsub!(/\\testtabular\{([^}]+)\}\{([^}]+)\}\{([^}]+)\}/) do |x|
     make_tabular($1, $2, $3)

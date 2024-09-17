@@ -21,4 +21,22 @@ assert $stats.x_min-2 0
 assert $stats.x_max-6.4 0
 
 
+eval $a=0
+# Test with inline ruby
+## INLINE: testruby
+
+ruby
+$a += ${1:-1}
+ruby end
+## INLINE END
+
+assert $a==0
+@ inline:testruby
+assert $a==1
+@ inline:testruby 
+assert $a==2
+@ inline:testruby 5
+assert $a==7
+
+
 

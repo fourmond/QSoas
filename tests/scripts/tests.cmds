@@ -11,6 +11,7 @@
 
 @ run-for-each.cmds
 @ run-for-values.cmds
+@ multi-run.cmds
 
 # Line breaks in scripts
 @ line-breaks.cmds

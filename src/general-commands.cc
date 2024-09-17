@@ -753,6 +753,7 @@ static void runForEachCommand(const QString &, QString script,
 
   bool silent = false;
   updateFromOptions(opts, "silent", silent);
+
   CommandWidget::ScriptErrorMode mode = CommandWidget::Abort;
   updateFromOptions(opts, "error", mode);
   
@@ -950,6 +951,121 @@ rfv("run-for-values", // command name
     &rfvArgs, // arguments
     &rfvOpts, 
     "Runs a script with each row of a dataset");
+
+//////////////////////////////////////////////////////////////////////
+
+#include <regex.hh>
+
+static void multiRunCommand(const QString &, QString script,
+                            QStringList args, 
+                            const CommandOptions & opts)
+{
+  bool addToHistory = false;
+  updateFromOptions(opts, "add-to-history", addToHistory);
+
+  bool silent = false;
+  updateFromOptions(opts, "silent", silent);
+
+  CommandWidget::ScriptErrorMode mode = CommandWidget::Abort;
+  updateFromOptions(opts, "error", mode);
+  
+  WDisableUpdates eff(& soas().view(), silent);
+
+  Regex sep("/\\s*,\\s*/");
+  updateFromOptions(opts, "separator", sep);
+  
+  QList<QStringList> arguments;
+
+  QRegExp rangeRE("^(.*)\\.\\.(.*)\\s*:\\s*(\\d+)\\s*(,?log)?$");
+  int total = 1;
+  int indices[args.size()];
+  int sz[args.size()];
+  for(int i = 0; i < args.size(); i++) {
+    const QString & a = args[i];
+    arguments << QStringList();
+    QStringList & ca = arguments[i];
+    if(rangeRE.indexIn(a) == 0) {
+      double s = rangeRE.cap(1).toDouble();
+      double e = rangeRE.cap(2).toDouble();
+      bool lg = ! rangeRE.cap(4).isEmpty();
+      if(lg) {
+        s = log(s);
+        e = log(e);
+      }
+      int nb = rangeRE.cap(3).toInt();
+      for(int j = 0; j < nb; j++) {
+        double x = s + ((e - s) * j)/(nb - 1);
+        if(lg)
+          x = exp(x);
+        ca << QString::number(x);
+      }
+    }
+    else {
+      ca = a.split(sep.toQRegExp());
+    }
+
+    Terminal::out << "Arg #" << i << "'s values: '" << ca.join("', '") << "'\n";
+    total *= ca.size();
+    indices[i] = 0;
+    sz[i] = ca.size();
+  }
+  Terminal::out << "Total: " << total << " combinations" << endl;
+
+  int idx = 0;
+  while(indices[0] < sz[0]) {
+    for(int i = 0; i < args.size(); i++)
+      args[i] = arguments[i][indices[i]];
+
+    Terminal::out << "Starting multi-run iteration: " << idx++ << "/" << total
+                  << "\nArgs: '" << args.join("', '") << "'" << endl;
+    soas().prompt().runCommandFile(script, args, addToHistory, mode);
+
+
+    int lst = arguments.size() - 1;
+    while(true) {
+      indices[lst]++;
+      if(indices[lst] >= sz[lst] && lst > 0) {
+        indices[lst] = 0;
+        lst--;
+      }
+      else
+        break;
+    }
+  }
+}
+
+static ArgumentList 
+mrArgs(ArgumentList()
+       << new FileArgument("script", 
+                           "Script",
+                           "The script file")
+       << new SeveralStringsArgument("arguments", 
+                                     "Arguments",
+                                     "All the arguments", true));
+
+static ArgumentList 
+mrOpts(ArgumentList()
+       << runOpts
+       << new RegexArgument("separator",
+                            "Separator",
+                            "Arguments separator")
+       );
+
+
+
+static Command 
+mr("multi-run", // command name
+    effector(multiRunCommand), // action
+    "file",  // group name
+    &mrArgs, // arguments
+    &mrOpts, 
+    "Multidimensional run-for-each",
+    "Runs a scripts changing its parameters",
+    "");
+
+
+
+
 
 //////////////////////////////////////////////////////////////////////
 

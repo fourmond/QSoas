@@ -2,12 +2,12 @@
 eval $a+=${1}
 eval $nb+=1
 eval $b*=${2}
-eval $c+=${3}
+eval $d+=${3}
 ## INLINE END
 
-eval $nb=0;$a=0;$b=1;$c=0
+eval $nb=0;$a=0;$b=1;$d=0
 multi-run inline:test-one -2..2:5 0.1..10:5,log 2,3
 assert $nb==50
 assert $a 0
 assert $b-1 3e-5
-assert $c==125
+assert $d==125

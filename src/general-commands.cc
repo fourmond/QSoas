@@ -966,6 +966,9 @@ static void multiRunCommand(const QString &, QString script,
   bool silent = false;
   updateFromOptions(opts, "silent", silent);
 
+  int skip = 0;
+  updateFromOptions(opts, "skip", skip);
+
   CommandWidget::ScriptErrorMode mode = CommandWidget::Abort;
   updateFromOptions(opts, "error", mode);
   
@@ -975,6 +978,9 @@ static void multiRunCommand(const QString &, QString script,
   updateFromOptions(opts, "separator", sep);
   
   QList<QStringList> arguments;
+
+  QDateTime startTime = QDateTime::currentDateTime();
+  QDateTime lastTime = startTime;
 
   QRegExp rangeRE("^(.*)\\.\\.(.*)\\s*:\\s*(\\d+)\\s*(,?log)?$");
   int total = 1;
@@ -1016,9 +1022,25 @@ static void multiRunCommand(const QString &, QString script,
     for(int i = 0; i < args.size(); i++)
       args[i] = arguments[i][indices[i]];
 
-    Terminal::out << "Starting multi-run iteration: " << idx++ << "/" << total
-                  << "\nArgs: '" << args.join("', '") << "'" << endl;
-    soas().prompt().runCommandFile(script, args, addToHistory, mode);
+    QDateTime curTime = QDateTime::currentDateTime();
+    
+    
+    Terminal::out << "Starting multi-run iteration: " << idx++ << "/"
+                  << total <<  " at " << curTime.toString() << endl;
+    if(idx - skip > 0) {
+      qint64 avg = startTime.msecsTo(curTime)/(idx - skip);
+      qint64 dur = startTime.msecsTo(curTime) * (total - skip)/(idx - skip);
+      QDateTime fnlTime = startTime.addMSecs(dur);
+      Terminal::out << "Iterations last " << avg
+                    << " ms in average, estimated end at "
+                    << fnlTime.toString() << endl;
+    }
+
+    Terminal::out << "Args: '" << args.join("', '") << "'" << endl;
+    if(idx < skip)
+      Terminal::out << " -> skipping until " << skip << endl;
+    else
+      soas().prompt().runCommandFile(script, args, addToHistory, mode);
 
 
     int lst = arguments.size() - 1;
@@ -1049,6 +1071,10 @@ mrOpts(ArgumentList()
        << new RegexArgument("separator",
                             "Separator",
                             "Arguments separator")
+       << new IntegerArgument("skip",
+                              "Skip",
+                              "skip that many elements (for restarting " 
+                              "something long)")
        );
 
 

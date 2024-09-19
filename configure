@@ -48,9 +48,8 @@ mkdir -p gc
     $QMAKE ../QSoas.pro $extra $v $univ CONFIG+=gc
 )
 
-# For some reason, mac's Qt writes a wrong library name for linking
-# when producing a debug stuff:
-# if [ -z "$NOTWEAK" ]; then
-#     perl -pi.bak -e 's#-isysroot /Applications/Xcode.app/Contents/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk#-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk#' Makefile
-# fi
-# cd odrpack; ./full-conversion d_lpkbls.c d_mprec.c d_odr.c
+#  Generate the icons
+if [ \! -r QSoas-logo.png ]; then
+    echo "Generating the icons"
+    ./generate-icons
+fi

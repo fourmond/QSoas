@@ -1,0 +1,72 @@
+#! /usr/bin/ruby
+
+# detailed-perf-tests: runs the performance test with perf
+# Copyright 2024 by CNRS/AMU
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301
+# USA
+
+# Runs the performance tests
+# Must be run from within the performance directory
+# Requires a value of -1 in
+# echo -1 > /proc/sys/kernel/perf_event_paranoid
+
+
+require 'optparse'
+require 'open3'
+
+$qsoas = "../QSoas"
+$outname = "perfs.yaml"
+
+opts = OptionParser.new do |opts|
+  opts.on("-Q", "--qsoas-binary XXX",
+          "path to the QSoas binary (defaults to QSoas in the parent directory)"
+         ) do |x|
+    $qsoas = x
+  end
+  opts.on("-o", "--out XXX",
+          "name of the output file"
+         ) do |x|
+    $outname = x
+  end
+end
+
+
+opts.parse!(ARGV)
+
+out = open($outname, "w")
+
+for perf in Dir::glob("*/*.cmds").sort
+  puts "Running perf test #{perf}:"
+  stdout_str, stderr_str, status =
+                          Open3.capture3(
+                            "perf", "stat", "-d", 
+                            $qsoas, "-platform", "offscreen",
+                            "--run-script", "run-one-test.cmds",
+                            perf
+                          )
+  puts stdout_str
+
+  out.puts "- name: #{perf}"
+  for l in stderr_str.split("\n")
+    if l =~ /^\s*([\d,]+)\s+(\S+)/
+      it = $2
+      nb = $1.gsub(",","")
+      out.puts "  #{it}: #{nb}"
+    end
+  end
+
+  puts "\n\n"
+end

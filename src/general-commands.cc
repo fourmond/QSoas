@@ -875,6 +875,7 @@ rfef("run-for-each", // command name
 //////////////////////////////////////////////////////////////////////
 
 #include <datasetlist.hh>
+#include <possessive-containers.hh>
 
 static void runForValuesCommand(const QString &,
                                 QString script,
@@ -897,18 +898,11 @@ static void runForValuesCommand(const QString &,
   WDisableUpdates eff(& soas().view(), silent);
 
   DataSetList buffers(opts);
-  ConstGuardedList<DataSet> datasets(buffers);
-  QStringList originalNames;
-  for(const DataSet * ds: buffers)
-    originalNames << ds->name;
+  PossessiveList<DataSet> datasets;
+  for(const DataSet * ds : buffers)
+    datasets << new DataSet(*ds);
 
   for(const DataSet * ds : datasets) {
-    if(! ds) {
-      Terminal::out << Terminal::bold << "Warning: " << flush
-                    << "dataset " << originalNames[datasets.size()]
-                    << " disappeared before being used" << endl;
-      continue;
-    }
 
     QList<Vector> cols;
     if(hasColumns)

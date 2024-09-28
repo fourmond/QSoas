@@ -18,6 +18,12 @@ eval $nb=0
 run-for-values inline:test-rfv i,y2 /buffers=1
 assert $nb-7 0
 
+# Same thing spelling out the columns
+
+eval $nb=0
+run-for-values inline:test-rfv i y2 /buffers=1
+assert $nb-7 0
+
 
 # Same thing, but this time using all columns
 
@@ -31,4 +37,20 @@ apply-formula x=i;y2=i**2;y3=x/2.0;y=-2*y3 /extra-columns=2
 
 eval $nb=0
 run-for-values inline:test-rfv-all-columns
+assert $nb-7 0
+
+
+# A script to verify that run-for-values handles well clear-stack
+
+## INLINE: test-rfv-cs
+assert ${1}**2-${2} 0
+eval $nb+=1
+clear-stack
+## INLINE END
+
+generate-dataset 0 10 /samples=7
+apply-formula y2=i**2 /extra-columns=1
+
+eval $nb=0
+run-for-values inline:test-rfv-cs i,y2
 assert $nb-7 0

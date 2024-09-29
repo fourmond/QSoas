@@ -100,20 +100,3 @@ tweak-columns /select=named:my_y2,$c.my_x
 assert '$col_names[0]=="my_y2"'
 assert '$col_names[1]=="my_x"'
 
-
-# the /mode=add-column operation
-generate-buffer 0 10 /columns=4 /samples=11
-set-column-names my_x my_y my_y2 my_y3
-apply-formula /mode=add-column x /name=new_name
-assert '$col_names[0]=="my_x"'
-assert '$col_names[1]=="my_y"'
-assert '$col_names[2]=="my_y2"'
-assert '$col_names[3]=="my_y3"'
-assert '$col_names[4]=="new_name"'
-
-
-# Test the /use-names option
-generate-buffer 0 10 /columns=4 /samples=11
-set-column-names my_x my_y my_y2 my_y3
-apply-formula /use-names=true my_y3=2
-assert $stats.y3_average-2 0

@@ -2530,11 +2530,15 @@ static void tweakColumnsCommand(const QString &,
   bool flipAll = false;
   ColumnListSpecification toRemove;
   ColumnListSpecification toSelect;
+  ColumnListSpecification insertBefore;
+  ColumnListSpecification insertAfter;
   
   updateFromOptions(opts, "flip", flip);
   updateFromOptions(opts, "flip-all", flipAll);
   updateFromOptions(opts, "remove", toRemove);
   updateFromOptions(opts, "select", toSelect);
+  updateFromOptions(opts, "insert-before", insertBefore);
+  updateFromOptions(opts, "insert-after", insertAfter);
 
   
   DataSetList buffers(opts);
@@ -2566,6 +2570,22 @@ static void tweakColumnsCommand(const QString &,
 
     DataSet * nds = ds->derivedDataSet("_tweaked.dat");
     nds->selectColumns(cols);
+
+    // Now inserting columns before and after
+    cols = insertBefore.getValues(nds);
+    Utils::reverseList(cols);
+    for(int i : cols) {
+      Vector v = nds->column(i);
+      nds->insertColumn(i, v);
+    }
+
+    cols = insertAfter.getValues(nds);
+    Utils::reverseList(cols);
+    for(int i : cols) {
+      Vector v = nds->column(i);
+      nds->insertColumn(i+1, v);
+    }
+
     pusher << nds;
   }
 }
@@ -2583,6 +2603,14 @@ tcO(QList<Argument *>()
     << new SeveralColumnsArgument("select", 
                                   "Select the columns",
                                   "select the columns to keep", true)
+    << new SeveralColumnsArgument("insert-before",
+                                  "Insert before",
+                                  "insert a duplicate column before the given columns",
+                                  true)
+    << new SeveralColumnsArgument("insert-after",
+                                  "Insert after",
+                                  "insert a duplicate column after the columns",
+                                  true)
     << new BoolArgument("flip", 
                         "Flip Y columns",
                         "If true, flips all the Y columns")

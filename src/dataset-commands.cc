@@ -291,6 +291,123 @@ spv("split-on-values", // command name
     &spvOpts, // options
     "Split on column values");
 
+
+//////////////////////////////////////////////////////////////////////
+
+static void compareRowsCommand(const QString &,
+                               QList<const DataSet *> datasets,
+                               const CommandOptions & opts)
+{
+  DataSetList lst(opts, datasets);
+  datasets = lst;
+  if(datasets.size() != 2)
+    throw RuntimeError("compare-rows need exactly two datasets to work on");
+  const DataSet * main = datasets[0];
+  const DataSet * sub = datasets[1];
+
+  ColumnListSpecification cl;
+  updateFromOptions(opts, "columns", cl);
+  double tolerance = 0;
+  updateFromOptions(opts, "tolerance", tolerance);
+  QList<int> mainCols = cl.getValues(main);
+  if(mainCols.size() == 0)
+    throw RuntimeError("You need to specify columns using the /columns option");
+  QList<int> subCols = cl.getValues(sub);
+
+  if(mainCols.size() != subCols.size())
+    throw InternalError("Size mismatch in main vs sub columns");
+
+  QList<int> unmatchedMain;
+  QList<int> matchedMain;
+  QList<int> matchedSub;
+  QList<int> remainingSub;
+  for(int i = 0; i < sub->nbRows(); i++)
+    remainingSub << i;
+
+  auto checkIdentical =
+    [&mainCols, &subCols, &main,
+     &sub, &tolerance](int mainIdx, int subIdx) -> bool {
+      for(int i = 0; i < mainCols.size(); i++) {
+        double mv = main->column(mainCols[i])[mainIdx];
+        double sv = sub->column(subCols[i])[subIdx];
+        if(mv == sv)
+          continue;
+        if(tolerance <= 0)
+          return false;
+        if(fabs(mv - sv) < (fabs(mv) + fabs(sv)) * 0.5 * tolerance)
+          continue;
+        return false;
+      }
+      return true;
+    };
+
+  Terminal::out << "Looking for matching rows between '"
+                << main->name <<  "' and '" << sub->name << "'" << endl;
+
+  // This is a naive algorithm, we need to switch to a hash based
+  // categorization, but with a tolerance, it's not that trivial.
+  for(int i = 0; i < main->nbRows(); i++) {
+    bool found = false;
+    for(int j = 0; j < remainingSub.size(); j++) {
+      int sId = remainingSub[j];
+      if(checkIdentical(i, sId)) {
+        found = true;
+        matchedMain << i;
+        matchedSub << sId;
+        remainingSub.takeAt(j);
+        break;
+      }
+    }
+    if(! found)
+      unmatchedMain << i;
+  }
+
+  Terminal::out << "Found " << matchedMain.size()
+                << " matching rows" << endl;
+
+  DataStackHelper pusher(opts);
+  DataSet * ds = main->derivedDataSet("_matching.dat");
+  ds->selectRows(matchedMain);
+  pusher << ds;
+
+  ds = sub->derivedDataSet("_matching.dat");
+  ds->selectRows(matchedSub);
+  pusher << ds;
+}
+        
+
+static ArgumentList 
+cprArgs(QList<Argument *>() 
+        << new SeveralDataSetArgument("datasets", 
+                                      "Datasets",
+                                      "The datasets of the operation")
+        );
+
+
+
+static ArgumentList 
+cprOpts(QList<Argument *>() 
+        << new SeveralColumnsArgument("columns", 
+                                      "Columns",
+                                      "Columns whose values to compare", false)
+        << new NumberArgument("tolerance", 
+                              "Tolerance",
+                              "the tolerance for the comparison")
+        << DataSetList::listOptions("datasets to compare", false, true)
+        << DataStackHelper::helperOptions()
+        );
+
+
+
+              static Command 
+cpr("compare-rows", // command name
+    effector(compareRowsCommand), // action
+    "split",  // group name
+    &cprArgs, // arguments
+    &cprOpts, // options
+    "Find matching rows");
+
+
 //////////////////////////////////////////////////////////////////////
 
 static void transposeCommand(const QString &)

@@ -1,0 +1,14 @@
+# Find matching rows
+generate-dataset -5 5 x**2 x**3 /samples=11
+generate-dataset 0 10 x**2 x**4 /samples=11
+
+compare-rows 1 0 /columns=x,y
+assert $stats.rows-6 0
+assert $stats.x_min 0
+assert $stats.x_max 5
+
+contract /mode=indices 1 0
+# This trashes the second X column BTW
+assert $stats.columns-5 0
+apply-formula y4-=y2*x
+assert $stats.y4_0dev 0

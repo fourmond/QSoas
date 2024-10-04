@@ -26,3 +26,6 @@
 # Reverse Laplace transforms
 @ laplace.cmds
 @ irreversible-steps.cmds
+
+# Compare rows
+@ compare-rows.cmds

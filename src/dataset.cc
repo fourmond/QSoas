@@ -1244,7 +1244,6 @@ DataSet * DataSet::derivedDataSet(const QList<Vector> &newCols,
   ds->perpCoords = perpCoords;
 
 
-  // Now dealing wih the columns
 
   // keeping the row names only when the number of rows hasn't changed.
   if(ds->nbRows() == nbRows()) {
@@ -1254,7 +1253,8 @@ DataSet * DataSet::derivedDataSet(const QList<Vector> &newCols,
   }
   /// @todo else log ?
 
-  if(checkRowNames()) {
+  // Now dealing wih the columns
+  if(checkColNames()) {
     // Copy, adding and removing if necessary
     for(int i = 0; i < columnNames.size(); i++) {
       ds->columnNames << columnNames[i];

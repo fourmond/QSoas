@@ -597,7 +597,10 @@ public:
         /// Closest X values and extend indefinitely
         Extend,
         /// Only look at matching indices. Does not extend.
-        Indices
+        Indices,
+        /// Matching row names, the values that correspond to no row names
+        /// or no matching one are replaced with NaN
+        RowNames
   } BinaryOperationMode;
 
 protected:

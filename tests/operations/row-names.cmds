@@ -1,0 +1,19 @@
+# Making sure we can match columns as a function of row names
+generate-dataset 0 10 /samples=11
+apply-formula "y=sin(x);$row_name='rn-%02d'%i"
+apply-formula y=cos(x)
+sort /column=y
+apply-formula x=i
+contract 3 0 /mode=row-names
+apply-formula /mode=add-column /name=sum y**2+y2**2-1
+assert $nstats.sum_0dev 1e-15
+
+drop 0,1
+strip-if y<0
+contract 4 0 /mode=row-names
+# We keep all, and we have NaN
+assert $stats.rows==11
+strip-if y2.nan?
+assert $stats.y2_min>0
+apply-formula /mode=add-column /name=sum y**2+y2**2-1
+assert $nstats.sum_0dev 1e-15

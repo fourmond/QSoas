@@ -1629,7 +1629,8 @@ static QHash<QString, DataSet::BinaryOperationMode> modes =
    {"xvalues", DataSet::ClosestX},
    {"indices", DataSet::Indices},
    {"extend", DataSet::Extend},
-   {"strict", DataSet::Strict}
+   {"strict", DataSet::Strict},
+   {"row-names", DataSet::RowNames}
   };
 
 #include <argument-templates.hh>

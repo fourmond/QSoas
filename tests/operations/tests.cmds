@@ -29,3 +29,6 @@
 
 # Compare rows
 @ compare-rows.cmds
+
+# Matching row names
+@ row-names.cmds

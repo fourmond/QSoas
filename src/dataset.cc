@@ -720,6 +720,32 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
         }
       }
       break;
+    case RowNames:
+      {
+        QStringList rna;
+        if(a->rowNames.size() > 0)
+          rna = a->rowNames[0];
+        QStringList rnb;
+        if(b->rowNames.size() > 0)
+          rnb = b->rowNames[0];
+        for(int i = 0; i < size_a; i++) {
+          int found = -1;
+          QString rn = rna.value(i, "");
+          if(! rn.isEmpty()) {
+            for(int j = 0; j < size_b; j++) {
+              if(rnb.value(j, "") == rn) {
+                found = j;
+                break;
+              }
+            }
+          }
+          vects[0] << xa[i];        // a is the master dataset
+          for(int k = 1; k < nbcols; k++)
+            vects[k] << op(a->columns[useACol >= 0 ? useACol : k][i], b->columns[k].value(found, std::nan("0")));
+              
+        }
+      }
+      break;
     default:
       throw InternalError("Unknown mode");
     }

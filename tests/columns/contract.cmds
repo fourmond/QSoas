@@ -127,3 +127,14 @@ assert $stats.columns-4 0
 assert $meta.a[0]-1 0
 assert $meta.a[1]-2 0
 assert $meta.a[2]-3 0
+
+
+
+# Keeping X values
+generate-dataset 0 10 x**2
+generate-dataset 0 10 x**3
+contract /keep-x=true 1 0
+apply-formula y2-=x
+assert $stats.y2_0dev 0
+apply-formula y3-=y*x
+assert $stats.y3_0dev 1e-13

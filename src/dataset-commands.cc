@@ -1833,7 +1833,9 @@ static void contractCommand(const QString &, QList<const DataSet *> a,
   updateFromOptions(opts, "perp-meta", pc);
   ColumnListSpecification useCols;
   updateFromOptions(opts, "use-columns", useCols);
-  
+
+  bool keepX = false;
+  updateFromOptions(opts, "keep-x", keepX);
 
   handleMissingDS(&a);
   if(a.size() < 2)
@@ -1861,6 +1863,9 @@ static void contractCommand(const QString &, QList<const DataSet *> a,
     if(pc.size() > 0)
       ds->setPerpendicularCoordinates(ds->getMetaData(pc).toDouble());
     trimColumns(ds.get());
+    // Turns out the best way to keep the X value is to duplicate it
+    if(keepX)
+      ds->insertColumn(0, ds->x());
 
     cur.reset(cur->contract(ds.get(), mode, useSteps));
   }
@@ -1893,6 +1898,9 @@ contractOpts(ArgumentList()
              << new SeveralColumnsArgument("use-columns", 
                                            "The columns to use",
                                            "if specified, uses only the given columns for the contraction")
+             << new BoolArgument("keep-x",
+                                 "Keep the X column",
+                                 "if specified, keeps the X columns of the other datasets")
              << (new SeveralStringsArgument(QRegExp("\\s*,\\s*"),
                                             "contract-meta",
                                             "Contract meta data",

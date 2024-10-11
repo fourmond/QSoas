@@ -1,0 +1,12 @@
+generate-dataset 0 10 /samples=101 /columns=100
+eval /modify-meta=true '$stats.columns.times{|i|$col_names<<"col_#{i}_stuff"}'
+apply-formula y18=0.0/0.0
+i 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+strip-if i%25!=3
+
+# Now that's the issue
+# clear-segments
+## INLINE: mod
+apply-formula /mode=add-column /name=lg_col_%{1} log10($c.col_${1}_stuff)
+## INLINE END
+run-for-each inline:mod 12 57 49 30 88

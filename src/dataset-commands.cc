@@ -154,8 +154,8 @@ static void splitMonotonicCommand(const QString &,
                                   const CommandOptions & opts)
 {
   DataStackHelper pusher(opts);
+  DataSetList buffers(opts);
 
-  const DataSet * ds = soas().currentDataSet();
   int group = 1;
   int keepFirst = -1;
   int keepLast = -1;
@@ -163,19 +163,22 @@ static void splitMonotonicCommand(const QString &,
   updateFromOptions(opts, "keep-first", keepFirst);
   updateFromOptions(opts, "keep-last", keepLast);
 
-  QList<DataSet *> nds = ds->splitIntoMonotonic(0, group);
+
+  for(const DataSet * ds : buffers) {
+    QList<DataSet *> nds = ds->splitIntoMonotonic(0, group);
 
 
-  int sz = nds.size();
-  for(int i = 0; i < sz; i++) {
-    nds[i]->setMetaData("segment_index", i);
+    int sz = nds.size();
+    for(int i = 0; i < sz; i++) {
+      nds[i]->setMetaData("segment_index", i);
     
-    if((keepFirst < 0 && keepLast < 0)
-       || (i < keepFirst) || (sz -i <= keepLast)) {
-      pusher << nds[i];
+      if((keepFirst < 0 && keepLast < 0)
+         || (i < keepFirst) || (sz -i <= keepLast)) {
+        pusher << nds[i];
+      }
+      else
+        delete nds[i];
     }
-    else
-      delete nds[i];
   }
 }
         
@@ -183,16 +186,17 @@ static void splitMonotonicCommand(const QString &,
 
 static ArgumentList 
 smOpts(QList<Argument *>() 
-           << DataStackHelper::helperOptions()
-           << new IntegerArgument("group", 
-                                  "Group segments",
-                                  "Group that many segments into one dataset")
-           << new IntegerArgument("keep-first", 
-                                  "Keep only first",
-                                  "Keep only the first n elements of the results")
-           << new IntegerArgument("keep-last", 
-                                  "Keep only last",
-                                  "Keep only the last n elements of the results")
+       << DataStackHelper::helperOptions()
+       << DataSetList::listOptions("Datasets to split")
+       << new IntegerArgument("group",
+                              "Group segments",
+                              "Group that many segments into one dataset")
+       << new IntegerArgument("keep-first",
+                              "Keep only first",
+                              "Keep only the first n elements of the results")
+       << new IntegerArgument("keep-last",
+                              "Keep only last",
+                              "Keep only the last n elements of the results")
        );
 
 
@@ -247,20 +251,23 @@ static void splitOnValues(const QString &,
                           const CommandOptions & opts)
 {
   DataStackHelper pusher(opts);
-  const DataSet * ds = soas().currentDataSet();
-  QList<int> cols = cspec.getValues(ds);
-  if(meta.size() != cols.size())
-    throw RuntimeError("The list of meta and columns must be matched");
+  DataSetList buffers(opts);
 
-  QHash<int, QString> cls;
-  for(int i = 0; i < meta.size(); i++)
-    cls[cols[i]] = meta[i];
+  for(const DataSet * ds : buffers) {
+    QList<int> cols = cspec.getValues(ds);
+    if(meta.size() != cols.size())
+      throw RuntimeError("The list of meta and columns must be matched");
 
-  QList<DataSet*> nds = ds->autoSplit(cls);
+    QHash<int, QString> cls;
+    for(int i = 0; i < meta.size(); i++)
+      cls[cols[i]] = meta[i];
 
-  for(int i = 0; i < nds.size(); i++) {
-    nds[i]->setMetaData("subset_index", i);
-    pusher << nds[i];
+    QList<DataSet*> nds = ds->autoSplit(cls);
+
+    for(int i = 0; i < nds.size(); i++) {
+      nds[i]->setMetaData("subset_index", i);
+      pusher << nds[i];
+    }
   }
 }
 
@@ -279,6 +286,7 @@ spvArgs(QList<Argument *>()
 
 static ArgumentList 
 spvOpts(QList<Argument *>() 
+        << DataSetList::listOptions("Datasets to split")
         << DataStackHelper::helperOptions()
        );
 
@@ -415,7 +423,6 @@ static void transposeCommand(const QString &)
   const DataSet * ds = soas().currentDataSet();
   soas().pushDataSet(ds->transpose());
 }
-        
 
 static Command 
 tp("transpose", // command name

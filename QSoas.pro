@@ -637,6 +637,10 @@ SOURCES += src/complexexpression.cc
 # Laplace fits
 SOURCES += src/laplace-fits.cc
 
+# Timers
+HEADERS += src/timer.hh
+SOURCES += src/timer.cc
+
 ######################################################################
 # Sources for the parameter space explorers
 SOURCES += src/parameterspaceexplorers.cc

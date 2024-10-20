@@ -55,6 +55,8 @@
 
 #include <argument-templates.hh>
 
+#include <timer.hh>
+
 #include <clocale>
 
 static Group file("file", 0,
@@ -899,9 +901,16 @@ static void runForValuesCommand(const QString &,
 
   DataSetList buffers(opts);
   PossessiveList<DataSet> datasets;
-  for(const DataSet * ds : buffers)
+  int nb = 0;
+  for(const DataSet * ds : buffers) {
     datasets << new DataSet(*ds);
+    nb += ds->nbRows();
+  }
 
+  Timer timer;
+  timer.start();
+
+  int idx = 0;
   for(const DataSet * ds : datasets) {
 
     QList<Vector> cols;
@@ -909,12 +918,21 @@ static void runForValuesCommand(const QString &,
       cols = columns.getColumns(ds);
     else
       cols = ds->allColumns();
-    
-    for(int i = 0; i < ds->nbRows(); i++) {
+
+    int rows = ds->nbRows();
+    for(int i = 0; i < rows; i++) {
+      Terminal::out << "Starting iteration " << i << "/"
+                    << rows << " on dataset " << idx
+                    << "/" << datasets.size() 
+                    <<  " at " << timer.lastTick().toString() << endl;
+      if(timer.count() > 0)
+        Terminal::out << timer.progressText(nb) << endl;
+
       QStringList a;
       for(const Vector & v : cols)
         a << QString::number(v[i]);
       soas().prompt().runCommandFile(script, a, addToHistory, mode);
+      timer.tick();
     }
   }
 }
@@ -950,6 +968,7 @@ rfv("run-for-values", // command name
 
 #include <regex.hh>
 
+
 static void multiRunCommand(const QString &, QString script,
                             QStringList args, 
                             const CommandOptions & opts)
@@ -973,8 +992,8 @@ static void multiRunCommand(const QString &, QString script,
   
   QList<QStringList> arguments;
 
-  QDateTime startTime = QDateTime::currentDateTime();
-  QDateTime lastTime = startTime;
+  Timer timer;
+  timer.start();
 
   QRegExp rangeRE("^(.*)\\.\\.(.*)\\s*:\\s*(\\d+)\\s*(,?log)?$");
   int total = 1;
@@ -1012,30 +1031,22 @@ static void multiRunCommand(const QString &, QString script,
   Terminal::out << "Total: " << total << " combinations" << endl;
 
   int idx = 0;
+
   while(indices[0] < sz[0]) {
     for(int i = 0; i < args.size(); i++)
       args[i] = arguments[i][indices[i]];
 
-    QDateTime curTime = QDateTime::currentDateTime();
-    
-    
     Terminal::out << "Starting multi-run iteration: " << idx++ << "/"
-                  << total <<  " at " << curTime.toString() << endl;
-    if(idx - skip > 0) {
-      qint64 avg = startTime.msecsTo(curTime)/(idx - skip);
-      qint64 dur = startTime.msecsTo(curTime) * (total - skip)/(idx - skip);
-      QDateTime fnlTime = startTime.addMSecs(dur);
-      Terminal::out << "Iterations last " << avg
-                    << " ms in average, estimated end at "
-                    << fnlTime.toString() << endl;
-    }
+                  << total <<  " at " << timer.lastTick().toString() << endl;
+    if(timer.count() > 0)
+      Terminal::out << timer.progressText(total - skip) << endl;
 
     Terminal::out << "Args: '" << args.join("', '") << "'" << endl;
     if(idx < skip)
       Terminal::out << " -> skipping until " << skip << endl;
     else
       soas().prompt().runCommandFile(script, args, addToHistory, mode);
-
+    timer.tick();
 
     int lst = arguments.size() - 1;
     while(true) {

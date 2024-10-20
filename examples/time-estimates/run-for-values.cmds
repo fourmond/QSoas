@@ -1,0 +1,11 @@
+# This script is just a tool to verify that the time and memory estimates
+# of the Timer class are correct
+
+## INLINE: iterate
+generate-dataset 0 10 /samples=100000 sin(x)
+apply-formula /mode=add-column x*y
+## INLINE END
+
+generate-dataset /samples=21 0 10
+generate-dataset /samples=82 0 10
+run-for-values inline:iterate x y /buffers=0,1

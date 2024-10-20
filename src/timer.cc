@@ -82,6 +82,13 @@ QString TimerData::toString(bool compact) const
 }
 
 
+QDateTime TimerData::dateTime() const
+{
+  QDateTime dt; // = QDateTime::currentDateTime();
+  dt.setMSecsSinceEpoch(mSecs);
+  return dt;
+}
+
 //////////////////////////////////////////////////////////////////////
 
 Timer::Timer() : ticks(-1)
@@ -118,7 +125,56 @@ TimerData Timer::tick()
   return rv;
 }
 
+TimerData Timer::average() const
+{
+  if(ticks <= 0)
+    throw InternalError("No information yet");
+  TimerData delta = last;
+  delta -= starting;
+  delta *= (1.0/ticks);
+  return delta;
+}
 
+TimerData Timer::extrapolate(int total) const
+{
+  TimerData avg = average();
+  avg *= total;
+  avg += starting;
+  return avg;
+}
+
+int Timer::count() const
+{
+  return ticks;
+}
+
+QDateTime Timer::lastTick() const
+{
+  return last.dateTime();
+}
+
+
+QString Timer::progressText(int total) const
+{
+  if(ticks <= 0)
+    throw InternalError("No information yet");
+
+  TimerData avg = last;
+  avg -= starting;
+
+  TimerData fnl = avg;
+  avg *= (1.0/ticks);
+  fnl *= (total*1.0/ticks);
+  fnl += starting;
+
+  QString str("Iterations last %1 ms and take %2 KiB in "
+              "average, estimated end at %3 "
+              "with memory footprint of %4 MB");
+  return str.arg(avg.mSecs).
+    arg(avg.memoryUsed).
+    arg(fnl.dateTime().toString()).
+    arg(fnl.memoryUsed >> 10);
+}
 
 //////////////////////////////////////////////////////////////////////
 // A rudimentary timer command
@@ -142,7 +198,7 @@ void timerCommand(const QString &, const CommandOptions & opts)
 
     QString message;
     if(! name.isEmpty())
-      message = name + ": " + delta.toString();
+      message = name + ":\t" + delta.toString();
     else
       message = delta.toString(false);
     Terminal::out << message << endl;

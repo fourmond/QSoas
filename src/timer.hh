@@ -56,6 +56,10 @@ public:
   TimerData & operator *=(double value);
 
   QString toString(bool compact = true) const;
+
+  /// Returns the date of the tick. Only useful if that is an absolute
+  /// value, not a difference.
+  QDateTime dateTime() const;
 };
 
 /// A timer, an object which:
@@ -92,6 +96,19 @@ public:
 
   /// Stops the timer and reset it
   void reset();
+
+  /// Returns the average resources per tick
+  TimerData average() const;
+
+  /// Extrapolates the consumed resources to the given number of ticks
+  TimerData extrapolate(int total) const;
+
+  /// Returns the time of the last tick
+  QDateTime lastTick() const;
+
+  /// Returns some text for the progress.
+  /// Only useable if count() > 0
+  QString progressText(int total) const;
 
 };
 

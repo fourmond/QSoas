@@ -656,6 +656,7 @@ SOURCES += src/parameterrangespec.cc
 SOURCES += src/formats/gpesprovider.cc \
         src/formats/chi.cc \
         src/formats/eclab.cc \
+        src/formats/origalys.cc \
         src/formats/parametersbackend.cc \
         src/formats/ignorebackend.cc \
         src/formats/imagebackend.cc

@@ -50,7 +50,7 @@ protected:
     int cnt = 2;
     int last = 2;
     while(nbl < 9  && cnt < bt.size()) {
-      if(bt[cnt] == 0x0A) {
+      if(bt[cnt] == (char) 0x0A) {
         nbl += 1;
         lst << bt.mid(last, cnt-1-last);
         last = cnt + 1;
@@ -60,10 +60,14 @@ protected:
     if(nbl < 9)
       throw RuntimeError("Truncated origalys header for file %1").
         arg(fileName);
-    stream->seek(cnt+1);
+    stream->seek(cnt);
+
     QTextStream o(stdout);
     o << "Lines: " << lst.join("\n\t") << endl;
 
+    // Parsing of the elements
+
+    // Date
     QStringList date = lst[7].split("/");
     if(date.size() == 9) {
       QDateTime dt(QDate(date[1].toInt(),
@@ -76,12 +80,53 @@ protected:
       meta["exp_date"] = dt;
       meta["exp_time"] = dt.time();
     }
+
+    // Column names
+    QStringList cn = lst[1].split("");
+    QStringList rcn;
+    for(const QString & s : cn) {
+      if(! s.isEmpty())
+        rcn << s;
+    }
+    o << "Cols: '" << rcn.join("', '") << "' " << endl;
+
+    // Comment
+    meta["method_comment"] = lst[2];
+
+    // Method details:
+    QStringList specs = lst[3].split("|");
+    if(specs.size() > 0) {
+
+      if(specs[0] == "5") {     // Cyclic voltammetry
+        meta["method"] = "cyclic voltammetry";
+        if(specs.size() >= 10) {
+          meta["E_start"] = specs[1].toDouble() * 0.001;
+          meta["E_first"] = specs[2].toDouble() * 0.001;
+          meta["E_second"] = specs[3].toDouble() * 0.001;
+          meta["cycle"] = specs[11].toInt();
+        }
+      }
+      if(specs[0] == "1") {     // Open circuit potential
+        meta["method"] = "open circuit potential";
+      }
+      if(specs[0] == "4") {     // Cyclic voltammetry
+        meta["method"] = "chronoamperometry";
+        // if(specs.size() >= 10)
+        // I don't like the two steps without being able to know if
+        // the two steps are effective...
+      }
+    }
     
     
 
     QList<DataSet *> dss = TextBackend::readFromStream(stream, fileName, opts);
-    for(int i = 0; i < dss.size(); i++)
+    for(int i = 0; i < dss.size(); i++) {
       dss[i]->addMetaData(meta);
+      dss[i]->columnNames.clear();
+      dss[i]->columnNames << rcn;
+      // o << "Columns: " << dss[i]->columnNames.first().join(", ") << endl;
+      // o << dss[i]->stringDescription(true) << endl;
+    }
 
     return dss;
   };

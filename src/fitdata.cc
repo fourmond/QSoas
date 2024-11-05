@@ -767,6 +767,7 @@ void FitData::initializeParameters()
       }
       if(found) {
         parametersForEvaluation << dependentParameters.takeAt(i);
+        addAvailable(param);
         i--;
       }
     }

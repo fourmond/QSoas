@@ -1,16 +1,40 @@
 # Checks the parsing and use of formulas in parameters
-generate-buffer 0 10
-generate-buffer 0 10
+generate-dataset 0 10
+generate-dataset 0 10
 
-# By construction, we just look at the first buffer.
-# We just check the second
-@ sim-poly.cmds parameters/poly2-4-1.params 1 2 3 -1 -2 1e-11 0,1
 
-# Same, but with extra parameters
-@ sim-poly.cmds parameters/poly2-4-2.params 2 3 4 -2 -1 1e-11 0,1 s
+####################
+# For now, no formula fixed parameter
+@ sim-poly.cmds parameters/poly2-4-1.params 1 2 3 -1 -2 1e-12 0,1
+drop 0,1
+@ check-poly.cmds 2 10 1 0.2 0.1 1e-12
 
-# One formula
-@ sim-poly.cmds parameters/poly2-4-3.params 2 3 4 -2 0.5 1e-11 0,1 s
+####################
+# Setting A_3
+@ sim-poly.cmds parameters/poly2-4-2.params 1 2 3 2 -2 1e-12 0,1
+drop 0,1
+@ check-poly.cmds 2 10 1 -2 0.1 1e-12
+
+
+####################
+# Setting A_3 globally to be -A_0
+@ sim-poly.cmds parameters/poly2-4-3.params -1 2 3 1 -2 1e-12 0,1
+drop 0,1
+@ check-poly.cmds 3 10 1 -3 0.1 1e-12
+
+
+####################
+# Two level dependency including a global one
+@ sim-poly.cmds parameters/poly2-4-4.params -2 2 3 2 -2 1e-12 0,1
+drop 0,1
+@ check-poly.cmds 20 10 1 -20 0.1 1.1e-12
+
+
+####################
+# Same, but with an extra parameter
+@ sim-poly.cmds parameters/poly2-4-5.params -4 4 3 4 -2 1e-12 0,1 s
+drop 0,1
+@ check-poly.cmds 4 2 1 -4 0.3 1e-12
 
 
 

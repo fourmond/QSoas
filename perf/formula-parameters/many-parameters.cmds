@@ -1,0 +1,13 @@
+@ s/create-datasets.cmds 1000
+
+## INLINE: run.cmds
+set tau_1 /fix=true "=A_1 * A_1"
+set tau_2 /fix=true "=A_2 * A_1"
+set tau_3 /fix=true "=A_3 * A_1"
+set tau_4 /fix=true "=A_4 * A_1"
+set tau_5 /fix=true "=A_5 * A_1"
+compute
+quit
+## INLINE END
+
+mfit-exponential-decay /exponentials=5 flagged:data /script=inline:run.cmds

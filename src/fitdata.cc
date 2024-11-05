@@ -640,32 +640,13 @@ void FitData::unpackParameters(const gsl_vector * packed,
   int nb_ds_params = parameterDefinitions.size();
   int nb_datasets = datasets.size();
 
-  int nb_second_pass = 0;
 
-  for(int i = 0; i < parameters.size(); i++) {
-    parameters[i]->copyToUnpacked(unpacked, packed, 
-                                 nb_datasets, nb_ds_params);
-    if(parameters[i]->needSecondPass())
-      nb_second_pass++;
-  }
-
-
-  // We make as many second passes as there are parameters needing it,
-  // so that if there is a linear chain of parameters, the whole
-  // dependency chain is complete
-
-  /// @todo Smarter interdependency detection, to compute the right
-  /// parameters in the right order only once. Only the order in which
-  /// the parameters have to be evaluated should be stored
-
-  while(nb_second_pass > 0) {
-    for(int i = 0; i < parameters.size(); i++)
-      if(parameters[i]->needSecondPass())
-        parameters[i]->copyToUnpacked(unpacked, packed, 
-                                      nb_datasets, nb_ds_params);
-    --nb_second_pass;
-  }
-
+  // OK, here, we are using uninitialized values for parameters
+  // arguments -- which are not used in principle
+  
+  for(const FitParameter * param: parametersForEvaluation)
+    param->copyToUnpacked(unpacked, packed,
+                          nb_datasets, nb_ds_params);
 }
 
 gsl_vector_view FitData::viewForDataset(int ds, gsl_vector * vect) const
@@ -711,6 +692,25 @@ void FitData::initializeParameters()
   parametersByDataset.clear();
   parametersByDefinition.clear();
   allParameters.clear();
+  parametersForEvaluation.clear();
+
+  QList<FitParameter *> dependentParameters;
+
+  // These are the already available parameters, organized by dataset
+  QList<QSet<int> > available;
+  while(available.size() <= datasets.size())
+    available << QSet<int>();
+
+  auto addAvailable = [&available, this](const FitParameter * param) {
+    int nbmin = 0, nbmax = datasets.size();
+    if(param->dsIndex >= 0) {
+      nbmin = param->dsIndex;
+      nbmax = param->dsIndex+1;
+    }
+    for(int i = nbmin; i < nbmax; i++)
+      available[i] << param->paramIndex;
+  };
+
   for(int i = 0; i < parameterDefinitions.size(); i++)
     parametersByDefinition << QList<FreeParameter *>();
 
@@ -727,11 +727,59 @@ void FitData::initializeParameters()
       allParameters << fp;
       parametersByDataset[param->dsIndex] << fp;
       parametersByDefinition[param->paramIndex] << fp;
+
     }
     else
       param->fitIndex = -1;     // Should already be the case
-    if(param->needsInit())
-      param->initialize(this);
+
+    param->initialize(this);
+    if(param->dependencies().size() > 0)
+      dependentParameters << param;
+    else {
+      parametersForEvaluation << param;
+      addAvailable(param);
+    }
+  }
+
+  // OK, now, we just loop through all the dependencies, picking up
+  // the ones we can add until there's nothing left
+  while(dependentParameters.size() > 0) {
+    int curSize = dependentParameters.size();
+    for(int i = 0; i < dependentParameters.size(); i++) {
+      // Let's just check if everything is there:
+      FitParameter * param = dependentParameters[i];
+      QSet<int> deps = param->dependencies();
+      int nbmin = 0, nbmax = datasets.size();
+      if(param->dsIndex >= 0) {
+        nbmin = param->dsIndex;
+        nbmax = param->dsIndex+1;
+      }
+      bool found = true;
+      for(int j = nbmin; j < nbmax; j++) {
+        for(int p : deps) {
+          if(! available[j].contains(p)) {
+            found = false;
+            break;
+          }
+        }
+        if(! found)
+          break;
+      }
+      if(found) {
+        parametersForEvaluation << dependentParameters.takeAt(i);
+        i--;
+      }
+    }
+    if(curSize == dependentParameters.size()) {
+      QStringList parameters;
+      for(const FitParameter * param : dependentParameters)
+        parameters << QString("%1[#%2]").
+          arg(parameterDefinitions[param->paramIndex].name).
+          arg(param->dsIndex);
+      throw RuntimeError("Circular dependency in parameters evaluation: "
+                         "remaining parameters: %1").
+        arg(parameters.join(", "));
+    }
   }
 }
 

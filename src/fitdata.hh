@@ -234,6 +234,10 @@ private:
   /// All parameters
   PossessiveList<FitParameter> parameters;
 
+  /// Same as @a parameters, but this time they are ordered so that
+  /// they can be evaluated in one go.
+  QList<FitParameter *> parametersForEvaluation;
+
 public:
 
   
@@ -318,6 +322,8 @@ public:
   const PossessiveList<FitParameter> & currentParameters() const;
 
   /// The free parameters, indexed by their fitIndex.
+  ///
+  /// @todo Somehow misnamed, I guess, but well...
   QList<FreeParameter *> allParameters;
 
   /// The free parameters, indexed by datasets.

@@ -223,18 +223,16 @@ void FormulaParameter::initialize(FitData * data)
   expression = new Expression(exp2);
 
 
-  // Hmmmm... This means that all the fancy variables with # signs
-  // inside will be delicate to handle...
-  dependencies = expression->naturalVariables();
+  dependencyNames = expression->naturalVariables();
 
   // <unnecessary> I think all this is completely unnecessary...
-  for(int j = 0; j < dependencies.size(); j++) {
-    int idx = parameters.indexOf(dependencies[j]);
+  for(int j = 0; j < dependencyNames.size(); j++) {
+    int idx = parameters.indexOf(dependencyNames[j]);
     if(idx < 0)
       throw RuntimeError(QString("In definition of parameter %1: "
                                  "'%2' isn't a parameter name !").
                          arg(data->parameterDefinitions[paramIndex].name).
-                         arg(dependencies[j]));
+                         arg(dependencyNames[j]));
     depsIndex << idx;
   }
   // </unnecessary>

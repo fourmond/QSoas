@@ -64,8 +64,9 @@ public:
   /// Performs one-time setup at fit initialization
   virtual void initialize(FitData * data);
 
-  /// Whether or not the parameter needs a second pass.
-  virtual bool needSecondPass() const { return false; };
+  /// Returns the dependencies of the parameters, in order for the
+  /// parameters to be computed just once in the correct order.
+  virtual QSet<int> dependencies() const { return QSet<int>(); };
 
   /// Returns a duplicate of the object.
   virtual FitParameter * dup() const = 0;
@@ -100,11 +101,6 @@ public:
                                        int dsIndex);
 
   virtual ~FitParameter();
-
-  /// Whether or not this parameter needs to be initialize'd again.
-  virtual bool needsInit() const {
-    return false;
-  };
 
   /// Compares the two parameters, so that parameters are sorted by:
   /// * dataset number first (ie global parameters first)
@@ -209,11 +205,11 @@ class FormulaParameter : public FitParameter {
 
   /// The parameter dependencies (to ensure they are computed in the
   /// correct order). It is also the argument list to the block
-  QStringList dependencies;
+  QStringList dependencyNames;
 
   /// The same thing as dependencies, but with their index (in the
   /// parametersDefinition)
-  QVector<int> depsIndex;
+  QSet<int> depsIndex;
 
 
 
@@ -242,7 +238,7 @@ public:
 
   virtual void initialize(FitData * data) override;
 
-  virtual bool needSecondPass() const override { return true; };
+  virtual QSet<int> dependencies() const override { return depsIndex; };
 
   virtual FitParameter * dup() const override {
     return new FormulaParameter(paramIndex, dsIndex, formula);
@@ -251,10 +247,6 @@ public:
   virtual QString textValue(double value) const override;
 
   virtual void setValue(double * target, const QString & value) override;
-
-  virtual bool needsInit() const override {
-    return needsUpdate;
-  };
 
   virtual ~FormulaParameter();
 

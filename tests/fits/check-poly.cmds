@@ -1,0 +1,7 @@
+# Verifies that the current dataset is a polynomial of degree 4 with the given values
+# Takes:
+# - coefficients A_0 to A_4
+# - tolerance
+
+apply-formula y-=${1}+${2}*x+${3}*x**2+${4}*x**3+${5}*x**4
+assert $stats.y_0dev ${6}

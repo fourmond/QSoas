@@ -651,8 +651,6 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
     vects.insert(0, a->x());
   }
   else {
-    
-
     int size_a = a->nbRows();
     const double * xa = a->columns[0].data();
 
@@ -661,93 +659,97 @@ DataSet * DataSet::applyBinaryOperation(const DataSet * a,
 
     for(int i = 0; i < nbcols; i++)
       vects << Vector();
-    switch(mode) {
-    case Indices:
-      if(size_a > size_b)
-        throw RuntimeError("Not enough points in dataset '%1': %2 vs %3").
-          arg(b->name).arg(size_b).arg(size_a);
+    if(size_b != 0) {
+      switch(mode) {
+      case Indices:
+        if(size_a > size_b)
+          throw RuntimeError("Not enough points in dataset '%1': %2 vs %3").
+            arg(b->name).arg(size_b).arg(size_a);
       
-      for(int i = 0; i < size_a; i++) {
-        vects[0] << xa[i];
-        for(int k = 1; k < nbcols; k++)
-          vects[k] << op(a->columns[useACol >= 0 ? useACol : k][i], b->columns[k][i]);
-      }
-      break;
-    case ClosestX:
-    case Extend:
-      {
-        double xb_min = b->x().min(),
-          xb_max = b->x().max();
-        double maxDx = (xb_max - xb_min)/size_b * 2;
         for(int i = 0; i < size_a; i++) {
-          if(mode == ClosestX && ((xa[i] < xb_min - maxDx) ||
-                                  (xa[i] > xb_max + maxDx)))
-            throw RuntimeError("Trying to extend dataset %1 too far: "
-                               "%2 for ([%3,%4]), use /mode=extend").
-              arg(b->name).arg(xa[i]).arg(xb_min).arg(xb_max);
+          vects[0] << xa[i];
+          for(int k = 1; k < nbcols; k++)
+            vects[k] << op(a->columns[useACol >= 0 ? useACol : k][i],
+                           b->columns[k][i]);
+        }
+        break;
+      case ClosestX:
+      case Extend:
+        {
+          double xb_min = b->x().min(),
+            xb_max = b->x().max();
+          double maxDx = (xb_max - xb_min)/size_b * 2;
+          for(int i = 0; i < size_a; i++) {
+            if(mode == ClosestX && ((xa[i] < xb_min - maxDx) ||
+                                    (xa[i] > xb_max + maxDx)))
+              throw RuntimeError("Trying to extend dataset %1 too far: "
+                                 "%2 for ([%3,%4]), use /mode=extend").
+                arg(b->name).arg(xa[i]).arg(xb_min).arg(xb_max);
 
-          /* We first look for the closest point */
-          double diff = fabs(xa[i] - xb[0]);
-          int found = 0;
-          // We do not assume that X values are varying 
-          for(int j = 0; j < size_b; j++) {
-            double d = fabs(xa[i] - xb[j]);
-            if(d < diff) {
-              diff  = d;
-              found = j;
-            }
-          }
-          vects[0] << xa[i];        // a is the master dataset
-          for(int k = 1; k < nbcols; k++)
-            vects[k] << op(a->columns[useACol >= 0 ? useACol : k][i], b->columns[k][found]);
-        }
-      }
-      break;
-    case Strict:
-      {
-        for(int i = 0; i < size_a; i++) {
-          int found = -1;
-          for(int j = 0; j < size_b; j++) {
-            if(xb[j] == xa[i]) {
-              found = j;
-              break;
-            }
-          }
-          vects[0] << xa[i];        // a is the master dataset
-          for(int k = 1; k < nbcols; k++)
-            vects[k] << op(a->columns[useACol >= 0 ? useACol : k][i], b->columns[k].value(found, std::nan("0")));
-              
-        }
-      }
-      break;
-    case RowNames:
-      {
-        QStringList rna;
-        if(a->rowNames.size() > 0)
-          rna = a->rowNames[0];
-        QStringList rnb;
-        if(b->rowNames.size() > 0)
-          rnb = b->rowNames[0];
-        for(int i = 0; i < size_a; i++) {
-          int found = -1;
-          QString rn = rna.value(i, "");
-          if(! rn.isEmpty()) {
+            /* We first look for the closest point */
+            double diff = fabs(xa[i] - xb[0]);
+            int found = 0;
+            // We do not assume that X values are varying
             for(int j = 0; j < size_b; j++) {
-              if(rnb.value(j, "") == rn) {
+              double d = fabs(xa[i] - xb[j]);
+              if(d < diff) {
+                diff  = d;
+                found = j;
+              }
+            }
+            vects[0] << xa[i];        // a is the master dataset
+            for(int k = 1; k < nbcols; k++)
+              vects[k] << op(a->columns[useACol >= 0 ? useACol : k][i],
+                             b->columns[k][found]);
+          }
+        }
+        break;
+      case Strict:
+        {
+          for(int i = 0; i < size_a; i++) {
+            int found = -1;
+            for(int j = 0; j < size_b; j++) {
+              if(xb[j] == xa[i]) {
                 found = j;
                 break;
               }
             }
+            vects[0] << xa[i];        // a is the master dataset
+            for(int k = 1; k < nbcols; k++)
+              vects[k] << op(a->columns[useACol >= 0 ? useACol : k][i],
+                             b->columns[k].value(found, std::nan("0")));
           }
-          vects[0] << xa[i];        // a is the master dataset
-          for(int k = 1; k < nbcols; k++)
-            vects[k] << op(a->columns[useACol >= 0 ? useACol : k][i], b->columns[k].value(found, std::nan("0")));
-              
         }
+        break;
+      case RowNames:
+        {
+          QStringList rna;
+          if(a->rowNames.size() > 0)
+            rna = a->rowNames[0];
+          QStringList rnb;
+          if(b->rowNames.size() > 0)
+            rnb = b->rowNames[0];
+          for(int i = 0; i < size_a; i++) {
+            int found = -1;
+            QString rn = rna.value(i, "");
+            if(! rn.isEmpty()) {
+              for(int j = 0; j < size_b; j++) {
+                if(rnb.value(j, "") == rn) {
+                  found = j;
+                  break;
+                }
+              }
+            }
+            vects[0] << xa[i];        // a is the master dataset
+            for(int k = 1; k < nbcols; k++)
+              vects[k] << op(a->columns[useACol >= 0 ? useACol : k][i],
+                             b->columns[k].value(found, std::nan("0")));
+          }
+        }
+        break;
+      default:
+        throw InternalError("Unknown mode");
       }
-      break;
-    default:
-      throw InternalError("Unknown mode");
     }
   }
 

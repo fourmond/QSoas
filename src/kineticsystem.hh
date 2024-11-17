@@ -198,8 +198,12 @@ public:
     virtual QSet<QString> parameters() const;
 
     virtual void computeRateConstants(const double * vals, 
-                                      double * forward, double * backward) const override;
-    
+                                      double * forward,
+                                      double * backward) const override;
+
+    virtual QString toString(const QList<Species> & species) const override;
+
+
     virtual QString exchangeRate() const override;
 
     virtual Reaction * dup() const override;

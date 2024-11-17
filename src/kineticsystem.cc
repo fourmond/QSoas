@@ -283,6 +283,31 @@ void KineticSystem::RedoxReaction::computeCache(const double * vals)
   cache[0] = ex;
 }
 
+
+QString
+KineticSystem::RedoxReaction::toString(const QList<Species> & species) const
+{
+  QStringList reactants;
+  QStringList products;
+  for(int j = 0; j < speciesIndices.size(); j++) {
+    int idx = speciesIndices[j];
+    int s = speciesStoechiometry[j];
+    QString n = QString("%1 %2").arg(abs(s)).arg(species[idx].name);
+    if(s > 0)
+      products << n;
+    else
+      reactants << n;
+  }
+  if(electrons < 0)
+    reactants += QString("%1 e-").arg(-electrons);
+  else
+    products += QString("%1 e-").arg(electrons);
+
+  return reactants.join(" + ")  + " <=> " +
+    products.join(" + ") + " -- e0: " + 
+    forwardRate + " -- k0: " + backwardRate;
+}
+
 QString KineticSystem::RedoxReaction::exchangeRate() const
 {
   return backwardRate;
@@ -371,6 +396,12 @@ public:
     alpha->setVariables(parameters);
   };
 
+  virtual QString toString(const QList<KineticSystem::Species> & species)
+    const override {
+    return KineticSystem::RedoxReaction::toString(species) +
+      " -- BV, alpha: " + alphaValue;
+  };
+
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -429,8 +460,10 @@ public:
     // overpotential)
     k0 /= Functions::marcusHushChidseyZeng(fara * lb, 0);
 
-    *fd = k0 * Functions::marcusHushChidseyZeng(fara * lb, fara * electrons * (e-e0));
-    *bd = k0 * Functions::marcusHushChidseyZeng(fara * lb, fara * electrons  * (e0-e));
+    *fd = k0 * Functions::marcusHushChidseyZeng(fara * lb,
+                                                fara * electrons * (e-e0));
+    *bd = k0 * Functions::marcusHushChidseyZeng(fara * lb,
+                                                fara * electrons  * (e0-e));
   }
 
   virtual Reaction * dup() const override {
@@ -446,6 +479,12 @@ public:
   void setParameters(const QStringList & parameters) override {
     KineticSystem::RedoxReaction::setParameters(parameters);
     lambda->setVariables(parameters);
+  };
+
+  virtual QString toString(const QList<KineticSystem::Species> & species)
+    const override {
+    return KineticSystem::RedoxReaction::toString(species) +
+      " -- MHC, lambda: " + lambdaValue;
   };
 
 };

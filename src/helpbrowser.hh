@@ -1,7 +1,7 @@
 /**
    \file helpbrowser.hh
    Browser for inline help + display of tips
-   Copyright 2020 by CNRS/AMU
+   Copyright 2020, 2025 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #define __HELPBROWSER_HH
 
 class Command;
+class HelpTextBrowser;
 
 /// A browser to display the help texts
 class HelpBrowser : public QWidget {
@@ -34,7 +35,7 @@ class HelpBrowser : public QWidget {
   static HelpBrowser * theBrowser;
 
   /// The browser part of the deal.
-  QTextBrowser * browser;
+  HelpTextBrowser * browser;
 
   /// The line edit for searching
   QLineEdit * searchText;
@@ -93,6 +94,10 @@ protected slots:
   /// Called on search shortcut pressed
   void searchForwardShortcut();
   void searchBackwardShortcut();
+
+
+  /// Dumps the structure of the document
+  void dumpDocumentStructure() const;
 
 };
 

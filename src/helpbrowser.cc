@@ -90,7 +90,6 @@ public:
 
     if(re.indexIn(line, 0) == 0)
       cmd = re.cap(2);
-
     // Commands in the selection
     QStringList selCmds;
     // int idx = 0;
@@ -227,6 +226,22 @@ public:
     menu->exec(event->globalPos());
     delete menu;
   }
+
+  void dumpDocument() const {
+
+    QTextDocument * doc = document();
+
+    QTextBlock blk = doc->firstBlock();
+    QTextStream o(stdout);
+
+    int idx = 0;
+    while(blk.isValid()) {
+      o << "Block #" << idx++ << ": "
+        << Utils::abbreviateString(blk.text()) << endl;
+      blk = blk.next();
+    }
+  };
+  
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -333,6 +348,11 @@ void HelpBrowser::dumpHelp()
   Terminal::out << "Last error was: " << engine->error() << endl;
 }
 
+void HelpBrowser::dumpDocumentStructure() const
+{
+  browser->dumpDocument();
+}
+
 QHash<QString, QStringList> HelpBrowser::availableURLs()
 {
   QHelpEngine * engine = getEngine();
@@ -428,6 +448,11 @@ void HelpBrowser::setupFrame()
                        QString());
   top->addWidget(bt);
   connect(bt, SIGNAL(clicked()), SLOT(searchBackward()));
+
+  // Temporary
+  bt = new QPushButton("Dump");
+  top->addWidget(bt);
+  connect(bt, SIGNAL(clicked()), SLOT(dumpDocumentStructure()));
 
   subS->addLayout(top);
   subS->addWidget(browser);

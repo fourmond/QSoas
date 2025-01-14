@@ -116,6 +116,10 @@
 // A rich text viewer (and editor?).
 #include <QTextEdit>
 #include <QTextCursor>
+#include <QTextDocument>
+#include <QTextBlock>
+#include <QTextCursor>
+
 
 // Desktop stuff
 #include <QUrl>
@@ -171,6 +175,7 @@
 #include <QTextBrowser>
 #include <QHelpContentWidget>
 #include <QHelpIndexWidget>
+
 
 
 

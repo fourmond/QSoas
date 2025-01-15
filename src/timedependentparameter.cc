@@ -194,6 +194,50 @@ static TimeDependentParameter::TDPFactory ex("exp", [](int nb, const QStringList
 
 //////////////////////////////////////////////////////////////////////
 
+/// Same thing as ExponentialTDP, but with an offset
+
+class OExponentialTDP : public ExponentialTDP {
+
+  int realParameterNumber() const override {
+    return ExponentialTDP::realParameterNumber() + 1;
+  };
+
+  QList<ParameterDefinition> realParameters(const QString & prefix) const override {
+    QList<ParameterDefinition> ret = ExponentialTDP::realParameters(prefix);
+    ret.insert(0, ParameterDefinition(QString("%1_off").arg(prefix)));
+    return ret;
+  };
+  
+  double realComputeValue(double t, const double * parameters) const override {
+    double value = ExponentialTDP::realComputeValue(t, parameters + 1);
+    return value + parameters[0];
+  };
+
+  void realSetInitialGuess(double * parameters, const DataSet * ds) const override {
+    ExponentialTDP::realSetInitialGuess(parameters+1, ds);
+    parameters[0] = 0.5;
+  };
+
+};
+
+static TimeDependentParameter::TDPFactory oex("oexp", [](int nb, const QStringList & extra) -> TimeDependentParameter * {
+    OExponentialTDP * tdp = new OExponentialTDP;
+    if(nb <= 0)
+      throw RuntimeError("exp parameter needs a strictly positive number, got %1").
+        arg(nb);
+    tdp->number = nb;
+    tdp->mode = ExponentialTDP::Independent;
+    if(extra.contains("common"))
+      tdp->mode = ExponentialTDP::Common;
+    if(extra.contains("linear"))
+      tdp->mode = ExponentialTDP::Linear;
+    return tdp;
+  }
+);
+
+
+//////////////////////////////////////////////////////////////////////
+
 /// An sum of biexponentials time-dependent parameters
 class BiExponentialTDP : public TimeDependentParameter {
 public:

@@ -115,6 +115,43 @@ protected:
         // I don't like the two steps without being able to know if
         // the two steps are effective...
       }
+      if(specs[0] == "80") {
+        meta["method"] = "chronoamperometry";
+        QStringList sp2 = specs[1].split("/");
+        QList<QVariant> pots, times, dts;
+        double t0 = 0;
+        
+        if(sp2.size() > 0) {
+          int nb = sp2[0].toInt();
+          int base = 1;
+          for(int i = 0; i < nb; i++) {
+            if(base + 6 <= sp2.size()) {
+              double pot = 0.001*sp2[base].toDouble();
+              meta[QString("E_%1").arg(i)] = pot;
+              pots << pot;
+              /// @todo Implement the time units
+              double dt = sp2[base+2].toDouble();
+              dts << dt;
+              meta[QString("delta_t_%1").arg(i)] = dt;
+
+              meta[QString("t_%1").arg(i)] = t0;
+              times << t0;
+
+              double time_res = sp2[base+4].toDouble();
+              meta[QString("res_%1").arg(i)] = time_res;
+              
+              t0 += dt + time_res;
+              
+              base += 6;
+            }
+            else
+              break;
+          }
+          meta["potentials"] = pots;
+          meta["times"] = times;
+          meta["lengths"] = dts;
+        }
+      }
     }
     
     

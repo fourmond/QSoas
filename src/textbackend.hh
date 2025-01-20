@@ -49,6 +49,11 @@ protected:
 
   /// The comments lines
   Regex comments;
+
+  /// Whether to trim by default
+  bool shouldTrim;
+
+  
   virtual int couldBeMine(const QByteArray & peek, 
                           const QString & fileName) const override;
 

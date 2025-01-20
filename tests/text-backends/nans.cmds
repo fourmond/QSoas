@@ -52,10 +52,10 @@ load tst-x.dat
 
 
 ####################
-# Space
+# Space, needs an explicit qsoas backend
 @ inline:generate-nans
 s tst-space.dat /overwrite=true /nan-output=" "
-load tst-space.dat
+load-as-qsoas tst-space.dat
 @ inline:check-nans
 
 
@@ -63,7 +63,7 @@ load tst-space.dat
 # Nothing
 @ inline:generate-nans
 s tst-empty.dat /overwrite=true /nan-output={{empty}}
-load tst-empty.dat
+load-as-qsoas tst-empty.dat
 @ inline:check-nans
 
 

@@ -81,7 +81,9 @@ static void countChars(const QByteArray & peek,
 
 TextBackend::TextBackend(const QString & sep,
                          const char * n, const char * pn, const char * d) : 
-  DataBackend(n, pn, d), separator(sep), comments("{auto}") {
+  DataBackend(n, pn, d), separator(sep), comments("{auto}"),
+  shouldTrim(true)
+{
 }
 
 int TextBackend::couldBeMine(const QByteArray & peek, 
@@ -203,17 +205,9 @@ QList<QList<Vector> > TextBackend::readColumns(QTextStream & s,
   }
 
   Regex sep = separator;
-  // If we have a line starting with ##, we set {tabs} as default
-  QRegExp tryCmts2("(^|\n)\\s*##");
 
-  
-  bool trim = true;
+  bool trim = shouldTrim;
 
-  if(tryCmts2.indexIn(peek) >= 0) {
-    // Using "strict" mode
-    sep = Regex("\t");
-    trim = false;
-  }
 
   updateFromOptions(opts, "separator", sep);
 
@@ -350,6 +344,7 @@ public:
     TextBackend("\t", n, pn, d)
   {
     comments = Regex("/^#/");
+    shouldTrim = false;
   };
 
   int couldBeMine(const QByteArray & peek, 

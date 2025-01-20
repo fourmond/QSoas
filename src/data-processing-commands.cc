@@ -3148,12 +3148,14 @@ avgdOps(QList<Argument *>()
 
 
 static Command 
-avgd("average-duplicates", // command name
+avgd("average-replicates", // command name
      effector(averageDupsCommand), // action
      "math",  // group name
      NULL, // arguments
      &avgdOps, // options
-     "Average duplicates");
+     "Average replicates",
+     "",
+     "average-duplicates");
 
 
 //////////////////////////////////////////////////////////////////////

@@ -1,0 +1,69 @@
+# In this file, we're testing both the output/reloading of NaNs and
+# the possibility of the first column(s) being missing
+
+# Just keep in mind that any complicated output will *NOT* be read
+# back by QSoas unless one invests some effort into writing it
+
+## INLINE: generate-nans
+generate-dataset /samples=51 0 1 x x**2 x**3 x 1
+apply-formula x*=(i%7)*1.0/(i%7);y*=(i%6)*1.0/(i%6);y2*=(i%9)*1.0/(i%9)
+## INLINE END
+
+## INLINE: check-nans
+# Verify we all have the right things
+assert $stats.y5_average-1 0
+
+apply-formula if(i%7);then;x=y4;end;x-=y4
+assert $stats.x_0dev 0
+
+apply-formula if(i%6);then;y=y4;end;y-=y4
+assert $stats.y_0dev 0
+
+apply-formula if(i%9);then;y2=y4**2;end;y2-=y4**2
+assert $stats.y2_0dev 0
+
+assert $stats.rows-51 0
+drop 0..2
+
+strip-if x.nan?||y.nan?
+# 8 for x, 9 for y, 2 in common (0 and 42)
+assert $stats.rows-36 0
+drop
+
+## INLINE END
+
+@ inline:generate-nans
+@ inline:check-nans
+
+
+####################
+# Classical output
+@ inline:generate-nans
+s tst-plain.dat /overwrite=true
+load tst-plain.dat
+@ inline:check-nans
+
+####################
+# A simple X
+@ inline:generate-nans
+s tst-x.dat /overwrite=true /nan-output=x
+load tst-x.dat
+@ inline:check-nans
+
+
+####################
+# Space
+@ inline:generate-nans
+s tst-space.dat /overwrite=true /nan-output=" "
+load tst-space.dat
+@ inline:check-nans
+
+
+####################
+# Nothing
+@ inline:generate-nans
+s tst-empty.dat /overwrite=true /nan-output={{empty}}
+load tst-empty.dat
+@ inline:check-nans
+
+

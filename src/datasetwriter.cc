@@ -58,6 +58,7 @@ void DataSetWriter::writeData(QIODevice * target,
   
   int nb = ds->nbRows();
   for(int i = 0; i < nb; i++) {
+    o << linePrefix;
     if(writeRowNames) {
       for(int rn = 0; rn < ls.size(); rn++) {
         o << ls[rn].value(i,"") << separator;
@@ -66,12 +67,18 @@ void DataSetWriter::writeData(QIODevice * target,
     for(int j = 0; j < ds->columns.size(); j++) {
       if(j)
         o << separator;
-      if(format.isEmpty())
-        o << ds->columns[j][i];
-      else
-        o << Utils::safeAsprintf(format, ds->columns[j][i]);
+      double val = ds->columns[j][i];
+      if(std::isnan(val) && (!nanOutput.isNull())) {
+        o << nanOutput;
+      }
+      else {
+        if(format.isEmpty())
+          o << val;
+        else
+          o << Utils::safeAsprintf(format, val);
+      }
     }
-    o << "\n";
+    o << lineSuffix << "\n";
   }
 }
 
@@ -124,9 +131,21 @@ QList<Argument *> DataSetWriter::writeOptions()
      << new StringArgument("number-format",
                            "Number format",
                            "printf-like format string for numbers")
-     << new StringArgument("comments",
-                           "Comments",
+     << new StringArgument("comment-prefix",
+                           "Comment prefix",
                            "prefix for the comments")
+     << new StringArgument("column-names-prefix",
+                           "Column names",
+                           "prefix for the line containing the column names")
+     << new StringArgument("line-prefix",
+                           "Line prefix",
+                           "prefix at the beginning of data lines")
+     << new StringArgument("line-suffix",
+                           "Line suffix",
+                           "suffix at the beginning of data lines")
+     << new StringArgument("nan-output",
+                           "NaN output",
+                           "special text to represent NaN ({{empty}} for nothing)")
     ;
   return rv;
 }
@@ -137,5 +156,11 @@ void DataSetWriter::setFromOptions(const CommandOptions & opts)
   updateFromOptions(opts, "row-names", writeRowNames);
   updateFromOptions(opts, "separator", separator);
   updateFromOptions(opts, "number-format", format);
-  updateFromOptions(opts, "comments", commentPrefix);
+  updateFromOptions(opts, "comment-prefix", commentPrefix);
+  updateFromOptions(opts, "line-prefix", linePrefix);
+  updateFromOptions(opts, "line-suffix", lineSuffix);
+  updateFromOptions(opts, "column-names-prefix", columnNamesPrefix);
+  updateFromOptions(opts, "nan-output", nanOutput);
+  if(nanOutput == "{{empty}}")
+    nanOutput = "";
 }

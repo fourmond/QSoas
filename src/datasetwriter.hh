@@ -50,11 +50,21 @@ public:
   /// The prefix for comments
   QString commentPrefix;
 
+  /// Prefix at the beginning of the line
+  QString linePrefix;
+
+  /// Suffix at the end of the line
+  QString lineSuffix;
+
   /// The prefix for column names
   QString columnNamesPrefix;
 
   /// A sprintf format for outputting the numbers
   QString format;
+
+  /// Special handling of NaN. If this string isn't NULL,
+  /// then that string is used
+  QString nanOutput;
 
   /// Writes the dataset to the given File.
   void writeDataSet(File * file, const DataSet * dataset) const;

@@ -1,2 +1,5 @@
 run-for-each load-one.cmds data/gen*.dat
 @ output.cmds
+
+# Checking output/reloading of NaNs
+@ nans.cmds

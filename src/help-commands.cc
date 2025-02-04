@@ -272,3 +272,24 @@ static CommandLineOption hlp("--update-documentation", [](const QStringList & ar
     ::exit(0);
   }, 1, "updates the given documentation file");
 
+
+//////////////////////////////////////////////////////////////////////
+
+// Hmmm. This segfaults because it happens too early, before the
+// commands are registered.
+static CommandLineOption syn("--synopsis", [](const QStringList & args) {
+  abort();
+  if(args.size() >= 1) {
+    const QString & name = args[0];
+    Command * cmd = soas().commandContext().namedCommand(name);
+    QTextStream o(stdout);
+    if(! cmd)
+      o << "Could not find command: " << name << endl;
+    else
+      o << "Command: " << cmd->commandName() << " -- "
+        << cmd->publicName() << "\n\n"
+        << "  " << cmd->synopsis(false) << endl;
+    ::exit(0);
+  }
+ }, 1, "gives the synopsis of the given command");
+

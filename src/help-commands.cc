@@ -278,10 +278,11 @@ static CommandLineOption hlp("--update-documentation", [](const QStringList & ar
 // Hmmm. This segfaults because it happens too early, before the
 // commands are registered.
 static CommandLineOption syn("--synopsis", [](const QStringList & args) {
-  abort();
   if(args.size() >= 1) {
     const QString & name = args[0];
-    Command * cmd = soas().commandContext().namedCommand(name);
+    Command * cmd = CommandContext::globalContext()->namedCommand(name);
+    if(! cmd)
+      cmd = CommandContext::fitContext()->namedCommand(name);
     QTextStream o(stdout);
     if(! cmd)
       o << "Could not find command: " << name << endl;

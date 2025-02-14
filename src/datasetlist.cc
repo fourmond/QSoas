@@ -126,6 +126,7 @@ QList<const DataSet *>::const_iterator DataSetList::end() const
 QList<Argument *> DataSetList::listOptions(const QString & txt, bool def,
                                            bool skip)
 {
+  /// @todo This shouldn't be called "buffers"
   QList<Argument *> args;
   if(! skip)
     args << new SeveralDataSetArgument("buffers", 

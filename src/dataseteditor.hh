@@ -34,11 +34,8 @@ private:
 
   DataSetTableModel * model;
 
-  /// The original dataset, not modified
-  const DataSet * source;
-
   /// Setup the frame
-  void setupFrame();
+  void setupFrame(const DataSet * source);
 
   /// The table widget
   QTableView * table;

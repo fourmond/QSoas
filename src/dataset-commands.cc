@@ -2631,22 +2631,29 @@ sP("set-perp", // command name
 //////////////////////////////////////////////////////////////////////
 
 
-static void editCommand(const QString &)
+static void editCommand(const QString &, const CommandOptions & opts)
 {
-  const DataSet * ds = soas().currentDataSet(true);
-  // this seems necessary to work around what appears to be a Qt bug,
-  // a spurious crash on closing edit
-  DatasetEditor * editor = new DatasetEditor(ds);
-  editor->setAttribute(Qt::WA_DeleteOnClose, true);
-  editor->show();
+  DataSetList buffers(opts);
+  DataStackHelper pusher(opts);
+
+  for(const DataSet * ds : buffers) {
+    DatasetEditor * editor = new DatasetEditor(ds);
+    editor->setAttribute(Qt::WA_DeleteOnClose, true);
+    editor->show();
+  }
 }
+
+static ArgumentList 
+edO(QList<Argument *>() 
+    << DataSetList::listOptions("Datasets to edit")
+    );
 
 static Command 
 edit("edit", // command name
-     optionLessEffector(editCommand), // action
+     effector(editCommand), // action
      "buffer",  // group name
      NULL, // arguments
-     NULL, // options
+     &edO, // options
      "Edit dataset",
      "Display a table to edit the dataset");
 
@@ -2655,8 +2662,6 @@ edit("edit", // command name
 static void tweakColumnsCommand(const QString &, 
                                 const CommandOptions & opts)
 {
-  const DataSet * ds = soas().currentDataSet();
-
   /// @todo Swap columns
 
   bool flip = false;

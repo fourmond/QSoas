@@ -31,7 +31,7 @@
 class DataSetTableModel : public QAbstractTableModel {
 protected:
 
-  const DataSet * source;
+  // const DataSet * source;
 
   DataSet * modifiedDataSet;
 
@@ -43,17 +43,17 @@ protected:
   bool editingNames;
 
   void modify() {
-    if(! modifiedDataSet)
-      modifiedDataSet = source->derivedDataSet(".dat");
+    // if(! modifiedDataSet)
+    //   modifiedDataSet = source->derivedDataSet(".dat");
   };
 
 public:
 
   /// Returns the currently displayed dataset.
   const DataSet * currentDataSet() const {
-    if(modifiedDataSet)
-      return modifiedDataSet;
-    return source;
+    // if(modifiedDataSet)
+    return modifiedDataSet;
+    // return source;
   };
 
   void setEditingNames(bool en) {
@@ -99,14 +99,16 @@ public:
   };
 
   explicit DataSetTableModel(const DataSet * ds = NULL) :
-    source(ds), modifiedDataSet(NULL), modified(false),
+    modifiedDataSet(NULL), modified(false),
     editingNames(false)
   {
-    if(! source) {
+    if(! ds) {
       Vector v(1,1);
       modifiedDataSet = new DataSet(QList<Vector>() << v << v);
       modifiedDataSet->name = "edited.dat";
     }
+    else
+      modifiedDataSet = ds->derivedDataSet(".dat");
   };
 
   ~DataSetTableModel() {
@@ -399,11 +401,10 @@ public:
 static SettingsValue<QSize> editorSize("editor/size", QSize(700,500));
 
 
-DatasetEditor::DatasetEditor(const DataSet * ds) : 
-  source(ds)
+DatasetEditor::DatasetEditor(const DataSet * ds) 
 {
   resize(editorSize);
-  setupFrame();
+  setupFrame(ds);
 }
 
 DatasetEditor::~DatasetEditor()
@@ -411,14 +412,17 @@ DatasetEditor::~DatasetEditor()
   editorSize = size();
 }
 
-void DatasetEditor::setupFrame()
+void DatasetEditor::setupFrame(const DataSet * ds)
 {
   QVBoxLayout * layout = new QVBoxLayout(this);
 
   table = new QTableView;
   layout->addWidget(table, 1);
-  model = new DataSetTableModel(source);
+  model = new DataSetTableModel(ds);
   table->setModel(model);
+
+  setWindowTitle(QString("Editing dataset: %1").
+                 arg(model->currentDataSet()->name));
 
   table->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(table,

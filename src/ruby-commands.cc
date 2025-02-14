@@ -943,6 +943,9 @@ static void linearLeastSquaresCommand(const QString &, QString formula,
     /// @todo Hmmm... Is really solve the best name for this ?
     Vector v = col.getColumn(ds);
     double chisq = fcn.solve(v, res, errs);
+    double avg, var;
+    v.stats(&avg, &var);
+    double r_coeff = 1 - chisq/(var*v.size());
     ValueHash results;
     for(int i = 0; i < fcn.parameters(); i++)
         results << fcn.parameterNames()[i] << res[i]
@@ -952,6 +955,7 @@ static void linearLeastSquaresCommand(const QString &, QString formula,
     results << "residuals" << sqrt(chisq);
     results << "point_residuals" << sqrt(chisq/ds->nbRows());
     results << "chi_sqr" << chisq;
+    results << "r_coeff" << r_coeff;
     
     Terminal::out << results.prettyPrint() << endl;
     results.handleOutput(ds, opts);

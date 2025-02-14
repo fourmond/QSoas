@@ -280,16 +280,21 @@ static CommandLineOption hlp("--update-documentation", [](const QStringList & ar
 static CommandLineOption syn("--synopsis", [](const QStringList & args) {
   if(args.size() >= 1) {
     const QString & name = args[0];
-    Command * cmd = CommandContext::globalContext()->namedCommand(name);
-    if(! cmd)
-      cmd = CommandContext::fitContext()->namedCommand(name);
+
     QTextStream o(stdout);
-    if(! cmd)
-      o << "Could not find command: " << name << endl;
-    else
-      o << "Command: " << cmd->commandName() << " -- "
+    int found = 0;
+    for(CommandContext * context : CommandContext::allContexts()) {
+      Command * cmd = context->namedCommand(name);
+      if(! cmd)
+        continue;
+      found += 1;
+      o << "Command: " << cmd->commandName() << " in "
+        << context->contextName() << " context -- "
         << cmd->publicName() << "\n\n"
         << "  " << cmd->synopsis(false) << endl;
+    }
+    if(! found)
+      o << "Could not find command " << name << " in any context" << endl;
     ::exit(0);
   }
  }, 1, "gives the synopsis of the given command");

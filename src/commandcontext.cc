@@ -31,7 +31,7 @@ CommandContext * CommandContext::namedContext(const QString & name,
   if(! availableContexts)
     availableContexts = new QHash<QString, CommandContext*>;
   if(! availableContexts->contains(name))
-    (*availableContexts)[name] = new CommandContext(prefix, rubyClass);
+    (*availableContexts)[name] = new CommandContext(name, prefix, rubyClass);
   return (*availableContexts)[name];
 }
 
@@ -46,12 +46,22 @@ CommandContext * CommandContext::fitContext()
 }
 
 
-CommandContext::CommandContext(const QString & p,
+QList<CommandContext*> CommandContext::allContexts()
+{
+  return { globalContext(), fitContext() };
+}
+
+CommandContext::CommandContext(const QString & n,
+                               const QString & p,
                                const QString & cls) :
-  prefix(p), rubyClass(cls)
+  name(n), prefix(p), rubyClass(cls)
 {
 }
 
+QString CommandContext::contextName() const
+{
+  return name;
+}
 
 Command * CommandContext::namedCommand(const QString & cmd,
                                        bool convert) const

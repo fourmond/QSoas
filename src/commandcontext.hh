@@ -43,6 +43,9 @@ protected:
 
   friend class Command;
 
+  /// The name of the context
+  QString name;
+
 
   /// The prefix for the commands. When this is not empty, the command
   /// can either be given as named, or as prefix+command.
@@ -73,7 +76,8 @@ public:
   static void writeSpecFile(QTextStream & out, bool full);
 
 
-  CommandContext(const QString & prefix, const QString & cls);
+  CommandContext(const QString & name, const QString & prefix,
+                 const QString & cls);
 
   /// Registers the given command within the context
   void registerCommand(Command * command);
@@ -85,6 +89,8 @@ public:
   /// context, including aliases
   QStringList allCommands() const;
 
+
+  QString contextName() const;
 
   /// Returns the list of all the command names, prefixed with the
   /// correct prefix
@@ -125,6 +131,9 @@ public:
 
   /// Returns the context for fit commands
   static CommandContext * fitContext();
+
+  /// Returns the list of all the contexts available
+  static QList<CommandContext *> allContexts();
 
   /// @}
 };

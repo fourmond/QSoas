@@ -432,6 +432,11 @@ namespace Utils {
                                      bool stripBlank = false);
 
 
+  /// @name OS-specific functions
+  ///
+  /// A series of OS-specific functions
+  ///
+  /// @{
 
 
   /// This function returns a caller stack trace. It is not guaranteed
@@ -456,6 +461,11 @@ namespace Utils {
   /// switches.
   void processorUsed(long * user, long * system,
                      long * vCS = NULL, long * iCS = NULL);
+
+  /// Attemps to set the process name
+  void setProcessName(const QString & name);
+
+  /// @}
 
   /// Reverses the order of the list, in place.
   template <class T> void reverseList(QList<T> & list) {

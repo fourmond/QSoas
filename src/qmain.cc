@@ -89,7 +89,19 @@ QString findApplicationPath()
   return pathPtr;
 }
 
-#endif 
+#endif
+
+
+#include <utils.hh>
+
+static CommandLineOption cmd("--process-name",
+                             [](const QStringList & args) {
+                               Utils::setProcessName(args[0]);
+                             }, 1,
+                             "sets the process name");
+
+
+
 int main(int argc, char ** argv)
 {
   const char * qsdebug = getenv("QSOAS_DEBUG");

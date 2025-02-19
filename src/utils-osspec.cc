@@ -106,3 +106,22 @@ void Utils::processorUsed(long * user, long * system,
   }
 #endif
 }
+
+#if defined(Q_OS_LINUX)
+#include <sys/prctl.h>
+#endif
+
+
+void Utils::setProcessName(const QString & name)
+{
+#if defined(Q_OS_LINUX)
+  char buffer[16];
+  memset(buffer, 0, sizeof(buffer));
+  QByteArray bt = name.toLocal8Bit();
+  int sz = std::min(bt.size(), 15);
+  memcpy(buffer, bt.constData(), sz);
+  prctl(PR_SET_NAME, buffer, 0, 0, 0, 0);
+#else
+  // not implemented
+#endif
+}

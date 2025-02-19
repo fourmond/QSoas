@@ -238,12 +238,16 @@ static CommandLineOption rs("--run-script",
                             [](const QStringList & args) {
                               runScript = args;
                               QRegExp re("(.*)\\.[^.]+$");
-                              QString lg;
-                              if(re.indexIn(args[0]) == 0)
-                                lg = re.cap(1) + ".log";
-                              if(lg.isEmpty() || lg == args[0])
-                                lg = args[0] + ".log";
-                              CommandWidget::logFileName = lg;
+                              // Only change if no log file has been
+                              // designated before
+                              if(CommandWidget::logFileName.isEmpty()) {
+                                QString lg;
+                                if(re.indexIn(args[0]) == 0)
+                                  lg = re.cap(1) + ".log";
+                                if(lg.isEmpty() || lg == args[0])
+                                  lg = args[0] + ".log";
+                                CommandWidget::logFileName = lg;
+                              }
                               /// @todo Disable interactive commands when that becomes possible.
                               
                             }, -1, "runs a single script with possible arguments and exits");

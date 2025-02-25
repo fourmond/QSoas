@@ -225,6 +225,15 @@ static void kineticSystemCommand(const QString &, QString file,
                   << sys.toString() << endl;
     Terminal::out << "System parameters: " 
                   << sys.allParameters().join(", ") << endl;
+    QList<Vector> invs = sys.findInvariants();
+    QStringList species = sys.allSpecies();
+    Terminal::out << "Invariants:" << endl;
+    for(const Vector & v : invs) {
+      QStringList coeffs;
+      for(int i = 0; i < species.size(); i++)
+        coeffs << QString("%1 c_%2").arg(v[i]).arg(species[i]);
+      Terminal::out << " * " << coeffs.join(" + ") << endl;
+    }
     return;
   }
   

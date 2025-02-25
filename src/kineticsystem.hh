@@ -2,7 +2,7 @@
    \file kineticsystem.hh 
    Handling of arbitrary kinetic systems
 
-   Copyright 2012, 2013, 2014, 2015 by CNRS/AMU
+   Copyright 2012, 2013, 2014, 2015, 2025 by CNRS/AMU
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ class Expression;
 class Species;
 class Reaction;
 class RedoxReaction;
+class Vector;
 
 
 /// The KineticSystem, a class that parses a chemical description of a
@@ -345,6 +346,11 @@ public:
   /// Takes also an extra list of parameters
   void prepareForSteadyState(const QStringList & extra = QStringList());
 
+
+  /// Computes the invariants of the system. It returns a series of
+  /// vectors representing linear combinations of the concentrations
+  /// that are conserved.
+  QList<Vector> findInvariants() const;
 
   /// Sets up the cache for the linear jacobian. Returns false, if,
   /// for any reason, the cache could not be setup.

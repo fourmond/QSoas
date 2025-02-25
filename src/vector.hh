@@ -291,7 +291,6 @@ public:
   /// Constructs from a GSL vector
   /// @todo make a constructor ?
   static Vector fromGSLVector(const gsl_vector * vect);
-  
   /// @}
 
   /// Returns the list of formatted texts.

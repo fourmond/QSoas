@@ -1,6 +1,6 @@
 /*
   kineticsystem.cc: implementation of KineticSystem
-  Copyright 2012, 2013, 2014, 2015 by CNRS/AMU
+  Copyright 2012, 2013, 2014, 2015, 2025 by CNRS/AMU
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #include <functions.hh>
 #include <file.hh>
 
+#include <gsl-types.hh>
 
 
 
@@ -799,7 +800,6 @@ void KineticSystem::cacheRateConstants(const gsl_vector * concentrations,
   // Compute the cycles
   for(const Cycle & c : cycles)
     c.computeRateConstant();
-  
 }
 
 void KineticSystem::computeLinearJacobian(gsl_matrix * target,
@@ -1263,4 +1263,105 @@ QSet<QString> KineticSystem::exchangeRates() const
   }
 
   return ret;
+}
+
+#include <gsl/gsl_permute_vector.h>
+
+QList<Vector> KineticSystem::findInvariants() const
+{
+  // We represent the time derivative of the system using a matrix
+  // times the vector of the net rates of all the reactions.
+  //
+  // Then we perform Gauss-Jordan elimination of the rows of the
+  // matrix in order to find linear combination of rows which have a
+  // null time evolution
+
+  int sp = speciesNumber();
+  int rc = reactions.size();
+
+  GSLMatrix mat(sp, rc);
+  GSLMatrix combinations(sp, sp);
+  GSLPermutation perm(sp);
+  gsl_permutation_init(perm);
+
+  
+  gsl_matrix_set_zero(mat);
+  gsl_matrix_set_identity(combinations);
+
+  // First, fill the matrix
+  int col = 0;
+  for(const Reaction * r : reactions) {
+    for(int i = 0; i < r->speciesIndices.size(); i++) {
+      int sp = r->speciesIndices[i];
+      gsl_matrix_set(mat, sp, col,
+                     mat.value(sp, col) + 
+                     r->speciesStoechiometry[i]);
+    }
+    col += 1;
+  }
+
+  QTextStream o(stdout);
+  o << "Reaction matrix: " << endl;
+  o << Utils::matrixString(mat) << endl;
+
+  // Now the elimination proper
+  int top = 0, left = 0;        // position of the top-left corner
+  while(top < sp) {
+    // Find the first non-zero element
+    while(left < rc) {
+      bool found = false;
+      for(int i = top; i < sp; i++) {
+        if(mat.value(i, left) != 0) {
+          // Found, need to swap if i != top
+          if(i > top) {
+            gsl_permutation_swap(perm, i, top);
+            gsl_matrix_swap_rows(mat, i, top);
+            gsl_matrix_swap_rows(combinations, i, top);
+            gsl_matrix_swap_columns(combinations, i, top);
+          }
+          found = true;
+          break;
+        }
+      }
+      if(found)
+        break;
+      left += 1;
+    }
+    if(left >= rc) {
+      break;                    // Finished, and everything else is 0
+    }
+
+    // OK, so now, top/left is the first non-null element.
+    // Elimination
+    gsl_vector_const_view source = gsl_matrix_const_row(mat, top);
+    gsl_vector_const_view s2 = gsl_matrix_const_row(combinations, top);
+    double coeff = 1/mat.value(top, left);
+    for(int i = top + 1; i < sp; i++) {
+      gsl_vector_view tgt = gsl_matrix_row(mat, i);
+      gsl_vector_view tgt2 = gsl_matrix_row(combinations, i);
+      double bs = -mat.value(i, left) * coeff;
+      gsl_blas_daxpy(bs, &source.vector, &tgt.vector);
+
+      // Then copying the effect on the combination matrix
+      gsl_blas_daxpy(bs, &s2.vector, &tgt2.vector);
+    }
+    top += 1;
+  }
+
+  o << "Eliminated matrix: " << endl;
+  o << Utils::matrixString(mat) << endl;
+
+  o << "Combinations matrix: " << endl;
+  o << Utils::matrixString(combinations) << endl;
+
+  o << "The elements from " << top << " are 0" << endl;
+
+  QList<Vector> vects;
+  for(; top < sp; top++) {
+    gsl_vector_view row = gsl_matrix_row(combinations, top);
+    gsl_permute_vector_inverse(perm, &row.vector);
+    vects << Vector::fromGSLVector(&row.vector);
+  }
+
+  return vects;
 }

@@ -1300,9 +1300,9 @@ QList<Vector> KineticSystem::findInvariants() const
     col += 1;
   }
 
-  QTextStream o(stdout);
-  o << "Reaction matrix: " << endl;
-  o << Utils::matrixString(mat) << endl;
+  // QTextStream o(stdout);
+  // o << "Reaction matrix: " << endl;
+  // o << Utils::matrixString(mat) << endl;
 
   // Now the elimination proper
   int top = 0, left = 0;        // position of the top-left corner
@@ -1348,13 +1348,13 @@ QList<Vector> KineticSystem::findInvariants() const
     top += 1;
   }
 
-  o << "Eliminated matrix: " << endl;
-  o << Utils::matrixString(mat) << endl;
+  // o << "Eliminated matrix: " << endl;
+  // o << Utils::matrixString(mat) << endl;
 
-  o << "Combinations matrix: " << endl;
-  o << Utils::matrixString(combinations) << endl;
+  // o << "Combinations matrix: " << endl;
+  // o << Utils::matrixString(combinations) << endl;
 
-  o << "The elements from " << top << " are 0" << endl;
+  // o << "The elements from " << top << " are 0" << endl;
 
   QList<Vector> vects;
   for(; top < sp; top++) {

@@ -1,0 +1,109 @@
+# This is a file used to see if QSoas correctly detects the invariants
+# of various kinetic systems
+
+## INLINE: t1.qss
+A -> B
+## INLINE END
+
+generate-dataset 0 1
+kinetic-system /dump=true inline:t1.qss
+# Invariant: c_A + c_B
+
+####################
+
+## INLINE: t2.qss
+A -> B
+B -> A
+## INLINE END
+
+kinetic-system /dump=true inline:t2.qss
+# Invariant: c_A + c_B
+
+####################
+
+## INLINE: t3.qss
+A -> B
+B -> C
+## INLINE END
+
+kinetic-system /dump=true inline:t3.qss
+# Invariant: c_A + c_B + c_C
+
+####################
+
+## INLINE: t4.qss
+E + S -> ES
+ES -> P + E
+## INLINE END
+
+kinetic-system /dump=true inline:t4.qss
+# Invariants:
+# * c_E + c_ES
+# * c_S + c_ES + c_P
+
+####################
+
+## INLINE: t5.qss
+ES -> P + E
+E + S -> ES
+## INLINE END
+
+kinetic-system /dump=true inline:t5.qss
+# Invariants:
+# * c_E + c_ES
+# * c_S + c_ES + c_P
+
+####################
+
+## INLINE: t6.qss
+E + S -> ES1
+ES1 -> ES2
+ES2 -> ES3
+ES3 -> ES1
+ES3 -> ES4
+ES4 -> E + P
+## INLINE END
+
+kinetic-system /dump=true inline:t6.qss
+# Invariants:
+# * c_E + c_ES1 + c_ES2 + c_ES2 + c_ES4
+# * c_S - c_E + c_P
+
+####################
+
+## INLINE: t7.qss
+ES3 -> ES4
+ES1 -> ES2
+ES4 -> E + P
+ES2 -> ES3
+ES3 -> ES1
+E + S -> ES1
+## INLINE END
+
+kinetic-system /dump=true inline:t7.qss
+# Invariants:
+# * c_E + c_ES1 + c_ES2 + c_ES2 + c_ES4
+# * c_S - c_E + c_P
+
+
+####################
+
+## INLINE: t8.qss
+A + B -> C + C
+## INLINE END
+
+kinetic-system /dump=true inline:t8.qss
+# Invariants:
+# * c_A + c_B + c_C
+# * c_A - c_B
+
+####################
+
+## INLINE: t9.qss
+A + B -> C
+## INLINE END
+
+kinetic-system /dump=true inline:t9.qss
+# Invariants:
+# * c_A + c_C
+# * c_A - c_B

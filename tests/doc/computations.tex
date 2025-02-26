@@ -78,6 +78,10 @@ linkcolor=blue]{hyperref}
 \newcommand\testvalues[2]{\textcolor{red}{Compile with
     \texttt{generate-docs} to have the results of the tests}}
 
+\def\resultfailed{\textcolor{red}}
+\def\resultimprecision{\textcolor{Orange}}
+\def\resultpass{\textcolor{Green}}
+
 \begin{document}
 
 \begin{abstract}
@@ -89,8 +93,8 @@ linkcolor=blue]{hyperref}
 
 \listoftodos
 
-\todo[inline]{I think this document should also register the quality
-  that \QSoas{} is currently attaining too.}
+%% \todo[inline]{I think this document should also register the quality
+%%   that \QSoas{} is currently attaining too.}
 
 \section{Simple mathematical operations}
 

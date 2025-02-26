@@ -82,6 +82,8 @@ def find_all_items(selection)
   return rv
 end
 
+# p $datasets
+# exit
 
 def find_items(selection, dataset)
   ls = selection.split(/\s*;\s*/)
@@ -115,6 +117,7 @@ def find_items(selection, dataset)
       rv << d
     end
   end
+  # p rv
   return rv
 end
 
@@ -131,18 +134,25 @@ def decorate_key(el, spec)
     if val.respond_to?(:gsub)
       val.gsub!(/_/,'\_')
     end
+    rv = ""
     if cmd
       if cmd == "num"
         begin
           val = Float(el[k].to_f)
           val = "%2.4g" % val
-          return "\\#{cmd}{#{val}}"
+          rv = "\\#{cmd}{#{val}}"
         rescue
         end
+      else
+        rv = "\\#{cmd}{#{el[k]}}"
       end
-      return "\\#{cmd}{#{el[k]}}"
     else
-      return el[k]
+      rv =  el[k]
+    end
+    if k == "value"
+      return "\\result#{el['result']}{#{rv}}"
+    else
+      return rv
     end
   else
     return "missing"
@@ -298,7 +308,8 @@ for l in STDIN
   if $res && (preamble || in_test || write)
     $res.puts l.gsub('a4paper', 'a3paper,landscape=true')
   end
-  l.gsub!(/\\testtabular\{([^}]+)\}\{([^}]+)\}\{([^}]+)\}/) do |x|
+  l.gsub!(/\\testtabular\{(.+)\}\{(.+)\}\{(.+)\}/) do |x|
+    $stderr.puts "Found tabular:\n * selection: #{$1}\n * cols: #{$2}\n * values: #{$3}"
     make_tabular($1, $2, $3)
   end
   puts l

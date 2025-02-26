@@ -2636,8 +2636,15 @@ static void editCommand(const QString &, const CommandOptions & opts)
   DataSetList buffers(opts);
   DataStackHelper pusher(opts);
 
+  int nb = 0;
   for(const DataSet * ds : buffers) {
     DatasetEditor * editor = new DatasetEditor(ds);
+    editor->setAttribute(Qt::WA_DeleteOnClose, true);
+    editor->show();
+    nb += 1;
+  }
+  if(nb == 0) {
+    DatasetEditor * editor = new DatasetEditor(NULL);
     editor->setAttribute(Qt::WA_DeleteOnClose, true);
     editor->show();
   }

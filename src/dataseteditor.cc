@@ -360,9 +360,13 @@ public:
       modifiedDataSet->insertRow(row, 0);
     endInsertRows();
   };
-
+  
   void removeRow(const QModelIndex & index) {
     int row = index.row();
+    removeRow(row);
+  };
+
+  void removeRow(int row) {
     const DataSet * ds = currentDataSet();
     if(editingNames)
       row -= 2;
@@ -377,6 +381,10 @@ public:
 
   void removeColumn(const QModelIndex & index) {
     int column = index.column();
+    removeColumn(column);
+  };
+  
+  void removeColumn(int column) {
     const DataSet * ds = currentDataSet();
     if(editingNames)
       column -= 1;
@@ -389,7 +397,31 @@ public:
     endRemoveColumns();
   };
 
-    
+  /// Remove all the given columns
+  void removeColumns(const QModelIndexList & lst) {
+    QSet<int> cols;
+    for(const QModelIndex & idx : lst)
+      cols << idx.column();
+    QList<int> cl = cols.values();
+    std::sort(cl.begin(), cl.end(), [](int a, int b) -> bool {
+      return a > b;
+    });
+    for(int i : cl)
+      removeColumn(i);
+  };
+
+  /// Remove all the given rows
+  void removeRows(const QModelIndexList & lst) {
+    QSet<int> rows;
+    for(const QModelIndex & idx : lst)
+      rows << idx.row();
+    QList<int> rw = rows.values();
+    std::sort(rw.begin(), rw.end(), [](int a, int b) -> bool {
+      return a > b;
+    });
+    for(int i : rw)
+      removeRow(i);
+  };
 
   /// @}
 
@@ -480,6 +512,8 @@ void DatasetEditor::contextMenuOnTable(const QPoint& pos)
     menu->addAction(action);
   };
 
+  QModelIndexList selected = table->selectionModel()->selectedIndexes();
+
   QMenu sub("Insert Column");
   addAction(&sub, "Left", [this] {
     model->insertColumns(table->currentIndex(), true);
@@ -507,6 +541,14 @@ void DatasetEditor::contextMenuOnTable(const QPoint& pos)
   addAction(&sub3, "Current column", [this] {
     model->removeColumn(table->currentIndex());
   });
+  sub3.addSeparator();
+  addAction(&sub3, "Selected rows", [this, selected] {
+    model->removeRows(selected);
+  });
+  addAction(&sub3, "Selected columns", [this, selected] {
+    model->removeColumns(selected);
+  });
+  
 
   menu.addMenu(&sub3);
 

@@ -89,7 +89,6 @@ public:
       *standard = QString();
       *real = QString();
     }
-      
   };
 
   static QString rowName(const DataSet * ds, int row) {
@@ -423,6 +422,59 @@ public:
       removeRow(i);
   };
 
+  void removeAndShift(const QModelIndex & idx, bool shiftLeft) {
+    const DataSet * ds = currentDataSet();
+    int row = idx.row();
+    int col = idx.column();
+    if(editingNames) {
+      row -= 2;
+      col -= 1;
+    }
+    int nbR = ds->nbRows(),
+      nbC = ds->nbColumns();
+    if(row < 0 || row >= nbR || col < 0 || col >= nbC)
+      return;
+    modify();
+    modified = true;
+
+    if(shiftLeft) {
+      for(int i = col; i < nbC; i++) {
+        double v = 0;
+        if(i + 1 < nbC)
+          v = modifiedDataSet->column(i+1)[row];
+        modifiedDataSet->column(i)[row] = v;
+      }
+      emit(dataChanged(idx, idx.sibling(idx.row(), nbC)));
+    }
+    else {
+      Vector & cl = modifiedDataSet->column(col);
+      for(int i = row; i < nbR; i++) {
+        double v = cl.value(i+1, 0);
+        cl[i] = v;
+      }
+      emit(dataChanged(idx, idx.sibling(nbR, idx.column())));
+    }
+  };
+
+  void removeAndShift(QModelIndexList list, bool shiftLeft) {
+    if(shiftLeft) {
+      std::sort(list.begin(), list.end(),
+                [](const QModelIndex & a, const QModelIndex & b) -> bool {
+                  return a.column() > b.column();
+                });
+      for(const QModelIndex & idx : list)
+        removeAndShift(idx, shiftLeft);
+    }
+    else {
+      std::sort(list.begin(), list.end(),
+                [](const QModelIndex & a, const QModelIndex & b) -> bool {
+                  return a.row() > b.row();
+                });
+      for(const QModelIndex & idx : list)
+        removeAndShift(idx, shiftLeft);
+    }
+  };
+
   /// @}
 
 };
@@ -548,9 +600,19 @@ void DatasetEditor::contextMenuOnTable(const QPoint& pos)
   addAction(&sub3, "Selected columns", [this, selected] {
     model->removeColumns(selected);
   });
-  
 
   menu.addMenu(&sub3);
+  
+  QMenu sub4("Remove cells");
+  addAction(&sub4, "and shift left", [this, selected] {
+    model->removeAndShift(selected, true);
+  });
+  addAction(&sub4, "and shift up", [this, selected] {
+    model->removeAndShift(selected, false);
+  });
+  
+  menu.addMenu(&sub4);
+
 
   menu.exec(table->viewport()->mapToGlobal(pos));
 }

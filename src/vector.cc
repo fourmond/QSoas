@@ -904,8 +904,12 @@ Vector Vector::integrateVector(const Vector & x, const Vector & y, int idx)
     throw RuntimeError("X and Y vectors must have same size (%1 vs %2)").
       arg(x.size()).arg(sz);
   
-  if(idx < 0 || idx >= sz)
+  if(idx < 0)
     idx = 0;
+  if(idx + 2 > sz)
+    throw RuntimeError("Vectors must have at least 2 points after "
+                       "the starting index: size %2, start %1").
+      arg(idx).arg(sz);
   double sum = 0;
   Vector re = x;
   re[idx] = 0;

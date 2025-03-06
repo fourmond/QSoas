@@ -67,8 +67,9 @@ void RubyODESolver::parseFromFile(QIODevice * file)
 
   QList<QStringList> sections = Utils::splitOn(lines, blnk);
   if(sections.size() < 2)
-    throw RuntimeError("File does not contain two sections "
-                       "separated by a fully blank line");
+    throw RuntimeError("ODE definition file '%1' should contain at least two sections "
+                       "separated by a fully blank line").
+      arg(Utils::fileName(file));
   
   parseSystem(sections[0].join("\n"), 
               sections[1].join("\n"), 

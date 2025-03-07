@@ -205,16 +205,16 @@ void CurveData::paint(QPainter * painter, const QRectF &,
   painter->save();
   painter->setPen(pen);
 
-  PointIterator it(xvalues, yvalues, 
-                   histogram ? PointIterator::Steps : PointIterator::Normal);
-  if((!histogram) &&
-     (xvalues.isJaggy(100) || yvalues.isJaggy(100))
-     ) {
+  if(xvalues.isJaggy(80) || yvalues.isJaggy(80)) {
+    // Drawing points no matter what
+    PointIterator it(xvalues, yvalues, PointIterator::Normal);
     while(it.hasNext())
       CurveMarker::paintMarker(painter, it.next(ctw),
                                CurveMarker::Circle, 2.5);
   }
   else {
+    PointIterator it(xvalues, yvalues, 
+                     histogram ? PointIterator::Steps : PointIterator::Normal);
     QPainterPath pp;
     it.addToPath(pp, ctw);
     painter->drawPath(pp);

@@ -745,9 +745,9 @@ CommandWidget::runCommandFile(QIODevice * source,
         bool subsPresent = true;
         if(argn < 0) {
           paramName = substitutionRE.cap(1);
-          subsPresent = soas().parameters.contains(paramName);
+          subsPresent = Soas::hasParameter(paramName);
           if(subsPresent)
-            paramValue = soas().parameters[paramName];
+            paramValue = Soas::getParameter(paramName);
         }
         else {
           paramName = QString::number(argn + 1);

@@ -53,17 +53,22 @@ class Soas {
   /// interactive commands, prompting, and just waiting is disabled.
   bool headless;
 
+  static QHash<QString, QString> * globalParameters;
 
 public:
 
-  /// Defined parameters. ONLY AVAILABLE IN THE SCRIPTS for now
-  QHash<QString, QString> parameters;
+  /// Whether the repository of global parameters contains the given
+  /// name
+  static bool hasParameter(const QString & name);
 
+  /// Get the value of the given parameter
+  static QString getParameter(const QString & name);
+  
   /// Sets the given parameter. If @a redefine is false, then the
   /// value is not updated if it's already present
-  void setParameter(const QString & name,
-                    const QString & value,
-                    bool redefine = true);
+  static void setParameter(const QString & name,
+                           const QString & value,
+                           bool redefine = true);
 
 
   /// @a Storage space for the number of exceptions raised
@@ -79,7 +84,7 @@ public:
   int headlessErrors = 0;
 
   /// Returns a string reporting on the current errors
-  QString errorReport() const;
+   QString errorReport() const;
   /// @}
   
 
@@ -90,10 +95,12 @@ public:
     mw = m;
   };
 
-  static Soas * soasInstance() {
+  /// Returns the Soas instance, creating it if necessary.
+  static Soas * soasInstance()  {
     return theSoasInstance;
   };
 
+  
   /// Shows a message in the main window status bar.
   void showMessage(const QString &str, int ms = 3000);
 

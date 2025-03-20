@@ -80,12 +80,32 @@ Soas::~Soas()
   delete gs;
 }
 
+QHash<QString, QString> * Soas::globalParameters = NULL;
+
+bool Soas::hasParameter(const QString & name)
+{
+  if(! globalParameters)
+    return false;
+  return globalParameters->contains(name);
+}
+
+QString Soas::getParameter(const QString & name)
+{
+  if(! globalParameters)
+    return QString();
+  return globalParameters->value(name, QString());
+}
+
+
 void Soas::setParameter(const QString & name,
                         const QString & value,
                         bool redefine)
 {
-  if(redefine || (! parameters.contains(name)))
-    parameters[name] = value;
+  if(redefine || (! hasParameter(name))) {
+    if(! globalParameters)
+      globalParameters = new QHash<QString, QString>();
+    (*globalParameters)[name] = value;
+  }
 }
 
 void Soas::enterPrompt(CommandWidget * prompt)
@@ -283,3 +303,9 @@ static CommandLineOption v("--version", [](const QStringList & /*args*/) {
     }
     ::exit(0);
   }, 0, "display QSoas version");
+
+
+static CommandLineOption l("--let",
+                           [](const QStringList & args) {
+                             soas().setParameter(args[0], args[1]);
+  }, 2, "sets the given parameter (as with the let command)");

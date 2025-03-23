@@ -1,0 +1,19 @@
+# This computes a series of values of current in a slow diffusive
+# catalytic system.
+# Or something similar at least.
+
+# Run with something like:
+# QSoas --processes 2 --multi-run compute-values.cmds 1e-2..1e2:31log
+
+## INLINE: compute-one
+# Takes two parameters:
+# ${1}: kr
+# ${2}: kc
+eval $kr=${1};$kc=${2}
+generate-dataset 0 10
+reverse-laplace $kr*(s+$kc)**0.5/(s*($kr+(s+$kc)**0.5))
+eval kr:$kr kc:$kc current:$stats.y_last /output=true
+## INLINE END
+
+output current-${iteration}.dat
+run-for-each /arg2=${1} /range-type=log inline:compute-one 1e-2..1e2:31

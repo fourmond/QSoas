@@ -1125,11 +1125,21 @@ mr("multi-run", // command name
 static int processNumber = -1;
 
 static CommandLineOption
-mrp("--processes",
+mrp("--multi-run-processes",
     [](const QStringList & args) {
       ::processNumber = args[0].toInt();
     }, 1,
     "sets the number of parallel processes to run for --multi-run");
+
+
+static int mrSkip = -1;
+
+static CommandLineOption
+mrs("--multi-run-skip",
+    [](const QStringList & args) {
+      ::mrSkip = args[0].toInt();
+    }, 1,
+    "sets the number of skipped iterations of --multi-run");
 
 
 
@@ -1189,7 +1199,7 @@ mrr("--multi-run",
 
       int idx = 0;
 
-      int skip = 0;
+      int skip = ::mrSkip;
 
       int nbDigits = (int)ceil(log10(total+1));
 

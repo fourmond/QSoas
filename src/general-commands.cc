@@ -1143,121 +1143,120 @@ mrs("--multi-run-skip",
 
 
 
+static void multiProcessMultiRun(const QStringList & cmds)
+{
+  QStringList args = cmds;
+  QString script = args.takeFirst();
+  QString scriptBase;
+  QRegExp re("(.*)\\.[^.]+$");
+      
+  if(re.indexIn(script) == 0)
+    scriptBase = re.cap(1);
+  else
+    scriptBase = script;
+
+  Regex sep("/\\s*,\\s*/");
+
+
+  // OK, this is copy-pasted from multi-run, but I guess it's hard to share
+  // more
+  int total = 1;
+  int indices[args.size()];
+  int sz[args.size()];
+
+  QList<QStringList> arguments = parseMultipleArguments(args, sep);
+  int i = 0;
+  QTextStream o(stdout);
+  for(const QStringList & ca : arguments) {
+    o << "Arg #" << i << "'s values: '" << ca.join("', '") << "'\n";
+    total *= ca.size();
+    indices[i] = 0;
+    sz[i] = ca.size();
+    i += 1;
+  }
+  o << "Total: " << total << " combinations" << endl;
+
+  QString qsoasPath = QCoreApplication::applicationFilePath();
+  o << "QSoas file path found: " << qsoasPath << endl;
+
+  int nbProcesses = ::processNumber;
+  if(nbProcesses < 0)
+    nbProcesses = QThread::idealThreadCount()/2 + 1;
+  if(nbProcesses <= 0)
+    nbProcesses = 1;
+
+  /// The list of current processes
+  QList<QProcess*> currentProcesses;
+
+  auto waitForProcesses = [&currentProcesses](int delay) {
+                            for(int i = currentProcesses.size() - 1; i >= 0; i--) {
+                              if(currentProcesses[i]->waitForFinished(delay)) {
+                                delete currentProcesses.takeAt(i);
+                              }
+                            }
+                          };
+
+  int idx = 0;
+
+  int skip = ::mrSkip;
+
+  int nbDigits = (int)ceil(log10(total+1));
+
+  while(indices[0] < sz[0]) {
+    for(int i = 0; i < args.size(); i++)
+      args[i] = arguments[i][indices[i]];
+
+    while(currentProcesses.size() >= nbProcesses)
+      waitForProcesses(1);  // 1 ms is not too expensive I guess
+
+    QString iteration = QString("%1").
+      arg(idx++, nbDigits, 10, QChar('0'));
+
+    o << "Starting multi-run process: " << iteration << "/"
+      << total << endl;
+    
+    o << "Args: '" << args.join("', '") << "'" << endl;
+    if(idx < skip)
+      o << " -> skipping until " << skip << endl;
+    else {
+
+      // First let's try
+      QProcess * process = new QProcess;
+      process->setProcessChannelMode(QProcess::ForwardedChannels);
+      QString logFile = scriptBase + "-" + iteration + ".log";
+
+      QStringList aP;
+      aP << "-platform" << "offscreen"
+         << "--headless" << "--log" << logFile
+         << "--let" << "iteration" << iteration
+         << "--run-script" << script;
+      aP += args;
+          
+      process->start(qsoasPath, aP);
+      currentProcesses << process;
+    }
+        
+    int lst = arguments.size() - 1;
+    while(true) {
+      indices[lst]++;
+      if(indices[lst] >= sz[lst] && lst > 0) {
+        indices[lst] = 0;
+        lst--;
+      }
+      else
+        break;
+    }
+  }
+  waitForProcesses(-1);
+}
+
 static CommandLineOption
 mrr("--multi-run",
     [](const QStringList & cmds) {
-      QStringList args = cmds;
-      QString script = args.takeFirst();
-      QString scriptBase;
-      QRegExp re("(.*)\\.[^.]+$");
-      
-      if(re.indexIn(script) == 0)
-        scriptBase = re.cap(1);
-      else
-        scriptBase = script;
-
-      Regex sep("/\\s*,\\s*/");
-
-
-      // OK, this is copy-pasted from multi-run, but I guess it's hard to share
-      // more
-      int total = 1;
-      int indices[args.size()];
-      int sz[args.size()];
-
-      QList<QStringList> arguments = parseMultipleArguments(args, sep);
-      int i = 0;
-      QTextStream o(stdout);
-      for(const QStringList & ca : arguments) {
-        o << "Arg #" << i << "'s values: '" << ca.join("', '") << "'\n";
-        total *= ca.size();
-        indices[i] = 0;
-        sz[i] = ca.size();
-        i += 1;
-      }
-      o << "Total: " << total << " combinations" << endl;
-
-      QString qsoasPath = QCoreApplication::applicationFilePath();
-      o << "QSoas file path found: " << qsoasPath << endl;
-
-      int nbProcesses = ::processNumber;
-      if(nbProcesses < 0)
-        nbProcesses = QThread::idealThreadCount()/2 + 1;
-      if(nbProcesses <= 0)
-        nbProcesses = 1;
-
-      /// The list of current processes
-      QList<QProcess*> currentProcesses;
-
-      auto waitForProcesses = [&currentProcesses](int delay) {
-        for(int i = currentProcesses.size() - 1; i >= 0; i--) {
-          if(currentProcesses[i]->waitForFinished(delay)) {
-            delete currentProcesses.takeAt(i);
-          }
-        }
-      };
-
-      int idx = 0;
-
-      int skip = ::mrSkip;
-
-      int nbDigits = (int)ceil(log10(total+1));
-
-      while(indices[0] < sz[0]) {
-        for(int i = 0; i < args.size(); i++)
-          args[i] = arguments[i][indices[i]];
-
-        while(currentProcesses.size() >= nbProcesses)
-          waitForProcesses(1);  // 1 ms is not too expensive I guess
-
-        QString iteration = QString("%1").
-          arg(idx++, nbDigits, 10, QChar('0'));
-
-        o << "Starting multi-run process: " << iteration << "/"
-          << total << endl;
-    
-        o << "Args: '" << args.join("', '") << "'" << endl;
-        if(idx < skip)
-          o << " -> skipping until " << skip << endl;
-        else {
-
-          // First let's try
-          QProcess * process = new QProcess;
-          process->setProcessChannelMode(QProcess::ForwardedChannels);
-          QString logFile = scriptBase + "-" + iteration + ".log";
-
-          QStringList aP;
-          aP << "-platform" << "offscreen"
-             << "--headless" << "--log" << logFile
-             << "--let" << "iteration" << iteration
-             << "--run-script" << script;
-          aP += args;
-          
-          process->start(qsoasPath, aP);
-          currentProcesses << process;
-        }
-        
-        int lst = arguments.size() - 1;
-        while(true) {
-          indices[lst]++;
-          if(indices[lst] >= sz[lst] && lst > 0) {
-            indices[lst] = 0;
-            lst--;
-          }
-          else
-            break;
-        }
-      }
-      waitForProcesses(-1);
+      multiProcessMultiRun(cmds);
       ::exit(0);
     }, -1,
     "runs a script with parallel independent instances of QSoas");
-
-
-
-
-
-
 
 //////////////////////////////////////////////////////////////////////
 

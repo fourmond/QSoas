@@ -503,7 +503,7 @@ protected:
         double denom = sqrt_eps + sqrt_k + 1/sqrt_eps;
         double spec = scan_rate * GSL_CONST_MKSA_FARADAY * 
           fara * gamma * sqrt_k * (sqrt_eps + 4/sqrt_k + 1/sqrt_eps)/
-          (denom * denom);
+          (denom * denom) * sign;
         if(annotations)
           (*annotations)[j][i] = spec;
         cur += spec;
@@ -551,7 +551,7 @@ public:
 
   virtual bool hasSubFunctions (FitData * data) const override {
     Storage * s = storage<Storage>(data);
-    return s->number > 1;
+    return s->number + s->twoElectrons > 1;
   };
 
   virtual bool displaySubFunctions (FitData *) const override {

@@ -147,7 +147,7 @@ QStringList DataSetExpression::dataSetParameters(const DataSet * ds,
   QStringList vars;
   vars << "i" << "seg" << "x_0" << "i_0" << "x_n" << "i_n";
   if(xyz) {
-    vars << "j" << "x" << "z";
+    vars << "j" << "x" << "z" << "y";
   }
   else {
     QStringList colNames;
@@ -223,6 +223,7 @@ bool DataSetExpression::nextValues(double * args, int * idx, int * colIdx)
     args[0] = colIndex;
     args[1] = dataset->x()[index];
     args[2] = dataset->perpendicularCoordinates().value(colIndex, colIndex);
+    args[3] = dataset->column(colIndex+1)[index];
   }
   else {
     for(int j = 0; j < dataset->nbColumns(); j++)

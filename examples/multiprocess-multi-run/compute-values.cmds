@@ -3,7 +3,9 @@
 # Or something similar at least.
 
 # Run with something like:
-# QSoas --processes 2 --multi-run compute-values.cmds 1e-2..1e2:31log
+# QSoas -platform offscreen --multi-run-processes 8 --multi-run compute-values.cmds 1e-2..1e2:31log
+# 
+# See also --multi-run-skip
 
 ## INLINE: compute-one
 # Takes two parameters:
@@ -15,5 +17,5 @@ reverse-laplace $kr*(s+$kc)**0.5/(s*($kr+(s+$kc)**0.5))
 eval kr:$kr kc:$kc current:$stats.y_last /output=true
 ## INLINE END
 
-output current-${iteration}.dat
+output current-${iteration}.dat /overwrite=true
 run-for-each /arg2=${1} /range-type=log inline:compute-one 1e-2..1e2:31
